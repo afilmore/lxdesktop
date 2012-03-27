@@ -156,19 +156,28 @@ namespace Desktop {
                 Desktop.Window desktop = new Desktop.Window ();
                 desktop.create (_debug_mode);
             
-                /*******************************************************************************************************
-                 * Add the dektop window to the window array and to the window group...
-                 * 
-                 * 
-                desktops[i] = desktop;
-                win_group.add_window (desktop);
+                //desktops[i] = desktop;
+                //win_group.add_window (desktop);
                 
-                */      
 
                 Gtk.TreeIter it;
                 Gdk.Pixbuf icon;
                 Fm.FileInfo fi;
                 
+                Gtk.IconTheme icon_theme;
+                Gdk.Pixbuf pixbuf;
+                icon_theme = Gtk.IconTheme.get_default ();
+                pixbuf = icon_theme.load_icon ("user-trash",
+                                               global_config.big_icon_size,
+                                               Gtk.IconLookupFlags.FORCE_SIZE);
+                
+                Desktop.Item special = new Desktop.Item (pixbuf);
+                
+                // append an item into the grid
+                desktop.get_grid ().append_item (special);
+                        
+
+
                 if (global_model.get_iter_first (out it)) {
                     do {
                         

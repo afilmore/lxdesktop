@@ -19,6 +19,7 @@ namespace Desktop {
         
         public Gdk.Pixbuf   icon;
         private Fm.FileInfo _fileinfo;
+        private string      _disp_name;
         
         // Position of the item on the desktop and it's index on the grid
         public int origin_x = 0;
@@ -33,7 +34,7 @@ namespace Desktop {
         public bool is_selected = false;
         
         // is this a special item like "My Computer", mounted volume, or "Trash"
-        //~ bool is_special : 1;
+        public bool is_special = false;
         //~ bool is_mount : 1;
         
         //~ bool is_prelight : 1;
@@ -45,7 +46,7 @@ namespace Desktop {
          *
          * 
          **************************************************************************************************************/
-        public Item (Gdk.Pixbuf pix_icon, Fm.FileInfo fileinfo) {
+        public Item (Gdk.Pixbuf pix_icon, Fm.FileInfo? fileinfo = null) {
             
             icon = pix_icon;
             _fileinfo = fileinfo;
@@ -54,8 +55,20 @@ namespace Desktop {
             icon_rect.y = 0;
             icon_rect.width = 36;
             icon_rect.height = 36;
+            
+            if (fileinfo == null) {
+                is_special = true;
+                _disp_name = "Special";
+            }
         }
     
+        public string get_disp_name () {
+            if (_fileinfo != null)
+                return _fileinfo.get_disp_name ();
+            else
+                return _disp_name;
+        }
+        
         public Fm.FileInfo? get_fileinfo () {
             return _fileinfo;
         }

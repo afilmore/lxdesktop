@@ -263,7 +263,8 @@ namespace Desktop {
             _pango_layout.set_width ((int) this._pango_text_w);
             _pango_layout.set_height ((int) this._pango_text_h);
 
-            _pango_layout.set_text (item.get_fileinfo ().get_disp_name (), -1);
+            string disp_name = item.get_disp_name ();
+            _pango_layout.set_text (disp_name, -1);
 
             // FIXME: do we need to cache this?
             int text_x = (int) item.origin_x + (_cell_width - (int) _text_w) / 2 + 2;
@@ -398,11 +399,12 @@ namespace Desktop {
         
         private void _calc_item_size (Desktop.Item item) {
 
+            string disp_name = item.get_disp_name ();
             // get text size...
             _pango_layout.set_text ("", 0);
             _pango_layout.set_height ((int) _pango_text_h);
             _pango_layout.set_width ((int) _pango_text_w);
-            _pango_layout.set_text (item.get_fileinfo ().get_disp_name (), -1);
+            _pango_layout.set_text (disp_name, -1);
 
             Pango.Rectangle logical_rect;
             _pango_layout.get_pixel_extents (null, out logical_rect);
@@ -444,15 +446,6 @@ namespace Desktop {
 
         }
 
-        /*public void parse_items () {
-            
-            foreach (Desktop.Item item in _grid_items) {
-                stdout.printf ("parse_items: %s (%i, %i)\n", item.get_fileinfo ().get_name (), item.index_vertical, item.index_horizontal);
-            }
-            
-            return;
-        }*/
-        
         public void queue_layout_items () {
             
             if (_idle_layout == 0)
@@ -791,7 +784,7 @@ namespace Desktop {
             
             foreach (Desktop.Item item in _grid_items) {
                 if (item.is_selected == true)
-                    files.push_tail (item.get_fileinfo ().path);
+                    files.push_tail (check if null.....item.get_fileinfo ().path);
             }
             
             if (files.is_empty())

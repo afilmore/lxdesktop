@@ -395,7 +395,10 @@ namespace Desktop {
                        && evt.button == 1
                        && clicked_item != null) {
                 
-                Fm.FileInfo fi = clicked_item.get_fileinfo ();
+                if (clicked_item.is_special)
+                    return true;
+                
+                Fm.FileInfo? fi = clicked_item.get_fileinfo ();
                 
                 if (fi.is_dir ()
                 || fi.is_mountable ()
