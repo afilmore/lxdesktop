@@ -165,9 +165,6 @@ namespace Fm {
 	public delegate void* JobCallMainThreadFunc (Fm.Job job);
 
 	[CCode (cheader_filename = "libfmcore.h", has_target = false)]
-	public delegate bool LaunchFolderFunc (GLib.AppLaunchContext ctx, GLib.List folder_infos, void* user_data) throws GLib.Error;
-
-	[CCode (cheader_filename = "libfmcore.h", has_target = false)]
 	public delegate bool SimpleJobFunc (Fm.SimpleJob p1, void* p2);
 
 	[CCode (cheader_filename = "libfmcore.h", has_target = false)]
@@ -238,27 +235,6 @@ namespace Fm {
 
 	[CCode (cheader_filename = "libfmcore.h")]
 	public static bool key_file_get_int (GLib.KeyFile kf, string grp, string key, int val);
-
-	[CCode (cheader_filename = "libfmcore.h")]
-	public static bool launch_desktop_entry (GLib.AppLaunchContext ctx, string file_or_id, GLib.List uris, Fm.FileLauncher launcher);
-
-	[CCode (cheader_filename = "libfmcore.h")]
-	public static bool launch_file_simple (Gtk.Window parent, GLib.AppLaunchContext ctx, Fm.FileInfo file_info, Fm.LaunchFolderFunc func);
-
-	[CCode (cheader_filename = "libfmcore.h")]
-	public static bool launch_files (GLib.AppLaunchContext ctx, GLib.List file_infos, Fm.FileLauncher launcher);
-
-	[CCode (cheader_filename = "libfmcore.h")]
-	public static bool launch_files_simple (Gtk.Window parent, GLib.AppLaunchContext ctx, GLib.List file_infos, Fm.LaunchFolderFunc func);
-
-	[CCode (cheader_filename = "libfmcore.h")]
-	public static bool launch_path_simple (Gtk.Window parent, GLib.AppLaunchContext ctx, Fm.Path path, Fm.LaunchFolderFunc func);
-
-	[CCode (cheader_filename = "libfmcore.h")]
-	public static bool launch_paths (GLib.AppLaunchContext ctx, GLib.List paths, Fm.FileLauncher launcher);
-
-	[CCode (cheader_filename = "libfmcore.h")]
-	public static bool launch_paths_simple (Gtk.Window parent, GLib.AppLaunchContext ctx, GLib.List paths, Fm.LaunchFolderFunc func);
 
 	[CCode (cheader_filename = "libfmcore.h")]
 	public static void marshal_INT__POINTER_INT (GLib.Closure closure, GLib.Value return_value, uint n_param_values, GLib.Value param_values, void* invocation_hint, void* marshal_data);

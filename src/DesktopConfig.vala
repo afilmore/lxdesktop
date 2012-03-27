@@ -15,23 +15,19 @@
  **********************************************************************************************************************/
 namespace Desktop {
     
-    public enum WallpaperMode {
-        FM_WP_COLOR,
-        FM_WP_STRETCH,
-        FM_WP_FIT,
-        FM_WP_CENTER,
-        FM_WP_TILE
-    }
-
     public class Config {
         
+        public string           app_filemanager = "pcmanfm";
+        
         // Desktop Config. (see LibFm/src/base/fm-config.h)
-        public WallpaperMode    wallpaper_mode = WallpaperMode.FM_WP_COLOR;
+        public Fm.WallpaperMode wallpaper_mode = Fm.WallpaperMode.COLOR;
         public string           wallpaper;
         public uint             wallpaper_changed = 0;
         public int              big_icon_size = 36;
         
-        public Gdk.Color        desktop_bg;
+        public Gdk.Color        color_background;
+        public Gdk.Color        color_text;
+        public Gdk.Color        color_shadow;
         
         // Folder Model Sorting
         public Gtk.SortType     sort_type = Gtk.SortType.ASCENDING;
@@ -66,14 +62,12 @@ namespace Desktop {
         
         public Config () {
             
-            // it would be possible to store the debug mode here...
-            
             // set a default background color.
-            Gdk.Color.parse ("#3C6DA5", out desktop_bg);
+            Gdk.Color.parse ("#3C6DA5", out color_background); // Win2K's blue desktop :P
+            Gdk.Color.parse ("#FFFFFF", out color_text);
+            Gdk.Color.parse ("#000000", out color_shadow);
         }
-
     }
 }
-
 
 

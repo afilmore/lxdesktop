@@ -18,29 +18,13 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <math.h>
+#include <fmcore.h>
 
-
-const char* atom_names[] = {"_NET_WORKAREA", "_NET_NUMBER_OF_DESKTOPS", "_NET_CURRENT_DESKTOP", "_XROOTMAP_ID"};
-Atom atoms[G_N_ELEMENTS(atom_names)] = {0};
-
-/* round() is only available in C99. Don't use it now for portability. */
+// round() is only available in C99. Don't use it now for portability.
 inline double _round (double x) {
     return (x > 0.0) ? floor(x + 0.5) : ceil(x - 0.5);
 }
 
-Atom XA_NET_WORKAREA = 0;
-Atom XA_NET_NUMBER_OF_DESKTOPS = 0;
-Atom XA_NET_CURRENT_DESKTOP = 0;
-Atom XA_XROOTMAP_ID= 0;
-
-
-void xlib_set_wallpaper () {
-
-    // not implemented yet...
-
-    return;
-}
-    
 
 /***********************************************************************************************************************
  * Adapted from PCManFM's update_working_area
@@ -145,92 +129,118 @@ void xlib_get_working_area (GdkScreen *screen, GdkRectangle *out_rect) {
 }
 
 
-/***********************************************************************************************************************
- * This function is taken from xfdesktop
+/* *********************************************************************************************************************
+ * This function is taken from xfdesktop, doesn't build from Vala code...
  * 
  * 
  **********************************************************************************************************************/
 void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
     
-    XButtonEvent xev, xev2;
-    Display *dpy = GDK_DISPLAY_XDISPLAY( gdk_screen_get_display( gscreen ) );
+    XButtonEvent xev;
+    XButtonEvent xev2;
+    
+    Display *dpy = GDK_DISPLAY_XDISPLAY (gdk_screen_get_display (gscreen));
 
-    if ( event->type == GDK_BUTTON_PRESS || event->type == GDK_BUTTON_RELEASE )
-    {
-        if ( event->type == GDK_BUTTON_PRESS )
-        {
+    // this doesn't build from Vala code, we have passed a fake null event...
+    return;
+    
+    if (event->type == GDK_BUTTON_PRESS || event->type == GDK_BUTTON_RELEASE) {
+        
+        if (event->type == GDK_BUTTON_PRESS) {
+            
             xev.type = ButtonPress;
             /*
              * rox has an option to disable the next
              * instruction. it is called "blackbox_hack". Does
              * anyone know why exactly it is needed?
              */
-            XUngrabPointer( dpy, event->button.time );
-        }
-        else
+            XUngrabPointer (dpy, event->button.time);
+            
+        } else {
             xev.type = ButtonRelease;
+        }
 
-        xev.button = event->button.button;
-        xev.x = event->button.x;    /* Needed for icewm */
-        xev.y = event->button.y;
-        xev.x_root = event->button.x_root;
-        xev.y_root = event->button.y_root;
-        xev.state = event->button.state;
+        xev.button =    event->button.button;
+        xev.x =         event->button.x;    /* Needed for icewm */
+        xev.y =         event->button.y;
+        xev.x_root =    event->button.x_root;
+        xev.y_root =    event->button.y_root;
+        xev.state =     event->button.state;
 
         xev2.type = 0;
-    }
-    else if ( event->type == GDK_SCROLL )
-    {
-        xev.type = ButtonPress;
-        xev.button = event->scroll.direction + 4;
-        xev.x = event->scroll.x;    /* Needed for icewm */
-        xev.y = event->scroll.y;
-        xev.x_root = event->scroll.x_root;
-        xev.y_root = event->scroll.y_root;
-        xev.state = event->scroll.state;
+        
+    } else if  (event->type == GDK_SCROLL) {
+        
+        xev.type =      ButtonPress;
+        xev.button =    event->scroll.direction + 4;
+        xev.x =         event->scroll.x;    /* Needed for icewm */
+        xev.y =         event->scroll.y;
+        xev.x_root =    event->scroll.x_root;
+        xev.y_root =    event->scroll.y_root;
+        xev.state =     event->scroll.state;
 
-        xev2.type = ButtonRelease;
-        xev2.button = xev.button;
+        xev2.type =     ButtonRelease;
+        xev2.button =   xev.button;
+        
+    } else {
+        
+        return;
     }
-    else
-        return ;
-    xev.window = GDK_WINDOW_XWINDOW( gdk_screen_get_root_window( gscreen ) );
-    xev.root = xev.window;
-    xev.subwindow = None;
-    xev.time = event->button.time;
-    xev.same_screen = True;
+    
+    xev.window =        GDK_WINDOW_XWINDOW (gdk_screen_get_root_window (gscreen));
+    xev.root =          xev.window;
+    xev.subwindow =     None;
+    xev.time =          event->button.time;
+    xev.same_screen =   True;
 
-    XSendEvent( dpy, xev.window, False, ButtonPressMask | ButtonReleaseMask,
-                ( XEvent * ) & xev );
-    if ( xev2.type == 0 )
+    XSendEvent (dpy,
+                xev.window,
+                False,
+                ButtonPressMask | ButtonReleaseMask,
+                (XEvent *) &xev);
+                
+    if (xev2.type == 0)
         return ;
 
     /* send button release for scroll event */
-    xev2.window = xev.window;
-    xev2.root = xev.root;
-    xev2.subwindow = xev.subwindow;
-    xev2.time = xev.time;
-    xev2.x = xev.x;
-    xev2.y = xev.y;
-    xev2.x_root = xev.x_root;
-    xev2.y_root = xev.y_root;
-    xev2.state = xev.state;
-    xev2.same_screen = xev.same_screen;
+    xev2.window =       xev.window;
+    xev2.root =         xev.root;
+    xev2.subwindow =    xev.subwindow;
+    xev2.time =         xev.time;
+    xev2.x =            xev.x;
+    xev2.y =            xev.y;
+    xev2.x_root =       xev.x_root;
+    xev2.y_root =       xev.y_root;
+    xev2.state =        xev.state;
+    xev2.same_screen =  xev.same_screen;
 
-    XSendEvent( dpy, xev2.window, False, ButtonPressMask | ButtonReleaseMask,
-                ( XEvent * ) & xev2 );
+    XSendEvent (dpy,
+                xev2.window,
+                False,
+                ButtonPressMask | ButtonReleaseMask,
+                (XEvent *) &xev2);
+    
+    return;
 }
 
 
-/* *********************************************************************************************************************
- * Doesn't build and needs to be ported to GTK3...
- * 
- * 
- ***********************************************************************************************************************
-void set_wallpaper (GdkPixbuf* pix) {
+void xlib_set_wallpaper (GdkPixbuf* pix, FmWallpaperMode wallpaper_mode) {
     
-    int src_w, src_h;
-    int dest_w, dest_h;
+    if (wallpaper_mode == FM_WP_TILE) // just a compile test with wallpaper mode...
+        return;
+    
+    
+    /* *****************************************************************************************************************
+     * not implemented yet... doesn't build and needs to be ported to GTK3...
+     * 
+     * 
+     *****************************************************************************************************************/
+
+/*
+    int src_w;
+    int src_h;
+    int dest_w;
+    int dest_h;
     
     src_w = gdk_pixbuf_get_width (pix);
     src_h = gdk_pixbuf_get_height (pix);
@@ -346,7 +356,20 @@ void set_wallpaper (GdkPixbuf* pix) {
     gdk_window_clear(root);
     gdk_window_clear(window);
     gdk_window_invalidate_rect(window, null, true);
+    */
+    
+    return;
 }
+    
+
+/*
+const char* atom_names[] = {"_NET_WORKAREA", "_NET_NUMBER_OF_DESKTOPS", "_NET_CURRENT_DESKTOP", "_XROOTMAP_ID"};
+Atom atoms[G_N_ELEMENTS(atom_names)] = {0};
+
+Atom XA_NET_WORKAREA = 0;
+Atom XA_NET_NUMBER_OF_DESKTOPS = 0;
+Atom XA_NET_CURRENT_DESKTOP = 0;
+Atom XA_XROOTMAP_ID= 0;
 
 GdkFilterReturn on_root_event (GdkXEvent *xevent, GdkEvent *event, gpointer data)
 {
@@ -368,7 +391,6 @@ if (XInternAtoms (GDK_DISPLAY(), atom_names, G_N_ELEMENTS(atom_names), False, at
     XA_NET_CURRENT_DESKTOP = atoms[2];
     XA_XROOTMAP_ID= atoms[3];
 }
-
 
 */
 

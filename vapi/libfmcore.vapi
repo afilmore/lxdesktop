@@ -13,14 +13,24 @@
  **********************************************************************************************************************/
 namespace Fm {
     
+    [CCode (cheader_filename = "fmcore.h", cprefix = "FM_WP_")]
+    public enum WallpaperMode {
+        COLOR,
+        STRETCH,
+        FIT,
+        CENTER,
+        TILE
+    }
+
 	[CCode (cprefix = "fm_", cheader_filename = "fmcore.h")]
 	public static bool init ();
 	
     [CCode (cprefix = "fm_", cheader_filename = "fmcore.h")]
 	public static void finalize ();
 	
+    
     /*******************************************************************************************************************
-     * LibFm Core objects.
+     * LibFm Core Base Objects to handle paths, icons, mime types and file info.
      * 
      ******************************************************************************************************************/
 	[CCode (ref_function = "fm_path_ref", unref_function = "fm_path_unref", cname = "FmPath", cprefix = "fm_path_", cheader_filename = "fm-path.h")]
@@ -36,7 +46,8 @@ namespace Fm {
 		[CCode (has_construct_function = false)]
 		public Path.child_len (Fm.Path parent, string basename, int name_len);
 		public int depth ();
-		public unowned string display_basename ();
+		
+        public unowned string display_basename ();
 		public unowned string display_name (bool human_readable);
 		public bool equal (Fm.Path p2);
 		public bool equal_str (string str, int n);
@@ -50,7 +61,8 @@ namespace Fm {
 		public Path.for_str (string path_str);
 		[CCode (has_construct_function = false)]
 		public Path.for_uri (string uri);
-		public static unowned Fm.Path get_apps_menu ();
+		
+        public static unowned Fm.Path get_apps_menu ();
 		public unowned string get_basename ();
 		public int get_flags ();
 		public static unowned Fm.Path get_home ();
@@ -130,6 +142,39 @@ namespace Fm {
 		public void set_from_gfileinfo (GLib.FileInfo inf);
 		public void set_path (Fm.Path path);
 	}
+    
+    
+    /*******************************************************************************************************************
+     * File Launcher functions.
+     * 
+     ******************************************************************************************************************/
+	[CCode (cheader_filename = "fm-file-launcher.h", has_target = false)]
+	public delegate bool LaunchFolderFunc (GLib.AppLaunchContext ctx, GLib.List folder_infos, void* user_data) throws GLib.Error;
+
+	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-file-launcher.h")]
+	public static bool launch_file_simple (Gtk.Window parent, GLib.AppLaunchContext ctx, Fm.FileInfo file_info, Fm.LaunchFolderFunc func, void* user_data);
+
+	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-file-launcher.h")]
+	public static bool launch_files_simple (Gtk.Window parent, GLib.AppLaunchContext ctx, GLib.List file_infos, Fm.LaunchFolderFunc func);
+
+	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-file-launcher.h")]
+	public static bool launch_path_simple (Gtk.Window parent, GLib.AppLaunchContext ctx, Fm.Path path, Fm.LaunchFolderFunc func);
+
+	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-file-launcher.h")]
+	public static bool launch_paths_simple (Gtk.Window parent, GLib.AppLaunchContext ctx, GLib.List paths, Fm.LaunchFolderFunc func);
+
+	/*
+    [CCode (cprefix = "fm_", cheader_filename = "fm-gtk-file-launcher.h")]
+	public static bool launch_desktop_entry (GLib.AppLaunchContext ctx, string file_or_id, GLib.List uris, Fm.FileLauncher launcher);
+
+	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-file-launcher.h")]
+	public static bool launch_files (GLib.AppLaunchContext ctx, GLib.List file_infos, Fm.FileLauncher launcher);
+
+	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-file-launcher.h")]
+	public static bool launch_paths (GLib.AppLaunchContext ctx, GLib.List paths, Fm.FileLauncher launcher);
+    */
+    
+
     
 	[CCode (cheader_filename = "fm-file-info.h")]
 	[Compact]

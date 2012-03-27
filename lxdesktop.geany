@@ -8,7 +8,7 @@ detect_indent_width=false
 indent_mode=2
 
 [project]
-name=LibFm Core Version
+name=LxDesktop
 base_path=./
 description=
 file_patterns=
@@ -18,16 +18,15 @@ long_line_behaviour=2
 long_line_column=120
 
 [files]
-current_page=5
-FILE_NAME_0=859;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop-gtk2/src/Application.vala;0;4
-FILE_NAME_1=27654;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop-gtk2/src/DesktopWindow.vala;0;4
-FILE_NAME_2=24653;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop-gtk2/src/DesktopGrid.vala;0;4
-FILE_NAME_3=1016;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop-gtk2/src/DesktopItem.vala;0;4
-FILE_NAME_4=531;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop-gtk2/src/DesktopConfig.vala;0;4
-FILE_NAME_5=13904;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop-gtk2/src/TEMP_GRID.vala;0;4
+current_page=4
+FILE_NAME_0=525;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/Application.vala;0;4
+FILE_NAME_1=12806;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopWindow.vala;0;4
+FILE_NAME_2=0;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopGrid.vala;0;4
+FILE_NAME_3=0;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopItem.vala;0;4
+FILE_NAME_4=0;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopConfig.vala;0;4
 
 [VTE]
-last_dir=/home/hotnuma/Bureau/Projets/lxdesktop-gtk2/src
+last_dir=/home/hotnuma/Bureau/Projets/lxdesktop/src
 
 [build-menu]
 EX_00_LB=_Exécuter

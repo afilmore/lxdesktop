@@ -18,9 +18,10 @@ namespace Desktop {
     const int SPACING = 2;
     const int PADDING = 6;
 //    const int MARGIN = 2;
+
     
     /*******************************************************************************************************************
-     * The Desktop grid basically contains a linked list containing desktop items and the desktop working area.
+     * The Desktop grid basically contains a linked list to store desktop items and the desktop working area.
      * 
      * 
      ******************************************************************************************************************/
@@ -33,20 +34,20 @@ namespace Desktop {
         private Gdk.Window _window;
         uint _idle_layout = 0;
         
-        // Desktop working area, the real working area doesn't include docked panels
-        private Gdk.Rectangle _working_area;
-
-        // Geometry of one cell in the grid
-        private int _cell_width;
-        private int _cell_height;
-        
         // The list of Desktop items
         private List<Desktop.Item> _grid_items;
-        private uint _index_last_v;
-        private uint _index_last_h;
-
+        
+        // Desktop working area, this working area doesn't include docked panels
+        private Gdk.Rectangle _working_area;
+        
+        // Geometry of one cell in the grid, index of last cells
+        private int _cell_width = 50;
+        private int _cell_height = 50;
+        private uint _index_last_v = 0;
+        private uint _index_last_h = 0;
+        
         // List fixed_items;
-        private Desktop.Item? _selected_item = null; // see _on_button_press () event...
+        private Desktop.Item? _selected_item = null;
         private Desktop.Item? _drop_hilight = null;
         private Desktop.Item? _hover_item = null;
 
@@ -55,12 +56,13 @@ namespace Desktop {
         
         // Text drawing...
         // GTK3_MIGRATION
-        private Gdk.GC _gc; // see _on_realize event...
+        private Gdk.GC _gc;
         private Pango.Layout _pango_layout;
         uint _text_h = 0;
         uint _text_w = 0;
         uint _pango_text_h = 0;
         uint _pango_text_w = 0;
+        
         
         public Grid (Gtk.Window desktop, bool debug = false) {
             
@@ -69,23 +71,7 @@ namespace Desktop {
             
             _grid_items = new List<Desktop.Item> ();
             
-            // ............
-            _cell_width = global_config.big_icon_size;
-            _cell_height = global_config.big_icon_size;
-            if (_cell_width == 0 || _cell_height == 0) {
-                _cell_width = 36;
-                _cell_height = 36;
-            }
-            
-            _index_last_v = 0;
-            _index_last_h = 0;
-            
-            
-            /***********************************************************************************************************
-             * Setup Pango layout...
-             * 
-             * 
-             **********************************************************************************************************/
+            // setup pango layout.
             _pango_layout = _desktop.create_pango_layout (null);
             _pango_layout.set_alignment (Pango.Alignment.CENTER);
             _pango_layout.set_ellipsize (Pango.EllipsizeMode.END);
@@ -106,22 +92,28 @@ namespace Desktop {
             _icon_renderer.set ("follow-state", true, null);
             _icon_renderer.ref_sink ();
             _icon_renderer.set_fixed_size (global_config.big_icon_size, global_config.big_icon_size);
-            
         }
         
         ~Grid () {
         
             if (this._idle_layout != 0)
                 Source.remove (this._idle_layout);
-        
         }
         
         
+        /***************************************************************************************************************
+         * This function is called from the realize handler,
+         * from the desktop's GtkWindow.
+         * 
+         * 
+         * ************************************************************************************************************/
         public void init_gc (Gdk.Window window) {
+            
             _window = window;
             // GTK3_MIGRATION
             this._gc = new Gdk.GC (window);
         }
+        
         
         /***************************************************************************************************************
          * Initialize the grid..., this function is called from the size_allocate handler,
@@ -131,7 +123,6 @@ namespace Desktop {
          * ************************************************************************************************************/
         public void init_layout (Gdk.Rectangle rect) {
             
-            // need to test if realized.......
             _window = _desktop.get_window ();
 
             if (_debug_mode == true) {
@@ -141,45 +132,36 @@ namespace Desktop {
                 _working_area.width = rect.width;
                 _working_area.height = rect.height;
                 
-                Gdk.Rectangle test_rect;
-                XLib.get_working_area (_desktop.get_screen (), out test_rect);
-                //stdout.printf ("%i, %i, %i, %i\n", test_rect.x, test_rect.y, test_rect.width, test_rect.height);
-                
             } else {
                 
                 XLib.get_working_area (_desktop.get_screen (), out _working_area);
-                //stdout.printf ("%i, %i, %i, %i\n", _working_area.x, _working_area.y, _working_area.width, _working_area.height);
+                // stdout.printf ("%i, %i, %i, %i\n",
+                //                _working_area.x,
+                //                _working_area.y,
+                //                _working_area.width,
+                //                _working_area.height);
             }
             
+            
             /***********************************************************************************************************
-             * 
-             * 
-            this.spacing = SPACING;
-            this.xpad = PADDING;
-            this.ypad = PADDING;
-            this.xmargin = MARGIN;
-            this.ymargin = MARGIN;
-            * 
-            ***********************************************************************************************************/
-            
-            /** from gtk+ docs :
-             * The pango.SCALE constant represents the scale between dimensions used for Pango distances and device
-             *  units. (The definition of device units is dependent on the output device; it will typically be pixels
-             *  for a screen, and points for a printer.) pango.SCALE is currently 1024, but this may be changed in the
-             *  future. When setting font sizes, device units are always considered to be points
-             *  (as in "12 point font"), rather than pixels.
+             * From Gtk+ docs :
+             * The Pango.SCALE constant represents the scale between dimensions used for Pango distances and device
+             * units. (The definition of device units is dependent on the output device; it will typically be pixels
+             * for a screen, and points for a printer.) Pango.SCALE is currently 1024, but this may be changed in the
+             * future. When setting font sizes, device units are always considered to be points
+             * (as in "12 point font"), rather than pixels.
              */
-            
             Pango.Context pango_context = _desktop.get_pango_context ();
             Pango.FontMetrics metrics = pango_context.get_metrics (null, null);
 
             int font_h = (metrics.get_ascent () + metrics.get_descent ()) / Pango.SCALE;
             
-            this._text_h = font_h * 2;
+            // set the text rect to a maximum of 72 pixels width and two lines of text.
             this._text_w = 72;
+            this._text_h = font_h * 2;
             
-            this._pango_text_h = _text_h * Pango.SCALE;
             this._pango_text_w = _text_w * Pango.SCALE;
+            this._pango_text_h = _text_h * Pango.SCALE;
             
             // 4 is for drawing border
             _text_h += 4;
@@ -188,16 +170,8 @@ namespace Desktop {
             // stdout.printf ("font_h:%i, text_h:%i, text_w:%i, pango_text_h:%u, pango_text_w:%u\n",
             //               font_h, text_h, text_w, _pango_text_h, _pango_text_w);
             
-            /***********************************************************************************************************
-             * We need to know the size of the text to setup the *real* cell dimensions...
-             * 
-             * 
-            */
             _cell_height = global_config.big_icon_size + SPACING + (int) _text_h + PADDING * 2;
             _cell_width = int.max ((int) _text_w, global_config.big_icon_size) + PADDING * 2;
-            
-            //_cell_height = global_config.big_icon_size * 2;
-            //_cell_width = _cell_height;
             
             _index_last_v = (_working_area.height / _cell_height) -1;
             _index_last_h = (_working_area.width / _cell_width) -1;
@@ -249,6 +223,14 @@ namespace Desktop {
             // stdout.printf ("item.draw: %i, %i, %i, %i\n", expose_area.x, expose_area.y, expose_area.width, expose_area.height);
             
             // GTK3_MIGRATION
+            Gtk.CellRendererState state = 0;
+            
+            Desktop.Item? drop_hilight = null; // temporary fake item....
+            
+            // selected item
+            if (item.is_selected == true || item == drop_hilight)
+                state = Gtk.CellRendererState.SELECTED;
+            
             /***********************************************************************************************************
              * Draw the icon...
              * 
@@ -274,7 +256,7 @@ namespace Desktop {
                                         item.icon_rect,
                                         item.icon_rect,
                                         expose_area,
-                                        Gtk.CellRendererState.INSENSITIVE);
+                                        state);
             
             
             _pango_layout.set_text ("", 0);
@@ -291,34 +273,29 @@ namespace Desktop {
             Gtk.Style style = _desktop.get_style ();
             Gdk.Color fg;
             
-            Gdk.Color desktop_fg = style.fg[Gtk.StateType.SELECTED]; // temporary.......
-            Gdk.Color desktop_shadow = style.fg[Gtk.StateType.SELECTED]; // temporary.......
-            
-            Desktop.Item? drop_hilight = null; // temporary fake item....
-            
-            if (item.is_selected == true || item == drop_hilight) {
+            // selected item
+            if (state == Gtk.CellRendererState.SELECTED) {
                 
-                Gtk.CellRendererState state = Gtk.CellRendererState.SELECTED;
-
                 cr.save ();
-                
                 Gdk.cairo_rectangle (cr, item.text_rect);
                 Gdk.cairo_set_source_color (cr, style.bg[Gtk.StateType.SELECTED]);
                 cr.clip ();
                 cr.paint ();
                 cr.restore ();
+                
                 fg = style.fg[Gtk.StateType.SELECTED];
                 
+            // normal item / text shadow
             } else {
                 
-                // the shadow
-                _gc.set_rgb_fg_color (desktop_shadow);
+                _gc.set_rgb_fg_color (global_config.color_shadow);
                 Gdk.draw_layout (_window,
                                  this._gc,
                                  text_x + 1,
                                  text_y + 1,
                                  this._pango_layout);
-                fg = desktop_fg;
+                
+                fg = global_config.color_text;
             }
             
             // real text
@@ -332,9 +309,8 @@ namespace Desktop {
             
             _pango_layout.set_text ("", 0);
 
-            /*
-            Desktop.Item? _selected_item = null; // temporary fake item....
-            if (item == _selected_item && _desktop.has_focus() == true)
+            // draw a selection rectangle for the selected item
+            if (item == _selected_item && _desktop.has_focus != 0) {
                 
                 Gtk.paint_focus (style,
                                  _window,
@@ -346,7 +322,7 @@ namespace Desktop {
                                  item.text_rect.y,
                                  item.text_rect.width,
                                  item.text_rect.height);
-            */
+            }
         }
         
         
@@ -458,7 +434,6 @@ namespace Desktop {
              * The way PCManFm does it, it's a bit different :-D
              * 
              * 
-            
             item.icon_rect.width =  gdk_pixbuf_get_width (item.icon);
             item.icon_rect.height = gdk_pixbuf_get_height (item.icon);
             item.icon_rect.x =      item.x + (_cell_width - item.icon_rect.width) / 2;
@@ -480,11 +455,6 @@ namespace Desktop {
         
         public void queue_layout_items () {
             
-            //stdout.printf ("queue_layout_items\n");
-            
-            //return;
-            
-            // need to be tested...
             if (_idle_layout == 0)
                 _idle_layout = GLib.Idle.add ((SourceFunc) this._on_idle_layout);
         }
@@ -492,9 +462,7 @@ namespace Desktop {
         private bool _on_idle_layout () {
             
             this._idle_layout = 0;
-            
             this._layout_items ();
-
             return false;
         }
 
