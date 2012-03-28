@@ -28,41 +28,24 @@ namespace Desktop {
     
     public class Application {
         
-        bool _debug_mode = false;
+        bool    _debug_mode = false;
         
-        int _n_screens = 0;
+        private Gtk.WindowGroup?    _wingroup = null;
+        int                         _n_screens = 0;
+        private Desktop.Window[]    _desktops;
         
         
         /***************************************************************************************************************
          * See where to use all these variables when needed...
          * 
          ***************************************************************************************************************
-        private GtkWindowGroup* win_group = null;
-        private GtkWidget **desktops = null;
         private GtkAccelGroup* acc_grp = null;
-
-        // 
         private uint icon_theme_changed = 0;
-        private uint big_icon_size_changed = 0;
-        private uint desktop_text_changed = 0;
-        private uint desktop_font_changed = 0;
-
-        // insert GtkUIManager XML definitions
-        #include "desktop-ui.c"
         private GtkWidget* desktop_popup = null;
-
         typedef bool (*DeleteEvtHandler) (GtkWidget*, GdkEvent*);
-
-        char* desktop_font;
-        private PangoFontDescription* font_desc = null;
-
-        
         ***************************************************************************************************************/
 
         public Application () {
-            
-            Gdk.Display display = Gdk.Display.get_default ();
-            _n_screens = display.get_n_screens ();
             
         }
         
@@ -75,14 +58,8 @@ namespace Desktop {
             
             global_config = new Desktop.Config ();
 
-            /***********************************************************************************************************
-             * Create a window group...
-             * 
-             * 
-            if (win_group == null)
-                win_group = gtk_window_group_new();
-            
-            */
+            if (_wingroup == null)
+                _wingroup = new Gtk.WindowGroup ();
             
             string desktop_path = Environment.get_user_special_dir (UserDirectory.DESKTOP);
             DirUtils.create_with_parents (desktop_path, 0700);
@@ -101,16 +78,10 @@ namespace Desktop {
             global_model.loaded.connect (_on_model_loaded);
             global_model.set_sort_column_id (Fm.FileColumn.NAME, global_config.sort_type);
             
-            
             /***********************************************************************************************************
              * We need to set configuration event handlers, setup the desktop popup menu, etc...
              * 
              * 
-            wallpaper_changed = g_signal_connect(global_config, "changed::wallpaper", G_CALLBACK(on_wallpaper_changed), NULL);
-            desktop_text_changed = g_signal_connect(global_config, "changed::desktop_text", G_CALLBACK(on_desktop_text_changed), NULL);
-            desktop_font_changed = g_signal_connect(global_config, "changed::desktop_font", G_CALLBACK(on_desktop_font_changed), NULL);
-            big_icon_size_changed = g_signal_connect(global_config, "changed::big_icon_size", G_CALLBACK(on_big_icon_size_changed), NULL);
-
             icon_theme_changed = g_signal_connect (gtk_icon_theme_get_default(), "changed", G_CALLBACK(on_icon_theme_changed), NULL);
 
             // popup menu
@@ -129,8 +100,6 @@ namespace Desktop {
                 gtk_window_add_accel_group(GTK_WINDOW(desktops[i]), acc_grp);
         
             desktop_popup = (GtkWidget*)g_object_ref(gtk_ui_manager_get_widget(ui, "/popup"));
-
-
             */
 
             Gtk.main ();
@@ -140,44 +109,25 @@ namespace Desktop {
         
         private void _on_model_loaded () {
             
-            /***********************************************************************************************************
-             *  an array of desktop, one for each screen...
-             * 
-             * 
-            if (desktop_font)
-                font_desc = pango_font_description_from_string (desktop_font);
-            
-            desktops = g_new (GtkWidget*, _n_screens);
-            
-            */
+            // An array of desktop, one for each screen...
+            _n_screens = Gdk.Display.get_default ().get_n_screens ();
+            _desktops = new Desktop.Window [_n_screens];
             
             for (int i = 0; i < _n_screens; i++) {
                 
                 Desktop.Window desktop = new Desktop.Window ();
                 desktop.create (_debug_mode);
             
-                //desktops[i] = desktop;
-                //win_group.add_window (desktop);
-                
+                _desktops [i] = desktop;
+                _wingroup.add_window (desktop);
 
                 Gtk.TreeIter it;
                 Gdk.Pixbuf icon;
                 Fm.FileInfo fi;
                 
-                Gtk.IconTheme icon_theme;
-                Gdk.Pixbuf pixbuf;
-                icon_theme = Gtk.IconTheme.get_default ();
-                pixbuf = icon_theme.load_icon ("user-trash",
-                                               global_config.big_icon_size,
-                                               Gtk.IconLookupFlags.FORCE_SIZE);
-                
-                Desktop.Item special = new Desktop.Item (pixbuf);
-                
-                // append an item into the grid
-                desktop.get_grid ().append_item (special);
-                        
+                this._load_special_items (desktop);
 
-
+                // Load Desktop files/folders from the Global Model, add Desktop Items to the Grid.
                 if (global_model.get_iter_first (out it)) {
                     do {
                         
@@ -192,6 +142,54 @@ namespace Desktop {
             }
         }
 
+        private void _load_special_items (Desktop.Window desktop) {
+            
+            Gtk.IconTheme icon_theme = Gtk.IconTheme.get_default ();
+            
+            Desktop.Item special;
+            string icon_name;
+            Gdk.Pixbuf pixbuf;
+            
+            /* Special icons :
+             * "computer"
+             * "folder-documents"
+             * "user-trash"
+             * "user-trash-full"
+             * "folder-download"
+             * "folder-music"
+             * "folder-pictures"
+             * "folder-publicshares"
+             * "folder-remote"
+             * "folder-templates"
+             * "folder-videos"
+             * 
+             */
+            
+            // My Computer
+            icon_name = "computer";
+            pixbuf = icon_theme.load_icon (icon_name,
+                                           global_config.big_icon_size,
+                                           Gtk.IconLookupFlags.FORCE_SIZE);
+            special = new Desktop.Item (pixbuf);
+            desktop.get_grid ().append_item (special);
+            
+            // My Documents
+            icon_name = "folder-documents";
+            pixbuf = icon_theme.load_icon (icon_name,
+                                           global_config.big_icon_size,
+                                           Gtk.IconLookupFlags.FORCE_SIZE);
+            special = new Desktop.Item (pixbuf);
+            desktop.get_grid ().append_item (special);
+            
+            // Trash Can
+            icon_name = "user-trash";
+            pixbuf = icon_theme.load_icon (icon_name,
+                                           global_config.big_icon_size,
+                                           Gtk.IconLookupFlags.FORCE_SIZE);
+            special = new Desktop.Item (pixbuf);
+            desktop.get_grid ().append_item (special);
+            
+        }
         
         /***************************************************************************************************************
          * Application's entry point.
@@ -234,11 +232,7 @@ namespace Desktop {
                 desktops[i].destroy ();
             }
             
-            global_config.wallpaper_changed.disconnect ();
             Gtk.IconTheme.get_default ().disconnect (icon_theme_changed);
-            global_config.big_icon_size_changed.disconnect ();
-            global_config.desktop_text_changed.disconnect ();
-            global_config.desktop_font_changed.disconnect ();
             
             desktop_popup.destroy ();
             
@@ -255,23 +249,6 @@ namespace Desktop {
          * 
          * 
          */
-        /***************************************************************************************************************
-         * Desktop Configuration handlers.
-         *
-         **************************************************************************************************************/
-        private void _on_wallpaper_changed () {
-            
-            /***********************************************************************************************************
-             * The user changed the wallpaper in the desktop configuration dialog.
-             * 
-             * 
-            
-            for (int i=0; i < _n_screens; ++i)
-                desktops[i].update_background ();
-            
-            */
-        }
-        
         private void _on_icon_theme_changed (Gtk.IconTheme theme) {
             
             /***********************************************************************************************************
@@ -283,21 +260,6 @@ namespace Desktop {
             
         }
         
-        private void _on_big_icon_size_changed () {
-            
-            /***********************************************************************************************************
-             * The user changed the icon size in the desktop configuration dialog.
-             * 
-             * 
-            
-            global_model.set_icon_size (global_config.big_icon_size);
-            
-            */
-            
-            this._reload_icons();
-            
-        }
-
         private void _reload_icons() {
             
             /***********************************************************************************************************
@@ -326,55 +288,6 @@ namespace Desktop {
             */
         }
 
-        private void _on_desktop_text_changed () {
-
-            /***********************************************************************************************************
-             * Handle text changes...
-             * FIXME: we only need to redraw text lables
-            
-            for (int i=0; i < _n_screens; ++i)
-                desktops[i].queue_draw ();
-            
-            */
-        }
-        
-        private void _on_desktop_font_changed () {
-            
-            /***********************************************************************************************************
-             * Handle font change...
-             * 
-             * 
-            font_desc = null;
-            // FIXME: this is a little bit dirty
-            if (font_desc)
-                pango_font_description_free (font_desc);
-
-            if (desktop_font) {
-                
-                font_desc = new Pango.FontDescription.from_string (desktop_font);
-                
-                if (font_desc) {
-                    int i;
-                    for (i=0; i < _n_screens; ++i) {
-                        FmDesktop* desktop = desktops[i];
-                        
-                        Pango.Context pc = this.get_pango_context ();
-                        pc.set_font_description (font_desc);
-                        this.grid._pango_layout.context_changed ();
-                        
-                        this.queue_resize ();
-                        // layout_items(desktop);
-                        // this.queue_draw(desktops[i]);
-                    }
-                }
-                
-            } else {
-                font_desc = null;
-            }
-            */
-            
-            return;
-        }
     }
 }
 

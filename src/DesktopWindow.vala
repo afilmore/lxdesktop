@@ -162,7 +162,6 @@ namespace Desktop {
             */
             
             this._init_drag_and_drop ();
-            
             this.realize ();
             this.show_all ();
             
@@ -395,6 +394,7 @@ namespace Desktop {
                        && evt.button == 1
                        && clicked_item != null) {
                 
+                // action open........
                 if (clicked_item.is_special)
                     return true;
                 
@@ -412,7 +412,7 @@ namespace Desktop {
                     
                     this.action_open_file (fi);
                 }
-                
+                // ......................
                 
                 if (this.has_focus == 0)
                     this.grab_focus ();
@@ -447,7 +447,7 @@ namespace Desktop {
             //~ fi.is_hidden ();
             //~ fi.is_image ();
             //~ fi.is_text ();
-//|| fi.is_symlink ()
+            //|| fi.is_symlink ()
             
             return true;
         }
@@ -1442,6 +1442,8 @@ namespace Desktop {
         }
 
         */
+
+
 
 
         /***************************************************************************************************************
