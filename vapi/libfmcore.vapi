@@ -82,7 +82,7 @@ namespace Fm {
     public enum DndDestTarget {
         FM_LIST,
         URI_LIST,
-        TARGET_XDS,
+        XDS,
         [CCode (cheader_filename = "fm-dnd-dest.h", cname = "N_FM_DND_DEST_DEFAULT_TARGETS", cprefix = "")]
         DEFAULT
     }

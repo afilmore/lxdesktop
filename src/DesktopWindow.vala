@@ -25,14 +25,12 @@ namespace Desktop {
         {"application/x-desktop-item", Gtk.TargetFlags.SAME_WIDGET, DesktopDndDest.DESKTOP_ITEM}
     };
 
-/*
-    GtkTargetEntry fm_default_dnd_dest_targets[] =
+    private const Gtk.TargetEntry desktop_default_dnd_dest_targets[] =
     {
-        {"application/x-fmlist-ptr", GTK_TARGET_SAME_APP, FM_DND_DEST_TARGET_FM_LIST},
-        {"text/uri-list", 0, FM_DND_DEST_TARGET_URI_LIST}, // text/uri-list
-        { "XdndDirectSave0", 0, FM_DND_DEST_TARGET_XDS, } // X direct save
+        {"application/x-fmlist-ptr", Gtk.TargetFlags.SAME_APP, Fm.DndDestTarget.FM_LIST},
+        {"text/uri-list", 0, Fm.DndDestTarget.URI_LIST}, // text/uri-list
+        { "XdndDirectSave0", 0, Fm.DndDestTarget.XDS} // X direct save
     };
-*/
 
 
     public class Window : Gtk.Window {
@@ -705,25 +703,23 @@ namespace Desktop {
          **************************************************************************************************************/
         private void _init_drag_and_drop () {
 
-            return; // needs testing...
+            //return; // needs testing...
             
-            /* doesn't build...
-            Gtk.TargetEntry[] target_entries = Fm.default_dnd_dest_targets;
-            
+            // doesn't build with Fm.default_dnd_dest_targets...
             Gtk.drag_source_set (this,
                                  0,
-                                 target_entries,
-                                Gdk.DragAction.COPY
-                                | Gdk.DragAction.MOVE
-                                | Gdk.DragAction.LINK
-                                | Gdk.DragAction.ASK);
-            */
+                                 desktop_default_dnd_dest_targets,
+                                 Gdk.DragAction.COPY
+                                 | Gdk.DragAction.MOVE
+                                 | Gdk.DragAction.LINK
+                                 | Gdk.DragAction.ASK);
+
             Gtk.TargetList targets = Gtk.drag_source_get_target_list (this);
             
-            /* doesn't build...
             // add our own targets
-            targets.add_table (dnd_targets, dnd_targets.length);
-            */
+            // Gtk Vapi files are wrong, patch submitted for this...
+            // https://bugzilla.gnome.org/show_bug.cgi?id=673117
+            targets.add_table (dnd_targets); 
             
             // a dirty way to override FmDndSrc.
             
@@ -779,6 +775,7 @@ namespace Desktop {
             // handle moving desktop items
             if (item != null) {
                 
+                stdout.printf ("item\n");
                 target = Gdk.Atom.intern_static_string (dnd_targets[0].target);
                 
                 if (Fm.drag_context_has_target (drag_context, target)
@@ -940,7 +937,9 @@ namespace Desktop {
                 
                 default:
                     // check if files are received.
-                    this._dnd_dest.drag_data_received (drag_context, x, y, sel_data, info, time);
+                    
+                    // FIXME: this segfault :(
+                    //this._dnd_dest.drag_data_received (drag_context, x, y, sel_data, info, time);
                 break;
             }
         }
