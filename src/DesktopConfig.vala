@@ -36,6 +36,7 @@ namespace Desktop {
         public bool             show_mydocuments = false;
         public bool             show_trashcan = true;
         public bool             show_mount = false;
+        
         /*
         char*                 desktop_font;
         private PangoFontDescription* font_desc = null;
@@ -57,6 +58,7 @@ namespace Desktop {
         
         //public Fm.FileColumn    sort_by = Fm.FileColumn.NAME; // generates a compile error in Vala....
         
+        
         /***************************************************************************************************************
          * 
          * 
@@ -67,6 +69,7 @@ namespace Desktop {
         */
         
         public bool             single_click;
+        
         /*
         private bool            use_trash;
         private bool            confirm_del;

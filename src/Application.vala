@@ -9,7 +9,7 @@
  * 
  * This software is an experimental rewrite of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
  * 
- * Purpose: 
+ * Purpose: Main Application Class and program's entry point.
  * 
  * 
  **********************************************************************************************************************/
@@ -77,6 +77,7 @@ namespace Desktop {
             global_model.set_icon_size (global_config.big_icon_size);
             global_model.loaded.connect (_on_model_loaded);
             global_model.set_sort_column_id (Fm.FileColumn.NAME, global_config.sort_type);
+            
             
             /***********************************************************************************************************
              * We need to set configuration event handlers, setup the desktop popup menu, etc...

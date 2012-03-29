@@ -110,6 +110,7 @@ namespace Desktop {
         public void init_gc (Gdk.Window window) {
             
             _window = window;
+            
             // GTK3_MIGRATION
             this._gc = new Gdk.GC (window);
         }
@@ -135,6 +136,7 @@ namespace Desktop {
             } else {
                 
                 XLib.get_working_area (_desktop.get_screen (), out _working_area);
+                
                 // stdout.printf ("%i, %i, %i, %i\n",
                 //                _working_area.x,
                 //                _working_area.y,
@@ -231,13 +233,13 @@ namespace Desktop {
             if (item.is_selected == true || item == drop_hilight)
                 state = Gtk.CellRendererState.SELECTED;
             
+            
             /***********************************************************************************************************
              * Draw the icon...
              * 
              * Fm.CellRendererPixbuf needs to be ported to GTK3, it's reeded to draw the small arrow for symlinks...
              * 
              * 
-            int state = 0;
             renderer.set ("pixbuf", item.icon, "info", item._fileinfo.ref (), null);
             renderer.render (desktop.get_window (),
                              desktop,
@@ -245,11 +247,7 @@ namespace Desktop {
                              this.icon_rect,
                              expose_area,
                              state);
-            
-             ***********************************************************************************************************
-             * 
-             * 
-             */
+             **********************************************************************************************************/
             this._icon_renderer.set ("pixbuf", item.icon);
             this._icon_renderer.render (_window,
                                         _desktop,
@@ -257,7 +255,6 @@ namespace Desktop {
                                         item.icon_rect,
                                         expose_area,
                                         state);
-            
             
             _pango_layout.set_text ("", 0);
             _pango_layout.set_width ((int) this._pango_text_w);

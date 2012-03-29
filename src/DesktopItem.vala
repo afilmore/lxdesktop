@@ -17,28 +17,27 @@ namespace Desktop {
     
     public class Item {
         
-        public Gdk.Pixbuf   icon;
-        private Fm.FileInfo _fileinfo;
-        private string      _disp_name;
+        public Gdk.Pixbuf       icon;
+        private Fm.FileInfo     _fileinfo;
+        private string          _disp_name;
         
         // Position of the item on the desktop and it's index on the grid
         public int origin_x = 0;
         public int origin_y = 0;
         public int index_vertical = -1;
         public int index_horizontal = -1;
-
         
         public Gdk.Rectangle icon_rect;
         public Gdk.Rectangle text_rect;
         
         public bool is_selected = false;
         
-        // is this a special item like "My Computer", mounted volume, or "Trash"
+        // A special item, "My Computer", "Trash", mounted volumes, etc...
         public bool is_special = false;
-        //~ bool is_mount : 1;
         
-        //~ bool is_prelight : 1;
-        //~ bool fixed_pos : 1;
+        // bool is_mount : 1;
+        // bool is_prelight : 1;
+        // bool fixed_pos : 1;
         
         
         /***************************************************************************************************************

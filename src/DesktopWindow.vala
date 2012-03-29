@@ -9,7 +9,8 @@
  * 
  * This software is an experimental rewrite of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
  * 
- * Purpose: A grid to manage the desktop layout.
+ * Purpose: The Desktop Widget. It's simply a derived Gtk.Window, it can be created in a debug mode,
+ *          in that mode, it's not full screen but 3/4 of the screen in a regular window.
  * 
  * 
  **********************************************************************************************************************/
@@ -23,6 +24,15 @@ namespace Desktop {
     private const Gtk.TargetEntry dnd_targets[] = {
         {"application/x-desktop-item", Gtk.TargetFlags.SAME_WIDGET, DesktopDndDest.DESKTOP_ITEM}
     };
+
+/*
+    GtkTargetEntry fm_default_dnd_dest_targets[] =
+    {
+        {"application/x-fmlist-ptr", GTK_TARGET_SAME_APP, FM_DND_DEST_TARGET_FM_LIST},
+        {"text/uri-list", 0, FM_DND_DEST_TARGET_URI_LIST}, // text/uri-list
+        { "XdndDirectSave0", 0, FM_DND_DEST_TARGET_XDS, } // X direct save
+    };
+*/
 
 
     public class Window : Gtk.Window {
@@ -41,8 +51,6 @@ namespace Desktop {
         private int     _drag_start_y = 0;
         private bool    _dnd_started = false;
         
-        // need to add this enum...... in vapi file....
-
         private Fm.DndSrc   _dnd_src;
         private Fm.DndDest  _dnd_dest;
         
@@ -75,24 +83,28 @@ namespace Desktop {
             this.button_release_event.connect (_on_button_release);
             this.motion_notify_event.connect (_on_motion_notify);
             
+            this.drag_motion.connect (_on_drag_motion);
+            this.drag_drop.connect (_on_drag_drop);
+            this.drag_data_received.connect (_on_drag_data_received);
+            this.drag_leave.connect (_on_drag_leave);
+            
+            this.leave_notify_event.connect (_on_leave_notify); // for single click...
             
             /***********************************************************************************************************
              * Handlers to connect when ready...
              *
              * 
-            this.leave_notify_event.connect (on_leave_notify);
-            this.key_press_event.connect (on_key_press);
-            this.style_set.connect (on_style_set);
-            this.direction_changed.connect (on_direction_changed);
-            this.focus_in_event.connect (on_focus_in);
-            this.focus_out_event.connect (on_focus_out);
+            
+            
+            this.key_press_event.connect (_on_key_press);
+            this.style_set.connect (_on_style_set);
+            
+            this.direction_changed.connect (_on_direction_changed);
+            this.focus_in_event.connect (_on_focus_in);
+            this.focus_out_event.connect (_on_focus_out);
             
             this.delete_event.connect ((DeleteEvtHandler) Gtk.true);
 
-            this.drag_motion.connect (on_drag_motion);
-            this.drag_drop.connect (on_drag_drop);
-            this.drag_data_received.connect (on_drag_data_received);
-            this.drag_leave.connect (on_drag_leave);
             
             ***********************************************************************************************************/
             
@@ -193,6 +205,7 @@ namespace Desktop {
 
         /***************************************************************************************************************
          * Working area, Desktop background...
+         * 
          * 
          **************************************************************************************************************/
         public void set_background () {
@@ -431,9 +444,7 @@ namespace Desktop {
             }
             
             // forward the event to root window
-            // Gdk.Event event = null; // temporary fake event forward_event_to_rootwin doesn't work...
             Gdk.Event* real_e = (Gdk.Event*)(&evt);
-            
             XLib.forward_event_to_rootwin (this.get_screen(), real_e);
 
             if (this.has_focus == 0)
@@ -470,9 +481,6 @@ namespace Desktop {
                 return false;
                 
             string cmdline = global_config.app_filemanager + " " + fi.get_path ().to_str ();
-            //stdout.printf ("run default file manager: %s\n", cmdline);
-            //return true;
-            
             
             try {
                 Process.spawn_command_line_async (cmdline);
@@ -514,9 +522,7 @@ namespace Desktop {
             // forward the event to root window
             if (clicked_item == null) {
                 
-                //Gdk.Event event = null; // temporary fake event forward_event_to_rootwin doesn't work...
                 Gdk.Event* real_e = (Gdk.Event*)(&evt);
-                
                 XLib.forward_event_to_rootwin (this.get_screen(), real_e);
             }
             
@@ -572,10 +578,10 @@ namespace Desktop {
             } else if (Gtk.drag_check_threshold (this, _drag_start_x, _drag_start_y, (int) evt.x, (int) evt.y)) {
                 
                 
-                //Fm.FileInfoList files = _grid.get_selected_files ();
+                Fm.FileInfoList? files = _grid.get_selected_files ();
                 Gtk.TargetList target_list;
-// enable DnD                
-                //if (files != null) {
+               
+                if (files != null) {
                     
                     this._dnd_started = true;
                     target_list = Gtk.drag_source_get_target_list (this);
@@ -591,7 +597,7 @@ namespace Desktop {
                                     | Gdk.DragAction.LINK,
                                     1,
                                     real_e);
-                //}
+                }
                 
             }
 
@@ -692,104 +698,32 @@ namespace Desktop {
 
         
         /***************************************************************************************************************
-         * Contextual Menu...
+         * Drag And Drop Handling
          * 
          * 
          * 
          **************************************************************************************************************/
-        private void _create_popup_menu (Gdk.EventButton evt) {
-            
-            /***********************************************************************************************************
-            Fm.FileMenu menu;
-            Gtk.Menu popup;
-            Fm.FileInfo fi;
-            List sel_items;
-            List l;
-            
-            Fm.FileInfoList files;
-            Gtk.UIManager ui;
-            Gtk.ActionGroup act_grp;
-            Gtk.Action act;
-            bool all_fixed = true;
-            bool has_fixed = false;
-            
-            files = new Fm.FileInfoList ();
-            sel_items = this.get_selected_items (null);
-            
-            for (l = sel_items; l; l=l.next) {
-                
-                Desktop.Item item = l.data as Desktop.Item;
-                files.push_tail (item.fi);
-                
-                if (item.fixed_pos == true)
-                    has_fixed = true;
-                else
-                    all_fixed = false;
-            }
-            
-            fi = files.peek_head ();
-            
-            // create a menu and set the open folder function.
-            menu = new Fm.FileMenu.for_files (files, Fm.Path.get_desktop (), true);
-            menu.set_folder_func (pcmanfm_open_folder, desktop);
-            
-            ui = menu.get_ui ();
-            act_grp = menu.get_action_group ();
-            act_grp.set_translation_domain (null);
-            
-            // merge some specific menu items for folders
-            if (menu.is_single_file_type () && fi.is_dir ()) {
-                act_grp.add_actions (folder_menu_actions, G_N_ELEMENTS (folder_menu_actions), menu);
-                ui.add_ui_from_string (folder_menu_xml, -1, null);
-            }
-            
-            // merge desktop icon specific items
-            act_grp.add_actions (desktop_icon_actions, G_N_ELEMENTS (desktop_icon_actions), desktop);
-            
-            desktop_icon_toggle_actions[0].is_active = all_fixed;
-            
-            act_grp.add_toggle_actions (desktop_icon_toggle_actions, G_N_ELEMENTS (desktop_icon_toggle_actions), desktop);
-            
-            // snap to grid
-            if (has_fixed == false) {
-                act = act_grp.get_action ("Snap");
-                act.set_sensitive (false);
-            }
-            ui.add_ui_from_string (desktop_icon_menu_xml, -1, null);
-            
-            popup = menu.get_menu ();
-            popup.popup (null, null, null, fi, 3, evt.time);
-            
-            ***********************************************************************************************************/
-            
-            return;
-        }
-        
-        
-/* *************************************************************************************************************
- * Drag And Drop Handling
- * 
- * 
- * 
- **************************************************************************************************************/
         private void _init_drag_and_drop () {
 
+            return; // needs testing...
             
-// enable Dnd
-            return;
+            /* doesn't build...
+            Gtk.TargetEntry[] target_entries = Fm.default_dnd_dest_targets;
             
             Gtk.drag_source_set (this,
                                  0,
-                                 Fm.default_dnd_dest_targets,
+                                 target_entries,
                                 Gdk.DragAction.COPY
                                 | Gdk.DragAction.MOVE
                                 | Gdk.DragAction.LINK
                                 | Gdk.DragAction.ASK);
-            
+            */
             Gtk.TargetList targets = Gtk.drag_source_get_target_list (this);
             
+            /* doesn't build...
             // add our own targets
             targets.add_table (dnd_targets, dnd_targets.length);
+            */
             
             // a dirty way to override FmDndSrc.
             
@@ -868,7 +802,7 @@ namespace Desktop {
                     
                     if (item != null) {
                         
-                        // if (fm_file_info_is_dir(item->fi))
+                        // if (fm_file_info_is_dir(item->fi)) commented in PCManFm...
                         dest_file = item.get_fileinfo ();
                     }
                     
@@ -908,12 +842,9 @@ namespace Desktop {
             return ret;
         }
 
-        private bool _on_drag_leave  (Gtk.Widget dest_widget,
-                                      Gdk.DragContext drag_context,
+        private void _on_drag_leave  (Gdk.DragContext drag_context,
                                       uint time) {
                                           
-            //Desktop.Window desktop = dest_widget as Desktop.Window;
-
             this._dnd_dest.drag_leave (drag_context, time);
 
             Desktop.Item? _drop_hilight = null; // temporary fake item...
@@ -926,7 +857,7 @@ namespace Desktop {
                 old_drop.redraw (this.get_window ());
             }
 
-            return true;
+            return; // void function in Vala...
         }
 
         private bool _on_drag_drop (Gtk.Widget dest_widget,
@@ -935,10 +866,6 @@ namespace Desktop {
                                     int y,
                                     uint time) {
                                         
-            //Desktop.Window desktop = dest_widget as Desktop.Window;
-            
-            //Gtk.TreeViewDropPosition pos;
-            
             bool ret = false;
             
             Gdk.Atom target;
@@ -997,10 +924,6 @@ namespace Desktop {
             return ret;
         }
 
-        private bool _save_item_pos () {
-            return true;
-        }
-        
         private void _on_drag_data_received (Gtk.Widget dest_widget,
                                              Gdk.DragContext drag_context,
                                              int x,
@@ -1009,15 +932,6 @@ namespace Desktop {
                                              uint info,
                                              uint time) {
                                                  
-            // unused variables...
-            //Desktop.Window desktop = dest_widget as Desktop.Window;
-            
-            //Gtk.TreePath dest_tp = null;
-            
-            //Gtk.TreeViewDropPosition pos;
-            
-            //bool ret = false;
-
             switch (info) {
                 
                 case DesktopDndDest.DESKTOP_ITEM:
@@ -1039,18 +953,16 @@ namespace Desktop {
             // desktop items are being dragged
             if (info == DesktopDndDest.DESKTOP_ITEM)
                 Signal.stop_emission_by_name (this, "drag-data-get");
-                //src_widget.drag_data_get.stop_emission_by_name ("drag-data-get");
             
         }
 
-//        private void _on_dnd_src_data_get (Fm.DndSrc ds, Desktop.Window desktop) {
+
         private void _on_dnd_src_data_get () {
             
             Fm.FileInfoList files = _grid.get_selected_files ();
             
             if (files != null) {
                 
-                //ds.set_files (files);
                 _dnd_src.set_files (files);
                 
                 // files.unref(); is it needed in Vala ???
@@ -1058,10 +970,104 @@ namespace Desktop {
         }
 
 
+        /***************************************************************************************************************
+         * Single click...
+         * 
+         * 
+         * 
+         **************************************************************************************************************/
+        private bool _on_leave_notify (Gdk.EventCrossing evt) {
+            
+            /*
+            if (this.single_click_timeout_handler) {
+                Source.remove (this.single_click_timeout_handler);
+                this.single_click_timeout_handler = 0;
+            }
+            */
+            
+            return true;
+        }
 
-
-
-
+        private bool _save_item_pos () {
+            // temporary...
+            return true;
+        }
+        
+        
+        /***************************************************************************************************************
+         * Contextual Menu...
+         * 
+         * 
+         * 
+         **************************************************************************************************************/
+        private void _create_popup_menu (Gdk.EventButton evt) {
+            
+            /***********************************************************************************************************
+            Fm.FileMenu menu;
+            Gtk.Menu popup;
+            Fm.FileInfo fi;
+            List sel_items;
+            List l;
+            
+            Fm.FileInfoList files;
+            Gtk.UIManager ui;
+            Gtk.ActionGroup act_grp;
+            Gtk.Action act;
+            bool all_fixed = true;
+            bool has_fixed = false;
+            
+            files = new Fm.FileInfoList ();
+            sel_items = this.get_selected_items (null);
+            
+            for (l = sel_items; l; l=l.next) {
+                
+                Desktop.Item item = l.data as Desktop.Item;
+                files.push_tail (item.fi);
+                
+                if (item.fixed_pos == true)
+                    has_fixed = true;
+                else
+                    all_fixed = false;
+            }
+            
+            fi = files.peek_head ();
+            
+            // create a menu and set the open folder function.
+            menu = new Fm.FileMenu.for_files (files, Fm.Path.get_desktop (), true);
+            menu.set_folder_func (pcmanfm_open_folder, desktop);
+            
+            ui = menu.get_ui ();
+            act_grp = menu.get_action_group ();
+            act_grp.set_translation_domain (null);
+            
+            // merge some specific menu items for folders
+            if (menu.is_single_file_type () && fi.is_dir ()) {
+                act_grp.add_actions (folder_menu_actions, G_N_ELEMENTS (folder_menu_actions), menu);
+                ui.add_ui_from_string (folder_menu_xml, -1, null);
+            }
+            
+            // merge desktop icon specific items
+            act_grp.add_actions (desktop_icon_actions, G_N_ELEMENTS (desktop_icon_actions), desktop);
+            
+            desktop_icon_toggle_actions[0].is_active = all_fixed;
+            
+            act_grp.add_toggle_actions (desktop_icon_toggle_actions, G_N_ELEMENTS (desktop_icon_toggle_actions), desktop);
+            
+            // snap to grid
+            if (has_fixed == false) {
+                act = act_grp.get_action ("Snap");
+                act.set_sensitive (false);
+            }
+            ui.add_ui_from_string (desktop_icon_menu_xml, -1, null);
+            
+            popup = menu.get_menu ();
+            popup.popup (null, null, null, fi, 3, evt.time);
+            
+            ***********************************************************************************************************/
+            
+            return;
+        }
+        
         
 /* *********************************************************************************************************************
  * Currently unused functions....
@@ -1069,26 +1075,6 @@ namespace Desktop {
  * 
  * 
  **********************************************************************************************************************/
-        private inline bool is_atom_in_targets (List? targets, string name) {
-            
-            /* doesn't build...
-            unowned GLib.List? atoms = (GLib.List?) targets;
-            
-            foreach (Gdk.Atom atom in atoms) {
-            }
-            List? l;
-            
-            for (l = targets; l; l=l.next) {
-                
-                Gdk.Atom atom = (Gdk.Atom) l.data;
-                
-                if (Gdk.Atom.intern (name, false) != 0)
-                    return true;
-            }*/
-            
-            return false;
-        }
-
         /***************************************************************************************************************
          * Keyboard handling and file system actions...
          * 
@@ -1278,24 +1264,6 @@ namespace Desktop {
         }
         
         
-        /***************************************************************************************************************
-         * Single click...
-         * 
-         * 
-         * 
-         **************************************************************************************************************/
-        private bool _on_leave_notify (Gdk.EventCrossing evt) {
-            
-            /*
-            if (this.single_click_timeout_handler) {
-                Source.remove (this.single_click_timeout_handler);
-                this.single_click_timeout_handler = 0;
-            }
-            */
-            
-            return true;
-        }
-
         private bool _on_single_click_timeout () {
             
             /***********************************************************************************************************
@@ -1538,6 +1506,92 @@ namespace Desktop {
  * Grid.append_item () replaces layout_items ()
  * 
  * 
+private void _layout_items () {
+    
+    List l;
+    Desktop.Item item;
+    int x;
+    int y;
+    int bottom;
+    
+    Gtk.TextDirection direction = this.get_direction ();
+
+    y = this.working_area.y + this.ymargin;
+    bottom = this.working_area.y + this.working_area.height - this.ymargin - this.cell_h;
+
+    // LTR or NONE
+    if (direction != GTK_TEXT_DIR_RTL) {
+        x = this.working_area.x + this.xmargin;
+        
+        for (l = this.items; l; l = l.next) {
+            item = l.data as Desktop.Item;
+            
+            if (item.fixed_pos) {
+                calc_item_size (item);
+            
+            } else {
+                
+                _next_position:
+                
+                item.x = x;
+                item.y = y;
+                calc_item_size (item);
+                y += this.cell_h;
+                
+                if (y > bottom) {
+                    x += this.cell_w;
+                    y = this.working_area.y + this.ymargin;
+                }
+                
+                // check if this position is occupied by a fixed item
+                if (is_pos_occupied (item))
+                    goto _next_position;
+            }
+        }
+    
+    // RTL
+    } else {
+        
+        x = this.working_area.x + this.working_area.width - this.xmargin - this.cell_w;
+        
+        for (l = this.items; l; l = l.next) {
+            
+            item = l.data as Desktop.Item;
+            
+            if (item.fixed_pos) {
+                calc_item_size (item);
+            
+            } else {
+                
+                _next_position_rtl:
+                
+                item.x = x;
+                item.y = y;
+                
+                calc_item_size (item);
+                y += this.cell_h;
+                
+                if (y > bottom) {
+                    x -= this.cell_w;
+                    y = this.working_area.y + this.ymargin;
+                }
+                
+                // check if this position is occupied by a fixed item
+                if (is_pos_occupied (item))
+                    goto _next_position_rtl;
+            }
+        }
+    }
+    
+    this.queue_draw ();
+    
+}
+
+***********************************************************************************************************************/
+
+
+/***********************************************************************************************************************
+ * Load save item positions...
  * 
  * 
  * 
@@ -1627,88 +1681,28 @@ static void save_item_pos(FmDesktop* desktop)
     g_string_free(buf, TRUE);
 }
 
-private void _layout_items () {
-    
-    List l;
-    Desktop.Item item;
-    int x;
-    int y;
-    int bottom;
-    
-    Gtk.TextDirection direction = this.get_direction ();
-
-    y = this.working_area.y + this.ymargin;
-    bottom = this.working_area.y + this.working_area.height - this.ymargin - this.cell_h;
-
-    // LTR or NONE
-    if (direction != GTK_TEXT_DIR_RTL) {
-        x = this.working_area.x + this.xmargin;
-        
-        for (l = this.items; l; l = l.next) {
-            item = l.data as Desktop.Item;
-            
-            if (item.fixed_pos) {
-                calc_item_size (item);
-            
-            } else {
-                
-                _next_position:
-                
-                item.x = x;
-                item.y = y;
-                calc_item_size (item);
-                y += this.cell_h;
-                
-                if (y > bottom) {
-                    x += this.cell_w;
-                    y = this.working_area.y + this.ymargin;
-                }
-                
-                // check if this position is occupied by a fixed item
-                if (is_pos_occupied (item))
-                    goto _next_position;
-            }
-        }
-    
-    // RTL
-    } else {
-        
-        x = this.working_area.x + this.working_area.width - this.xmargin - this.cell_w;
-        
-        for (l = this.items; l; l = l.next) {
-            
-            item = l.data as Desktop.Item;
-            
-            if (item.fixed_pos) {
-                calc_item_size (item);
-            
-            } else {
-                
-                _next_position_rtl:
-                
-                item.x = x;
-                item.y = y;
-                
-                calc_item_size (item);
-                y += this.cell_h;
-                
-                if (y > bottom) {
-                    x -= this.cell_w;
-                    y = this.working_area.y + this.ymargin;
-                }
-                
-                // check if this position is occupied by a fixed item
-                if (is_pos_occupied (item))
-                    goto _next_position_rtl;
-            }
-        }
-    }
-    
-    this.queue_draw ();
-    
-}
-
 ***********************************************************************************************************************/
 
+
+/* unused function even in PCManFm...
+private inline bool is_atom_in_targets (List? targets, string name) {
+    
+    // doesn't build...
+    unowned GLib.List? atoms = (GLib.List?) targets;
+    
+    foreach (Gdk.Atom atom in atoms) {
+    }
+    List? l;
+    
+    for (l = targets; l; l=l.next) {
+        
+        Gdk.Atom atom = (Gdk.Atom) l.data;
+        
+        if (Gdk.Atom.intern (name, false) != 0)
+            return true;
+    }
+    
+    return false;
+}*/
 
 
