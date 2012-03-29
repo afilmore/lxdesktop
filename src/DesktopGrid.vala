@@ -656,6 +656,26 @@ namespace Desktop {
             }
         }
         
+        public Fm.FileInfoList get_selected_files () {
+            
+            List l;
+            
+            Fm.FileInfoList files = new Fm.FileInfoList ();
+            /*
+            for (l=desktop.items; l; l=l.next) {
+                
+                Desktop.Item item = l.data as Desktop.Item;
+                if (item.is_selected)
+                    files.push_tail (item.fi);
+            }
+            
+            if (files.is_empty()) {
+                files = null;
+            }*/
+            
+            return files;
+        }
+        
         
         /* *************************************************************************************************************
          * Currently unused functions....
@@ -686,11 +706,24 @@ namespace Desktop {
             }
         }
 
-        // See where to store these focus items, in the grid ? probably...
-        private List get_selected_items (out int n_items) {
+        public void move_items (int x, int y, int drag_x, int drag_y) {
             
-            List? items = null;
-            /*
+            // desktop items are being dragged
+            int offset_x = x - drag_x;
+            int offset_y = y - drag_y;
+
+            foreach (Desktop.Item item in _grid_items) {
+//                this.move_item (item2, item2.x + offset_x, item2.y + offset_y, false);
+            }
+
+        }
+        
+        // See where to store these focus items, in the grid ? probably...
+        /* unused
+        public List get_selected_items (out int n_items) {
+            
+            List<Desktop.Item>? items = null;
+            
             List l;
             int n = 0;
             
@@ -719,10 +752,10 @@ namespace Desktop {
             
             if (n_items)
                 *n_items = n;
-            */
+            
             return items;
             
-        }
+        }*/
 
         private void open_selected_items () {
             
@@ -793,25 +826,6 @@ namespace Desktop {
             return files;
         }*/
 
-        /* FileInfoList not in vapi file yet...
-        private Fm.FileInfoList get_selected_files() {
-            
-            List l;
-            
-            Fm.FileInfoList files = new FileInfoList ();
-            
-            for (l=desktop.items; l; l=l.next) {
-                
-                Desktop.Item item = l.data as Desktop.Item;
-                if (item.is_selected)
-                    files.push_tail (item.fi);
-            }
-            
-            if (files.is_empty()) {
-                files = null;
-            }
-            return files;
-        }*/
     }
 }
 

@@ -130,8 +130,8 @@ void xlib_get_working_area (GdkScreen *screen, GdkRectangle *out_rect) {
 
 
 /* *********************************************************************************************************************
- * This function is taken from xfdesktop, doesn't build from Vala code...
- * 
+ * This function is taken from xfdesktop...
+ *  
  * 
  **********************************************************************************************************************/
 void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
@@ -141,7 +141,7 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
     
     Display *dpy = GDK_DISPLAY_XDISPLAY (gdk_screen_get_display (gscreen));
 
-    // this doesn't build from Vala code, we have passed a fake null event...
+    // disabled... needs testing...
     return;
     
     if (event->type == GDK_BUTTON_PRESS || event->type == GDK_BUTTON_RELEASE) {
