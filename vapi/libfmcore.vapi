@@ -22,7 +22,7 @@ namespace Fm {
         TILE
     }
 
-	[CCode (cheader_filename = "fmcore.h")]
+	[CCode (cheader_filename = "fm-config.h", type = "FmConfig*")]
 	public class Config : GLib.Object {
 		public weak string archiver;
 		public uint big_icon_size;

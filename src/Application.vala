@@ -56,7 +56,7 @@ namespace Desktop {
                 
             _debug_mode = debug;
             
-            global_config = new Desktop.Config ();
+//            global_config = new Desktop.Config ();
 
             if (_wingroup == null)
                 _wingroup = new Gtk.WindowGroup ();
@@ -169,7 +169,7 @@ namespace Desktop {
             // My Computer
             icon_name = "computer";
             pixbuf = icon_theme.load_icon (icon_name,
-                                           global_config.big_icon_size,
+                                           (int) global_config.big_icon_size,
                                            Gtk.IconLookupFlags.FORCE_SIZE);
             special = new Desktop.Item (pixbuf);
             desktop.get_grid ().append_item (special);
@@ -177,7 +177,7 @@ namespace Desktop {
             // My Documents
             icon_name = "folder-documents";
             pixbuf = icon_theme.load_icon (icon_name,
-                                           global_config.big_icon_size,
+                                           (int) global_config.big_icon_size,
                                            Gtk.IconLookupFlags.FORCE_SIZE);
             special = new Desktop.Item (pixbuf);
             desktop.get_grid ().append_item (special);
@@ -185,7 +185,7 @@ namespace Desktop {
             // Trash Can
             icon_name = "user-trash";
             pixbuf = icon_theme.load_icon (icon_name,
-                                           global_config.big_icon_size,
+                                           (int) global_config.big_icon_size,
                                            Gtk.IconLookupFlags.FORCE_SIZE);
             special = new Desktop.Item (pixbuf);
             desktop.get_grid ().append_item (special);
@@ -212,9 +212,10 @@ namespace Desktop {
             }
             */
             
-            Fm.Config config = new Fm.Config ();
-            stdout.printf ("big_icon_size: %u\n", config.big_icon_size);
-            Fm.init (config);
+            global_config = new Desktop.Config ();
+            //Fm.Config config = new Fm.Config ();
+            //stdout.printf ("big_icon_size: %u\n", config.big_icon_size);
+            Fm.init (global_config);
             
             // fm_volume_manager_init ();
 

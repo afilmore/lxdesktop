@@ -91,7 +91,7 @@ namespace Desktop {
             _icon_renderer = new Gtk.CellRendererPixbuf ();
             _icon_renderer.set ("follow-state", true, null);
             _icon_renderer.ref_sink ();
-            _icon_renderer.set_fixed_size (global_config.big_icon_size, global_config.big_icon_size);
+            _icon_renderer.set_fixed_size ((int) global_config.big_icon_size, (int) global_config.big_icon_size);
         }
         
         ~Grid () {
@@ -172,8 +172,8 @@ namespace Desktop {
             // stdout.printf ("font_h:%i, text_h:%i, text_w:%i, pango_text_h:%u, pango_text_w:%u\n",
             //               font_h, text_h, text_w, _pango_text_h, _pango_text_w);
             
-            _cell_height = global_config.big_icon_size + SPACING + (int) _text_h + PADDING * 2;
-            _cell_width = int.max ((int) _text_w, global_config.big_icon_size) + PADDING * 2;
+            _cell_height = (int) global_config.big_icon_size + SPACING + (int) _text_h + PADDING * 2;
+            _cell_width = int.max ((int) _text_w, (int) global_config.big_icon_size) + PADDING * 2;
             
             _index_last_v = (_working_area.height / _cell_height) -1;
             _index_last_h = (_working_area.width / _cell_width) -1;
@@ -408,8 +408,8 @@ namespace Desktop {
             _pango_layout.set_text ("", 0);
 
             // set icon / text size...
-            item.icon_rect.width =  global_config.big_icon_size;
-            item.icon_rect.height = global_config.big_icon_size;
+            item.icon_rect.width =  (int) global_config.big_icon_size;
+            item.icon_rect.height = (int) global_config.big_icon_size;
             item.text_rect.width =  logical_rect.width + 4;
             item.text_rect.height = logical_rect.height + 4;
 

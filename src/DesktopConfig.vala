@@ -15,15 +15,13 @@
  **********************************************************************************************************************/
 namespace Desktop {
     
-    public class Config {
+    public class Config : Fm.Config {
         
         public string           app_filemanager = "pcmanfm";
         
-        // Desktop Config. (see LibFm/src/base/fm-config.h)
         public Fm.WallpaperMode wallpaper_mode = Fm.WallpaperMode.COLOR;
         public string           wallpaper;
         public uint             wallpaper_changed = 0;
-        public int              big_icon_size = 36;
         
         public Gdk.Color        color_background;
         public Gdk.Color        color_text;
@@ -68,31 +66,33 @@ namespace Desktop {
         Gdk.Color desktop_shadow;
         */
         
-        public bool             single_click;
-        
-        /*
-        private bool            use_trash;
-        private bool            confirm_del;
-        private uint            big_icon_size;
-        private uint            small_icon_size;
-        private uint            pane_icon_size;
-        private uint            thumbnail_size;
-        private bool            show_thumbnail;
-        private bool            thumbnail_local;
-        private uint            thumbnail_max;
-        private bool            show_internal_volumes;
-        private string          terminal;
-        private bool            si_unit;
-        private string          archiver;
-        */
-        
         public Config () {
             
             // set a default background color.
             Gdk.Color.parse ("#3C6DA5", out color_background); // Win2K's blue desktop :P
             Gdk.Color.parse ("#FFFFFF", out color_text);
             Gdk.Color.parse ("#000000", out color_shadow);
+            
+            big_icon_size = 36;
+            
+            /* FmConfig. (see LibFm/src/base/fm-config.h)
+            single_click;
+            use_trash;
+            confirm_del;
+            small_icon_size;
+            pane_icon_size;
+            thumbnail_size;
+            show_thumbnail;
+            thumbnail_local;
+            thumbnail_max;
+            show_internal_volumes;
+            terminal;
+            si_unit;
+            archiver;
+            */
+        
         }
+        
         
         /***************************************************************************************************************
          * Desktop Configuration handlers.
