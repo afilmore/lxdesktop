@@ -212,7 +212,9 @@ namespace Desktop {
             }
             */
             
-            Fm.init ();
+            Fm.Config config = new Fm.Config ();
+            stdout.printf ("big_icon_size: %u\n", config.big_icon_size);
+            Fm.init (config);
             
             // fm_volume_manager_init ();
 

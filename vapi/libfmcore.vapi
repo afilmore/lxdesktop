@@ -22,8 +22,30 @@ namespace Fm {
         TILE
     }
 
+	[CCode (cheader_filename = "fmcore.h")]
+	public class Config : GLib.Object {
+		public weak string archiver;
+		public uint big_icon_size;
+		public bool confirm_del;
+		public uint pane_icon_size;
+		public bool show_internal_volumes;
+		public bool show_thumbnail;
+		public bool si_unit;
+		public bool single_click;
+		public uint small_icon_size;
+		public weak string terminal;
+		public bool thumbnail_local;
+		public uint thumbnail_max;
+		public uint thumbnail_size;
+		public bool use_trash;
+		[CCode (has_construct_function = false)]
+		public Config ();
+		[NoWrapper]
+		public virtual void changed ();
+	}
+
 	[CCode (cheader_filename = "fmcore.h", cprefix = "fm_")]
-	public static bool init ();
+	public static bool init (Fm.Config config);
 	
 	[CCode (cheader_filename = "fmcore.h", cprefix = "fm_")]
 	public static void finalize ();
