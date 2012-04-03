@@ -635,7 +635,7 @@ namespace Desktop {
         public void set_selected_item (Desktop.Item? item) {
             
             if (this._selected_item != null) {
-                _selected_item.is_selected = false;
+                //_selected_item.is_selected = false;
                 _selected_item.redraw (_window);
             }
             
@@ -653,22 +653,20 @@ namespace Desktop {
             }
         }
         
-        public Fm.FileInfoList get_selected_files () {
+        public Fm.FileInfoList? get_selected_files () {
             
-            List l;
+            Fm.FileInfoList<Fm.FileInfo> files = new Fm.FileInfoList<Fm.FileInfo> ();
             
-            Fm.FileInfoList files = new Fm.FileInfoList ();
-            /*
-            for (l=desktop.items; l; l=l.next) {
+            foreach (Desktop.Item item in _grid_items) {
                 
-                Desktop.Item item = l.data as Desktop.Item;
-                if (item.is_selected)
-                    files.push_tail (item.fi);
+                if (item.is_selected) {
+                    stdout.printf ("selected item !!!\n");
+                    files.push_tail (item.get_fileinfo ());
+                }
             }
             
-            if (files.is_empty()) {
-                files = null;
-            }*/
+            if (files.is_empty())
+                return null;
             
             return files;
         }
@@ -716,9 +714,9 @@ namespace Desktop {
         }
         
         // See where to store these focus items, in the grid ? probably...
-        /* unused
         public List get_selected_items (out int n_items) {
             
+            /*
             List<Desktop.Item>? items = null;
             
             List l;
@@ -750,9 +748,9 @@ namespace Desktop {
             if (n_items)
                 *n_items = n;
             
-            return items;
-            
-        }*/
+            return items;*/
+            return null;
+        }
 
         private void open_selected_items () {
             

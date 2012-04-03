@@ -75,7 +75,7 @@ void xlib_get_working_area (GdkScreen *screen, GdkRectangle *out_rect) {
     // get current desktop
     if ((XGetWindowProperty (GDK_WINDOW_XDISPLAY (root),
                              GDK_WINDOW_XID (root),
-                             XInternAtom (GDK_WINDOW_XDISPLAY(root),
+                             XInternAtom (GDK_WINDOW_XDISPLAY (root),
                                           "_NET_CURRENT_DESKTOP",
                                           False),
                              0,
@@ -97,8 +97,8 @@ void xlib_get_working_area (GdkScreen *screen, GdkRectangle *out_rect) {
     if ((XGetWindowProperty (GDK_WINDOW_XDISPLAY (root),
                              GDK_WINDOW_XID (root),
                              XInternAtom (GDK_WINDOW_XDISPLAY (root),
-                             "_NET_WORKAREA",
-                             False),
+                                          "_NET_WORKAREA",
+                                          False),
                              0,
                              4 * 32,
                              False,
@@ -162,7 +162,7 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
         }
 
         xev.button =    event->button.button;
-        xev.x =         event->button.x;    /* Needed for icewm */
+        xev.x =         event->button.x;    // Needed for icewm
         xev.y =         event->button.y;
         xev.x_root =    event->button.x_root;
         xev.y_root =    event->button.y_root;
@@ -174,7 +174,7 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
         
         xev.type =      ButtonPress;
         xev.button =    event->scroll.direction + 4;
-        xev.x =         event->scroll.x;    /* Needed for icewm */
+        xev.x =         event->scroll.x;    // Needed for icewm
         xev.y =         event->scroll.y;
         xev.x_root =    event->scroll.x_root;
         xev.y_root =    event->scroll.y_root;
@@ -203,7 +203,7 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
     if (xev2.type == 0)
         return ;
 
-    /* send button release for scroll event */
+    // send button release for scroll event
     xev2.window =       xev.window;
     xev2.root =         xev.root;
     xev2.subwindow =    xev.subwindow;
@@ -225,123 +225,53 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
 }
 
 
-void xlib_set_wallpaper (GdkPixbuf* pix, FmWallpaperMode wallpaper_mode) {
+void xlib_set_pixmap (GtkWidget* widget, GdkPixmap* pixmap) {
     
-    if (wallpaper_mode == FM_WP_TILE) // just a compile test with wallpaper mode...
-        return;
+    GdkWindow* window = gtk_widget_get_window (widget);
+    GdkWindow* root = gdk_screen_get_root_window (gtk_widget_get_screen (widget));
     
-    
-    /* *****************************************************************************************************************
-     * not implemented yet... doesn't build and needs to be ported to GTK3...
-     * 
-     * 
-     *****************************************************************************************************************/
-
-/*
-    int src_w;
-    int src_h;
-    int dest_w;
-    int dest_h;
-    
-    src_w = gdk_pixbuf_get_width (pix);
-    src_h = gdk_pixbuf_get_height (pix);
-    
-    GdkPixmap* pixmap;
-
-    if (wallpaper_mode == FM_WP_TILE) {
-        dest_w = src_w;
-        dest_h = src_h;
-        pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
-    } else {
-        GdkScreen* screen = gtk_widget_get_screen (widget);
-        dest_w = gdk_screen_get_width (screen);
-        dest_h = gdk_screen_get_height (screen);
-        pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
-    }
-
-    if (gdk_pixbuf_get_has_alpha(pix)
-        || wallpaper_mode == FM_WP_CENTER
-        || wallpaper_mode == FM_WP_FIT) {
-        gdk_gc_set_rgb_fg_color (desktop->gc, &desktop_bg);
-        gdk_draw_rectangle (pixmap, desktop->gc, true, 0, 0, dest_w, dest_h);
-    }
-
-    GdkPixbuf *scaled;
-    switch (wallpaper_mode) {
-        case FM_WP_TILE:
-            gdk_draw_pixbuf (pixmap, desktop->gc, pix, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
-        break;
-        
-        case FM_WP_STRETCH:
-            
-            if (dest_w == src_w && dest_h == src_h)
-                scaled = (GdkPixbuf*)g_object_ref (pix);
-            else
-                scaled = gdk_pixbuf_scale_simple (pix, dest_w, dest_h, GDK_INTERP_BILINEAR);
-            
-            gdk_draw_pixbuf (pixmap, desktop->gc, scaled, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
-            g_object_unref(scaled);
-        
-        break;
-        
-        case FM_WP_FIT:
-            if (dest_w != src_w || dest_h != src_h) {
-                
-                gdouble w_ratio = (float)dest_w / src_w;
-                gdouble h_ratio = (float)dest_h / src_h;
-                gdouble ratio = MIN(w_ratio, h_ratio);
-                
-                if (ratio != 1.0) {
-                    src_w *= ratio;
-                    src_h *= ratio;
-                    scaled = gdk_pixbuf_scale_simple(pix, src_w, src_h, GDK_INTERP_BILINEAR);
-                    g_object_unref(pix);
-                    pix = scaled;
-                }
-            }
-        
-        // continue to execute code in case FM_WP_CENTER
-        case FM_WP_CENTER: {
-            int x, y;
-            x = (dest_w - src_w)/2;
-            y = (dest_h - src_h)/2;
-            gdk_draw_pixbuf (pixmap, desktop->gc, pix, 0, 0, x, y, -1, -1, GDK_RGB_DITHER_NORMAL, 0, 0);
-        }
-        break;
-    }
-    
-    gdk_window_set_back_pixmap(root, pixmap, false);
-    gdk_window_set_back_pixmap(window, null, true);
-
     Pixmap pixmap_id;
+    pixmap_id = GDK_DRAWABLE_XID (pixmap);
     
-    pixmap_id = GDK_DRAWABLE_XID(pixmap);
-    XChangeProperty(GDK_WINDOW_XDISPLAY(root), GDK_WINDOW_XID(root),
-                    XA_XROOTMAP_ID, XA_PIXMAP, 32, PropModeReplace, (guchar*)&pixmap_id, 1);
+    /*
+    XChangeProperty (GDK_WINDOW_XDISPLAY (root),
+                     GDK_WINDOW_XID (root),
+                     XA_XROOTMAP_ID,
+                     XA_PIXMAP,
+                     32,
+                     PropModeReplace,
+                     (guchar*) &pixmap_id, 1);*/
+
+    XChangeProperty (GDK_WINDOW_XDISPLAY (root),
+                     GDK_WINDOW_XID (root),
+                     gdk_x11_get_xatom_by_name("_XROOTPMAP_ID"),
+                     XA_PIXMAP,
+                     32,
+                     PropModeReplace,
+                     (guchar*) &pixmap_id, 1);
 
     // set root map here
-    Display* xdisplay;
-    xdisplay = GDK_WINDOW_XDISPLAY(root);
-    Window xroot;
-    xroot = GDK_WINDOW_XID(root);
+    Display* xdisplay = GDK_WINDOW_XDISPLAY (root);
+    Window xroot = GDK_WINDOW_XID (root);
 
     XGrabServer (xdisplay);
 
     Pixmap xpixmap = 0;
-    if (pixmap)
-    {
-        xpixmap = GDK_WINDOW_XWINDOW(pixmap);
+    if (pixmap) {
+        
+        xpixmap = GDK_WINDOW_XWINDOW (pixmap);
 
         XChangeProperty (xdisplay,
-                    xroot,
-                    gdk_x11_get_xatom_by_name("_XROOTPMAP_ID"), XA_PIXMAP,
-                    32, PropModeReplace,
-                    (guchar *) &xpixmap, 1);
+                         xroot,
+                         gdk_x11_get_xatom_by_name("_XROOTPMAP_ID"),
+                         XA_PIXMAP,
+                         32,
+                         PropModeReplace,
+                         (guchar *) &xpixmap, 1);
 
         XSetWindowBackgroundPixmap (xdisplay, xroot, xpixmap);
-    }
-    else
-    {
+    
+    } else {
         // FIXME: Anyone knows how to handle this correctly???
     }
     
@@ -350,14 +280,11 @@ void xlib_set_wallpaper (GdkPixbuf* pix, FmWallpaperMode wallpaper_mode) {
     XUngrabServer (xdisplay);
     XFlush (xdisplay);
 
-    g_object_unref(pixmap);
-    if (pix)
-        g_object_unref(pix);
+    g_object_unref (pixmap);
 
-    gdk_window_clear(root);
-    gdk_window_clear(window);
-    gdk_window_invalidate_rect(window, null, true);
-    */
+    gdk_window_clear (root);
+    gdk_window_clear (window);
+    gdk_window_invalidate_rect (window, NULL, TRUE);
     
     return;
 }

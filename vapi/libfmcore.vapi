@@ -29,13 +29,24 @@ namespace Fm {
 	public static void finalize ();
 	
     
+	[CCode (cheader_filename = "fm-file-menu.h", cprefix = "fm_", free_function = "fm_file_menu_destroy")]
+	[Compact]
+	public class FileMenu {
+		[CCode (has_construct_function = false)]
+		public FileMenu.for_file (Gtk.Window parent, Fm.FileInfo fi, Fm.Path cwd, bool auto_destroy);
+		[CCode (has_construct_function = false)]
+		public FileMenu.for_files (Gtk.Window parent, Fm.FileInfoList files, Fm.Path cwd, bool auto_destroy);
+		public unowned Gtk.ActionGroup get_action_group ();
+		public unowned Fm.FileInfoList get_file_info_list ();
+		public unowned Gtk.Menu get_menu ();
+		public unowned Gtk.UIManager get_ui ();
+		public bool is_single_file_type ();
+		public void set_folder_func (Fm.LaunchFolderFunc func);
+	}
+
 	[CCode (cheader_filename = "fm-list.h", cprefix = "fm_", ref_function = "fm_list_ref", unref_function = "fm_list_unref")]
 	[Compact]
-	public class List {
-		
-        public weak Fm.ListFuncs funcs;
-		public weak GLib.Queue list;
-		public int n_ref;
+	public class List<G> : GLib.Queue<G> {
 		
         [CCode (has_construct_function = false)]
 		public List (Fm.ListFuncs funcs);
@@ -284,7 +295,7 @@ namespace Fm {
     
 	[CCode (cheader_filename = "fm-file-info.h", cname = "FmFileInfoList", cprefix = "fm_file_info_list_")]
 	[Compact]
-	public class FileInfoList : Fm.List {
+	public class FileInfoList<G> : Fm.List<G> {
 		[CCode (has_construct_function = false)]
 		public FileInfoList ();
 		[CCode (has_construct_function = false)]

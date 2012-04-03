@@ -210,9 +210,11 @@ namespace Desktop {
             
             Gdk.Window window = this.get_window ();
             Gdk.Window root = this.get_screen ().get_root_window ();
-
-            Gdk.Pixbuf? pix = null;
-            if (global_config.wallpaper_mode == Fm.WallpaperMode.COLOR
+            
+            Fm.WallpaperMode wallpaper_mode = global_config.wallpaper_mode;
+            Gdk.Pixbuf? pix;
+            
+            if (wallpaper_mode == Fm.WallpaperMode.COLOR
                || global_config.wallpaper == ""
                || (pix = new Gdk.Pixbuf.from_file (global_config.wallpaper)) == null) {
                 
@@ -233,8 +235,7 @@ namespace Desktop {
                 return;
             }
             
-            // Set the wallpaper (not implemented yet...)
-            XLib.set_wallpaper (pix, global_config.wallpaper_mode);
+            this._set_wallpaper ();
             
             return;
         }
@@ -333,12 +334,46 @@ namespace Desktop {
             
             Desktop.Item? clicked_item = _grid.hit_test (evt.x, evt.y);
             
+            
+            /***********************************************************************************************************
+             * Left double click on a selected item, launch the selected file...
+             * 
+             * 
+             **********************************************************************************************************/
+            if (evt.type == Gdk.EventType.2BUTTON_PRESS
+                && evt.button == 1
+                && clicked_item != null) {
+                
+                // action open........
+                if (clicked_item.is_special)
+                    return true; // TODO: open/browse special items...
+                
+                Fm.FileInfo? fi = clicked_item.get_fileinfo ();
+                
+                if (fi.is_dir ()
+                || fi.is_mountable ()) {
+                    
+                    this.action_open_folder (fi);
+                
+                } else if (fi.is_unknown_type ()) {
+                
+                } else {
+                    
+                    this.action_open_file (fi);
+                }
+                
+                if (this.has_focus == 0)
+                    this.grab_focus ();
+                
+                return true;
+                
+            
             /***********************************************************************************************************
              * Single click...
              * 
              * 
              **********************************************************************************************************/
-            if (evt.type == Gdk.EventType.BUTTON_PRESS) {
+            } else if (evt.type == Gdk.EventType.BUTTON_PRESS) {
                 
                 // left button, save state for drag and drop
                 if (evt.button == 1) {
@@ -350,9 +385,9 @@ namespace Desktop {
 
                 // if ctrl / shift is not pressed, deselect all, don't cancel selection if clicking on selected items
                 if ((evt.state & (Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK)) == 0
-                     && (evt.button == 1 || evt.button == 3)
-                     && clicked_item != null
-                     && clicked_item.is_selected == true) {
+                     && ((evt.button == 1 || evt.button == 3)
+                          && clicked_item != null
+                          && clicked_item.is_selected) == false) {
                     
                     _grid.deselect_all ();
                 }
@@ -404,42 +439,8 @@ namespace Desktop {
                     _desktop_popup.attach_to_widget (this, null);
                     _desktop_popup.popup (null, null, null, 3, evt.time);
                 }
-            
-            
-            /***********************************************************************************************************
-             * Left double click on a selected item, launch the selected file...
-             * 
-             * 
-             **********************************************************************************************************/
-            } else if (evt.type == Gdk.EventType.2BUTTON_PRESS
-                       && evt.button == 1
-                       && clicked_item != null) {
-                
-                // action open........
-                if (clicked_item.is_special)
-                    return true;
-                
-                Fm.FileInfo? fi = clicked_item.get_fileinfo ();
-                
-                if (fi.is_dir ()
-                || fi.is_mountable ()
-                ) {
-                    
-                    this.action_open_folder (fi);
-                
-                } else if (fi.is_unknown_type ()) {
-                
-                } else {
-                    
-                    this.action_open_file (fi);
-                }
-                // ......................
-                
-                if (this.has_focus == 0)
-                    this.grab_focus ();
-                
-                return true;
             }
+            
             
             // forward the event to root window
             Gdk.Event* real_e = (Gdk.Event*)(&evt);
@@ -595,6 +596,8 @@ namespace Desktop {
                                     | Gdk.DragAction.LINK,
                                     1,
                                     real_e);
+                } else {
+                    stdout.printf ("empty list\n");
                 }
                 
             }
@@ -703,12 +706,9 @@ namespace Desktop {
          **************************************************************************************************************/
         private void _init_drag_and_drop () {
 
-            //return; // needs testing...
-            
-            // doesn't build with Fm.default_dnd_dest_targets...
             Gtk.drag_source_set (this,
                                  0,
-                                 desktop_default_dnd_dest_targets,
+                                 desktop_default_dnd_dest_targets, // doesn't build with Fm.default_dnd_dest_targets...
                                  Gdk.DragAction.COPY
                                  | Gdk.DragAction.MOVE
                                  | Gdk.DragAction.LINK
@@ -749,12 +749,8 @@ namespace Desktop {
                                       uint time) {
             
             Gdk.Atom target;
-            
             bool ret = false;
-            
             Gdk.DragAction action = 0;
-            
-            //Desktop.Window desktop = dest_widget as Desktop.Window;
             
             // check if we're dragging over an item
             Desktop.Item item = _grid.hit_test (x, y);
@@ -775,7 +771,6 @@ namespace Desktop {
             // handle moving desktop items
             if (item != null) {
                 
-                stdout.printf ("item\n");
                 target = Gdk.Atom.intern_static_string (dnd_targets[0].target);
                 
                 if (Fm.drag_context_has_target (drag_context, target)
@@ -893,6 +888,7 @@ namespace Desktop {
                 if (Fm.drag_context_has_target (drag_context, target) == true
                    && (drag_context.actions & Gdk.DragAction.MOVE) != 0) {
                        
+                    stdout.printf ("move item\n");
                     _grid.move_items (x, y, _drag_start_x, _drag_start_y);
                     
                     ret = true;
@@ -901,7 +897,6 @@ namespace Desktop {
 
                     // FIXME: save position of desktop icons everytime is
                     // extremely inefficient, but currently inevitable.
-                    
                      this._save_item_pos ();
 
                     this._grid.queue_layout_items ();
@@ -913,10 +908,13 @@ namespace Desktop {
                 target = this._dnd_dest.find_target (drag_context);
                 
                 // try FmDndDest
+                stdout.printf ("try FmDndDest\n");
                 ret = this._dnd_dest.drag_drop (drag_context, target, x, y, time);
                 
-                if (ret == false)
+                if (ret == false) {
+                    stdout.printf ("failed\n");
                     Gtk.drag_finish (drag_context, false, false, time);
+                }
             }
             return ret;
         }
@@ -937,9 +935,7 @@ namespace Desktop {
                 
                 default:
                     // check if files are received.
-                    
-                    // FIXME: this segfault :(
-                    //this._dnd_dest.drag_data_received (drag_context, x, y, sel_data, info, time);
+                    this._dnd_dest.drag_data_received (drag_context, x, y, sel_data, info, time);
                 break;
             }
         }
@@ -1001,79 +997,74 @@ namespace Desktop {
          **************************************************************************************************************/
         private void _create_popup_menu (Gdk.EventButton evt) {
             
-            /***********************************************************************************************************
-            Fm.FileMenu menu;
-            Gtk.Menu popup;
-            Fm.FileInfo fi;
-            List sel_items;
-            List l;
+            /*string folder_menu_xml;
+            string desktop_icon_menu_xml;
             
-            Fm.FileInfoList files;
-            Gtk.UIManager ui;
-            Gtk.ActionGroup act_grp;
-            Gtk.Action act;
+            Fm.FileInfoList<Fm.FileInfo> files = new Fm.FileInfoList<Fm.FileInfo> ();
+            
+            Fm.FileInfo? fi;
+            
             bool all_fixed = true;
             bool has_fixed = false;
             
-            files = new Fm.FileInfoList ();
-            sel_items = this.get_selected_items (null);
+            // TODO: that function should return a FileInfoList...
+            List<Desktop.Item> sel_items = _grid.get_selected_items (null);
             
-            for (l = sel_items; l; l=l.next) {
+            foreach (Desktop.Item item in sel_items) {
                 
-                Desktop.Item item = l.data as Desktop.Item;
-                files.push_tail (item.fi);
+                fi = item.get_fileinfo ();
                 
-                if (item.fixed_pos == true)
-                    has_fixed = true;
-                else
+                if (fi == null)
+                    continue;
+                    
+                files.push_tail (fi);
+                
+//~                 if (item.fixed_pos == true)
+//~                     has_fixed = true;
+//~                 else
                     all_fixed = false;
             }
             
             fi = files.peek_head ();
             
             // create a menu and set the open folder function.
-            menu = new Fm.FileMenu.for_files (files, Fm.Path.get_desktop (), true);
-            menu.set_folder_func (pcmanfm_open_folder, desktop);
+            Fm.FileMenu menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), true);
+            menu.set_folder_func (action_open_folder);
             
-            ui = menu.get_ui ();
-            act_grp = menu.get_action_group ();
+            Gtk.UIManager ui = menu.get_ui ();
+            Gtk.ActionGroup act_grp = menu.get_action_group ();
             act_grp.set_translation_domain (null);
             
             // merge some specific menu items for folders
             if (menu.is_single_file_type () && fi.is_dir ()) {
-                act_grp.add_actions (folder_menu_actions, G_N_ELEMENTS (folder_menu_actions), menu);
-                ui.add_ui_from_string (folder_menu_xml, -1, null);
+                act_grp.add_actions (folder_menu_actions, menu);
+                ui.add_ui_from_string (folder_menu_xml, -1);
             }
             
             // merge desktop icon specific items
-            act_grp.add_actions (desktop_icon_actions, G_N_ELEMENTS (desktop_icon_actions), desktop);
+            act_grp.add_actions (desktop_icon_actions, this);
             
             desktop_icon_toggle_actions[0].is_active = all_fixed;
             
-            act_grp.add_toggle_actions (desktop_icon_toggle_actions, G_N_ELEMENTS (desktop_icon_toggle_actions), desktop);
+            act_grp.add_toggle_actions (desktop_icon_toggle_actions, this);
+            
+            Gtk.Action act;
             
             // snap to grid
             if (has_fixed == false) {
                 act = act_grp.get_action ("Snap");
                 act.set_sensitive (false);
             }
-            ui.add_ui_from_string (desktop_icon_menu_xml, -1, null);
             
-            popup = menu.get_menu ();
-            popup.popup (null, null, null, fi, 3, evt.time);
+            ui.add_ui_from_string (desktop_icon_menu_xml, -1);
             
-            ***********************************************************************************************************/
-            
+            _desktop_popup = menu.get_menu ();
+            _desktop_popup.popup (null, null, null, 3, evt.time);
+            */
             return;
         }
         
         
-/* *********************************************************************************************************************
- * Currently unused functions....
- * 
- * 
- * 
- **********************************************************************************************************************/
         /***************************************************************************************************************
          * Keyboard handling and file system actions...
          * 
@@ -1296,412 +1287,91 @@ namespace Desktop {
             
             return false;
         }
+            
+        private void _set_wallpaper () {
+            
+        /* Set the wallpaper (not implemented yet...)
+
+        int dest_w;
+        int dest_h;
         
+        int src_w = pix.get_width ();
+        int src_h = pix.get_height ();
         
-        /* *************************************************************************************************************
-         * 
-         * 
-         * 
-         * 
-        private Desktop.Item? get_nearest_item (Desktop.Item item, Gtk.DirectionType direction) {
-            
-            Desktop.Item ret = null;
-            
-            uint min_x_dist;
-            uint min_y_dist;
+        Gdk.Window window = this.get_window ();
+        Gdk.Pixmap pixmap;
 
-            if (_items == null || _items.next == null)
-                return null;
-
-            min_x_dist = min_y_dist = (guint)-1;
-            
-            switch (direction) {
-                
-                case GTK_DIR_LEFT:
-                    
-                    foreach (Desktop.Item item2 in _items) {
-
-                        if (item2.x >= this.x)
-                            continue;
-                        
-                        int dist = this.x - item2.x;
-                        
-                        if (dist < min_x_dist) {
-                            ret = item2;
-                            min_x_dist = dist;
-                            min_y_dist = abs (this.y - item2.y);
-                        
-                        // if there is another item of the same x distance
-                        } else if (dist == min_x_dist && item2 != ret) {
-                            
-                            // get the one with smaller y distance
-                            dist = abs (item2.y - this.y);
-                            if (dist < min_y_dist) {
-                                ret = item2;
-                                min_y_dist = dist;
-                            }
-                        }
-                    }
-                break;
-                
-                case GTK_DIR_RIGHT:
-                    
-                    foreach (Desktop.Item item2 in _items) {
-                        
-                        if (item2.x <= this.x)
-                            continue;
-                        
-                        int dist = item2.x - this.x;
-                        
-                        if (dist < min_x_dist) {
-                            ret = item2;
-                            min_x_dist = dist;
-                            min_y_dist = abs (this.y - item2.y);
-                        
-                        // if there is another item of the same x distance
-                        } else if (dist == min_x_dist && item2 != ret) {
-                            
-                            // get the one with smaller y distance
-                            dist = abs (item2.y - this.y);
-                            if (dist < min_y_dist) {
-                                ret = item2;
-                                min_y_dist = dist;
-                            }
-                        }
-                    }
-                break;
-                
-                case GTK_DIR_UP:
-                    
-                    foreach (Desktop.Item item2 in _items) {
-                        
-                        if (item2.y >= this.y)
-                            continue;
-                        
-                        int dist = this.y - item2.y;
-                        if (dist < min_y_dist) {
-                            ret = item2;
-                            min_y_dist = dist;
-                            min_x_dist = abs (this.x - item2.x);
-                        // if there is another item of the same y distance
-                        } else if (dist == min_y_dist && item2 != ret) {
-                            
-                            // get the one with smaller x distance
-                            dist = abs (item2.x - this.x);
-                            if (dist < min_x_dist) {
-                                ret = item2;
-                                min_x_dist = dist;
-                            }
-                        }
-                    }
-                break;
-                
-                case GTK_DIR_DOWN:
-                    
-                    foreach (Desktop.Item item2 in _items) {
-                        
-                        if (item2.y <= this.y)
-                            continue;
-                        
-                        int dist = item2.y - this.y;
-                        
-                        if (dist < min_y_dist) {
-                            ret = item2;
-                            min_y_dist = dist;
-                            min_x_dist = abs (this.x - item2.x);
-                        
-                        // if there is another item of the same y distance
-                        } else if (dist == min_y_dist && item2 != ret) {
-                        
-                            // get the one with smaller x distance
-                            dist = abs (item2.x - this.x);
-                            if (dist < min_x_dist) {
-                                ret = item2;
-                                min_x_dist = dist;
-                            }
-                        }
-                    }
-                break;
-            }
-            
-            return ret;
+        if (wallpaper_mode == FM_WP_TILE) {
+            dest_w = src_w;
+            dest_h = src_h;
+            pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
+        } else {
+            GdkScreen* screen = gtk_widget_get_screen (widget);
+            dest_w = gdk_screen_get_width (screen);
+            dest_h = gdk_screen_get_height (screen);
+            pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
         }
+
+        if (gdk_pixbuf_get_has_alpha(pix)
+            || wallpaper_mode == FM_WP_CENTER
+            || wallpaper_mode == FM_WP_FIT) {
+            gdk_gc_set_rgb_fg_color (desktop->gc, &desktop_bg);
+            gdk_draw_rectangle (pixmap, desktop->gc, true, 0, 0, dest_w, dest_h);
+        }
+
+        GdkPixbuf *scaled;
+        switch (wallpaper_mode) {
+            
+            case FM_WP_TILE:
+                gdk_draw_pixbuf (pixmap, desktop->gc, pix, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
+            break;
+            
+            case FM_WP_STRETCH:
+                
+                if (dest_w == src_w && dest_h == src_h)
+                    scaled = (GdkPixbuf*)g_object_ref (pix);
+                else
+                    scaled = gdk_pixbuf_scale_simple (pix, dest_w, dest_h, GDK_INTERP_BILINEAR);
+                
+                gdk_draw_pixbuf (pixmap, desktop->gc, scaled, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
+                g_object_unref(scaled);
+            
+            break;
+            
+            case FM_WP_FIT:
+                if (dest_w != src_w || dest_h != src_h) {
+                    
+                    gdouble w_ratio = (float)dest_w / src_w;
+                    gdouble h_ratio = (float)dest_h / src_h;
+                    gdouble ratio = MIN(w_ratio, h_ratio);
+                    
+                    if (ratio != 1.0) {
+                        src_w *= ratio;
+                        src_h *= ratio;
+                        scaled = gdk_pixbuf_scale_simple(pix, src_w, src_h, GDK_INTERP_BILINEAR);
+                        g_object_unref(pix);
+                        pix = scaled;
+                    }
+                }
+            
+            // continue to execute code in case FM_WP_CENTER
+            case FM_WP_CENTER: {
+                int x, y;
+                x = (dest_w - src_w)/2;
+                y = (dest_h - src_h)/2;
+                gdk_draw_pixbuf (pixmap, desktop->gc, pix, 0, 0, x, y, -1, -1, GDK_RGB_DITHER_NORMAL, 0, 0);
+            }
+            break;
+        }
+        
+        gdk_window_set_back_pixmap(root, pixmap, false);
+        gdk_window_set_back_pixmap(window, null, true);
+        if (pix)
+            g_object_unref (pix);
+        
+        XLib.set_pixmap (GtkWidget* widget, GdkPixmap* pixmap);
         */
-
-
-        /***************************************************************************************************************
-         * Actions...
-         * 
-         * 
-         * 
-        private void on_snap_to_grid (Gtk.Action act) {
-            
-            FmDesktop* desktop = FM_DESKTOP(user_data);
-            Desktop.Item item;
-            List items = get_selected_items(desktop, null);
-            List l;
-            int x, y, bottom;
-            GtkTextDirection direction = this.get_direction(GTK_WIDGET(desktop));
-
-            y = desktop.working_area.y + desktop.ymargin;
-            bottom = desktop.working_area.y + desktop.working_area.height - desktop.ymargin - desktop.cell_h;
-
-            if (direction != GTK_TEXT_DIR_RTL) // LTR or NONE
-                x = desktop.working_area.x + desktop.xmargin;
-            else // RTL
-                x = desktop.working_area.x + desktop.working_area.width - desktop.xmargin - desktop.cell_w;
-
-            for (l = items; l; l = l.next) {
-                
-                int new_x, new_y;
-                item = l.data as Desktop.Item;
-                
-                if (!item.fixed_pos)
-                    continue;
-                new_x = x + _round((double)(item.x - x) / desktop.cell_w) * desktop.cell_w;
-                new_y = y + _round((double)(item.y - y) / desktop.cell_h) * desktop.cell_h;
-                move_item (desktop, item, new_x, new_y, false);
-            }
-            
-            queue_layout_items (desktop);
-        }
-
-        private void on_fix_pos (Gtk.ToggleAction act) {
-
-            FmDesktop* desktop = FM_DESKTOP (user_data);
-            
-            List items = this.get_selected_items (null);
-            List l;
-            
-            if (act.get_active()) {
-                for (l = items; l; l=l.next) {
-                    Desktop.Item item = l.data as Desktop.Item;
-                    if (item.fixed_pos == false) {
-                        item.fixed_pos = true;
-                        desktop.fixed_items = desktop.fixed_items.prepend (item);
-                    }
-                }
-            } else {
-                for (l = items; l; l=l.next) {
-                    Desktop.Item item = l.data as Desktop.Item;
-                    item.fixed_pos = false;
-                    desktop.fixed_items = desktop.fixed_items.remove (item);
-                }
-                layout_items (desktop);
-            }
-            
-            save_item_pos (desktop);
-        }
-
-        */
-
-
-    }
-}
-
-
-/***********************************************************************************************************************
- * These are original function, I plan to implement these a different way...
- * Grid.append_item () replaces layout_items ()
- * 
- * 
-private void _layout_items () {
-    
-    List l;
-    Desktop.Item item;
-    int x;
-    int y;
-    int bottom;
-    
-    Gtk.TextDirection direction = this.get_direction ();
-
-    y = this.working_area.y + this.ymargin;
-    bottom = this.working_area.y + this.working_area.height - this.ymargin - this.cell_h;
-
-    // LTR or NONE
-    if (direction != GTK_TEXT_DIR_RTL) {
-        x = this.working_area.x + this.xmargin;
-        
-        for (l = this.items; l; l = l.next) {
-            item = l.data as Desktop.Item;
-            
-            if (item.fixed_pos) {
-                calc_item_size (item);
-            
-            } else {
-                
-                _next_position:
-                
-                item.x = x;
-                item.y = y;
-                calc_item_size (item);
-                y += this.cell_h;
-                
-                if (y > bottom) {
-                    x += this.cell_w;
-                    y = this.working_area.y + this.ymargin;
-                }
-                
-                // check if this position is occupied by a fixed item
-                if (is_pos_occupied (item))
-                    goto _next_position;
-            }
-        }
-    
-    // RTL
-    } else {
-        
-        x = this.working_area.x + this.working_area.width - this.xmargin - this.cell_w;
-        
-        for (l = this.items; l; l = l.next) {
-            
-            item = l.data as Desktop.Item;
-            
-            if (item.fixed_pos) {
-                calc_item_size (item);
-            
-            } else {
-                
-                _next_position_rtl:
-                
-                item.x = x;
-                item.y = y;
-                
-                calc_item_size (item);
-                y += this.cell_h;
-                
-                if (y > bottom) {
-                    x -= this.cell_w;
-                    y = this.working_area.y + this.ymargin;
-                }
-                
-                // check if this position is occupied by a fixed item
-                if (is_pos_occupied (item))
-                    goto _next_position_rtl;
-            }
         }
     }
-    
-    this.queue_draw ();
-    
 }
-
-***********************************************************************************************************************/
-
-
-/***********************************************************************************************************************
- * Load save item positions...
- * 
- * 
- * 
-static void on_model_loaded(FmFolderModel* global_model, gpointer user_data)
-{
-    int i;
-    // the desktop folder is just loaded, apply desktop item positions
-    GKeyFile* kf = g_key_file_new();
-    for( i = 0; i < n_screens; i++ )
-    {
-        FmDesktop* desktop = FM_DESKTOP(desktops[i]);
-        load_item_pos(desktop, kf);
-    }
-    g_key_file_free(kf);
-}
-
-static inline void load_item_pos(FmDesktop* desktop, GKeyFile* kf)
-{
-    char* path = get_config_file(desktop, FALSE);
-    if(g_key_file_load_from_file(kf, path, 0, NULL))
-    {
-        GList* l;
-        for(l = desktop->items; l; l=l->next)
-        {
-            FmDesktopItem* item = (FmDesktopItem*)l->data;
-            const char* name = fm_path_get_basename(item->fi->path);
-            if(g_key_file_has_group(kf, name))
-            {
-                desktop->fixed_items = g_list_prepend(desktop->fixed_items, item);
-                item->fixed_pos = TRUE;
-                item->x = g_key_file_get_integer(kf, name, "x", NULL);
-                item->y = g_key_file_get_integer(kf, name, "y", NULL);
-                calc_item_size(desktop, item);
-            }
-        }
-    }
-    g_free(path);
-}
-
-static char* get_config_file(FmDesktop* desktop, gboolean create_dir)
-{
-    char* dir = pcmanfm_get_profile_dir(create_dir);
-    GdkScreen* scr = gtk_widget_get_screen(GTK_WIDGET(desktop));
-    int n = gdk_screen_get_number(scr);
-    char* path = g_strdup_printf("%s/desktop-items-%d.conf", dir, n);
-    g_free(dir);
-    return path;
-}
-
-static void save_item_pos(FmDesktop* desktop)
-{
-    GList* l;
-    GString* buf;
-    char* path;
-    buf = g_string_sized_new(1024);
-    for(l = desktop->fixed_items; l; l=l->next)
-    {
-        FmDesktopItem* item = (FmDesktopItem*)l->data;
-        const char* p;
-        // write the file basename as group name
-        g_string_append_c(buf, '[');
-        for(p = item->fi->path->name; *p; ++p)
-        {
-            switch(*p)
-            {
-            case '\r':
-                g_string_append(buf, "\\r");
-                break;
-            case '\n':
-                g_string_append(buf, "\\n");
-                break;
-            case '\\':
-                g_string_append(buf, "\\\\");
-                break;
-            default:
-                g_string_append_c(buf, *p);
-            }
-        }
-        g_string_append(buf, "]\n");
-        g_string_append_printf(buf, "x=%d\n"
-                                    "y=%d\n\n",
-                                    item->x, item->y);
-    }
-    path = get_config_file(desktop, TRUE);
-    g_file_set_contents(path, buf->str, buf->len, NULL);
-    g_free(path);
-    g_string_free(buf, TRUE);
-}
-
-***********************************************************************************************************************/
-
-
-/* unused function even in PCManFm...
-private inline bool is_atom_in_targets (List? targets, string name) {
-    
-    // doesn't build...
-    unowned GLib.List? atoms = (GLib.List?) targets;
-    
-    foreach (Gdk.Atom atom in atoms) {
-    }
-    List? l;
-    
-    for (l = targets; l; l=l.next) {
-        
-        Gdk.Atom atom = (Gdk.Atom) l.data;
-        
-        if (Gdk.Atom.intern (name, false) != 0)
-            return true;
-    }
-    
-    return false;
-}*/
-
 
