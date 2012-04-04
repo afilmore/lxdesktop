@@ -25,12 +25,50 @@ namespace Desktop {
         {"application/x-desktop-item", Gtk.TargetFlags.SAME_WIDGET, DesktopDndDest.DESKTOP_ITEM}
     };
 
-    private const Gtk.TargetEntry desktop_default_dnd_dest_targets[] =
-    {
-        {"application/x-fmlist-ptr", Gtk.TargetFlags.SAME_APP, Fm.DndDestTarget.FM_LIST},
-        {"text/uri-list", 0, Fm.DndDestTarget.URI_LIST}, // text/uri-list
-        { "XdndDirectSave0", 0, Fm.DndDestTarget.XDS} // X direct save
+    private const Gtk.TargetEntry desktop_default_dnd_dest_targets[] = {
+        
+        {"application/x-fmlist-ptr",    Gtk.TargetFlags.SAME_APP,   Fm.DndDestTarget.FM_LIST},
+        {"text/uri-list",               0,                          Fm.DndDestTarget.URI_LIST}, // text/uri-list
+        { "XdndDirectSave0",            0,                          Fm.DndDestTarget.XDS} // X direct save
     };
+
+//~     private const Gtk.ActionEntry folder_menu_actions[] = {
+//~         
+//~         {"NewTab",  Gtk.Stock.NEW,          N_("Open in New Tab"),      null, null, on_open_in_new_tab},
+//~         {"NewWin",  Gtk.Stock.NEW,          N_("Open in New Window"),   null, null, on_open_in_new_win},
+//~         {"Search",  Gtk.Stock.FIND,         null,                       null, null, null},
+//~         {"Term",    "utilities-terminal",   N_("Open in _Terminal"),    null, null, on_open_folder_in_terminal}
+//~     };
+//~ 
+    private const Gtk.ActionEntry folder_menu_actions[] = {
+        
+        {"NewTab",  Gtk.Stock.NEW,          N_("Open in New Tab"),      null, null, null},
+        {"NewWin",  Gtk.Stock.NEW,          N_("Open in New Window"),   null, null, null},
+        {"Search",  Gtk.Stock.FIND,         null,                       null, null, null},
+        {"Term",    "utilities-terminal",   N_("Open in _Terminal"),    null, null, null}
+    };
+    
+    private const string folder_menu_xml = """
+        <popup>
+          <placeholder name='ph1'>
+            <menuitem action='NewTab'/>
+            <menuitem action='NewWin'/>
+            <menuitem action='Term'/>
+            /* <menuitem action='Search'/> */
+          </placeholder>
+        </popup>
+    """;
+
+    private const string desktop_icon_menu_xml = """
+        <popup>
+          <placeholder name='ph2'>
+            <separator/>
+            <menuitem action='Fix'/>
+            <menuitem action='Snap'/>
+          </placeholder>
+        </popup>
+    """;
+
 
 
     public class Window : Gtk.Window {
@@ -471,6 +509,17 @@ namespace Desktop {
             //~ fi.is_text ();
             //|| fi.is_symlink ()
             
+            return true;
+        }
+        
+        public bool action_open_folder_func (GLib.AppLaunchContext ctx, GLib.List folder_infos, void* user_data) {
+            
+            unowned List<Fm.FileInfo> l = folder_infos;
+            
+            foreach (Fm.FileInfo fi in l) {
+                
+                action_open_folder (fi);
+            }
             return true;
         }
         
@@ -997,9 +1046,6 @@ namespace Desktop {
          **************************************************************************************************************/
         private void _create_popup_menu (Gdk.EventButton evt) {
             
-            /*string folder_menu_xml;
-            string desktop_icon_menu_xml;
-            
             Fm.FileInfoList<Fm.FileInfo> files = new Fm.FileInfoList<Fm.FileInfo> ();
             
             Fm.FileInfo? fi;
@@ -1007,7 +1053,9 @@ namespace Desktop {
             bool all_fixed = true;
             bool has_fixed = false;
             
+            return;
             // TODO: that function should return a FileInfoList...
+            // TODO: not implemented returns null and the following segfaults...
             List<Desktop.Item> sel_items = _grid.get_selected_items (null);
             
             foreach (Desktop.Item item in sel_items) {
@@ -1029,7 +1077,7 @@ namespace Desktop {
             
             // create a menu and set the open folder function.
             Fm.FileMenu menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), true);
-            menu.set_folder_func (action_open_folder);
+            menu.set_folder_func ((Fm.LaunchFolderFunc) this.action_open_folder_func, null);
             
             Gtk.UIManager ui = menu.get_ui ();
             Gtk.ActionGroup act_grp = menu.get_action_group ();
@@ -1041,12 +1089,12 @@ namespace Desktop {
                 ui.add_ui_from_string (folder_menu_xml, -1);
             }
             
-            // merge desktop icon specific items
-            act_grp.add_actions (desktop_icon_actions, this);
+            // snap to grid...
+            // act_grp.add_actions (desktop_icon_actions, this);
             
-            desktop_icon_toggle_actions[0].is_active = all_fixed;
-            
-            act_grp.add_toggle_actions (desktop_icon_toggle_actions, this);
+            // stick to current position...
+            // desktop_icon_toggle_actions[0].is_active = all_fixed;
+            // act_grp.add_toggle_actions (desktop_icon_toggle_actions, this);
             
             Gtk.Action act;
             
@@ -1060,7 +1108,7 @@ namespace Desktop {
             
             _desktop_popup = menu.get_menu ();
             _desktop_popup.popup (null, null, null, 3, evt.time);
-            */
+            
             return;
         }
         

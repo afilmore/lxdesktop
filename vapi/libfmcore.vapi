@@ -51,7 +51,7 @@ namespace Fm {
 	public static void finalize ();
 	
     
-	[CCode (cheader_filename = "fm-file-menu.h", cprefix = "fm_", free_function = "fm_file_menu_destroy")]
+	[CCode (cheader_filename = "fm-file-menu.h", cprefix = "fm_file_menu_", cname = "FmFileMenu", free_function = "fm_file_menu_destroy")]
 	[Compact]
 	public class FileMenu {
 		[CCode (has_construct_function = false)]
@@ -63,7 +63,7 @@ namespace Fm {
 		public unowned Gtk.Menu get_menu ();
 		public unowned Gtk.UIManager get_ui ();
 		public bool is_single_file_type ();
-		public void set_folder_func (Fm.LaunchFolderFunc func);
+		public void set_folder_func (Fm.LaunchFolderFunc func, void* user_data);
 	}
 
 	[CCode (cheader_filename = "fm-list.h", cprefix = "fm_", ref_function = "fm_list_ref", unref_function = "fm_list_unref")]
@@ -288,7 +288,7 @@ namespace Fm {
      * 
      ******************************************************************************************************************/
 	[CCode (cheader_filename = "fm-file-launcher.h", has_target = false)]
-	public delegate bool LaunchFolderFunc (GLib.AppLaunchContext ctx, GLib.List folder_infos, void* user_data) throws GLib.Error;
+	public delegate bool LaunchFolderFunc (GLib.AppLaunchContext ctx, GLib.List folder_infos) throws GLib.Error;
 
 	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-file-launcher.h")]
 	public static bool launch_file_simple (Gtk.Window parent, GLib.AppLaunchContext ctx, Fm.FileInfo file_info, Fm.LaunchFolderFunc func, void* user_data);

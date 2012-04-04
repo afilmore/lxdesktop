@@ -73,16 +73,17 @@ namespace Desktop {
             Gdk.Color.parse ("#FFFFFF", out color_text);
             Gdk.Color.parse ("#000000", out color_shadow);
             
+            // overload libfm default config (see LibFm/src/base/fm-config.h)
             big_icon_size = 36;
+            show_thumbnail = false;
             
-            /* FmConfig. (see LibFm/src/base/fm-config.h)
+            /* Fm.Config
             single_click;
             use_trash;
             confirm_del;
             small_icon_size;
             pane_icon_size;
             thumbnail_size;
-            show_thumbnail;
             thumbnail_local;
             thumbnail_max;
             show_internal_volumes;
