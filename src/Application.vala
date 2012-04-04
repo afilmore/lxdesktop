@@ -248,50 +248,6 @@ namespace Desktop {
         }
         
         
-        /* *************************************************************************************************************
-         * Currently unused functions....
-         * 
-         * 
-         */
-        private void _on_icon_theme_changed (Gtk.IconTheme theme) {
-            
-            /***********************************************************************************************************
-             * The user changed the system icon theme.
-             * 
-             */
-            
-            this._reload_icons();
-            
-        }
-        
-        private void _reload_icons() {
-            
-            /***********************************************************************************************************
-             * Reload icons when the icon size or the icon theme has changed
-             * 
-             * 
-            
-            int i;
-            for (i=0; i < _n_screens; ++i) {
-                FmDesktop* desktop = desktops[i];
-                
-                List l;
-                for (l=desktop.items; l; l=l.next) {
-                    
-                    Desktop.Item item = l.data as Desktop.Item;
-                    
-                    if (item.icon) {
-                        item.icon = null;
-                        global_model.get (item.it, COL_FILE_ICON, out item.icon, -1);
-                    }
-                }
-                
-                this.queue_resize ();
-            }
-            
-            */
-        }
-
     }
 }
 

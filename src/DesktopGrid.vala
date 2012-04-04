@@ -324,28 +324,17 @@ namespace Desktop {
         }
         
         
-        /***************************************************************************************************************
-         * Select items when moving the rubber banding...
-         * 
-         **************************************************************************************************************/
-        public void update_selection (Gdk.Rectangle rect) {
+        public void move_items (int x, int y, int drag_x, int drag_y) {
             
-            foreach (Desktop.Item item in _grid_items) {
-                
-                bool selected;
-                if (rect.intersect (item.icon_rect, null)
-                    || rect.intersect (item.text_rect, null))
-                    selected = true;
-                else
-                    selected = false;
+            // desktop items are being dragged
+            int offset_x = x - drag_x;
+            int offset_y = y - drag_y;
 
-                if (item.is_selected != selected) {
-                    item.is_selected = selected;
-                    item.redraw (_window);
-                }
+            foreach (Desktop.Item item in _grid_items) {
+//                this.move_item (item2, item2.x + offset_x, item2.y + offset_y, false);
             }
         }
-        
+
         public void append_item (Desktop.Item item) {
             
             unowned List<Desktop.Item>? last = _grid_items.last ();
@@ -418,7 +407,7 @@ namespace Desktop {
             item.origin_y = (item.index_vertical * _cell_height);
             
             // icon / text position...
-            item.icon_rect.x = item.origin_x + (_cell_width - item.icon_rect.width) / 2;;
+            item.icon_rect.x = item.origin_x + (_cell_width - item.icon_rect.width) / 2;
             item.icon_rect.y = item.origin_y;
             
             // FIXME seems incorrect....
@@ -467,7 +456,89 @@ namespace Desktop {
 
 
         /***************************************************************************************************************
-         * Folder Model functions...
+         * Items selection.
+         * 
+         * 
+         **************************************************************************************************************/
+        static inline bool point_in_rect (double x, double y, Gdk.Rectangle rect) {
+            
+            return ((x > rect.x) &&  (x < (rect.x + rect.width)) && (y > rect.y) && (y < (rect.y + rect.height)));
+        }
+
+        public Desktop.Item? hit_test (double x, double y) {
+            
+            foreach (Desktop.Item item in _grid_items) {
+                
+                if (Grid.point_in_rect (x, y, item.icon_rect)
+                    || Grid.point_in_rect (x, y, item.text_rect))
+                    return item;
+            }
+            
+            return null;
+        }
+
+        /***************************************************************************************************************
+         * Select items when moving the rubber banding...
+         * 
+         **************************************************************************************************************/
+        public void update_selection (Gdk.Rectangle rect) {
+            
+            foreach (Desktop.Item item in _grid_items) {
+                
+                bool selected;
+                if (rect.intersect (item.icon_rect, null)
+                    || rect.intersect (item.text_rect, null))
+                    selected = true;
+                else
+                    selected = false;
+
+                if (item.is_selected != selected) {
+                    item.is_selected = selected;
+                    item.redraw (_window);
+                }
+            }
+        }
+        
+        public void set_selected_item (Desktop.Item? item) {
+            
+            if (this._selected_item != null)
+                _selected_item.redraw (_window);
+            
+            this._selected_item = item;
+            
+        }
+
+        public void deselect_all () {
+            
+            foreach (Desktop.Item item in _grid_items) {
+                if (item.is_selected == true) {
+                    item.is_selected = false;
+                    item.redraw (_window);
+                }
+            }
+        }
+        
+        public Fm.FileInfoList? get_selected_files () {
+            
+            Fm.FileInfoList<Fm.FileInfo> files = new Fm.FileInfoList<Fm.FileInfo> ();
+            
+            foreach (Desktop.Item item in _grid_items) {
+                
+                if (item.is_selected)
+                    files.push_tail (item.get_fileinfo ());
+            }
+            
+            if (files.is_empty())
+                return null;
+            
+            return files;
+        }
+        
+        
+        /***************************************************************************************************************
+         * Folder Model functions. When files/folders on the desktop have been changed, created, deleted, etc...
+         * The model sends a signal and these functions are called. 
+         * 
          * 
          * ************************************************************************************************************/
         public void on_row_inserted (Gtk.TreePath path, Gtk.TreeIter it) {
@@ -608,219 +679,6 @@ namespace Desktop {
             
             */
         }
-
-        static inline bool point_in_rect (double x, double y, Gdk.Rectangle rect) {
-            
-            return ((x > rect.x) &&  (x < (rect.x + rect.width)) && (y > rect.y) && (y < (rect.y + rect.height)));
-        }
-
-
-        /***************************************************************************************************************
-         * Search in the item list if one item includes the (x, y) coordinates, this funtion searches in the item
-         * icon rectangle and the item text rectangle.
-         * 
-         **************************************************************************************************************/
-        public Desktop.Item? hit_test (double x, double y) {
-            
-            foreach (Desktop.Item item in _grid_items) {
-                
-                if (Grid.point_in_rect (x, y, item.icon_rect)
-                    || Grid.point_in_rect (x, y, item.text_rect))
-                    return item;
-            }
-            
-            return null;
-        }
-
-        public void set_selected_item (Desktop.Item? item) {
-            
-            if (this._selected_item != null) {
-                //_selected_item.is_selected = false;
-                _selected_item.redraw (_window);
-            }
-            
-            this._selected_item = item;
-            
-        }
-
-        public void deselect_all () {
-            
-            foreach (Desktop.Item item in _grid_items) {
-                if (item.is_selected == true) {
-                    item.is_selected = false;
-                    item.redraw (_window);
-                }
-            }
-        }
-        
-        public Fm.FileInfoList? get_selected_files () {
-            
-            Fm.FileInfoList<Fm.FileInfo> files = new Fm.FileInfoList<Fm.FileInfo> ();
-            
-            foreach (Desktop.Item item in _grid_items) {
-                
-                if (item.is_selected) {
-                    stdout.printf ("selected item !!!\n");
-                    files.push_tail (item.get_fileinfo ());
-                }
-            }
-            
-            if (files.is_empty())
-                return null;
-            
-            return files;
-        }
-        
-        
-        /* *************************************************************************************************************
-         * Currently unused functions....
-         * 
-         * 
-         */
-        
-        /* *********************************************************************************************************************
-         * Actions........
-         * 
-         * 
-         * 
-        private void on_sort_type (Gtk.Action act, Gtk.RadioAction cur, void user_data) {
-            desktop_sort_type = cur.get_current_value();
-            _folder_model.set_sort_column_id (desktop_sort_by, desktop_sort_type);
-        }
-
-        private void on_sort_by (Gtk.Action act, Gtk.RadioAction cur, void user_data) {
-            desktop_sort_by = cur.get_current_value();
-            _folder_model.set_sort_column_id (desktop_sort_by, desktop_sort_type);
-        }*/
-        
-        private void _select_all () {
-            
-            foreach (Desktop.Item item in _grid_items) {
-                item.is_selected = true;
-                item.redraw (_window);
-            }
-        }
-
-        public void move_items (int x, int y, int drag_x, int drag_y) {
-            
-            // desktop items are being dragged
-            int offset_x = x - drag_x;
-            int offset_y = y - drag_y;
-
-            foreach (Desktop.Item item in _grid_items) {
-//                this.move_item (item2, item2.x + offset_x, item2.y + offset_y, false);
-            }
-
-        }
-        
-        // See where to store these focus items, in the grid ? probably...
-        public List get_selected_items (out int n_items) {
-            
-            /*
-            List<Desktop.Item>? items = null;
-            
-            List l;
-            int n = 0;
-            
-            Desktop.Item? _selected_item = null;
-            
-            for (l=desktop.items; l; l=l.next) {
-                
-                Desktop.Item item = l.data as Desktop.Item;
-                
-                if (item.is_selected) {
-                    
-                    if (item != _selected_item) {
-                        items = items.prepend (item);
-                        ++n;
-                    } else {
-                        _selected_item = item;
-                    }
-                }
-            }
-            
-            items = items.reverse ();
-            if (_selected_item != null) {
-                items = items.prepend (_selected_item);
-                ++n;
-            }
-            
-            if (n_items)
-                *n_items = n;
-            
-            return items;*/
-            return null;
-        }
-
-        private void open_selected_items () {
-            
-            /*
-            List? items;
-            
-            int n_sels = this.get_selected_items (out items);
-            
-            List l;
-
-            if (items == null)
-                return;
-
-            for (l=items; l; l=l.next) {
-                Desktop.Item item = l.data as Desktop.Item;
-                l.data = item.fi;
-            }
-            */
-            
-            // this.launch_files_simple (null, items, pcmanfm_open_folder, null);
-        }
-
-        private void _set_focused_item (Desktop.Item item) {
-            
-            if (item == _selected_item)
-                return;
-            
-            // invalidate old focused item if any
-            if (_selected_item != null)
-                _selected_item.redraw (_window);
-            
-            // invalidate new focused item
-            _selected_item = item;
-            if (_selected_item != null)
-                _selected_item.redraw (_window);
-        }
-
-        private bool is_pos_occupied () {
-            
-            /* what's the purpose of this ?
-            foreach (Desktop.Item fixed in _fixed_items) {
-                
-                Gdk.Rectangle rect;
-                
-                fixed.get_item_rect (out rect);
-                
-                if (rect.intersect (fixed.icon_rect, null)
-                    || rect.intersect (fixed.text_rect, null))
-                    return true;
-            }*/
-            
-            return false;
-        }
-
-        /* PathList not in vapi file yet...
-        private Fm.PathList? get_selected_paths() {
-            
-            Fm.PathList? files = new Fm.PathList ();
-            
-            foreach (Desktop.Item item in _grid_items) {
-                if (item.is_selected == true)
-                    files.push_tail (check if null.....item.get_fileinfo ().path);
-            }
-            
-            if (files.is_empty())
-                return null;
-
-            return files;
-        }*/
-
     }
 }
 

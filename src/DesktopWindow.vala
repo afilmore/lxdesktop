@@ -1046,17 +1046,14 @@ namespace Desktop {
          **************************************************************************************************************/
         private void _create_popup_menu (Gdk.EventButton evt) {
             
-            Fm.FileInfoList<Fm.FileInfo> files = new Fm.FileInfoList<Fm.FileInfo> ();
             
-            Fm.FileInfo? fi;
-            
-            bool all_fixed = true;
-            bool has_fixed = false;
-            
-            return;
             // TODO: that function should return a FileInfoList...
             // TODO: not implemented returns null and the following segfaults...
-            List<Desktop.Item> sel_items = _grid.get_selected_items (null);
+            /*
+            bool all_fixed = true;
+            bool has_fixed = false;
+             * 
+             List<Desktop.Item> sel_items = _grid.get_selected_items (null);
             
             foreach (Desktop.Item item in sel_items) {
                 
@@ -1071,9 +1068,14 @@ namespace Desktop {
 //~                     has_fixed = true;
 //~                 else
                     all_fixed = false;
-            }
+            }*/
             
-            fi = files.peek_head ();
+            Fm.FileInfoList<Fm.FileInfo>? files = _grid.get_selected_files ();
+            if (files == null)
+                return;
+            
+            Fm.FileInfo? fi = files.peek_head ();
+            
             
             // create a menu and set the open folder function.
             Fm.FileMenu menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), true);
@@ -1081,7 +1083,7 @@ namespace Desktop {
             
             Gtk.UIManager ui = menu.get_ui ();
             Gtk.ActionGroup act_grp = menu.get_action_group ();
-            act_grp.set_translation_domain (null);
+            act_grp.set_translation_domain ("");
             
             // merge some specific menu items for folders
             if (menu.is_single_file_type () && fi.is_dir ()) {
@@ -1099,13 +1101,14 @@ namespace Desktop {
             Gtk.Action act;
             
             // snap to grid
-            if (has_fixed == false) {
+            /*if (has_fixed == false) {
                 act = act_grp.get_action ("Snap");
                 act.set_sensitive (false);
-            }
+            }*/
             
             ui.add_ui_from_string (desktop_icon_menu_xml, -1);
             
+            return;
             _desktop_popup = menu.get_menu ();
             _desktop_popup.popup (null, null, null, 3, evt.time);
             
