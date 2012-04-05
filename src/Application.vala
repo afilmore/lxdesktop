@@ -9,7 +9,13 @@
  * 
  * This software is an experimental rewrite of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
  * 
- * Purpose: Main Application Class and program's entry point.
+ * Purpose: The Main Application Class and program's entry point. The application creates a FolderModel and sets
+ * the desktop path to that model. The Model manages files that exists in the desktop folder, then a Desktop window
+ * is created for every screen. The desktop window is a Gtk.Window, it contains a Grid that manages desktop items.
+ * The Grid is not a widget, just an object that contains a list of items and manages the layout and drawing.
+ * Each Desktop Item contains a FileInfo object representing the real file/folder on the system and manages the item
+ * layout, the size and position of the Item's icon and text.
+ * 
  * 
  * 
  **********************************************************************************************************************/
@@ -56,8 +62,6 @@ namespace Desktop {
                 
             _debug_mode = debug;
             
-//            global_config = new Desktop.Config ();
-
             if (_wingroup == null)
                 _wingroup = new Gtk.WindowGroup ();
             
@@ -73,7 +77,7 @@ namespace Desktop {
             if (global_model == null)
                 return false;
                 
-            // the desktop window will be created only when the model is loaded in the event handler.
+            // the desktop window will be created only when the model is loaded in the "loaded" callback.
             global_model.set_icon_size (global_config.big_icon_size);
             global_model.loaded.connect (_on_model_loaded);
             global_model.set_sort_column_id (Fm.FileColumn.NAME, global_config.sort_type);
@@ -121,12 +125,12 @@ namespace Desktop {
             
                 _desktops [i] = desktop;
                 _wingroup.add_window (desktop);
+                
+                this._load_special_items (desktop);
 
                 Gtk.TreeIter it;
                 Gdk.Pixbuf icon;
                 Fm.FileInfo fi;
-                
-                this._load_special_items (desktop);
 
                 // Load Desktop files/folders from the Global Model, add Desktop Items to the Grid.
                 if (global_model.get_iter_first (out it)) {
@@ -192,6 +196,7 @@ namespace Desktop {
             
         }
         
+        
         /***************************************************************************************************************
          * Application's entry point.
          *
@@ -212,9 +217,8 @@ namespace Desktop {
             }
             */
             
+            // create the Desktop configuration, this object derivates of Fm.Config.
             global_config = new Desktop.Config ();
-            //Fm.Config config = new Fm.Config ();
-            //stdout.printf ("big_icon_size: %u\n", config.big_icon_size);
             Fm.init (global_config);
             
             // fm_volume_manager_init ();
@@ -246,8 +250,6 @@ namespace Desktop {
             
             return 0;
         }
-        
-        
     }
 }
 

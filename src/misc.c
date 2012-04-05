@@ -18,7 +18,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <math.h>
-#include <fmcore.h>
+#include <fm.h>
 
 
 // round() is only available in C99. Don't use it now for portability.
@@ -142,9 +142,6 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
     
     Display *dpy = GDK_DISPLAY_XDISPLAY (gdk_screen_get_display (gscreen));
 
-    // disabled... needs testing...
-    return;
-    
     if (event->type == GDK_BUTTON_PRESS || event->type == GDK_BUTTON_RELEASE) {
         
         if (event->type == GDK_BUTTON_PRESS) {

@@ -32,20 +32,12 @@ namespace Desktop {
         { "XdndDirectSave0",            0,                          Fm.DndDestTarget.XDS} // X direct save
     };
 
-//~     private const Gtk.ActionEntry folder_menu_actions[] = {
-//~         
-//~         {"NewTab",  Gtk.Stock.NEW,          N_("Open in New Tab"),      null, null, on_open_in_new_tab},
-//~         {"NewWin",  Gtk.Stock.NEW,          N_("Open in New Window"),   null, null, on_open_in_new_win},
-//~         {"Search",  Gtk.Stock.FIND,         null,                       null, null, null},
-//~         {"Term",    "utilities-terminal",   N_("Open in _Terminal"),    null, null, on_open_folder_in_terminal}
-//~     };
-//~ 
     private const Gtk.ActionEntry folder_menu_actions[] = {
         
-        {"NewTab",  Gtk.Stock.NEW,          N_("Open in New Tab"),      null, null, null},
-        {"NewWin",  Gtk.Stock.NEW,          N_("Open in New Window"),   null, null, null},
+        {"NewTab",  Gtk.Stock.NEW,          N_("Open in New Tab"),      null, null, null}, // on_open_in_new_tab
+        {"NewWin",  Gtk.Stock.NEW,          N_("Open in New Window"),   null, null, null}, // on_open_in_new_win
         {"Search",  Gtk.Stock.FIND,         null,                       null, null, null},
-        {"Term",    "utilities-terminal",   N_("Open in _Terminal"),    null, null, null}
+        {"Term",    "utilities-terminal",   N_("Open in _Terminal"),    null, null, null}  // on_open_folder_in_terminal
     };
     
     private const string folder_menu_xml = """
@@ -59,12 +51,19 @@ namespace Desktop {
         </popup>
     """;
 
+//~     private const string desktop_icon_menu_xml = """
+//~         <popup>
+//~           <placeholder name='ph2'>
+//~             <separator/>
+//~             /*<menuitem action='Fix'/>*/
+//~             /*<menuitem action='Snap'/>*/
+//~           </placeholder>
+//~         </popup>
+//~     """;
     private const string desktop_icon_menu_xml = """
         <popup>
           <placeholder name='ph2'>
             <separator/>
-            <menuitem action='Fix'/>
-            <menuitem action='Snap'/>
           </placeholder>
         </popup>
     """;
@@ -103,7 +102,9 @@ namespace Desktop {
 
         // show the window manager menu
         private bool _show_wm_menu = false;
-        private Gtk.Menu _desktop_popup;
+        private Gtk.Menu? _desktop_popup;
+        private Gtk.Menu? popup_menu;
+        private Fm.FileMenu menu; // doesn't work if not global........
         
         public Window () {
             
@@ -468,14 +469,16 @@ namespace Desktop {
                 // contextual popup menu
                 } else if (evt.button == 3 && this._show_wm_menu == false) {
                             
-                    if (_desktop_popup == null)
+                    /*if (_desktop_popup == null) {
+                        stdout.printf ("cannot create contextual popup, popup == null\n");
                         return true;
+                    }
                     
                     if (_desktop_popup.get_attach_widget () != null)
                         _desktop_popup.detach ();
                     
                     _desktop_popup.attach_to_widget (this, null);
-                    _desktop_popup.popup (null, null, null, 3, evt.time);
+                    _desktop_popup.popup (null, null, null, 3, evt.time);*/
                 }
             }
             
@@ -771,7 +774,6 @@ namespace Desktop {
             targets.add_table (dnd_targets); 
             
             // a dirty way to override FmDndSrc.
-            
             this.drag_data_get.connect (_on_drag_data_get);
             
             this._dnd_src = new Fm.DndSrc (this);
@@ -1046,14 +1048,11 @@ namespace Desktop {
          **************************************************************************************************************/
         private void _create_popup_menu (Gdk.EventButton evt) {
             
-            
-            // TODO: that function should return a FileInfoList...
-            // TODO: not implemented returns null and the following segfaults...
             /*
             bool all_fixed = true;
             bool has_fixed = false;
-             * 
-             List<Desktop.Item> sel_items = _grid.get_selected_items (null);
+             
+            List<Desktop.Item> sel_items = _grid.get_selected_items (null);
             
             foreach (Desktop.Item item in sel_items) {
                 
@@ -1064,9 +1063,9 @@ namespace Desktop {
                     
                 files.push_tail (fi);
                 
-//~                 if (item.fixed_pos == true)
-//~                     has_fixed = true;
-//~                 else
+                if (item.fixed_pos == true)
+                    has_fixed = true;
+                else
                     all_fixed = false;
             }*/
             
@@ -1074,22 +1073,21 @@ namespace Desktop {
             if (files == null)
                 return;
             
-            Fm.FileInfo? fi = files.peek_head ();
-            
-            
             // create a menu and set the open folder function.
-            Fm.FileMenu menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), true);
+            menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), false);
             menu.set_folder_func ((Fm.LaunchFolderFunc) this.action_open_folder_func, null);
             
             Gtk.UIManager ui = menu.get_ui ();
             Gtk.ActionGroup act_grp = menu.get_action_group ();
             act_grp.set_translation_domain ("");
             
+            Fm.FileInfo? fi = files.peek_head ();
+            
             // merge some specific menu items for folders
-            if (menu.is_single_file_type () && fi.is_dir ()) {
+            /*if (menu.is_single_file_type () && fi.is_dir ()) {
                 act_grp.add_actions (folder_menu_actions, menu);
                 ui.add_ui_from_string (folder_menu_xml, -1);
-            }
+            }*/
             
             // snap to grid...
             // act_grp.add_actions (desktop_icon_actions, this);
@@ -1106,13 +1104,14 @@ namespace Desktop {
                 act.set_sensitive (false);
             }*/
             
-            ui.add_ui_from_string (desktop_icon_menu_xml, -1);
+            //ui.add_ui_from_string (desktop_icon_menu_xml, -1);
             
-            return;
-            _desktop_popup = menu.get_menu ();
-            _desktop_popup.popup (null, null, null, 3, evt.time);
+            popup_menu = menu.get_menu ();
+            //return;
+            if (popup_menu != null)
+                popup_menu.popup (null, null, null, 3, evt.time);
+                //popup_menu.show_all ();
             
-            return;
         }
         
         

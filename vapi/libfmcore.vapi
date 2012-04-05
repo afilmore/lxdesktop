@@ -7,13 +7,13 @@
  * it under the terms of the GNU General Public License Version 2.
  * http://www.gnu.org/licenses/gpl-2.0.txt
  * 
- * Purpose: Binding file for lbfmcore.
+ * Purpose: Binding file for libfmcore.
  * 
  * 
  **********************************************************************************************************************/
 namespace Fm {
     
-    [CCode (cheader_filename = "fmcore.h", cprefix = "FM_WP_")]
+    [CCode (cheader_filename = "fm.h", cprefix = "FM_WP_")]
     public enum WallpaperMode {
         COLOR,
         STRETCH,
@@ -44,10 +44,10 @@ namespace Fm {
 		public virtual void changed ();
 	}
 
-	[CCode (cheader_filename = "fmcore.h", cprefix = "fm_")]
+	[CCode (cheader_filename = "fm.h", cprefix = "fm_")]
 	public static bool init (Fm.Config config);
 	
-	[CCode (cheader_filename = "fmcore.h", cprefix = "fm_")]
+	[CCode (cheader_filename = "fm.h", cprefix = "fm_")]
 	public static void finalize ();
 	
     
