@@ -469,7 +469,7 @@ namespace Desktop {
                 // contextual popup menu
                 } else if (evt.button == 3 && this._show_wm_menu == false) {
                             
-                    /*if (_desktop_popup == null) {
+                    if (_desktop_popup == null) {
                         stdout.printf ("cannot create contextual popup, popup == null\n");
                         return true;
                     }
@@ -478,7 +478,7 @@ namespace Desktop {
                         _desktop_popup.detach ();
                     
                     _desktop_popup.attach_to_widget (this, null);
-                    _desktop_popup.popup (null, null, null, 3, evt.time);*/
+                    _desktop_popup.popup (null, null, null, 3, evt.time);
                 }
             }
             

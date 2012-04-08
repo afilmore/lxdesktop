@@ -220,7 +220,7 @@ namespace Desktop {
             // create the Desktop configuration, this object derivates of Fm.Config.
             global_config = new Desktop.Config ();
             Fm.init (global_config);
-            
+            stdout.printf ("archiver = %s\n", global_config.archiver);
             // fm_volume_manager_init ();
 
             bool debug = true;
