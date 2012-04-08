@@ -18,7 +18,7 @@ lxdesktop_SOURCES = \
 
 lxdesktop_VALAFLAGS = \
 	--vapidir=$(top_srcdir)/vapi \
-	--pkg config \
+	--pkg vconfig \
 	--pkg gtk+-2.0 \
 	--pkg libfmcore \
 	$(NULL)

@@ -60,7 +60,7 @@ else
 fi
 
 # intltool
-IT_PROG_INTLTOOL([0.40.0])
+#IT_PROG_INTLTOOL([0.40.0])
 
 # Check for vala
 AM_PROG_VALAC([0.10.0])
