@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([pcmanfm], [0.9.10], [http://pcmanfm.sf.net/])
+AC_INIT([lxdesktop], [0.9.10], [https://github.com/afilmore/lxdesktop])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AC_CONFIG_HEADERS([config.h])
@@ -46,7 +46,7 @@ AC_SUBST(G_CAST_CHECKS)
 
 AC_ARG_ENABLE(debug,
     [AC_HELP_STRING([--enable-debug],
-        [build pcmanfm with debug support @<:@default=no@:>@])],
+        [build lxdesktop with debug support @<:@default=no@:>@])],
     [enable_debug="${enableval}"],
     [enable_debug=no]
 )
@@ -106,7 +106,7 @@ PKG_CHECK_MODULES(MENU_CACHE, [$menu_modules])
 AC_SUBST(MENU_CACHE_CFLAGS)
 AC_SUBST(MENU_CACHE_LIBS)
 
-GETTEXT_PACKAGE=pcmanfm
+GETTEXT_PACKAGE=lxdesktop
 AC_SUBST(GETTEXT_PACKAGE)
 
 # Generate po/LINGUAS on the fly rather than relying on translators
