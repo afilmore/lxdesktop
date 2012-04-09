@@ -447,7 +447,7 @@ namespace Desktop {
 
         private void _layout_items () {
             
-            stdout.printf ("_layout_items\n");
+            //stdout.printf ("_layout_items\n");
             
             // the original function is different... see Grid.append_item ()
             
@@ -522,11 +522,17 @@ namespace Desktop {
             
             Fm.FileInfoList<Fm.FileInfo> files = new Fm.FileInfoList<Fm.FileInfo> ();
             
+            int num_files = 0;
+            
             foreach (Desktop.Item item in _grid_items) {
                 
-                if (item.is_selected)
+                if (item.is_selected) {
                     files.push_tail (item.get_fileinfo ());
+                    num_files++;
+                }
             }
+            
+            //stdout.printf ("%i files added\n", num_files);
             
             if (files.is_empty())
                 return null;

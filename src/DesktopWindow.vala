@@ -517,6 +517,11 @@ namespace Desktop {
         
         public bool action_open_folder_func (GLib.AppLaunchContext ctx, GLib.List folder_infos, void* user_data) {
             
+            stdout.printf ("action_open_folder_func\n");
+            
+            if (folder_infos == null)
+                stdout.printf ("action_open_folder_func: GLib.List folder_infos = (null)\n");
+            
             unowned List<Fm.FileInfo> l = folder_infos;
             
             foreach (Fm.FileInfo fi in l) {
@@ -536,6 +541,7 @@ namespace Desktop {
             try {
                 Process.spawn_command_line_async (cmdline);
             } catch (Error e) {
+                stdout.printf ("action_open_folder cannot open %s\n", cmdline);
             }
             
             return true;

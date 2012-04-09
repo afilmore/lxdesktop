@@ -147,13 +147,21 @@ namespace Desktop {
             }
         }
 
+        /***************************************************************************************************************
+         * Create special items on the desktop, this should be configurable, it should be possible to show/hide
+         * My Computer, My Documents, The Trash Can from dconf settings.
+         * 
+         * Some modifications have been done to LibFM's FmPath and FmFileInfo to create easily and hopefully in a safe
+         * way these items.
+         * 
+         **************************************************************************************************************/
         private void _load_special_items (Desktop.Window desktop) {
             
             Gtk.IconTheme icon_theme = Gtk.IconTheme.get_default ();
             
-            Desktop.Item special;
             string icon_name;
             Gdk.Pixbuf pixbuf;
+            Fm.FileInfo? fi;
             
             /* Special icons :
              * "computer"
@@ -170,29 +178,78 @@ namespace Desktop {
              * 
              */
             
-            // My Computer
+            /***********************************************************************************************************
+             * My Computer
+             * 
+             **********************************************************************************************************/
             icon_name = "computer";
             pixbuf = icon_theme.load_icon (icon_name,
                                            (int) global_config.big_icon_size,
                                            Gtk.IconLookupFlags.FORCE_SIZE);
-            special = new Desktop.Item (pixbuf);
-            desktop.get_grid ().append_item (special);
             
-            // My Documents
+            fi = new Fm.FileInfo.computer ();
+            desktop.get_grid ().append_item (new Desktop.Item (pixbuf, fi));
+            
+            /***********************************************************************************************************
+             * From Glib Reference Manual :
+             * 
+             * These are logical ids for special directories which are defined depending on the platform used.
+             * You should use g_get_user_special_dir() to retrieve the full path associated to the logical id.
+             * 
+             * The GUserDirectory enumeration can be extended at later date. Not every platform has a directory for
+             * every logical id in this enumeration.
+             *  
+             *  Cuurent User's Directories (GLib 2.32)
+             * 
+             *  The user's Desktop directory:       G_USER_DIRECTORY_DESKTOP
+             *  The user's Documents directory:     G_USER_DIRECTORY_DOCUMENTS
+             *  The user's Downloads directory:     G_USER_DIRECTORY_DOWNLOAD
+             *  The user's Music directory:         G_USER_DIRECTORY_MUSIC
+             *  The user's Pictures directory:      G_USER_DIRECTORY_PICTURES
+             *  The user's shared directory:        G_USER_DIRECTORY_PUBLIC_SHARE
+             *  The user's Templates directory:     G_USER_DIRECTORY_TEMPLATES
+             *  The user's Movies directory:        G_USER_DIRECTORY_VIDEOS
+             *  The number of enum values:          G_USER_N_DIRECTORIES
+             * 
+             */
+            
+            /***********************************************************************************************************
+             * My Documents
+             * 
+             **********************************************************************************************************/
             icon_name = "folder-documents";
             pixbuf = icon_theme.load_icon (icon_name,
                                            (int) global_config.big_icon_size,
                                            Gtk.IconLookupFlags.FORCE_SIZE);
-            special = new Desktop.Item (pixbuf);
-            desktop.get_grid ().append_item (special);
             
-            // Trash Can
+            fi = new Fm.FileInfo.user_special_dir (UserDirectory.DOCUMENTS);
+            if (fi != null)
+                desktop.get_grid ().append_item (new Desktop.Item (pixbuf, fi));
+            
+            /***********************************************************************************************************
+             * My Music
+             * 
+             **********************************************************************************************************/
+            icon_name = "folder-music";
+            pixbuf = icon_theme.load_icon (icon_name,
+                                           (int) global_config.big_icon_size,
+                                           Gtk.IconLookupFlags.FORCE_SIZE);
+                                           
+            fi = new Fm.FileInfo.user_special_dir (UserDirectory.MUSIC);
+            if (fi != null)
+                desktop.get_grid ().append_item (new Desktop.Item (pixbuf, fi));
+            
+            /***********************************************************************************************************
+             * Trash Can
+             * 
+             **********************************************************************************************************/
             icon_name = "user-trash";
             pixbuf = icon_theme.load_icon (icon_name,
                                            (int) global_config.big_icon_size,
                                            Gtk.IconLookupFlags.FORCE_SIZE);
-            special = new Desktop.Item (pixbuf);
-            desktop.get_grid ().append_item (special);
+                                           
+            fi = new Fm.FileInfo.trash_can ();
+            desktop.get_grid ().append_item (new Desktop.Item (pixbuf, fi));
             
         }
         
@@ -220,7 +277,8 @@ namespace Desktop {
             // create the Desktop configuration, this object derivates of Fm.Config.
             global_config = new Desktop.Config ();
             Fm.init (global_config);
-            stdout.printf ("archiver = %s\n", global_config.archiver);
+            
+            // stdout.printf ("archiver = %s\n", global_config.archiver);
             // fm_volume_manager_init ();
 
             bool debug = true;

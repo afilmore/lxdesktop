@@ -18,15 +18,12 @@ long_line_behaviour=2
 long_line_column=120
 
 [files]
-current_page=0
-FILE_NAME_0=9563;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/Application.vala;0;4
-FILE_NAME_1=30236;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopWindow.vala;0;4
-FILE_NAME_2=3797;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopGrid.vala;0;4
-FILE_NAME_3=0;Make;0;16;1;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/Makefile.am;0;4
-FILE_NAME_4=378;XML;0;16;0;1;0;/home/hotnuma/Bureau/Samples/GSettings/org.example.my-app.gschema.xml;0;4
-FILE_NAME_5=0;XML;0;16;0;1;0;/home/hotnuma/Bureau/Samples/GSettings/org.gnome.desktop.default-applications.gschema.xml;0;4
-FILE_NAME_6=57;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Samples/GSettings/gsettings.vala;0;4
-FILE_NAME_7=3468;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopConfig.vala;0;4
+current_page=1
+FILE_NAME_0=10185;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/Application.vala;0;4
+FILE_NAME_1=41780;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopWindow.vala;0;4
+FILE_NAME_2=21401;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopGrid.vala;0;4
+FILE_NAME_3=3468;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopConfig.vala;0;4
+FILE_NAME_4=6319;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/vapi/libfmcore.vapi;0;4
 
 [VTE]
 last_dir=/home/hotnuma/Bureau/Projets/lxdesktop/src

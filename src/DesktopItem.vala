@@ -63,7 +63,8 @@ namespace Desktop {
     
         public string get_disp_name () {
             if (_fileinfo != null)
-                return _fileinfo.get_disp_name ();
+                //return _fileinfo.get_disp_name ();
+                return _fileinfo.get_path ().display_basename ();
             else
                 return _disp_name;
         }

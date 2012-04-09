@@ -247,11 +247,20 @@ namespace Fm {
         [CCode (has_construct_function = false)]
 		public FileInfo ();
 		
-        public bool can_thumbnail ();
-		public void copy (Fm.FileInfo src);
+        [CCode (has_construct_function = false)]
+		public FileInfo.computer ();
+		
+        [CCode (has_construct_function = false)]
+		public FileInfo.trash_can ();
+		
+        [CCode (has_construct_function = false)]
+		public FileInfo.user_special_dir (GLib.UserDirectory directory);
 		
         [CCode (has_construct_function = false)]
 		public FileInfo.from_gfileinfo (Fm.Path path, GLib.FileInfo inf);
+		
+        public bool can_thumbnail ();
+		public void copy (Fm.FileInfo src);
 		
         public ulong get_atime ();
 		public int64 get_blocks ();
