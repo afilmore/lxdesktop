@@ -9,10 +9,19 @@
  * 
  * Purpose: Binding file for libfmcore.
  * 
+ * Version: 1.0
+ * 
  * 
  **********************************************************************************************************************/
 namespace Fm {
     
+    
+    /*******************************************************************************************************************
+     * LibFm Core headers and Configuration.
+     * 
+     * 
+     * 
+     ******************************************************************************************************************/
     [CCode (cheader_filename = "fm.h", cprefix = "FM_WP_")]
     public enum WallpaperMode {
         COLOR,
@@ -51,113 +60,18 @@ namespace Fm {
 	public static void finalize ();
 	
     
-	[CCode (cheader_filename = "fm-file-menu.h", cprefix = "fm_file_menu_", cname = "FmFileMenu", free_function = "fm_file_menu_destroy")]
-	[Compact]
-	public class FileMenu {
-		[CCode (has_construct_function = false)]
-		public FileMenu.for_file (Gtk.Window parent, Fm.FileInfo fi, Fm.Path cwd, bool auto_destroy);
-		[CCode (has_construct_function = false)]
-		public FileMenu.for_files (Gtk.Window parent, Fm.FileInfoList files, Fm.Path cwd, bool auto_destroy);
-		public unowned Gtk.ActionGroup get_action_group ();
-		public unowned Fm.FileInfoList get_file_info_list ();
-		public unowned Gtk.Menu get_menu ();
-		public unowned Gtk.UIManager get_ui ();
-		public bool is_single_file_type ();
-		public void set_folder_func (Fm.LaunchFolderFunc func, void* user_data);
-	}
-
-	[CCode (cheader_filename = "fm-list.h", cprefix = "fm_", ref_function = "fm_list_ref", unref_function = "fm_list_unref")]
-	[Compact]
-	public class List<G> : GLib.Queue<G> {
-		
-        [CCode (has_construct_function = false)]
-		public List (Fm.ListFuncs funcs);
-		public static void clear (void* list);
-		public static void delete_link (void* list, void* l_);
-		public bool is_file_info_list ();
-		public bool is_path_list ();
-		public static void remove (void* list, void* data);
-		public static void remove_all (void* list, void* data);
-	}
-	
-    [CCode (cheader_filename = "fm-list.h")]
-	[Compact]
-	public class ListFuncs {
-		public weak GLib.Callback item_ref;
-		public weak GLib.Callback item_unref;
-	}
-	
-    /*
-    #define fm_drag_context_has_target(ctx, target) \
-        (g_list_find(ctx->targets, target) != NULL)
-    */
-	[CCode (cheader_filename = "fm-dnd-dest.h", cprefix = "fm_")]
-    public inline bool drag_context_has_target (Gdk.DragContext drag_context, Gdk.Atom target);
-
-	[CCode (cheader_filename = "fm-dnd-dest.h", cprefix = "fm_")]
-    extern Gtk.TargetEntry default_dnd_dest_targets[];
-
-    /*
-    #define fm_drag_context_has_target_name(ctx, name)  \
-        fm_drag_context_has_target(ctx, gdk_atom_intern_static_string(name))
-    */
-
-    /* default droppable targets */
-    //~ enum
-    //~ {
-    //~     FM_DND_DEST_TARGET_FM_LIST, /* direct pointer of FmList */
-    //~     FM_DND_DEST_TARGET_URI_LIST, /* text/uri-list */
-    //~     FM_DND_DEST_TARGET_XDS, /* X direct save */
-    //~     N_FM_DND_DEST_DEFAULT_TARGETS
-    //~ };
-
-    [CCode (cheader_filename = "fm-dnd-dest.h", cprefix = "FM_DND_DEST_TARGET_")]
-    public enum DndDestTarget {
-        FM_LIST,
-        URI_LIST,
-        XDS,
-        [CCode (cheader_filename = "fm-dnd-dest.h", cname = "N_FM_DND_DEST_DEFAULT_TARGETS", cprefix = "")]
-        DEFAULT
-    }
-    
-    [CCode (cheader_filename = "fm-dnd-dest.h", cprefix = "fm_dnd_dest_", cname = "FmDndDest")]
-	public class DndDest : GLib.Object {
-		
-        [CCode (has_construct_function = false)]
-		public DndDest (Gtk.Widget w);
-		
-        public bool drag_data_received (Gdk.DragContext drag_context, int x, int y, Gtk.SelectionData sel_data, uint info, uint time);
-		public bool drag_drop (Gdk.DragContext drag_context, Gdk.Atom target, int x, int y, uint time);
-		public void drag_leave (Gdk.DragContext drag_context, uint time);
-		public Gdk.Atom find_target (Gdk.DragContext drag_context);
-		public Gdk.DragAction get_default_action (Gdk.DragContext drag_context, Gdk.Atom target);
-		public unowned Fm.FileInfo get_dest_file ();
-		public unowned Fm.Path get_dest_path ();
-		public unowned Fm.List get_src_files ();
-		public bool is_target_supported (Gdk.Atom target);
-		public void set_dest_file (Fm.FileInfo? dest_file);
-		public void set_widget (Gtk.Widget w);
-		public virtual signal bool files_dropped (int x, int y, uint action, uint info_type, void* files);
-	}
-	
-    [CCode (cheader_filename = "fm-dnd-src.h", cprefix = "fm_dnd_src_", cname = "FmDndSrc")]
-	public class DndSrc : GLib.Object {
-		
-        [CCode (has_construct_function = false)]
-		public DndSrc (Gtk.Widget w);
-		
-        public unowned Fm.FileInfoList get_files ();
-		public void set_file (Fm.FileInfo file);
-		public void set_files (Fm.FileInfoList files);
-		public void set_widget (Gtk.Widget w);
-		public virtual signal void data_get ();
-	}
-
     /*******************************************************************************************************************
-     * LibFm Core Base Objects to handle paths, icons, mime types and file info.
+     * FmPath, FmIcon, FmMimeType, FmFileinfo and FileInfoList.
+     * 
+     * These are base objects used everywhere in the library, particularly Path and FileInfo.
+     * 
      * 
      ******************************************************************************************************************/
-	[CCode (cheader_filename = "fm-path.h", cname = "FmPath", cprefix = "fm_path_", ref_function = "fm_path_ref", unref_function = "fm_path_unref")]
+	[CCode (cheader_filename =  "fm-path.h",
+            cname =             "FmPath",
+            cprefix =           "fm_path_",
+            ref_function =      "fm_path_ref",
+            unref_function =    "fm_path_unref")]
 	[Compact]
 	public class Path {
 		
@@ -210,7 +124,9 @@ namespace Fm {
 		public unowned string to_uri ();
 	}
 
-	[CCode (cheader_filename = "fm-icon.h", ref_function = "fm_icon_ref", unref_function = "fm_icon_unref")]
+	[CCode (cheader_filename =  "fm-icon.h",
+            ref_function =      "fm_icon_ref",
+            unref_function =    "fm_icon_unref")]
 	[Compact]
 	public class Icon {
 		public static unowned Fm.Icon from_gicon (GLib.Icon gicon);
@@ -223,7 +139,9 @@ namespace Fm {
 		public static void unload_user_data_cache ();
 	}
 
-	[CCode (cheader_filename = "fm-mime-type.h", ref_function = "fm_mime_type_ref", unref_function = "fm_mime_type_unref")]
+	[CCode (cheader_filename =  "fm-mime-type.h",
+            ref_function =      "fm_mime_type_ref",
+            unref_function =    "fm_mime_type_unref")]
 	[Compact]
 	public class MimeType {
 		
@@ -240,7 +158,9 @@ namespace Fm {
 		public unowned Fm.Icon get_icon ();
 	}
 
-    [CCode (cheader_filename = "fm-file-info.h", ref_function = "fm_file_info_ref", unref_function = "fm_file_info_unref")]
+    [CCode (cheader_filename =  "fm-file-info.h",
+            ref_function =      "fm_file_info_ref",
+            unref_function =    "fm_file_info_unref")]
 	[Compact]
 	public class FileInfo {
 		
@@ -291,39 +211,6 @@ namespace Fm {
 		public void set_path (Fm.Path path);
 	}
     
-    
-    /*******************************************************************************************************************
-     * File Launcher functions.
-     * 
-     ******************************************************************************************************************/
-	[CCode (cheader_filename = "fm-file-launcher.h", has_target = false)]
-	public delegate bool LaunchFolderFunc (GLib.AppLaunchContext ctx, GLib.List folder_infos) throws GLib.Error;
-
-	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-file-launcher.h")]
-	public static bool launch_file_simple (Gtk.Window parent, GLib.AppLaunchContext ctx, Fm.FileInfo file_info, Fm.LaunchFolderFunc func, void* user_data);
-
-	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-file-launcher.h")]
-	public static bool launch_files_simple (Gtk.Window parent, GLib.AppLaunchContext ctx, GLib.List file_infos, Fm.LaunchFolderFunc func);
-
-	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-file-launcher.h")]
-	public static bool launch_path_simple (Gtk.Window parent, GLib.AppLaunchContext ctx, Fm.Path path, Fm.LaunchFolderFunc func);
-
-	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-file-launcher.h")]
-	public static bool launch_paths_simple (Gtk.Window parent, GLib.AppLaunchContext ctx, GLib.List paths, Fm.LaunchFolderFunc func);
-
-	/*
-    [CCode (cprefix = "fm_", cheader_filename = "fm-gtk-file-launcher.h")]
-	public static bool launch_desktop_entry (GLib.AppLaunchContext ctx, string file_or_id, GLib.List uris, Fm.FileLauncher launcher);
-
-	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-file-launcher.h")]
-	public static bool launch_files (GLib.AppLaunchContext ctx, GLib.List file_infos, Fm.FileLauncher launcher);
-
-	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-file-launcher.h")]
-	public static bool launch_paths (GLib.AppLaunchContext ctx, GLib.List paths, Fm.FileLauncher launcher);
-    */
-    
-
-    
 	[CCode (cheader_filename = "fm-file-info.h", cname = "FmFileInfoList", cprefix = "fm_file_info_list_")]
 	[Compact]
 	public class FileInfoList<G> : Fm.List<G> {
@@ -335,7 +222,111 @@ namespace Fm {
 		public bool is_same_type ();
 	}
 
-    // Columns of folder view
+    
+    /*******************************************************************************************************************
+     * 
+     * 
+     * 
+     ******************************************************************************************************************/
+	[CCode (cheader_filename =  "fm-list.h",
+            cprefix =           "fm_",
+            ref_function =      "fm_list_ref",
+            unref_function =    "fm_list_unref")]
+	[Compact]
+	public class List<G> : GLib.Queue<G> {
+		
+        [CCode (has_construct_function = false)]
+		public List (Fm.ListFuncs funcs);
+		public static void clear (void* list);
+		public static void delete_link (void* list, void* l_);
+		public bool is_file_info_list ();
+		public bool is_path_list ();
+		public static void remove (void* list, void* data);
+		public static void remove_all (void* list, void* data);
+	}
+	
+    [CCode (cheader_filename = "fm-list.h")]
+	[Compact]
+	public class ListFuncs {
+		public weak GLib.Callback item_ref;
+		public weak GLib.Callback item_unref;
+	}
+	
+
+    /* *****************************************************************************************************************
+     * File Launcher functions.
+     * 
+     * WARNING !!!! there's a problem in the delegate function definition..... see lxdesktop/src/DesktopWindow.vala
+     * In action_open_folder_func ()
+     * 
+     * 
+     ******************************************************************************************************************/
+    /* C definition :
+                        typedef gboolean (*FmLaunchFolderFunc) (GAppLaunchContext* ctx,
+                                                                GList* folder_infos,
+                                                                gpointer user_data,
+                                                                GError** err);
+    */
+                                           
+	/* public delegate bool LaunchFolderFunc (GLib.AppLaunchContext ctx,
+                                              GLib.List<Fm.FileInfo> folder_infos,
+                                              void* user_data) throws GLib.Error;
+    */
+
+	[CCode (cheader_filename = "fm-gtk-launcher.h")]
+	public delegate bool LaunchFolderFunc (GLib.AppLaunchContext ctx,
+                                           GLib.List<Fm.FileInfo> folder_infos,
+                                           void* user_data,
+                                           GLib.Error error);
+
+	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
+	public static bool launch_file_simple (Gtk.Window parent,
+                                           GLib.AppLaunchContext ctx,
+                                           Fm.FileInfo file_info,
+                                           Fm.LaunchFolderFunc func);
+
+	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
+	public static bool launch_files_simple (Gtk.Window parent,
+                                            GLib.AppLaunchContext ctx,
+                                            GLib.List file_infos,
+                                            Fm.LaunchFolderFunc func);
+
+	/* include these when needed...
+	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
+	public static bool launch_path_simple (Gtk.Window parent,
+                                           GLib.AppLaunchContext ctx,
+                                           Fm.Path path,
+                                           Fm.LaunchFolderFunc func);
+
+	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
+	public static bool launch_paths_simple (Gtk.Window parent,
+                                            GLib.AppLaunchContext ctx,
+                                            GLib.List paths,
+                                            Fm.LaunchFolderFunc func);
+
+    [CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
+	public static bool launch_desktop_entry (GLib.AppLaunchContext ctx,
+                                             string file_or_id,
+                                             GLib.List uris,
+                                             Fm.FileLauncher launcher);
+
+	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
+	public static bool launch_files (GLib.AppLaunchContext ctx,
+                                     GLib.List file_infos,
+                                     Fm.FileLauncher launcher);
+
+	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
+	public static bool launch_paths (GLib.AppLaunchContext ctx,
+                                     GLib.List paths,
+                                     Fm.FileLauncher launcher);
+    */
+    
+    
+    /*******************************************************************************************************************
+     * Gtk Folder Model.
+     * 
+     * 
+     ******************************************************************************************************************/
     [CCode (cheader_filename = "fm-folder.h", cprefix = "COL_FILE_")]
     public enum FileColumn {
         GICON = 0,
@@ -384,11 +375,6 @@ namespace Fm {
 		public virtual signal void unmount ();
 	}
     
-    
-    /*******************************************************************************************************************
-     * LibFm Gtk Objects.
-     * 
-     ******************************************************************************************************************/
     [CCode (cheader_filename = "fm-folder-model.h")]
 	public class FolderModel : GLib.Object, Gtk.TreeModel, Gtk.TreeSortable, Gtk.TreeDragSource, Gtk.TreeDragDest {
 
@@ -414,6 +400,108 @@ namespace Fm {
 		public void set_show_hidden (bool show_hidden);
 		
         public virtual signal void loaded ();
+	}
+    
+    
+    /*******************************************************************************************************************
+     * File/Folder contextual menu.
+     * 
+     * 
+     ******************************************************************************************************************/
+	[CCode (cheader_filename =  "fm-file-menu.h",
+            cprefix =           "fm_file_menu_",
+            cname =             "FmFileMenu",
+            free_function =     "fm_file_menu_destroy")]
+	[Compact]
+	public class FileMenu {
+		[CCode (has_construct_function = false)]
+		public FileMenu.for_file (Gtk.Window parent, Fm.FileInfo fi, Fm.Path cwd, bool auto_destroy);
+		[CCode (has_construct_function = false)]
+		public FileMenu.for_files (Gtk.Window parent, Fm.FileInfoList files, Fm.Path cwd, bool auto_destroy);
+		public unowned Gtk.ActionGroup get_action_group ();
+		public unowned Fm.FileInfoList get_file_info_list ();
+		public unowned Gtk.Menu get_menu ();
+		public unowned Gtk.UIManager get_ui ();
+		public bool is_single_file_type ();
+		public void set_folder_func (Fm.LaunchFolderFunc func);
+	}
+    
+    
+    /*******************************************************************************************************************
+     * Drag And Drop...
+     * 
+     * 
+     ******************************************************************************************************************/
+    /*
+    #define fm_drag_context_has_target(ctx, target) \
+        (g_list_find(ctx->targets, target) != NULL)
+    */
+	[CCode (cheader_filename = "fm-dnd-dest.h", cprefix = "fm_")]
+    public inline bool drag_context_has_target (Gdk.DragContext drag_context, Gdk.Atom target);
+
+	[CCode (cheader_filename = "fm-dnd-dest.h", cprefix = "fm_")]
+    extern Gtk.TargetEntry default_dnd_dest_targets[];
+
+    /*
+    #define fm_drag_context_has_target_name(ctx, name)  \
+        fm_drag_context_has_target(ctx, gdk_atom_intern_static_string(name))
+    */
+
+    /* default droppable targets */
+    //~ enum
+    //~ {
+    //~     FM_DND_DEST_TARGET_FM_LIST, /* direct pointer of FmList */
+    //~     FM_DND_DEST_TARGET_URI_LIST, /* text/uri-list */
+    //~     FM_DND_DEST_TARGET_XDS, /* X direct save */
+    //~     N_FM_DND_DEST_DEFAULT_TARGETS
+    //~ };
+
+    [CCode (cheader_filename = "fm-dnd-dest.h", cprefix = "FM_DND_DEST_TARGET_")]
+    public enum DndDestTarget {
+        FM_LIST,
+        URI_LIST,
+        XDS,
+        [CCode (cheader_filename = "fm-dnd-dest.h", cname = "N_FM_DND_DEST_DEFAULT_TARGETS", cprefix = "")]
+        DEFAULT
+    }
+    
+    [CCode (cheader_filename = "fm-dnd-dest.h", cprefix = "fm_dnd_dest_", cname = "FmDndDest")]
+	public class DndDest : GLib.Object {
+		
+        [CCode (has_construct_function = false)]
+		public DndDest (Gtk.Widget w);
+		
+        public bool drag_data_received (Gdk.DragContext drag_context,
+                                        int x,
+                                        int y,
+                                        Gtk.SelectionData sel_data,
+                                        uint info,
+                                        uint time);
+		
+        public bool drag_drop (Gdk.DragContext drag_context, Gdk.Atom target, int x, int y, uint time);
+		public void drag_leave (Gdk.DragContext drag_context, uint time);
+		public Gdk.Atom find_target (Gdk.DragContext drag_context);
+		public Gdk.DragAction get_default_action (Gdk.DragContext drag_context, Gdk.Atom target);
+		public unowned Fm.FileInfo get_dest_file ();
+		public unowned Fm.Path get_dest_path ();
+		public unowned Fm.List get_src_files ();
+		public bool is_target_supported (Gdk.Atom target);
+		public void set_dest_file (Fm.FileInfo? dest_file);
+		public void set_widget (Gtk.Widget w);
+		public virtual signal bool files_dropped (int x, int y, uint action, uint info_type, void* files);
+	}
+	
+    [CCode (cheader_filename = "fm-dnd-src.h", cprefix = "fm_dnd_src_", cname = "FmDndSrc")]
+	public class DndSrc : GLib.Object {
+		
+        [CCode (has_construct_function = false)]
+		public DndSrc (Gtk.Widget w);
+		
+        public unowned Fm.FileInfoList get_files ();
+		public void set_file (Fm.FileInfo file);
+		public void set_files (Fm.FileInfoList files);
+		public void set_widget (Gtk.Widget w);
+		public virtual signal void data_get ();
 	}
 }
 

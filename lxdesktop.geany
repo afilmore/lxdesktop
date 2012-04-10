@@ -18,12 +18,14 @@ long_line_behaviour=2
 long_line_column=120
 
 [files]
-current_page=1
-FILE_NAME_0=10185;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/Application.vala;0;4
+current_page=6
+FILE_NAME_0=7967;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/Application.vala;0;4
 FILE_NAME_1=41780;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopWindow.vala;0;4
-FILE_NAME_2=21401;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopGrid.vala;0;4
+FILE_NAME_2=18365;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopGrid.vala;0;4
 FILE_NAME_3=3468;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopConfig.vala;0;4
-FILE_NAME_4=6319;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/vapi/libfmcore.vapi;0;4
+FILE_NAME_4=9471;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/vapi/libfmcore.vapi;0;4
+FILE_NAME_5=1008;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopItem.vala;0;4
+FILE_NAME_6=112;None;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/TODO;0;4
 
 [VTE]
 last_dir=/home/hotnuma/Bureau/Projets/lxdesktop/src
