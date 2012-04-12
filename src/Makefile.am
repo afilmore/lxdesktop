@@ -15,6 +15,7 @@ lxdesktop_SOURCES = \
 	DesktopWindow.vala \
 	DesktopGrid.vala \
 	DesktopItem.vala \
+	TEMP.vala \
 	misc.c \
 	$(NULL)
 

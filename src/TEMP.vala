@@ -1,22 +1,53 @@
 /* *********************************************************************************************************************
- * Unused functions....
+ * *** DOESN'T BUILD ***
+ * 
+ * 
+ * *********************************************************************************************************************
+    // round() is only available in C99. (this funtion is used in "snap to grid"...)
+    inline double _round (double x) {
+        return (x > 0.0) ? floor (x + 0.5) : ceil (x - 0.5);
+    }
+
+    string atom_names[] = {"_NET_WORKAREA", "_NET_NUMBER_OF_DESKTOPS", "_NET_CURRENT_DESKTOP", "_XROOTMAP_ID"};
+
+    Atom atoms[G_N_ELEMENTS(atom_names)] = {0};
+     
+    if (XInternAtoms (GDK_DISPLAY(), atom_names, G_N_ELEMENTS(atom_names), False, atoms)) {
+        XA_NET_WORKAREA = atoms[0];
+        XA_NET_NUMBER_OF_DESKTOPS = atoms[1];
+        XA_NET_CURRENT_DESKTOP = atoms[2];
+        XA_XROOTMAP_ID= atoms[3];
+    }
+
+    Atom XA_NET_WORKAREA = 0;
+    Atom XA_NET_NUMBER_OF_DESKTOPS = 0;
+    Atom XA_NET_CURRENT_DESKTOP = 0;
+    Atom XA_XROOTMAP_ID= 0;
+
+ * 
+ * 
+ **********************************************************************************************************************/
+
+
+/***********************************************************************************************************************
+ * Currently Unused Functions....
  * 
  * 
  **********************************************************************************************************************/
 private void _on_icon_theme_changed (Gtk.IconTheme theme) {
     
-    /***********************************************************************************************************
+    /*******************************************
      * The user changed the system icon theme.
      * 
      */
     
-    this._reload_icons();
+    //this._reload_icons();
     
 }
 
 private void _reload_icons() {
     
-    /***********************************************************************************************************
+    /*******************************************************************
      * Reload icons when the icon size or the icon theme has changed
      * 
      * 
@@ -38,23 +69,22 @@ private void _reload_icons() {
         
         this.queue_resize ();
     }
-    
     */
 }
 
-/* *************************************************************************************************************
+
+/***********************************************************************************************************************
  * Grid: Unused functions....
  * 
  * 
- */
-
+ **********************************************************************************************************************/
 // See where to store these focus items, in the grid ? probably...
 public List get_selected_items (out int n_items) {
     
-    /*
+    
     List<Desktop.Item>? items = null;
     
-    List l;
+    /*List l;
     int n = 0;
     
     Desktop.Item? _selected_item = null;
@@ -82,39 +112,31 @@ public List get_selected_items (out int n_items) {
     
     if (n_items)
         *n_items = n;
-    
+    */
     return items;
-    return null;
 }
 
-private void on_sort_type (Gtk.Action act, Gtk.RadioAction cur, void user_data) {
-    desktop_sort_type = cur.get_current_value();
-    _folder_model.set_sort_column_id (desktop_sort_by, desktop_sort_type);
+private void on_sort_type (Gtk.Action act, Gtk.RadioAction cur, void *user_data) {
+    /*desktop_sort_type = cur.get_current_value();
+    _folder_model.set_sort_column_id (desktop_sort_by, desktop_sort_type);*/
 }
 
-private void on_sort_by (Gtk.Action act, Gtk.RadioAction cur, void user_data) {
-    desktop_sort_by = cur.get_current_value();
-    _folder_model.set_sort_column_id (desktop_sort_by, desktop_sort_type);
-}*/
+private void on_sort_by (Gtk.Action act, Gtk.RadioAction cur, void *user_data) {
+    /*desktop_sort_by = cur.get_current_value();
+    _folder_model.set_sort_column_id (desktop_sort_by, desktop_sort_type);*/
+}
 
 private void _select_all () {
     
-    foreach (Desktop.Item item in _grid_items) {
+    /**foreach (Desktop.Item item in _grid_items) {
         item.is_selected = true;
         item.redraw (_window);
-    }
+    }*/
 }
 
-
-/* *********************************************************************************************************************
- * Unused functions....
- * 
- * 
- * 
- **********************************************************************************************************************/
 private void open_selected_items () {
     
-    /*
+    /**
     List? items;
     
     int n_sels = this.get_selected_items (out items);
@@ -128,14 +150,14 @@ private void open_selected_items () {
         Desktop.Item item = l.data as Desktop.Item;
         l.data = item.fi;
     }
-    */
     
-    // this.launch_files_simple (null, items, pcmanfm_open_folder, null);
+    
+    // this.launch_files_simple (null, items, pcmanfm_open_folder, null);*/
 }
 
 private void _set_focused_item (Desktop.Item item) {
     
-    if (item == _selected_item)
+    /*if (item == _selected_item)
         return;
     
     // invalidate old focused item if any
@@ -145,7 +167,7 @@ private void _set_focused_item (Desktop.Item item) {
     // invalidate new focused item
     _selected_item = item;
     if (_selected_item != null)
-        _selected_item.redraw (_window);
+        _selected_item.redraw (_window);*/
 }
 
 private bool is_pos_occupied () {
@@ -165,10 +187,12 @@ private bool is_pos_occupied () {
     return false;
 }
 
-/* PathList not in vapi file yet...
-private Fm.PathList? get_selected_paths() {
+private string get_selected_paths () {
+/*private Fm.PathList? get_selected_paths() {*/
     
-    Fm.PathList? files = new Fm.PathList ();
+    string files = "";
+    
+    /*Fm.PathList? files = new Fm.PathList ();
     
     foreach (Desktop.Item item in _grid_items) {
         if (item.is_selected == true)
@@ -176,23 +200,171 @@ private Fm.PathList? get_selected_paths() {
     }
     
     if (files.is_empty())
-        return null;
-
+        return null;*/
+        
     return files;
-}*/
+}
 
 
+/***********************************************************************************************************************
+ * Actions...
+ * 
+ * 
+ **********************************************************************************************************************/
+private void on_snap_to_grid (Gtk.Action act) {
+    
+    /*FmDesktop* desktop = FM_DESKTOP(user_data);
+    Desktop.Item item;
+    List items = get_selected_items(desktop, null);
+    List l;
+    int x, y, bottom;
+    GtkTextDirection direction = this.get_direction(GTK_WIDGET(desktop));
 
-/* *************************************************************************************************************
+    y = desktop.working_area.y + desktop.ymargin;
+    bottom = desktop.working_area.y + desktop.working_area.height - desktop.ymargin - desktop.cell_h;
+
+    if (direction != GTK_TEXT_DIR_RTL) // LTR or NONE
+        x = desktop.working_area.x + desktop.xmargin;
+    else // RTL
+        x = desktop.working_area.x + desktop.working_area.width - desktop.xmargin - desktop.cell_w;
+
+    for (l = items; l; l = l.next) {
+        
+        int new_x, new_y;
+        item = l.data as Desktop.Item;
+        
+        if (!item.fixed_pos)
+            continue;
+        new_x = x + _round((double)(item.x - x) / desktop.cell_w) * desktop.cell_w;
+        new_y = y + _round((double)(item.y - y) / desktop.cell_h) * desktop.cell_h;
+        move_item (desktop, item, new_x, new_y, false);
+    }
+    
+    queue_layout_items (desktop);*/
+}
+
+private void on_fix_pos (Gtk.ToggleAction act) {
+
+    /*FmDesktop* desktop = FM_DESKTOP (user_data);
+    
+    List items = this.get_selected_items (null);
+    List l;
+    
+    if (act.get_active()) {
+        for (l = items; l; l=l.next) {
+            Desktop.Item item = l.data as Desktop.Item;
+            if (item.fixed_pos == false) {
+                item.fixed_pos = true;
+                desktop.fixed_items = desktop.fixed_items.prepend (item);
+            }
+        }
+    } else {
+        for (l = items; l; l=l.next) {
+            Desktop.Item item = l.data as Desktop.Item;
+            item.fixed_pos = false;
+            desktop.fixed_items = desktop.fixed_items.remove (item);
+        }
+        layout_items (desktop);
+    }
+    
+    save_item_pos (desktop);*/
+}
+
+
+/***********************************************************************************************************************
+ * These are original function, I plan to implement these a different way...
+ * Grid.append_item () replaces layout_items ()
  * 
  * 
- * 
- * 
+ **********************************************************************************************************************/
+private void _layout_items () {
+    
+    /*List l;
+    Desktop.Item item;
+    int x;
+    int y;
+    int bottom;
+    
+    Gtk.TextDirection direction = this.get_direction ();
+
+    y = this.working_area.y + this.ymargin;
+    bottom = this.working_area.y + this.working_area.height - this.ymargin - this.cell_h;
+
+    // LTR or NONE
+    if (direction != GTK_TEXT_DIR_RTL) {
+        x = this.working_area.x + this.xmargin;
+        
+        for (l = this.items; l; l = l.next) {
+            item = l.data as Desktop.Item;
+            
+            if (item.fixed_pos) {
+                calc_item_size (item);
+            
+            } else {
+                
+                _next_position:
+                
+                item.x = x;
+                item.y = y;
+                calc_item_size (item);
+                y += this.cell_h;
+                
+                if (y > bottom) {
+                    x += this.cell_w;
+                    y = this.working_area.y + this.ymargin;
+                }
+                
+                // check if this position is occupied by a fixed item
+                if (is_pos_occupied (item))
+                    goto _next_position;
+            }
+        }
+    
+    // RTL
+    } else {
+        
+        x = this.working_area.x + this.working_area.width - this.xmargin - this.cell_w;
+        
+        for (l = this.items; l; l = l.next) {
+            
+            item = l.data as Desktop.Item;
+            
+            if (item.fixed_pos) {
+                calc_item_size (item);
+            
+            } else {
+                
+                _next_position_rtl:
+                
+                item.x = x;
+                item.y = y;
+                
+                calc_item_size (item);
+                y += this.cell_h;
+                
+                if (y > bottom) {
+                    x -= this.cell_w;
+                    y = this.working_area.y + this.ymargin;
+                }
+                
+                // check if this position is occupied by a fixed item
+                if (is_pos_occupied (item))
+                    goto _next_position_rtl;
+            }
+        }
+    }
+    
+    this.queue_draw ();
+    */
+    
+    return;
+}
+
 private Desktop.Item? get_nearest_item (Desktop.Item item, Gtk.DirectionType direction) {
     
     Desktop.Item ret = null;
     
-    uint min_x_dist;
+    /*uint min_x_dist;
     uint min_y_dist;
 
     if (_items == null || _items.next == null)
@@ -308,174 +480,19 @@ private Desktop.Item? get_nearest_item (Desktop.Item item, Gtk.DirectionType dir
             }
         break;
     }
-    
+    */
     return ret;
 }
-*/
-
-
-/***************************************************************************************************************
- * Actions...
- * 
- * 
- * 
-private void on_snap_to_grid (Gtk.Action act) {
-    
-    FmDesktop* desktop = FM_DESKTOP(user_data);
-    Desktop.Item item;
-    List items = get_selected_items(desktop, null);
-    List l;
-    int x, y, bottom;
-    GtkTextDirection direction = this.get_direction(GTK_WIDGET(desktop));
-
-    y = desktop.working_area.y + desktop.ymargin;
-    bottom = desktop.working_area.y + desktop.working_area.height - desktop.ymargin - desktop.cell_h;
-
-    if (direction != GTK_TEXT_DIR_RTL) // LTR or NONE
-        x = desktop.working_area.x + desktop.xmargin;
-    else // RTL
-        x = desktop.working_area.x + desktop.working_area.width - desktop.xmargin - desktop.cell_w;
-
-    for (l = items; l; l = l.next) {
-        
-        int new_x, new_y;
-        item = l.data as Desktop.Item;
-        
-        if (!item.fixed_pos)
-            continue;
-        new_x = x + _round((double)(item.x - x) / desktop.cell_w) * desktop.cell_w;
-        new_y = y + _round((double)(item.y - y) / desktop.cell_h) * desktop.cell_h;
-        move_item (desktop, item, new_x, new_y, false);
-    }
-    
-    queue_layout_items (desktop);
-}
-
-private void on_fix_pos (Gtk.ToggleAction act) {
-
-    FmDesktop* desktop = FM_DESKTOP (user_data);
-    
-    List items = this.get_selected_items (null);
-    List l;
-    
-    if (act.get_active()) {
-        for (l = items; l; l=l.next) {
-            Desktop.Item item = l.data as Desktop.Item;
-            if (item.fixed_pos == false) {
-                item.fixed_pos = true;
-                desktop.fixed_items = desktop.fixed_items.prepend (item);
-            }
-        }
-    } else {
-        for (l = items; l; l=l.next) {
-            Desktop.Item item = l.data as Desktop.Item;
-            item.fixed_pos = false;
-            desktop.fixed_items = desktop.fixed_items.remove (item);
-        }
-        layout_items (desktop);
-    }
-    
-    save_item_pos (desktop);
-}
-
-*/
-
-/***********************************************************************************************************************
- * These are original function, I plan to implement these a different way...
- * Grid.append_item () replaces layout_items ()
- * 
- * 
-private void _layout_items () {
-    
-    List l;
-    Desktop.Item item;
-    int x;
-    int y;
-    int bottom;
-    
-    Gtk.TextDirection direction = this.get_direction ();
-
-    y = this.working_area.y + this.ymargin;
-    bottom = this.working_area.y + this.working_area.height - this.ymargin - this.cell_h;
-
-    // LTR or NONE
-    if (direction != GTK_TEXT_DIR_RTL) {
-        x = this.working_area.x + this.xmargin;
-        
-        for (l = this.items; l; l = l.next) {
-            item = l.data as Desktop.Item;
-            
-            if (item.fixed_pos) {
-                calc_item_size (item);
-            
-            } else {
-                
-                _next_position:
-                
-                item.x = x;
-                item.y = y;
-                calc_item_size (item);
-                y += this.cell_h;
-                
-                if (y > bottom) {
-                    x += this.cell_w;
-                    y = this.working_area.y + this.ymargin;
-                }
-                
-                // check if this position is occupied by a fixed item
-                if (is_pos_occupied (item))
-                    goto _next_position;
-            }
-        }
-    
-    // RTL
-    } else {
-        
-        x = this.working_area.x + this.working_area.width - this.xmargin - this.cell_w;
-        
-        for (l = this.items; l; l = l.next) {
-            
-            item = l.data as Desktop.Item;
-            
-            if (item.fixed_pos) {
-                calc_item_size (item);
-            
-            } else {
-                
-                _next_position_rtl:
-                
-                item.x = x;
-                item.y = y;
-                
-                calc_item_size (item);
-                y += this.cell_h;
-                
-                if (y > bottom) {
-                    x -= this.cell_w;
-                    y = this.working_area.y + this.ymargin;
-                }
-                
-                // check if this position is occupied by a fixed item
-                if (is_pos_occupied (item))
-                    goto _next_position_rtl;
-            }
-        }
-    }
-    
-    this.queue_draw ();
-    
-}
-
-***********************************************************************************************************************/
+/**********************************************************************************************************************/
 
 
 /***********************************************************************************************************************
  * Load save item positions...
  * 
  * 
- * 
-static void on_model_loaded(FmFolderModel* global_model, gpointer user_data)
-{
+ **********************************************************************************************************************/
+void on_model_loaded () {
+    /**
     int i;
     // the desktop folder is just loaded, apply desktop item positions
     GKeyFile* kf = g_key_file_new();
@@ -484,12 +501,11 @@ static void on_model_loaded(FmFolderModel* global_model, gpointer user_data)
         FmDesktop* desktop = FM_DESKTOP(desktops[i]);
         load_item_pos(desktop, kf);
     }
-    g_key_file_free(kf);
+    g_key_file_free(kf);*/
 }
 
-static inline void load_item_pos(FmDesktop* desktop, GKeyFile* kf)
-{
-    char* path = get_config_file(desktop, FALSE);
+inline void load_item_pos (KeyFile kf) {
+    /**char* path = get_config_file(desktop, FALSE);
     if(g_key_file_load_from_file(kf, path, 0, NULL))
     {
         GList* l;
@@ -507,22 +523,26 @@ static inline void load_item_pos(FmDesktop* desktop, GKeyFile* kf)
             }
         }
     }
-    g_free(path);
+    g_free(path);*/
+    
+    return;
 }
 
-static char* get_config_file(FmDesktop* desktop, gboolean create_dir)
-{
-    char* dir = pcmanfm_get_profile_dir(create_dir);
+static string get_config_file (bool create_dir) {
+    
+    string ret = "";
+    /**char* dir = pcmanfm_get_profile_dir(create_dir);
     GdkScreen* scr = gtk_widget_get_screen(GTK_WIDGET(desktop));
     int n = gdk_screen_get_number(scr);
     char* path = g_strdup_printf("%s/desktop-items-%d.conf", dir, n);
     g_free(dir);
-    return path;
+    return path;*/
+    return ret;
 }
 
-static void save_item_pos(FmDesktop* desktop)
-{
-    GList* l;
+static void save_item_pos () {
+    
+    /**GList* l;
     GString* buf;
     char* path;
     buf = g_string_sized_new(1024);
@@ -557,34 +577,21 @@ static void save_item_pos(FmDesktop* desktop)
     path = get_config_file(desktop, TRUE);
     g_file_set_contents(path, buf->str, buf->len, NULL);
     g_free(path);
-    g_string_free(buf, TRUE);
+    g_string_free(buf, TRUE);*/
 }
-
-***********************************************************************************************************************/
-
+/**********************************************************************************************************************/
 
 
-/*
+/* *********************************************************************************************************************
+ * Unused : XLib Atoms...
  * 
-
-
-// round() is only available in C99. (this funtion is used in "snap to grid"...
-inline double _round (double x) {
-    return (x > 0.0) ? floor (x + 0.5) : ceil (x - 0.5);
-}
-
-
-const char* atom_names[] = {"_NET_WORKAREA", "_NET_NUMBER_OF_DESKTOPS", "_NET_CURRENT_DESKTOP", "_XROOTMAP_ID"};
-Atom atoms[G_N_ELEMENTS(atom_names)] = {0};
-
-Atom XA_NET_WORKAREA = 0;
-Atom XA_NET_NUMBER_OF_DESKTOPS = 0;
-Atom XA_NET_CURRENT_DESKTOP = 0;
-Atom XA_XROOTMAP_ID= 0;
-
-GdkFilterReturn on_root_event (GdkXEvent *xevent, GdkEvent *event, gpointer data)
-{
-    XPropertyEvent * evt =  (XPropertyEvent*) xevent;
+ * 
+ **********************************************************************************************************************/
+Gdk.FilterReturn on_root_event (Gdk.XEvent xevent, Gdk.Event event, void *data) {
+    
+    Gdk.FilterReturn ret = 0;
+    
+    /*XPropertyEvent * evt =  (XPropertyEvent*) xevent;
     
     FmDesktop* self = (FmDesktop*)data;
     
@@ -593,24 +600,12 @@ GdkFilterReturn on_root_event (GdkXEvent *xevent, GdkEvent *event, gpointer data
         if (evt.atom == XA_NET_WORKAREA)
             update_working_area (self);
     }
-    return GDK_FILTER_CONTINUE;
+    return GDK_FILTER_CONTINUE;*/
+    return ret;
 }
 
-if (XInternAtoms (GDK_DISPLAY(), atom_names, G_N_ELEMENTS(atom_names), False, atoms)) {
-    XA_NET_WORKAREA = atoms[0];
-    XA_NET_NUMBER_OF_DESKTOPS = atoms[1];
-    XA_NET_CURRENT_DESKTOP = atoms[2];
-    XA_XROOTMAP_ID= atoms[3];
-}
-
-*/
-
-
-
-
-
-/* unused function even in PCManFm...
 private inline bool is_atom_in_targets (List? targets, string name) {
+/* unused function even in PCManFm...
     
     // doesn't build...
     unowned GLib.List? atoms = (GLib.List?) targets;
@@ -626,7 +621,8 @@ private inline bool is_atom_in_targets (List? targets, string name) {
         if (Gdk.Atom.intern (name, false) != 0)
             return true;
     }
-    
+    */
     return false;
-}*/
+}
+/* ********************************************************************************************************************/
 
