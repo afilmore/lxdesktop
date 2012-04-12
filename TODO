@@ -1,9 +1,10 @@
 
-* Fix Vapi file bug with delegate function...
+* (CRITICAL) Fix Vapi file bug with delegate function...
     
-* Finalize Item Popup Menus
+* [DONE] Finalize Item Popup Menus
+
+* Finalize Drag And Drop, testing needed...
 
 * Create Custom Properties Dialogs for "Computer" Item for example
 
-* Finalize Drag And Drop, testing needed...
 

@@ -1,5 +1,12 @@
 [CCode (cprefix = "", lower_case_cprefix = "", cheader_filename = "config.h")]
 namespace Config {
+
+    /* always defined to indicate that i18n is enabled */
+    public const string ENABLE_NLS;
+
+    /* Gettext package. */
+    public const string GETTEXT_PACKAGE;
+
     /* Name of package */
     public const string PACKAGE;
 

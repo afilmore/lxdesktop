@@ -7,7 +7,7 @@
  * it under the terms of the GNU General Public License Version 2.
  * http://www.gnu.org/licenses/gpl-2.0.txt
  * 
- * This software is an experimental rewrite of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
+ * This software is an experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
  * 
  * Purpose: The Main Application Class and program's entry point. The application creates a FolderModel and sets
  * the desktop path to that model. The Model manages files that exists in the desktop folder, then a Desktop window
@@ -45,9 +45,7 @@ namespace Desktop {
          * See where to use all these variables when needed...
          * 
          ***************************************************************************************************************
-        private GtkAccelGroup* acc_grp = null;
         private uint icon_theme_changed = 0;
-        private GtkWidget* desktop_popup = null;
         typedef bool (*DeleteEvtHandler) (GtkWidget*, GdkEvent*);
         ***************************************************************************************************************/
 
@@ -87,28 +85,32 @@ namespace Desktop {
              * We need to set configuration event handlers, setup the desktop popup menu, etc...
              * 
              * 
-            icon_theme_changed = g_signal_connect (gtk_icon_theme_get_default(), "changed", G_CALLBACK(on_icon_theme_changed), NULL);
+            icon_theme_changed = g_signal_connect (gtk_icon_theme_get_default(),
+                                                   "changed",
+                                                   on_icon_theme_changed,
+                                                   null);
 
-            // popup menu
-            ui = gtk_ui_manager_new();
-            act_grp = gtk_action_group_new("Desktop");
-            gtk_action_group_set_translation_domain(act_grp, NULL);
-            gtk_action_group_add_actions(act_grp, desktop_actions, G_N_ELEMENTS(desktop_actions), NULL);
-            gtk_action_group_add_radio_actions(act_grp, desktop_sort_type_actions, G_N_ELEMENTS(desktop_sort_type_actions), GTK_SORT_ASCENDING, on_sort_type, NULL);
-            gtk_action_group_add_radio_actions(act_grp, desktop_sort_by_actions, G_N_ELEMENTS(desktop_sort_by_actions), 0, on_sort_by, NULL);
-        
-            gtk_ui_manager_insert_action_group(ui, act_grp, 0);
-            gtk_ui_manager_add_ui_from_string(ui, desktop_menu_xml, -1, NULL);
-        
-            acc_grp = gtk_ui_manager_get_accel_group(ui);
-            for ( i = 0; i < _n_screens; i++ )
-                gtk_window_add_accel_group(GTK_WINDOW(desktops[i]), acc_grp);
-        
-            desktop_popup = (GtkWidget*)g_object_ref(gtk_ui_manager_get_widget(ui, "/popup"));
             */
 
             Gtk.main ();
 
+            /***********************************************************************************************************
+             * Save Desktop Items Positions, disconnect signal handlers, destroy menu popup.
+             * 
+             * 
+
+            // save item positions
+            for (int i = 0; i < _n_screens; i++) {
+                save_item_pos (FM_DESKTOP (desktops[i]));
+                desktops[i].destroy ();
+            }
+            
+            Gtk.IconTheme.get_default ().disconnect (icon_theme_changed);
+            
+            desktop_popup.destroy ();
+            
+            */
+            
             return true;
         }
         
@@ -279,30 +281,14 @@ namespace Desktop {
             Fm.init (global_config);
             
             // stdout.printf ("archiver = %s\n", global_config.archiver);
+            
             // fm_volume_manager_init ();
 
             bool debug = true;
             global_app = new Application ();
             global_app.run (debug);
             
-            
-            /***********************************************************************************************************
-             * Save Desktop Items Positions, disconnect signal handlers, destroy menu popup.
-             * 
-             * 
-            fm_volume_manager_finalize ();
-
-            // save item positions
-            for (int i = 0; i < _n_screens; i++) {
-                save_item_pos (FM_DESKTOP (desktops[i]));
-                desktops[i].destroy ();
-            }
-            
-            Gtk.IconTheme.get_default ().disconnect (icon_theme_changed);
-            
-            desktop_popup.destroy ();
-            
-            */
+            //fm_volume_manager_finalize ();
             
             Fm.finalize ();
             

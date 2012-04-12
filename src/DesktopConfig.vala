@@ -7,7 +7,7 @@
  * it under the terms of the GNU General Public License Version 2.
  * http://www.gnu.org/licenses/gpl-2.0.txt
  * 
- * This software is an experimental rewrite of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
+ * This software is an experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
  * 
  * Purpose: 
  * 
@@ -16,6 +16,26 @@
 namespace Desktop {
     
     public class Config : Fm.Config {
+        
+        
+        /***************************************************************************************************************
+         * LibFmCore's parameters... see libfmcore/src/fmvala/fm-config.h
+         * 
+         * 
+            single_click;
+            use_trash;
+            confirm_del;
+            small_icon_size;
+            pane_icon_size;
+            thumbnail_size;
+            thumbnail_local;
+            thumbnail_max;
+            show_internal_volumes;
+            terminal;
+            si_unit;
+            archiver;
+            
+        */
         
         public string           app_filemanager = "pcmanfm";
         
@@ -41,10 +61,23 @@ namespace Desktop {
             if (desktop_font)
                 font_desc = pango_font_description_from_string (desktop_font);
             
-        wallpaper_changed = g_signal_connect(global_config, "changed::wallpaper", G_CALLBACK(on_wallpaper_changed), NULL);
-        desktop_text_changed = g_signal_connect(global_config, "changed::desktop_text", G_CALLBACK(on_desktop_text_changed), NULL);
-        desktop_font_changed = g_signal_connect(global_config, "changed::desktop_font", G_CALLBACK(on_desktop_font_changed), NULL);
-        big_icon_size_changed = g_signal_connect(global_config, "changed::big_icon_size", G_CALLBACK(on_big_icon_size_changed), NULL);
+        wallpaper_changed = g_signal_connect (global_config,
+                                              "changed::wallpaper",
+                                              G_CALLBACK(on_wallpaper_changed),
+                                              NULL);
+        desktop_text_changed = g_signal_connect (global_config,
+                                                 "changed::desktop_text",
+                                                 G_CALLBACK(on_desktop_text_changed),
+                                                 NULL);
+        desktop_font_changed = g_signal_connect (global_config,
+                                                 "changed::desktop_font",
+                                                 G_CALLBACK(on_desktop_font_changed),
+                                                 NULL);
+        big_icon_size_changed = g_signal_connect (global_config,
+                                                  "changed::big_icon_size",
+                                                  G_CALLBACK(on_big_icon_size_changed),
+                                                  NULL);
+                                                  
         global_config.wallpaper_changed.disconnect ();
         global_config.big_icon_size_changed.disconnect ();
         global_config.desktop_text_changed.disconnect ();
@@ -77,21 +110,6 @@ namespace Desktop {
             big_icon_size = 36;
             show_thumbnail = false;
             
-            /* Fm.Config
-            single_click;
-            use_trash;
-            confirm_del;
-            small_icon_size;
-            pane_icon_size;
-            thumbnail_size;
-            thumbnail_local;
-            thumbnail_max;
-            show_internal_volumes;
-            terminal;
-            si_unit;
-            archiver;
-            */
-        
         }
         
         

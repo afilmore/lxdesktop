@@ -122,6 +122,10 @@ namespace Fm {
 		public unowned GLib.File to_gfile ();
 		public unowned string to_str ();
 		public unowned string to_uri ();
+
+        public inline bool is_virtual ();
+
+
 	}
 
 	[CCode (cheader_filename =  "fm-icon.h",
@@ -290,8 +294,8 @@ namespace Fm {
                                             GLib.AppLaunchContext ctx,
                                             GLib.List file_infos,
                                             Fm.LaunchFolderFunc func);
-
-	/* include these when needed...
+    
+    /* include these when needed...
 	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
 	public static bool launch_path_simple (Gtk.Window parent,
                                            GLib.AppLaunchContext ctx,
@@ -503,5 +507,29 @@ namespace Fm {
 		public void set_widget (Gtk.Widget w);
 		public virtual signal void data_get ();
 	}
+    
+    
+    /*******************************************************************************************************************
+     * Misc Usefull Functions and Dialogs...
+     * 
+     * 
+     ******************************************************************************************************************/
+    [CCode (cheader_filename = "fm.h")]
+    public static string? get_user_input (Gtk.Window parent, string title, string msg, string default_text);
+
+
+    namespace Clipboard {
+        //~ #define fm_clipboard_cut_files(src_widget, files)	\
+        //~ fm_clipboard_cut_or_copy_files(src_widget, files, TRUE)
+        //~ 
+        //~ #define fm_clipboard_copy_files(src_widget, files)	\
+        //~ fm_clipboard_cut_or_copy_files(src_widget, files, FALSE)
+        //~ 
+        //~ gboolean fm_clipboard_cut_or_copy_files(GtkWidget* src_widget, FmPathList* files, gboolean _is_cut);
+        
+        [CCode (cheader_filename = "fm-clipboard.h", cprefix = "fm_clipboard_")]
+        public bool paste_files (Gtk.Widget dest_widget, Fm.Path dest_dir);
+    }
 }
+
 

@@ -7,7 +7,7 @@
  * it under the terms of the GNU General Public License Version 2.
  * http://www.gnu.org/licenses/gpl-2.0.txt
  * 
- * This software is an experimental rewrite of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
+ * This software is an experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
  * 
  * Purpose: Misc XLib functions.
  * 
@@ -18,13 +18,8 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <math.h>
+
 #include <fm.h>
-
-
-// round() is only available in C99. Don't use it now for portability.
-inline double _round (double x) {
-    return (x > 0.0) ? floor(x + 0.5) : ceil(x - 0.5);
-}
 
 
 /***********************************************************************************************************************
@@ -34,16 +29,16 @@ inline double _round (double x) {
  **********************************************************************************************************************/
 void xlib_get_working_area (GdkScreen *screen, GdkRectangle *out_rect) {
     
-    GdkWindow*  root = gdk_screen_get_root_window (screen);
+    GdkWindow   *root = gdk_screen_get_root_window (screen);
     Atom        ret_type;
     int         format;
     gulong      len;
     gulong      after;
-    guchar*     prop;
+    guchar      *prop;
     
     guint32     n_desktops;
     guint32     cur_desktop;
-    gulong*     working_area;
+    gulong      *working_area;
     
     // default to screen size
     out_rect->x = 0;
@@ -90,7 +85,7 @@ void xlib_get_working_area (GdkScreen *screen, GdkRectangle *out_rect) {
          || prop == NULL)
         return;
             
-    cur_desktop = *(guint32*)prop;
+    cur_desktop = *(guint32*) prop;
     XFree (prop);
 
     // get working area
@@ -117,20 +112,20 @@ void xlib_get_working_area (GdkScreen *screen, GdkRectangle *out_rect) {
         return;
     }
     
-    working_area = ((gulong*)prop) + cur_desktop * 4;
+    working_area = ((gulong*) prop) + cur_desktop * 4;
 
     // set the working area for the current desktop
-    out_rect->x = (gint) working_area[0];
-    out_rect->y = (gint) working_area[1];
-    out_rect->width = (gint) working_area[2];
-    out_rect->height = (gint) working_area[3];
+    out_rect->x =       (gint) working_area[0];
+    out_rect->y =       (gint) working_area[1];
+    out_rect->width =   (gint) working_area[2];
+    out_rect->height =  (gint) working_area[3];
 
     XFree (prop);
     return;
 }
 
 
-/* *********************************************************************************************************************
+/***********************************************************************************************************************
  * This function is taken from xfdesktop...
  *  
  * 
@@ -147,11 +142,11 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
         if (event->type == GDK_BUTTON_PRESS) {
             
             xev.type = ButtonPress;
-            /*
+            /**
              * rox has an option to disable the next
              * instruction. it is called "blackbox_hack". Does
              * anyone know why exactly it is needed?
-             */
+             **/
             XUngrabPointer (dpy, event->button.time);
             
         } else {
@@ -159,7 +154,7 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
         }
 
         xev.button =    event->button.button;
-        xev.x =         event->button.x;    // Needed for icewm
+        xev.x =         event->button.x;                // Needed for icewm
         xev.y =         event->button.y;
         xev.x_root =    event->button.x_root;
         xev.y_root =    event->button.y_root;
@@ -171,7 +166,7 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
         
         xev.type =      ButtonPress;
         xev.button =    event->scroll.direction + 4;
-        xev.x =         event->scroll.x;    // Needed for icewm
+        xev.x =         event->scroll.x;                // Needed for icewm
         xev.y =         event->scroll.y;
         xev.x_root =    event->scroll.x_root;
         xev.y_root =    event->scroll.y_root;
@@ -195,7 +190,7 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
                 xev.window,
                 False,
                 ButtonPressMask | ButtonReleaseMask,
-                (XEvent *) &xev);
+                (XEvent*) &xev);
                 
     if (xev2.type == 0)
         return ;
@@ -216,39 +211,30 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
                 xev2.window,
                 False,
                 ButtonPressMask | ButtonReleaseMask,
-                (XEvent *) &xev2);
+                (XEvent*) &xev2);
     
     return;
 }
 
 
-void xlib_set_pixmap (GtkWidget* widget, GdkPixmap* pixmap) {
+void xlib_set_pixmap (GtkWidget *widget, GdkPixmap *pixmap) {
     
-    GdkWindow* window = gtk_widget_get_window (widget);
-    GdkWindow* root = gdk_screen_get_root_window (gtk_widget_get_screen (widget));
+    GdkWindow *window = gtk_widget_get_window (widget);
+    GdkWindow *root = gdk_screen_get_root_window (gtk_widget_get_screen (widget));
     
     Pixmap pixmap_id;
     pixmap_id = GDK_DRAWABLE_XID (pixmap);
     
-    /*
     XChangeProperty (GDK_WINDOW_XDISPLAY (root),
                      GDK_WINDOW_XID (root),
-                     XA_XROOTMAP_ID,
-                     XA_PIXMAP,
-                     32,
-                     PropModeReplace,
-                     (guchar*) &pixmap_id, 1);*/
-
-    XChangeProperty (GDK_WINDOW_XDISPLAY (root),
-                     GDK_WINDOW_XID (root),
-                     gdk_x11_get_xatom_by_name("_XROOTPMAP_ID"),
+                     gdk_x11_get_xatom_by_name ("_XROOTPMAP_ID"), // XA_XROOTMAP_ID
                      XA_PIXMAP,
                      32,
                      PropModeReplace,
                      (guchar*) &pixmap_id, 1);
 
     // set root map here
-    Display* xdisplay = GDK_WINDOW_XDISPLAY (root);
+    Display *xdisplay = GDK_WINDOW_XDISPLAY (root);
     Window xroot = GDK_WINDOW_XID (root);
 
     XGrabServer (xdisplay);
@@ -260,16 +246,17 @@ void xlib_set_pixmap (GtkWidget* widget, GdkPixmap* pixmap) {
 
         XChangeProperty (xdisplay,
                          xroot,
-                         gdk_x11_get_xatom_by_name("_XROOTPMAP_ID"),
+                         gdk_x11_get_xatom_by_name ("_XROOTPMAP_ID"),
                          XA_PIXMAP,
                          32,
                          PropModeReplace,
-                         (guchar *) &xpixmap, 1);
+                         (guchar*) &xpixmap, 1);
 
         XSetWindowBackgroundPixmap (xdisplay, xroot, xpixmap);
     
     } else {
-        // FIXME: Anyone knows how to handle this correctly???
+        
+        // how to handle this correctly ???
     }
     
     XClearWindow (xdisplay, xroot);
@@ -277,7 +264,7 @@ void xlib_set_pixmap (GtkWidget* widget, GdkPixmap* pixmap) {
     XUngrabServer (xdisplay);
     XFlush (xdisplay);
 
-    g_object_unref (pixmap);
+    if (pixmap) g_object_unref (pixmap);
 
     gdk_window_clear (root);
     gdk_window_clear (window);
@@ -285,38 +272,5 @@ void xlib_set_pixmap (GtkWidget* widget, GdkPixmap* pixmap) {
     
     return;
 }
-    
-
-/*
-const char* atom_names[] = {"_NET_WORKAREA", "_NET_NUMBER_OF_DESKTOPS", "_NET_CURRENT_DESKTOP", "_XROOTMAP_ID"};
-Atom atoms[G_N_ELEMENTS(atom_names)] = {0};
-
-Atom XA_NET_WORKAREA = 0;
-Atom XA_NET_NUMBER_OF_DESKTOPS = 0;
-Atom XA_NET_CURRENT_DESKTOP = 0;
-Atom XA_XROOTMAP_ID= 0;
-
-GdkFilterReturn on_root_event (GdkXEvent *xevent, GdkEvent *event, gpointer data)
-{
-    XPropertyEvent * evt =  (XPropertyEvent*) xevent;
-    
-    FmDesktop* self = (FmDesktop*)data;
-    
-    if  (evt.type == PropertyNotify)
-    {
-        if (evt.atom == XA_NET_WORKAREA)
-            update_working_area (self);
-    }
-    return GDK_FILTER_CONTINUE;
-}
-
-if (XInternAtoms (GDK_DISPLAY(), atom_names, G_N_ELEMENTS(atom_names), False, atoms)) {
-    XA_NET_WORKAREA = atoms[0];
-    XA_NET_NUMBER_OF_DESKTOPS = atoms[1];
-    XA_NET_CURRENT_DESKTOP = atoms[2];
-    XA_XROOTMAP_ID= atoms[3];
-}
-
-*/
 
 

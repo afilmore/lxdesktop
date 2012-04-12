@@ -563,6 +563,52 @@ static void save_item_pos(FmDesktop* desktop)
 ***********************************************************************************************************************/
 
 
+
+/*
+ * 
+
+
+// round() is only available in C99. (this funtion is used in "snap to grid"...
+inline double _round (double x) {
+    return (x > 0.0) ? floor (x + 0.5) : ceil (x - 0.5);
+}
+
+
+const char* atom_names[] = {"_NET_WORKAREA", "_NET_NUMBER_OF_DESKTOPS", "_NET_CURRENT_DESKTOP", "_XROOTMAP_ID"};
+Atom atoms[G_N_ELEMENTS(atom_names)] = {0};
+
+Atom XA_NET_WORKAREA = 0;
+Atom XA_NET_NUMBER_OF_DESKTOPS = 0;
+Atom XA_NET_CURRENT_DESKTOP = 0;
+Atom XA_XROOTMAP_ID= 0;
+
+GdkFilterReturn on_root_event (GdkXEvent *xevent, GdkEvent *event, gpointer data)
+{
+    XPropertyEvent * evt =  (XPropertyEvent*) xevent;
+    
+    FmDesktop* self = (FmDesktop*)data;
+    
+    if  (evt.type == PropertyNotify)
+    {
+        if (evt.atom == XA_NET_WORKAREA)
+            update_working_area (self);
+    }
+    return GDK_FILTER_CONTINUE;
+}
+
+if (XInternAtoms (GDK_DISPLAY(), atom_names, G_N_ELEMENTS(atom_names), False, atoms)) {
+    XA_NET_WORKAREA = atoms[0];
+    XA_NET_NUMBER_OF_DESKTOPS = atoms[1];
+    XA_NET_CURRENT_DESKTOP = atoms[2];
+    XA_XROOTMAP_ID= atoms[3];
+}
+
+*/
+
+
+
+
+
 /* unused function even in PCManFm...
 private inline bool is_atom_in_targets (List? targets, string name) {
     

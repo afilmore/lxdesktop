@@ -7,7 +7,7 @@
  * it under the terms of the GNU General Public License Version 2.
  * http://www.gnu.org/licenses/gpl-2.0.txt
  * 
- * This software is an experimental rewrite of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
+ * This software is an experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
  * 
  * Purpose: A grid to manage the desktop layout.
  * 
@@ -17,7 +17,7 @@ namespace Desktop {
     
     const int SPACING = 2;
     const int PADDING = 6;
-//    const int MARGIN = 2;
+    // const int MARGIN = 2;
 
     
     /*******************************************************************************************************************
@@ -48,15 +48,16 @@ namespace Desktop {
         
         // List fixed_items;
         private Desktop.Item? _selected_item = null;
-        private Desktop.Item? _drop_hilight = null;
+        //private Desktop.Item? _drop_hilight = null;
         private Desktop.Item? _hover_item = null;
 
         // Icon Pixbuf renderer, replace with a Fm.CellRendererPixbuf later
         private Gtk.CellRendererPixbuf _icon_renderer;
         
-        // Text drawing...
         // GTK3_MIGRATION
         private Gdk.GC _gc;
+        
+        // Text drawing...
         private Pango.Layout _pango_layout;
         uint _text_h = 0;
         uint _text_w = 0;
@@ -222,7 +223,11 @@ namespace Desktop {
         
         private void _draw_item (Desktop.Item item, Cairo.Context cr, Gdk.Rectangle expose_area) {
             
-            // stdout.printf ("item.draw: %i, %i, %i, %i\n", expose_area.x, expose_area.y, expose_area.width, expose_area.height);
+            /* stdout.printf ("item.draw: %i, %i, %i, %i\n",
+                              expose_area.x,
+                              expose_area.y,
+                              expose_area.width,
+                              expose_area.height);*/
             
             // GTK3_MIGRATION
             Gtk.CellRendererState state = 0;
@@ -477,8 +482,10 @@ namespace Desktop {
             return null;
         }
 
+
         /***************************************************************************************************************
          * Select items when moving the rubber banding...
+         * 
          * 
          **************************************************************************************************************/
         public void update_selection (Gdk.Rectangle rect) {
@@ -549,42 +556,45 @@ namespace Desktop {
          * ************************************************************************************************************/
         public void on_row_inserted (Gtk.TreePath path, Gtk.TreeIter it) {
             
-            stdout.printf ("on_row_inserted\n");
-            
-            return; // needs testing...
-            
             Gdk.Pixbuf icon;
             Fm.FileInfo fi;
             
             global_model.get (it, Fm.FileColumn.ICON, out icon, Fm.FileColumn.INFO, out fi, -1);
-            
             Desktop.Item item = new Desktop.Item (icon, fi);
             
-            // ????
-            weak int[] indices = path.get_indices ();
             this.append_item (item);
             
-            //this.queue_layout_items (); // needed ???
+            /** Original code in PCManFm calls queue_layout_items (), a redraw also works...
+             * this.queue_layout_items (); */
+            
+            item.redraw (_window);
+            
         }
 
         public void on_row_deleted (Gtk.TreePath tp) {
             
-            stdout.printf ("on_row_deleted\n");
-            
-            return; // needs testing...
-            
-            int current = -1;
-            int idx = tp.get_indices () [0];
+            int count = 0;
             
             unowned List<Desktop.Item>? list;
             
             for (list = _grid_items; list != null; list = list.next) {
                 
-                current++;
-                Desktop.Item? item = list.data as Desktop.Item;
+                Desktop.Item item = list.data as Desktop.Item;
                 
-                if (current == idx) {
+                unowned Fm.Path path = item.get_fileinfo ().get_path ();
+                
+                if (path.is_virtual ())
+                    continue;
+                
+                count++;
+                
+                //stdout.printf ("%i path = %s\n", count, path.get_basename ());
+                
+                File file = path.to_gfile ();
+                if (file != null && !file.query_exists ()) {
                     
+                    //stdout.printf ("%s REMOVED !!!!!!!!\n", path.get_basename ());
+
                     if (item == _selected_item) {
                         
                         if (list.next != null) {
@@ -601,20 +611,24 @@ namespace Desktop {
                         }
                     }
                     
+                    Desktop.Item? _drop_hilight = null; // temporary fake item...
+            
                     if (item == _drop_hilight)
                         _drop_hilight = null;
+                    
                     if (item == _hover_item)
                         _hover_item = null;
                     
+                    //stdout.printf ("REMOVE %s NOW !!!!!!!!\n", item.get_disp_name ());
+                    
+                    item.redraw (_window);
+                    
                     _grid_items.delete_link (list);
                     
-                    free (item);
-                    
                     //queue_layout_items (desktop);
-                    return;
                 }
             }
-        
+            
             return;    
         }
 
@@ -627,7 +641,7 @@ namespace Desktop {
             foreach (Desktop.Item item in _grid_items) {
                 
                 /*******************************************************************************************************
-                 * We don't have the item's TreeIter...
+                 * We don't have the item's TreeIter... :(
                  * 
                  * 
                 if (item.it.user_data == it.user_data) {

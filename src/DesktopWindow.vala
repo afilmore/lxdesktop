@@ -7,7 +7,7 @@
  * it under the terms of the GNU General Public License Version 2.
  * http://www.gnu.org/licenses/gpl-2.0.txt
  * 
- * This software is an experimental rewrite of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
+ * This software is an experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
  * 
  * Purpose: The Desktop Widget. It's simply a derived Gtk.Window, it can be created in a debug mode,
  *          in that mode, it's not full screen but 3/4 of the screen in a regular window.
@@ -17,6 +17,12 @@
 namespace Desktop {
     
 
+
+    /*******************************************************************************************************************
+     * Drag And Drop.
+     * 
+     * 
+     ******************************************************************************************************************/
     public enum DesktopDndDest {
         DESKTOP_ITEM = Fm.DndDestTarget.DEFAULT + 1
     }
@@ -29,65 +35,73 @@ namespace Desktop {
         
         {"application/x-fmlist-ptr",    Gtk.TargetFlags.SAME_APP,   Fm.DndDestTarget.FM_LIST},
         {"text/uri-list",               0,                          Fm.DndDestTarget.URI_LIST}, // text/uri-list
-        { "XdndDirectSave0",            0,                          Fm.DndDestTarget.XDS} // X direct save
+        { "XdndDirectSave0",            0,                          Fm.DndDestTarget.XDS}       // X direct save
     };
 
-    private const Gtk.ActionEntry folder_menu_actions[] = {
-        
-        {"NewTab",  Gtk.Stock.NEW,          N_("Open in New Tab"),      null, null, null}, // on_open_in_new_tab
-        {"NewWin",  Gtk.Stock.NEW,          N_("Open in New Window"),   null, null, null}, // on_open_in_new_win
-        {"Search",  Gtk.Stock.FIND,         null,                       null, null, null},
-        {"Term",    "utilities-terminal",   N_("Open in _Terminal"),    null, null, null}  // on_open_folder_in_terminal
-    };
     
-    private const string folder_menu_xml = """
-        <popup>
-          <placeholder name='ph1'>
-            <menuitem action='NewTab'/>
-            <menuitem action='NewWin'/>
-            <menuitem action='Term'/>
-            /* <menuitem action='Search'/> */
-          </placeholder>
-        </popup>
-    """;
-
-//~     private const string desktop_icon_menu_xml = """
-//~         <popup>
-//~           <placeholder name='ph2'>
-//~             <separator/>
-//~             /*<menuitem action='Fix'/>*/
-//~             /*<menuitem action='Snap'/>*/
-//~           </placeholder>
-//~         </popup>
-//~     """;
-    private const string desktop_icon_menu_xml = """
-        <popup>
-          <placeholder name='ph2'>
-            <separator/>
-          </placeholder>
-        </popup>
-    """;
-
-
-
+    /*******************************************************************************************************************
+     * Desktop Window.
+     * 
+     * 
+     ******************************************************************************************************************/
     public class Window : Gtk.Window {
         
         bool _debug_mode = false;
         
+        /***************************************************************************************************************
+         * Desktop Menu.
+         * 
+         * 
+         **************************************************************************************************************/
+        private const Gtk.ActionEntry _desktop_actions[] = {
+            {"CreateNew",       null,                   N_("Create _New..."),
+                                "",                     null,                       null},
+            {"NewFolder",       "folder",               N_("Folder"),
+                                "<Ctrl><Shift>N",       null,                       _on_action_new_folder},
+            {"NewBlank",        "text-x-generic",       N_("Blank File"),
+                                null,                   null,                       _on_action_new_file},
+            {"Paste",           Gtk.Stock.PASTE,        null,
+                                null,                   null,                       _on_action_paste},
+            {"SelAll",          Gtk.Stock.SELECT_ALL,   null,
+                                null,                   null,                       _on_action_select_all},
+            {"InvSel",          null,                   N_("_Invert Selection"),
+                                "<Ctrl>I",              null,                       _on_action_invert_select},
+            {"Sort",            null,                   N_("_Sort Files"),
+                                null,                   null,                       null},
+            {"Prop",            Gtk.Stock.PROPERTIES,   N_("Desktop Preferences"),
+                                "<Alt>Return",          null,                       _on_action_desktop_settings}
+        };
+        
+        private const string _desktop_menu_xml = """
+            <popup>
+                <menu action='CreateNew'>
+                    <menuitem action='NewFolder'/>
+                    <menuitem action='NewBlank'/>
+                </menu>
+                <separator/>
+                <menuitem action='Paste'/>
+                <separator/>
+                <menuitem action='SelAll'/>
+                <menuitem action='InvSel'/>
+                <separator/>
+                <menuitem action='Prop'/>
+            </popup>
+        """;
+
         // The desktop grid
-        private Desktop.Grid _grid;
+        private Desktop.Grid    _grid;
         
         // Rubber banding / Drag And Drop
-        private bool    _rubber_started = false;
-        private int     _rubber_bending_x = 0;
-        private int     _rubber_bending_y = 0;
-        private bool    _button_pressed = false;
-        private int     _drag_start_x = 0;
-        private int     _drag_start_y = 0;
-        private bool    _dnd_started = false;
+        private bool            _rubber_started = false;
+        private int             _rubber_bending_x = 0;
+        private int             _rubber_bending_y = 0;
+        private bool            _button_pressed = false;
+        private int             _drag_start_x = 0;
+        private int             _drag_start_y = 0;
+        private bool            _dnd_started = false;
         
-        private Fm.DndSrc   _dnd_src;
-        private Fm.DndDest  _dnd_dest;
+        private Fm.DndSrc       _dnd_src;
+        private Fm.DndDest      _dnd_dest;
         
 
         /***************************************************************************************************************
@@ -98,13 +112,12 @@ namespace Desktop {
         private GdkCursor* hand_cursor = null;
         hand_cursor = gdk_cursor_new (GDK_HAND2);
        
-        ***************************************************************************************************************/
-
+         **************************************************************************************************************/
         // show the window manager menu
-        private bool _show_wm_menu = false;
-        private Gtk.Menu? _desktop_popup;
-        private Gtk.Menu? popup_menu;
-        private Fm.FileMenu menu; // doesn't work if not global........
+        private bool            _show_wm_menu = false;
+        private Gtk.Menu?       _desktop_popup;
+        private Gtk.Menu?       _popup_menu;
+        private Fm.FileMenu     _file_menu; // doesn't work if not global........
         
         public Window () {
             
@@ -144,7 +157,6 @@ namespace Desktop {
 
             
             ***********************************************************************************************************/
-            
         }
         
         ~Window () {
@@ -214,6 +226,28 @@ namespace Desktop {
             global_model.row_deleted.connect (this.get_grid ().on_row_deleted);
             global_model.row_changed.connect (this.get_grid ().on_row_changed);
             global_model.rows_reordered.connect (this.get_grid ().on_rows_reordered);
+            
+            // popup menu
+            Gtk.ActionGroup act_grp = new Gtk.ActionGroup ("Desktop");
+            act_grp.set_translation_domain (null);
+            act_grp.add_actions (_desktop_actions, this);
+            
+            //act_grp.add_radio_actions (desktop_sort_type_actions,   Gtk.SortType.ASCENDING, on_sort_type,   null);
+            //act_grp.add_radio_actions (desktop_sort_by_actions,     0,                      on_sort_by,     null);
+        
+            Gtk.UIManager ui = new Gtk.UIManager ();
+            ui.insert_action_group (act_grp, 0);
+            ui.add_ui_from_string (_desktop_menu_xml, -1);
+        
+            Gtk.AccelGroup accel_group = ui.get_accel_group ();
+            this.add_accel_group (accel_group);
+        
+            _desktop_popup = ui.get_widget ("/popup") as Gtk.Menu;
+            
+            // the docs says that if a widget isn't attached it needs to be referenced...
+            // I don't know really if this is needed to avoid memory leak, maybe yes...
+            // _desktop_popup.ref ();
+                        
             
             
             /***********************************************************************************************************
@@ -344,7 +378,9 @@ namespace Desktop {
          **************************************************************************************************************/
         private bool _on_expose (Gdk.EventExpose evt) {
             
-            // stdout.printf ("_on_expose: visible=%u, mapped=%u\n", (uint) this.get_visible (), (uint) this.get_mapped ());
+            /* stdout.printf ("_on_expose: visible=%u, mapped=%u\n",
+                              (uint) this.get_visible (),
+                              (uint) this.get_mapped ());*/
             
             if (this.get_visible () == false || this.get_mapped () == false)
                 return true;
@@ -358,7 +394,7 @@ namespace Desktop {
             // draw desktop icons
             this._grid.draw_items (cr, evt.area);
             
-            // ???? not needed ???? cr.destroy (); ?????
+            // cr.destroy (); ?????
             
             return true;
         }
@@ -454,7 +490,6 @@ namespace Desktop {
                 // start rubber banding
                 } else if (evt.button == 1) {
                         
-                    // an error in vapi files ??????
                     Gtk.grab_add (this);
                     
                     this._rubber_started = true;
@@ -482,7 +517,6 @@ namespace Desktop {
                 }
             }
             
-            
             // forward the event to root window
             Gdk.Event* real_e = (Gdk.Event*)(&evt);
             XLib.forward_event_to_rootwin (this.get_screen(), real_e);
@@ -493,83 +527,6 @@ namespace Desktop {
             return true;
         }
 
-        public bool action_open_file (Fm.FileInfo? fi) {
-            
-            if (fi == null)
-                return false;
-                
-            Fm.launch_file_simple (this,
-                                   null,
-                                   fi,
-                                   null); // need to modify libfm so that it doesn't segfault....
-                                   //null);
-            
-            //~ fi.is_desktop_entry ()
-            //~ fi.is_shortcut ()
-            //~ fi.is_executable_type ();
-            //~ fi.is_hidden ();
-            //~ fi.is_image ();
-            //~ fi.is_text ();
-            //|| fi.is_symlink ()
-            
-            return true;
-        }
-        
-        public bool action_open_folder_func (GLib.AppLaunchContext ctx, GLib.List<Fm.FileInfo>? folder_infos, void* user_data) {
-            
-            stdout.printf ("DesktopWindow.action_open_folder_func:\n");
-            stdout.printf ("\tAppLaunchContext = %#x \n", (uint) ctx);
-            stdout.printf ("\tGLib.List = %#x \n", (uint) folder_infos);
-            stdout.printf ("\tuser_data = %#x \n", (uint) user_data);
-            stdout.printf ("\tDesktopWindow = %#x \n", (uint) this);
-            
-            /*if (folder_infos != null) {
-                stdout.printf ("action_open_folder_func: BUG FIXED ????\n");
-                return true;
-            }*/
-            
-            
-            /* WARNING !!!
-             * There's a problem in the Vapi file definition for this function, folder_infos is given as the first
-             * parameter which is wrong of course...
-             * 
-             */
-            unowned List<Fm.FileInfo>? folder_list = (GLib.List<Fm.FileInfo>) ctx;
-            /* WARNING !!!
-             * There's a problem in the Vapi file definition for this function, folder_infos is given as the first
-             * parameter which is wrong of course...
-             * 
-             */
-            
-            
-            if (folder_list == null)
-                stdout.printf ("DesktopWindow.action_open_folder_func: GLib.List folder_infos = (null)\n");
-            
-            foreach (Fm.FileInfo fi in folder_list) {
-                
-                action_open_folder (fi);
-            }
-            return true;
-        }
-        
-        public bool action_open_folder (Fm.FileInfo? fi) {
-            
-            if (fi == null)
-                return false;
-                
-            //return true;
-            
-            string cmdline = global_config.app_filemanager + " " + fi.get_path ().to_str ();
-            
-            try {
-                Process.spawn_command_line_async (cmdline);
-            } catch (Error e) {
-                stdout.printf ("action_open_folder cannot open %s\n", cmdline);
-            }
-            
-            return true;
-        }
-        
         private bool _on_button_release (Gdk.EventButton evt) {
             
             Desktop.Item? clicked_item = _grid.hit_test (evt.x, evt.y);
@@ -588,12 +545,14 @@ namespace Desktop {
                 
                 this._dnd_started = false;
             
+            // Open File/folder with single click...
             } else if (global_config.single_click == true && evt.button == 1) {
                 
                 if (clicked_item != null) {
                     
-                    // left single click
-                    // fm_launch_file_simple (GTK_WINDOW(w), null, clicked_item->fi, pcmanfm_open_folder, null);
+                    /*** Left Single Click ***
+
+                    Fm.launch_file_simple (this, null, fi, null); */
                     
                     return true;
                 }
@@ -666,9 +625,11 @@ namespace Desktop {
                     this._dnd_started = true;
                     target_list = Gtk.drag_source_get_target_list (this);
                     
-                    // This is a workaround to convert GdkEventButton* to GdkEvent* in Vala.
-                    // Thanks to Eric Gregory: https://mail.gnome.org/archives/vala-list/2012-March/msg00123.html
-                    // forward_event_to_rootwin () needs the same trick to pass events.
+                    /***************************************************************************************************
+                     * This is a workaround to convert GdkEventButton* to GdkEvent* in Vala.
+                     * Thanks to Eric Gregory: https://mail.gnome.org/archives/vala-list/2012-March/msg00123.html
+                     * forward_event_to_rootwin () needs the same trick to pass events.
+                     **************************************************************************************************/
                     Gdk.Event* real_e = (Gdk.Event*)(&evt);
                     Gtk.drag_begin (this,
                                     target_list,
@@ -1103,18 +1064,18 @@ namespace Desktop {
                 return;
             
             // create a menu and set the open folder function.
-            menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), false);
-            menu.set_folder_func ((Fm.LaunchFolderFunc) this.action_open_folder_func);
+            _file_menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), false);
+            _file_menu.set_folder_func ((Fm.LaunchFolderFunc) this.action_open_folder_func);
             
-            Gtk.UIManager ui = menu.get_ui ();
-            Gtk.ActionGroup act_grp = menu.get_action_group ();
+            Gtk.UIManager ui = _file_menu.get_ui ();
+            Gtk.ActionGroup act_grp = _file_menu.get_action_group ();
             act_grp.set_translation_domain ("");
             
             Fm.FileInfo? fi = files.peek_head ();
             
             // merge some specific menu items for folders
-            /*if (menu.is_single_file_type () && fi.is_dir ()) {
-                act_grp.add_actions (folder_menu_actions, menu);
+            /*if (_file_menu.is_single_file_type () && fi.is_dir ()) {
+                act_grp.add_actions (folder_menu_actions, _file_menu);
                 ui.add_ui_from_string (folder_menu_xml, -1);
             }*/
             
@@ -1125,7 +1086,7 @@ namespace Desktop {
             // desktop_icon_toggle_actions[0].is_active = all_fixed;
             // act_grp.add_toggle_actions (desktop_icon_toggle_actions, this);
             
-            Gtk.Action act;
+            //Gtk.Action act;
             
             // snap to grid
             /*if (has_fixed == false) {
@@ -1135,11 +1096,10 @@ namespace Desktop {
             
             //ui.add_ui_from_string (desktop_icon_menu_xml, -1);
             
-            popup_menu = menu.get_menu ();
-            //return;
-            if (popup_menu != null)
-                popup_menu.popup (null, null, null, 3, evt.time);
-                //popup_menu.show_all ();
+            _popup_menu = _file_menu.get_menu ();
+            
+            if (_popup_menu != null)
+                _popup_menu.popup (null, null, null, 3, evt.time);
             
         }
         
@@ -1450,6 +1410,256 @@ namespace Desktop {
         
         XLib.set_pixmap (GtkWidget* widget, GdkPixmap* pixmap);
         */
+        }
+        
+        
+        /***************************************************************************************************************
+         * Application actions...
+         * 
+         * 
+         * 
+         **************************************************************************************************************/
+        public bool action_open_file (Fm.FileInfo? fi) {
+            
+            if (fi == null)
+                return false;
+                
+            //~ fi.is_desktop_entry ()
+            //~ fi.is_shortcut ()
+            //~ fi.is_executable_type ();
+            //~ fi.is_hidden ();
+            //~ fi.is_image ();
+            //~ fi.is_text ();
+            //|| fi.is_symlink ()
+            
+            Fm.launch_file_simple (this, null, fi, null);
+            
+            return true;
+        }
+        
+        public bool action_open_folder_func (GLib.AppLaunchContext ctx,
+                                             GLib.List<Fm.FileInfo>? folder_infos,
+                                             void* user_data) {
+            
+            stdout.printf ("DesktopWindow.action_open_folder_func:\n");
+            stdout.printf ("\tAppLaunchContext = %#x \n", (uint) ctx);
+            stdout.printf ("\tGLib.List = %#x \n", (uint) folder_infos);
+            stdout.printf ("\tuser_data = %#x \n", (uint) user_data);
+            stdout.printf ("\tDesktopWindow = %#x \n", (uint) this);
+            
+            
+            /* WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+             * There's a problem in the Vapi file definition for this function, folder_infos is given as the first
+             * parameter which is wrong of course...
+             * WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! */
+
+            unowned List<Fm.FileInfo>? folder_list = (GLib.List<Fm.FileInfo>) ctx;
+
+            /* WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+             * There's a problem in the Vapi file definition for this function, folder_infos is given as the first
+             * parameter which is wrong of course...
+             * WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! */
+            
+            
+            if (folder_list == null)
+                stdout.printf ("DesktopWindow.action_open_folder_func: GLib.List folder_infos = (null)\n");
+            
+            foreach (Fm.FileInfo fi in folder_list) {
+                
+                action_open_folder (fi);
+            }
+            return true;
+        }
+        
+        public bool action_open_folder (Fm.FileInfo? fi) {
+            
+            if (fi == null)
+                return false;
+                
+            string cmdline = global_config.app_filemanager + " " + fi.get_path ().to_str ();
+            
+            try {
+                Process.spawn_command_line_async (cmdline);
+            } catch (Error e) {
+                stdout.printf ("action_open_folder cannot open %s\n", cmdline);
+            }
+            
+            return true;
+        }
+        
+        private void _on_action_new_folder (Gtk.Action act) {
+            
+            this._filemanager_new_document (Fm.Path.get_desktop(), name, true);
+        }
+
+        private void _on_action_new_file (Gtk.Action act) {
+            
+            this._filemanager_new_document (Fm.Path.get_desktop(), name);
+        }
+
+        private void _filemanager_new_document (Fm.Path base_dir, string template_name, bool folder = false) {
+            
+            string msg;
+            string tmp_name;
+            
+            bool create_from_template = false;
+            
+            if (folder) {
+                
+                msg = "Enter a name for the newly created folder:";
+                tmp_name = "Folder";
+                
+            } else if (template_name != "") {
+                
+                Fm.Path template_dir = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.TEMPLATES));
+                Fm.Path template = new Fm.Path.child (template_dir, template_name);
+                //Fm.copy_file (this, template, base_dir);
+                create_from_template = true;
+                return;
+            
+            } else {
+                msg = "Enter a name for the newly created file:";
+                tmp_name = "File";
+            }
+            
+            string test_name = "";
+            Fm.Path dest;
+            File dest_file = null;
+            
+            int max_tries = 10;
+            for (int i = 1; i < max_tries; i++) {
+                
+                test_name = "New%s(%d)".printf (tmp_name, i);
+                
+                dest = new Fm.Path.child (base_dir, test_name);
+                dest_file = dest.to_gfile ();
+                if (dest_file.query_exists ()) {
+                    //stdout.printf ("%s exist\n", test_name);
+                } else {
+                    //stdout.printf ("%s not exist\n", test_name);
+                    break;
+                }
+            }
+            
+            string basename = Fm.get_user_input (null, _("Create New..."), _(msg), test_name);
+            
+            if (basename == null || basename == "" || dest_file == null)
+                return;
+            
+            //stdout.printf ("%s\n", basename);
+            
+            if (folder) {
+                
+                if (!dest_file.make_directory (null)) {
+                    
+                    stdout.printf ("ERRORRRRRR !!!!!!!\n");
+                    //fm_show_error (parent, null, err->message);
+                }
+
+            } else {
+                
+                FileOutputStream f = dest_file.create (FileCreateFlags.NONE);
+                if (f == null) {
+                    
+                    stdout.printf ("ERRORRRRRR !!!!!!!\n");
+                    //fm_show_error (parent, null, err->message);
+                
+                } else {
+                    
+                    f.close ();
+                }
+            } 
+            
+            return;
+        }
+        
+        private void _on_action_paste (Gtk.Action action) {
+            
+            Fm.Path path = Fm.Path.get_desktop ();
+            Fm.Clipboard.paste_files (this, path);
+        }
+
+        private void _on_action_select_all (Gtk.Action action) {
+            
+            /*
+            int i;
+            for(i=0; i < n_screens; ++i)
+            {
+                FmDesktop* desktop = desktops[i];
+                select_all(desktop);
+            }
+            */
+        }
+
+        private void _on_action_invert_select (Gtk.Action action) {
+            
+            /*
+            int i;
+            for(i=0; i < n_screens; ++i)
+            {
+                FmDesktop* desktop = desktops[i];
+                GList* l;
+                for(l=desktop->items;l;l=l->next)
+                {
+                    FmDesktopItem* item = (FmDesktopItem*)l->data;
+                    item->is_selected = !item->is_selected;
+                    redraw_item(desktop, item);
+                }
+            }*/
+        }
+
+        /*
+        #define INIT_BOOL(b, st, name, changed_notify)  init_bool(b, #name, G_STRUCT_OFFSET(st, name), changed_notify)
+        #define INIT_COMBO(b, st, name, changed_notify) init_combo(b, #name, G_STRUCT_OFFSET(st, name), changed_notify)
+        #define INIT_ICON_SIZES(b, name) init_icon_sizes(b, #name, G_STRUCT_OFFSET(FmConfig, name))
+        #define INIT_COLOR(b, st, name, changed_notify)  init_color(b, #name, G_STRUCT_OFFSET(st, name), changed_notify)
+        #define INIT_SPIN(b, st, name, changed_notify)  init_spin(b, #name, G_STRUCT_OFFSET(st, name), changed_notify)
+        #define INIT_ENTRY(b, st, name, changed_notify)  init_entry(b, #name, G_STRUCT_OFFSET(st, name), changed_notify)
+        */
+
+        private void _on_action_desktop_settings (Gtk.Action action) {
+            
+            /*
+            if(!desktop_pref_dlg)
+            {
+                GtkBuilder* builder = gtk_builder_new();
+                GtkWidget* item, *img_preview;
+                gtk_builder_add_from_file(builder, PACKAGE_UI_DIR "/desktop-pref.ui", null);
+                desktop_pref_dlg = gtk_builder_get_object(builder, "dlg");
+
+                item = gtk_builder_get_object(builder, "wallpaper");
+                g_signal_connect(item, "file-set", G_CALLBACK(on_wallpaper_set), null);
+                img_preview = gtk_image_new();
+                gtk_misc_set_alignment(GTK_MISC(img_preview), 0.5, 0.0);
+                gtk_widget_set_size_request( img_preview, 128, 128 );
+                gtk_file_chooser_set_preview_widget( (GtkFileChooser*)item, img_preview );
+                g_signal_connect( item, "update-preview", G_CALLBACK(on_update_img_preview), img_preview );
+                if(app_config->wallpaper)
+                    gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(item), app_config->wallpaper);
+
+                INIT_COMBO(builder, FmAppConfig, wallpaper_mode, "wallpaper");
+                INIT_COLOR(builder, FmAppConfig, desktop_bg, "wallpaper");
+
+                INIT_COLOR(builder, FmAppConfig, desktop_fg, "desktop_text");
+                INIT_COLOR(builder, FmAppConfig, desktop_shadow, "desktop_text");
+
+                INIT_BOOL(builder, FmAppConfig, show_wm_menu, null);
+
+                item = gtk_builder_get_object(builder, "desktop_font");
+                if(app_config->desktop_font)
+                    gtk_font_button_set_font_name(GTK_FONT_BUTTON(item), app_config->desktop_font);
+                g_signal_connect(item, "font-set", G_CALLBACK(on_desktop_font_set), null);
+
+                g_signal_connect(desktop_pref_dlg, "response", G_CALLBACK(on_response), &desktop_pref_dlg);
+                g_object_unref(builder);
+
+                pcmanfm_ref();
+                g_signal_connect(desktop_pref_dlg, "destroy", G_CALLBACK(pcmanfm_unref), null);
+            }
+            
+            gtk_window_present(GTK_WINDOW(desktop_pref_dlg));
+            */
+            
         }
     }
 }

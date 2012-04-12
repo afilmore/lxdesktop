@@ -1,9 +1,11 @@
 NULL=
 
 AM_CPPFLAGS = \
+	-include config.h \
 	-DPACKAGE_DATA_DIR=\""$(datadir)/desk2"\" \
 	-DPACKAGE_UI_DIR=\""$(datadir)/desk2/ui"\" \
-	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\"
+	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
+	$(NULL)
 
 bin_PROGRAMS = lxdesktop
 
