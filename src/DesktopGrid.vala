@@ -645,92 +645,22 @@ namespace Desktop {
             return;    
         }
 
-        public void on_row_changed (Gtk.TreePath tp, Gtk.TreeIter it) {
-            
-            stdout.printf ("on_row_changed\n");
-            
-            return; // needs testing...
-
-            foreach (Desktop.Item item in _grid_items) {
-                
-                /*******************************************************************************************************
-                 * We don't have the item's TreeIter... :(
-                 * 
-                 * 
-                if (item.it.user_data == it.user_data) {
-                    
-                    if (item.icon != null)
-                        item.icon = null; // g_object_unref (item.icon);
-                    
-                    Fm.FileInfo fi; // must set the new fileinfo ????
-                    
-                    global_model.get (it, Fm.FileColumn.ICON, out item.icon, Fm.FileColumn.INFO, out fi, -1);
-                            
-                    item.redraw (_window);
-                    
-                    // FIXME: check if sorting of files is changed.
-                    // queue_layout_items(desktop); // needed ???
-                    
-                    return;
-                }
-                
-                */
-            }
-            
-            return;
-        }
-
-        public void on_rows_reordered (Gtk.TreePath parent_tp, Gtk.TreeIter? parent_it, void* new_order) {
-            
-            stdout.printf ("on_rows_reordered\n");
-            
-            /***********************************************************************************************************
-             * Not emplemented yet......
-             * 
-             * 
-            Gtk.TreeIter it;
-            
-            List new_items = null;
-            
-            if (mod.get_iter_first (out it) == null)
-                return;
-            
-            do {
-                List l;
-                for (l = desktop.items; l; l=l.next) {
-                    Desktop.Item item = l.data as Desktop.Item;
-                    if (item.it.user_data == it.user_data) {
-                        desktop.items = g_list_remove_link (desktop.items, l);
-                        new_items = g_list_concat (l, new_items);
-                        break;
-                    }
-                }
-            } while (mod.iter_next (out it));
-            
-            desktop.items = g_list_reverse (new_items);
-            queue_layout_items (desktop);
-            
-            */
-        }
-        
         public bool save_item_pos () {
             
             
             string config_file = "/home/hotnuma/Bureau/.items-%d.conf".printf (_window.get_screen ().get_number ());
+            
             //stdout.printf ("save in %s\n", config_file);
+            
             string config = "";
             
             try {
                 
                 File file = File.new_for_path (config_file);
                 
-                // delete if file already exists (is it needed ???)
-                if (file.query_exists ()) {
-                    try {
-                        file.delete ();
-                    } catch (Error e) {
-                    }
-                }
+                // for some reasons we need to delete the file if it exists...
+                if (file.query_exists ())
+                    file.delete ();
                 
                 DataOutputStream dos = new DataOutputStream (file.create (FileCreateFlags.REPLACE_DESTINATION));
                 

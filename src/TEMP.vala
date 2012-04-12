@@ -15,6 +15,80 @@
  * 
  * 
  **********************************************************************************************************************/
+/***********************************************************************************************************************
+ * Grid Model Functions....
+ * 
+ * 
+ **********************************************************************************************************************/
+public void on_row_changed (Gtk.TreePath tp, Gtk.TreeIter it) {
+    
+    stdout.printf ("on_row_changed\n");
+    
+    return; // needs testing...
+
+    /********************************************
+     * We don't have the item's TreeIter... :(
+     * 
+     * 
+    foreach (Desktop.Item item in _grid_items) {
+        
+        if (item.it.user_data == it.user_data) {
+            
+            if (item.icon != null)
+                item.icon = null; // g_object_unref (item.icon);
+            
+            Fm.FileInfo fi; // must set the new fileinfo ????
+            
+            global_model.get (it, Fm.FileColumn.ICON, out item.icon, Fm.FileColumn.INFO, out fi, -1);
+                    
+            item.redraw (_window);
+            
+            // FIXME: check if sorting of files is changed.
+            // queue_layout_items(desktop); // needed ???
+            
+            return;
+        }
+        
+        
+    }*/
+    
+    return;
+}
+
+public void on_rows_reordered (Gtk.TreePath parent_tp, Gtk.TreeIter? parent_it, void* new_order) {
+    
+    stdout.printf ("on_rows_reordered\n");
+    
+    /***********************************************************************************************************
+     * Not emplemented yet......
+     * 
+     * 
+    Gtk.TreeIter it;
+    
+    List new_items = null;
+    
+    if (mod.get_iter_first (out it) == null)
+        return;
+    
+    do {
+        List l;
+        for (l = desktop.items; l; l=l.next) {
+            Desktop.Item item = l.data as Desktop.Item;
+            if (item.it.user_data == it.user_data) {
+                desktop.items = g_list_remove_link (desktop.items, l);
+                new_items = g_list_concat (l, new_items);
+                break;
+            }
+        }
+    } while (mod.iter_next (out it));
+    
+    desktop.items = g_list_reverse (new_items);
+    queue_layout_items (desktop);
+    
+    */
+}
+
+
 /* *********************************************************************************************************************
  * *** DOESN'T BUILD ***
  * 

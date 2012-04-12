@@ -9,6 +9,36 @@ AM_CPPFLAGS = \
 
 bin_PROGRAMS = lxdesktop
 
+exo_SOURCES = \
+	gtk/exo/exo-icon-view.c \
+	gtk/exo/exo-private.c \
+	gtk/exo/exo-tree-view.c \
+	gtk/exo/exo-marshal.c \
+	gtk/exo/exo-string.c \
+	$(NULL)
+
+gtk_SOURCES = \
+	gtk/fm-dir-tree-model.c \
+	gtk/fm-dir-tree-view.c \
+	gtk/fm-folder-view.c \
+	gtk/fm-cell-renderer-text.c \
+	$(NULL)
+
+TEMP = \
+	gtk/fm-places-model.c \
+	gtk/fm-places-view.c \
+	gtk/fm-places-view.h
+	gtk/fm-places-model.h
+	gtk/fm-folder-view.h
+	gtk/fm-dir-tree-view.h
+	gtk/fm-dir-tree-model.h
+	gtk/exo/exo-icon-view.h \
+	gtk/exo/exo-private.h \
+	gtk/exo/exo-marshal.h \
+	gtk/exo/exo-string.h \
+	gtk/exo/exo-tree-view.h \
+	$(NULL)
+	
 lxdesktop_SOURCES = \
 	DesktopConfig.vala \
 	Application.vala \
@@ -17,6 +47,8 @@ lxdesktop_SOURCES = \
 	DesktopItem.vala \
 	TEMP.vala \
 	misc.c \
+	$(exo_SOURCES) \
+	$(gtk_SOURCES) \
 	$(NULL)
 
 lxdesktop_VALAFLAGS = \

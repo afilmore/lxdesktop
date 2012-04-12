@@ -229,8 +229,8 @@ namespace Desktop {
             // connect model's custom signals.
             global_model.row_inserted.connect (this.get_grid ().on_row_inserted);
             global_model.row_deleted.connect (this.get_grid ().on_row_deleted);
-            global_model.row_changed.connect (this.get_grid ().on_row_changed);
-            global_model.rows_reordered.connect (this.get_grid ().on_rows_reordered);
+            //global_model.row_changed.connect (this.get_grid ().on_row_changed);
+            //global_model.rows_reordered.connect (this.get_grid ().on_rows_reordered);
             
             // popup menu
             Gtk.ActionGroup act_grp = new Gtk.ActionGroup ("Desktop");
