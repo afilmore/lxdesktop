@@ -340,7 +340,20 @@ namespace Desktop {
             }
         }
 
-        public void append_item (Desktop.Item item) {
+        public void insert_item (Desktop.Item item) {
+            
+            if (item.index_horizontal == -1 || item.index_vertical == -1 || _grid_items.length () == 0) {
+                this._append_item (item);
+                return;
+            }
+            
+            this._calc_item_size (item);
+            _grid_items.append (item);
+            
+            //this._append_item (item);
+        }    
+        
+        private void _append_item (Desktop.Item item) {
             
             unowned List<Desktop.Item>? last = _grid_items.last ();
             
@@ -562,7 +575,7 @@ namespace Desktop {
             global_model.get (it, Fm.FileColumn.ICON, out icon, Fm.FileColumn.INFO, out fi, -1);
             Desktop.Item item = new Desktop.Item (icon, fi);
             
-            this.append_item (item);
+            this._append_item (item);
             
             /** Original code in PCManFm calls queue_layout_items (), a redraw also works...
              * this.queue_layout_items (); */
@@ -698,6 +711,45 @@ namespace Desktop {
             queue_layout_items (desktop);
             
             */
+        }
+        
+        public bool save_item_pos () {
+            
+            
+            string config_file = "/home/hotnuma/Bureau/.items-%d.conf".printf (_window.get_screen ().get_number ());
+            //stdout.printf ("save in %s\n", config_file);
+            string config = "";
+            
+            try {
+                
+                File file = File.new_for_path (config_file);
+                
+                // delete if file already exists (is it needed ???)
+                if (file.query_exists ()) {
+                    try {
+                        file.delete ();
+                    } catch (Error e) {
+                    }
+                }
+                
+                DataOutputStream dos = new DataOutputStream (file.create (FileCreateFlags.REPLACE_DESTINATION));
+                
+                // FIXME: path.get_basename () won't work if we have a virtual item, ex : /home/me/Documents
+                // we need to get the full path for personal folders...
+                
+                foreach (Desktop.Item item in _grid_items) {
+                    config += "[%s]\n".printf (item.get_fileinfo ().get_path ().get_basename ());
+                    config += "index_x = %d\n".printf (item.index_horizontal);
+                    config += "index_y = %d\n".printf (item.index_vertical);
+                    config += "\n";
+                }
+
+                dos.put_string (config);
+                
+            } catch (Error e) {
+            }
+            
+            return true;
         }
     }
 }

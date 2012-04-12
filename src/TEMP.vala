@@ -1,3 +1,20 @@
+/***********************************************************************************************************************
+ * TEMP.vala
+ * 
+ * Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License Version 2.
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * 
+ * This software is an experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
+ * 
+ * Purpose: These are currently not translated to Vala, commented or simply unused functions. Most of these are empty
+ * and useless but this file is included in the program and built with it. Some of these will never be used, but some
+ * may be translated, adapted and moved into the application's classes.
+ * 
+ * 
+ **********************************************************************************************************************/
 /* *********************************************************************************************************************
  * *** DOESN'T BUILD ***
  * 
@@ -245,29 +262,36 @@ private void on_snap_to_grid (Gtk.Action act) {
 
 private void on_fix_pos (Gtk.ToggleAction act) {
 
-    /*FmDesktop* desktop = FM_DESKTOP (user_data);
-    
-    List items = this.get_selected_items (null);
+    /*List items = this.get_selected_items (null);
     List l;
     
     if (act.get_active()) {
+        
         for (l = items; l; l=l.next) {
+            
             Desktop.Item item = l.data as Desktop.Item;
+            
             if (item.fixed_pos == false) {
+                
                 item.fixed_pos = true;
-                desktop.fixed_items = desktop.fixed_items.prepend (item);
+                desktop_window.fixed_items = desktop_window.fixed_items.prepend (item);
             }
         }
+        
     } else {
+        
         for (l = items; l; l=l.next) {
+            
             Desktop.Item item = l.data as Desktop.Item;
             item.fixed_pos = false;
-            desktop.fixed_items = desktop.fixed_items.remove (item);
+            desktop_window.fixed_items = desktop_window.fixed_items.remove (item);
         }
-        layout_items (desktop);
+        desktop_window.layout_items ();
     }
     
-    save_item_pos (desktop);*/
+    desktop_window.save_item_pos ();*/
+    
+    return;
 }
 
 
@@ -482,102 +506,6 @@ private Desktop.Item? get_nearest_item (Desktop.Item item, Gtk.DirectionType dir
     }
     */
     return ret;
-}
-/**********************************************************************************************************************/
-
-
-/***********************************************************************************************************************
- * Load save item positions...
- * 
- * 
- **********************************************************************************************************************/
-void on_model_loaded () {
-    /**
-    int i;
-    // the desktop folder is just loaded, apply desktop item positions
-    GKeyFile* kf = g_key_file_new();
-    for( i = 0; i < n_screens; i++ )
-    {
-        FmDesktop* desktop = FM_DESKTOP(desktops[i]);
-        load_item_pos(desktop, kf);
-    }
-    g_key_file_free(kf);*/
-}
-
-inline void load_item_pos (KeyFile kf) {
-    /**char* path = get_config_file(desktop, FALSE);
-    if(g_key_file_load_from_file(kf, path, 0, NULL))
-    {
-        GList* l;
-        for(l = desktop->items; l; l=l->next)
-        {
-            FmDesktopItem* item = (FmDesktopItem*)l->data;
-            const char* name = fm_path_get_basename(item->fi->path);
-            if(g_key_file_has_group(kf, name))
-            {
-                desktop->fixed_items = g_list_prepend(desktop->fixed_items, item);
-                item->fixed_pos = TRUE;
-                item->x = g_key_file_get_integer(kf, name, "x", NULL);
-                item->y = g_key_file_get_integer(kf, name, "y", NULL);
-                calc_item_size(desktop, item);
-            }
-        }
-    }
-    g_free(path);*/
-    
-    return;
-}
-
-static string get_config_file (bool create_dir) {
-    
-    string ret = "";
-    /**char* dir = pcmanfm_get_profile_dir(create_dir);
-    GdkScreen* scr = gtk_widget_get_screen(GTK_WIDGET(desktop));
-    int n = gdk_screen_get_number(scr);
-    char* path = g_strdup_printf("%s/desktop-items-%d.conf", dir, n);
-    g_free(dir);
-    return path;*/
-    return ret;
-}
-
-static void save_item_pos () {
-    
-    /**GList* l;
-    GString* buf;
-    char* path;
-    buf = g_string_sized_new(1024);
-    for(l = desktop->fixed_items; l; l=l->next)
-    {
-        FmDesktopItem* item = (FmDesktopItem*)l->data;
-        const char* p;
-        // write the file basename as group name
-        g_string_append_c(buf, '[');
-        for(p = item->fi->path->name; *p; ++p)
-        {
-            switch(*p)
-            {
-            case '\r':
-                g_string_append(buf, "\\r");
-                break;
-            case '\n':
-                g_string_append(buf, "\\n");
-                break;
-            case '\\':
-                g_string_append(buf, "\\\\");
-                break;
-            default:
-                g_string_append_c(buf, *p);
-            }
-        }
-        g_string_append(buf, "]\n");
-        g_string_append_printf(buf, "x=%d\n"
-                                    "y=%d\n\n",
-                                    item->x, item->y);
-    }
-    path = get_config_file(desktop, TRUE);
-    g_file_set_contents(path, buf->str, buf->len, NULL);
-    g_free(path);
-    g_string_free(buf, TRUE);*/
 }
 /**********************************************************************************************************************/
 

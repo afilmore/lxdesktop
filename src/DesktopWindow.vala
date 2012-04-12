@@ -121,7 +121,12 @@ namespace Desktop {
         
         public Window () {
             
-            this.destroy.connect (Gtk.main_quit);
+            this.destroy.connect ( () => {
+                
+                _grid.save_item_pos ();
+                
+                Gtk.main_quit ();
+            });
             
             this.realize.connect (_on_realize);
             this.size_allocate.connect (_on_size_allocate);
@@ -936,9 +941,7 @@ namespace Desktop {
                     
                     Gtk.drag_finish (drag_context, true, false, time);
 
-                    // FIXME: save position of desktop icons everytime is
-                    // extremely inefficient, but currently inevitable.
-                     this._save_item_pos ();
+                    this._grid.save_item_pos ();
 
                     this._grid.queue_layout_items ();
                 }
@@ -1024,12 +1027,6 @@ namespace Desktop {
             return true;
         }
 
-        private bool _save_item_pos () {
-            // temporary...
-            return true;
-        }
-        
-        
         /***************************************************************************************************************
          * Contextual Menu...
          * 

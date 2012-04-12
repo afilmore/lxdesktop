@@ -20,15 +20,13 @@ long_line_column=120
 [files]
 current_page=3
 FILE_NAME_0=433;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopConfig.vala;0;4
-FILE_NAME_1=6105;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/Application.vala;0;4
-FILE_NAME_2=35536;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopWindow.vala;0;4
-FILE_NAME_3=25359;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopGrid.vala;0;4
+FILE_NAME_1=1276;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/Application.vala;0;4
+FILE_NAME_2=62541;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopWindow.vala;0;4
+FILE_NAME_3=509;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopGrid.vala;0;4
 FILE_NAME_4=2515;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopItem.vala;0;4
 FILE_NAME_5=704;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/misc.c;0;4
-FILE_NAME_6=2661;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/TEMP.vala;0;4
-FILE_NAME_7=4270;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/vapi/libfmcore.vapi;0;4
-FILE_NAME_8=0;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/libfmcore/src/gtk/fm-gtk-utils.c;0;4
-FILE_NAME_9=0;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/vapi/libfmcore-temp.vapi;0;4
+FILE_NAME_6=502;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/TEMP.vala;0;4
+FILE_NAME_7=0;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/vapi/libfmcore.vapi;0;4
 
 [VTE]
 last_dir=/home/hotnuma/Bureau/Projets/lxdesktop/src

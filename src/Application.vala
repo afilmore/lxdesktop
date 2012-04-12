@@ -93,27 +93,106 @@ namespace Desktop {
             */
 
             Gtk.main ();
-
-            /***********************************************************************************************************
-             * Save Desktop Items Positions, disconnect signal handlers, destroy menu popup.
-             * 
-             * 
-
+            
             // save item positions
-            for (int i = 0; i < _n_screens; i++) {
-                save_item_pos (FM_DESKTOP (desktops[i]));
-                desktops[i].destroy ();
-            }
+            /*for (int i = 0; i < _n_screens; i++) {
+                _desktops[i].get_grid ().save_item_pos ();
+                _desktops[i].destroy ();
+            }*/
             
-            Gtk.IconTheme.get_default ().disconnect (icon_theme_changed);
-            
-            desktop_popup.destroy ();
-            
-            */
+            /*Gtk.IconTheme.get_default ().disconnect (icon_theme_changed);
+            desktop_popup.destroy ();*/
             
             return true;
         }
         
+        
+        /***********************************************************************************************************************
+         * Load save item positions...
+         * 
+         * 
+         **********************************************************************************************************************/
+        private void on_model_loaded () {
+            
+            /**
+            int i;
+            // the desktop folder is just loaded, apply desktop item positions
+            GKeyFile* kf = g_key_file_new();
+            for( i = 0; i < n_screens; i++ )
+            {
+                FmDesktop* desktop = FM_DESKTOP(desktops[i]);
+                load_item_pos(desktop, kf);
+            }
+            g_key_file_free(kf);*/
+            
+        }
+
+        inline void load_item_pos (KeyFile kf) {
+            
+            /**char* path = get_config_file(desktop, FALSE);
+            if(g_key_file_load_from_file(kf, path, 0, NULL))
+            {
+                GList* l;
+                for(l = desktop->items; l; l=l->next)
+                {
+                    FmDesktopItem* item = (FmDesktopItem*)l->data;
+                    const char* name = fm_path_get_basename(item->fi->path);
+                    if(g_key_file_has_group(kf, name))
+                    {
+                        desktop->fixed_items = g_list_prepend(desktop->fixed_items, item);
+                        item->fixed_pos = TRUE;
+                        item->x = g_key_file_get_integer(kf, name, "x", NULL);
+                        item->y = g_key_file_get_integer(kf, name, "y", NULL);
+                        calc_item_size(desktop, item);
+                    }
+                }
+            }
+            g_free(path);*/
+            
+            return;
+        }
+
+        private string get_config_file (bool create_dir) {
+            
+            string ret = "";
+            /**char* dir = pcmanfm_get_profile_dir(create_dir);
+            GdkScreen* scr = gtk_widget_get_screen(GTK_WIDGET(desktop));
+            int n = gdk_screen_get_number(scr);
+            char* path = g_strdup_printf("%s/desktop-items-%d.conf", dir, n);
+            g_free(dir);
+            return path;*/
+            return ret;
+        }
+
+        /**********************************************************************************************************************/
+
+        private bool _get_saved_position (string config_file, Desktop.Item item) {
+            
+            KeyFile kf = new KeyFile();
+            try {
+                kf.load_from_file (config_file, KeyFileFlags.NONE);
+                string group = item.get_fileinfo ().get_path ().get_basename ();
+                if (kf.has_group (group) == false)
+                    return false;
+                
+                int idx_x = -1;
+                int idx_y = -1;
+            
+                idx_x = kf.get_integer (group, "index_x");
+                idx_y = kf.get_integer (group, "index_y");
+                
+                item.index_horizontal = idx_x;
+                item.index_vertical = idx_y;
+            
+            } catch (Error e) {
+                item.index_horizontal = -1;
+                item.index_vertical = -1;
+                return false;
+            }
+            
+            return true;
+        }  
+
         private void _on_model_loaded () {
             
             // An array of desktop, one for each screen...
@@ -128,133 +207,148 @@ namespace Desktop {
                 _desktops [i] = desktop;
                 _wingroup.add_window (desktop);
                 
-                this._load_special_items (desktop);
-
-                Gtk.TreeIter it;
-                Gdk.Pixbuf icon;
-                Fm.FileInfo fi;
+//~                 // load item position from configuration file.....
+//~                 List<Fm.FileInfo> files_list = new List<Fm.FileInfo> ();
+                
+                
+                string config_file = "/home/hotnuma/Bureau/.items-%d.conf".printf (i);                
+                
+                
+                
+                
+                
+                
+                /*******************************************************************************************************
+                 * Create special items on the desktop, this should be configurable, it should be possible to show/hide
+                 * My Computer, My Documents, The Trash Can from dconf settings.
+                 * 
+                 * Some modifications have been done to LibFM Core's FmPath and FmFileInfo to create easily and
+                 * hopefully in a safe way these items.
+                 * 
+                 ******************************************************************************************************/
+                Gtk.IconTheme icon_theme = Gtk.IconTheme.get_default ();
+                
+                Desktop.Item item;
+                string icon_name;
+                Gdk.Pixbuf pixbuf;
+                Fm.FileInfo? fi;
+                
+                /* Special icons :
+                 * "computer"
+                 * "folder-documents"
+                 * "user-trash"
+                 * "user-trash-full"
+                 * "folder-download"
+                 * "folder-music"
+                 * "folder-pictures"
+                 * "folder-publicshares"
+                 * "folder-remote"
+                 * "folder-templates"
+                 * "folder-videos"
+                 * 
+                 */
+                
+                /*******************************************************************************************************
+                 * My Computer
+                 * 
+                 ******************************************************************************************************/
+                icon_name = "computer";
+                pixbuf = icon_theme.load_icon (icon_name,
+                                               (int) global_config.big_icon_size,
+                                               Gtk.IconLookupFlags.FORCE_SIZE);
+                
+                fi = new Fm.FileInfo.computer ();
+                item = new Desktop.Item (pixbuf, fi);
+                this._get_saved_position (config_file, item);
+                desktop.get_grid ().insert_item (item);
+                
+                /*******************************************************************************************************
+                 * From Glib Reference Manual :
+                 * 
+                 * These are logical ids for special directories which are defined depending on the platform used.
+                 * You should use g_get_user_special_dir() to retrieve the full path associated to the logical id.
+                 * 
+                 * The GUserDirectory enumeration can be extended at later date. Not every platform has a directory
+                 * for every logical id in this enumeration.
+                 *  
+                 *  Cuurent User's Directories (GLib 2.32)
+                 * 
+                 *  The user's Desktop directory:       G_USER_DIRECTORY_DESKTOP
+                 *  The user's Documents directory:     G_USER_DIRECTORY_DOCUMENTS
+                 *  The user's Downloads directory:     G_USER_DIRECTORY_DOWNLOAD
+                 *  The user's Music directory:         G_USER_DIRECTORY_MUSIC
+                 *  The user's Pictures directory:      G_USER_DIRECTORY_PICTURES
+                 *  The user's shared directory:        G_USER_DIRECTORY_PUBLIC_SHARE
+                 *  The user's Templates directory:     G_USER_DIRECTORY_TEMPLATES
+                 *  The user's Movies directory:        G_USER_DIRECTORY_VIDEOS
+                 *  The number of enum values:          G_USER_N_DIRECTORIES
+                 * 
+                 */
+                
+                /*******************************************************************************************************
+                 * My Documents
+                 * 
+                 ******************************************************************************************************/
+                icon_name = "folder-documents";
+                pixbuf = icon_theme.load_icon (icon_name,
+                                               (int) global_config.big_icon_size,
+                                               Gtk.IconLookupFlags.FORCE_SIZE);
+                
+                fi = new Fm.FileInfo.user_special_dir (UserDirectory.DOCUMENTS);
+                if (fi != null) {
+                    item = new Desktop.Item (pixbuf, fi);
+                    this._get_saved_position (config_file, item);
+                    desktop.get_grid ().insert_item (item);
+                }
+                
+                /*******************************************************************************************************
+                 * My Music
+                 * 
+                 ******************************************************************************************************/
+                icon_name = "folder-music";
+                pixbuf = icon_theme.load_icon (icon_name,
+                                               (int) global_config.big_icon_size,
+                                               Gtk.IconLookupFlags.FORCE_SIZE);
+                                               
+                fi = new Fm.FileInfo.user_special_dir (UserDirectory.MUSIC);
+                if (fi != null) {
+                    item = new Desktop.Item (pixbuf, fi);
+                    this._get_saved_position (config_file, item);
+                    desktop.get_grid ().insert_item (item);
+                }
+                
+                /*******************************************************************************************************
+                 * Trash Can
+                 * 
+                 ******************************************************************************************************/
+                icon_name = "user-trash";
+                pixbuf = icon_theme.load_icon (icon_name,
+                                               (int) global_config.big_icon_size,
+                                               Gtk.IconLookupFlags.FORCE_SIZE);
+                                               
+                fi = new Fm.FileInfo.trash_can ();
+                item = new Desktop.Item (pixbuf, fi);
+                this._get_saved_position (config_file, item);
+                desktop.get_grid ().insert_item (item);
+                
+                Gtk.TreeIter    it;
+                Gdk.Pixbuf      icon;
 
                 // Load Desktop files/folders from the Global Model, add Desktop Items to the Grid.
-                if (global_model.get_iter_first (out it)) {
-                    do {
-                        
-                        global_model.get (it, Fm.FileColumn.ICON, out icon, Fm.FileColumn.INFO, out fi, -1);
-                        Desktop.Item item = new Desktop.Item (icon, fi);
-                        
-                        // append an item into the grid
-                        desktop.get_grid ().append_item (item);
-                        
-                    } while (global_model.iter_next (ref it) == true);
-                }
+                if (!global_model.get_iter_first (out it))
+                    continue;
+                    
+                do {
+                    global_model.get (it, Fm.FileColumn.ICON, out icon, Fm.FileColumn.INFO, out fi, -1);
+                    
+                    item = new Desktop.Item (icon, fi);
+                    this._get_saved_position (config_file, item);
+                    desktop.get_grid ().insert_item (item);
+                    
+                } while (global_model.iter_next (ref it) == true);
             }
         }
 
-        /***************************************************************************************************************
-         * Create special items on the desktop, this should be configurable, it should be possible to show/hide
-         * My Computer, My Documents, The Trash Can from dconf settings.
-         * 
-         * Some modifications have been done to LibFM's FmPath and FmFileInfo to create easily and hopefully in a safe
-         * way these items.
-         * 
-         **************************************************************************************************************/
-        private void _load_special_items (Desktop.Window desktop) {
-            
-            Gtk.IconTheme icon_theme = Gtk.IconTheme.get_default ();
-            
-            string icon_name;
-            Gdk.Pixbuf pixbuf;
-            Fm.FileInfo? fi;
-            
-            /* Special icons :
-             * "computer"
-             * "folder-documents"
-             * "user-trash"
-             * "user-trash-full"
-             * "folder-download"
-             * "folder-music"
-             * "folder-pictures"
-             * "folder-publicshares"
-             * "folder-remote"
-             * "folder-templates"
-             * "folder-videos"
-             * 
-             */
-            
-            /***********************************************************************************************************
-             * My Computer
-             * 
-             **********************************************************************************************************/
-            icon_name = "computer";
-            pixbuf = icon_theme.load_icon (icon_name,
-                                           (int) global_config.big_icon_size,
-                                           Gtk.IconLookupFlags.FORCE_SIZE);
-            
-            fi = new Fm.FileInfo.computer ();
-            desktop.get_grid ().append_item (new Desktop.Item (pixbuf, fi));
-            
-            /***********************************************************************************************************
-             * From Glib Reference Manual :
-             * 
-             * These are logical ids for special directories which are defined depending on the platform used.
-             * You should use g_get_user_special_dir() to retrieve the full path associated to the logical id.
-             * 
-             * The GUserDirectory enumeration can be extended at later date. Not every platform has a directory for
-             * every logical id in this enumeration.
-             *  
-             *  Cuurent User's Directories (GLib 2.32)
-             * 
-             *  The user's Desktop directory:       G_USER_DIRECTORY_DESKTOP
-             *  The user's Documents directory:     G_USER_DIRECTORY_DOCUMENTS
-             *  The user's Downloads directory:     G_USER_DIRECTORY_DOWNLOAD
-             *  The user's Music directory:         G_USER_DIRECTORY_MUSIC
-             *  The user's Pictures directory:      G_USER_DIRECTORY_PICTURES
-             *  The user's shared directory:        G_USER_DIRECTORY_PUBLIC_SHARE
-             *  The user's Templates directory:     G_USER_DIRECTORY_TEMPLATES
-             *  The user's Movies directory:        G_USER_DIRECTORY_VIDEOS
-             *  The number of enum values:          G_USER_N_DIRECTORIES
-             * 
-             */
-            
-            /***********************************************************************************************************
-             * My Documents
-             * 
-             **********************************************************************************************************/
-            icon_name = "folder-documents";
-            pixbuf = icon_theme.load_icon (icon_name,
-                                           (int) global_config.big_icon_size,
-                                           Gtk.IconLookupFlags.FORCE_SIZE);
-            
-            fi = new Fm.FileInfo.user_special_dir (UserDirectory.DOCUMENTS);
-            if (fi != null)
-                desktop.get_grid ().append_item (new Desktop.Item (pixbuf, fi));
-            
-            /***********************************************************************************************************
-             * My Music
-             * 
-             **********************************************************************************************************/
-            icon_name = "folder-music";
-            pixbuf = icon_theme.load_icon (icon_name,
-                                           (int) global_config.big_icon_size,
-                                           Gtk.IconLookupFlags.FORCE_SIZE);
-                                           
-            fi = new Fm.FileInfo.user_special_dir (UserDirectory.MUSIC);
-            if (fi != null)
-                desktop.get_grid ().append_item (new Desktop.Item (pixbuf, fi));
-            
-            /***********************************************************************************************************
-             * Trash Can
-             * 
-             **********************************************************************************************************/
-            icon_name = "user-trash";
-            pixbuf = icon_theme.load_icon (icon_name,
-                                           (int) global_config.big_icon_size,
-                                           Gtk.IconLookupFlags.FORCE_SIZE);
-                                           
-            fi = new Fm.FileInfo.trash_can ();
-            desktop.get_grid ().append_item (new Desktop.Item (pixbuf, fi));
-            
-        }
-        
         
         /***************************************************************************************************************
          * Application's entry point.
