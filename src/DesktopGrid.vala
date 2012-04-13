@@ -645,10 +645,7 @@ namespace Desktop {
             return;    
         }
 
-        public bool save_item_pos () {
-            
-            
-            string config_file = "/home/hotnuma/Bureau/.items-%d.conf".printf (_window.get_screen ().get_number ());
+        public bool save_item_pos (string config_file) {
             
             //stdout.printf ("save in %s\n", config_file);
             

@@ -90,6 +90,7 @@ namespace Desktop {
 
         // The desktop grid
         private Desktop.Grid    _grid;
+        private string          _items_config_file;
         
         // Rubber banding / Drag And Drop
         private bool            _rubber_started = false;
@@ -108,10 +109,10 @@ namespace Desktop {
          * Single click...
          * 
          * 
-        uint single_click_timeout_handler;
-        private GdkCursor* hand_cursor = null;
-        hand_cursor = gdk_cursor_new (GDK_HAND2);
-       
+         * uint single_click_timeout_handler;
+         * private GdkCursor* hand_cursor = null;
+         * hand_cursor = gdk_cursor_new (GDK_HAND2);
+         *
          **************************************************************************************************************/
         // show the window manager menu
         private bool            _show_wm_menu = false;
@@ -123,7 +124,7 @@ namespace Desktop {
             
             this.destroy.connect ( () => {
                 
-                _grid.save_item_pos ();
+                _grid.save_item_pos (_items_config_file);
                 
                 Gtk.main_quit ();
             });
@@ -184,14 +185,16 @@ namespace Desktop {
             ***********************************************************************************************************/
         }
 
-
+        
         /***************************************************************************************************************
          * Widget Creation and Sizing...
          * 
          **************************************************************************************************************/
-        public bool create (bool debug = false) {
+        public bool create (string config_file, bool debug = false) {
             
             _debug_mode = debug;
+            
+            _items_config_file = config_file;
             
             Gdk.Screen screen = this.get_screen ();
 
@@ -342,6 +345,7 @@ namespace Desktop {
             }
             
             this.set_background ();
+            
         }
 
         private void _on_size_allocate (Gdk.Rectangle rect) {
@@ -941,7 +945,7 @@ namespace Desktop {
                     
                     Gtk.drag_finish (drag_context, true, false, time);
 
-                    this._grid.save_item_pos ();
+                    this._grid.save_item_pos (_items_config_file);
 
                     this._grid.queue_layout_items ();
                 }
@@ -1326,87 +1330,87 @@ namespace Desktop {
             
         private void _set_wallpaper () {
             
-        /* Set the wallpaper (not implemented yet...)
+            /* Set the wallpaper (not implemented yet...)
 
-        int dest_w;
-        int dest_h;
-        
-        int src_w = pix.get_width ();
-        int src_h = pix.get_height ();
-        
-        Gdk.Window window = this.get_window ();
-        Gdk.Pixmap pixmap;
+            int dest_w;
+            int dest_h;
+            
+            int src_w = pix.get_width ();
+            int src_h = pix.get_height ();
+            
+            Gdk.Window window = this.get_window ();
+            Gdk.Pixmap pixmap;
 
-        if (wallpaper_mode == FM_WP_TILE) {
-            dest_w = src_w;
-            dest_h = src_h;
-            pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
-        } else {
-            GdkScreen* screen = gtk_widget_get_screen (widget);
-            dest_w = gdk_screen_get_width (screen);
-            dest_h = gdk_screen_get_height (screen);
-            pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
-        }
-
-        if (gdk_pixbuf_get_has_alpha(pix)
-            || wallpaper_mode == FM_WP_CENTER
-            || wallpaper_mode == FM_WP_FIT) {
-            gdk_gc_set_rgb_fg_color (desktop->gc, &desktop_bg);
-            gdk_draw_rectangle (pixmap, desktop->gc, true, 0, 0, dest_w, dest_h);
-        }
-
-        GdkPixbuf *scaled;
-        switch (wallpaper_mode) {
-            
-            case FM_WP_TILE:
-                gdk_draw_pixbuf (pixmap, desktop->gc, pix, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
-            break;
-            
-            case FM_WP_STRETCH:
-                
-                if (dest_w == src_w && dest_h == src_h)
-                    scaled = (GdkPixbuf*)g_object_ref (pix);
-                else
-                    scaled = gdk_pixbuf_scale_simple (pix, dest_w, dest_h, GDK_INTERP_BILINEAR);
-                
-                gdk_draw_pixbuf (pixmap, desktop->gc, scaled, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
-                g_object_unref(scaled);
-            
-            break;
-            
-            case FM_WP_FIT:
-                if (dest_w != src_w || dest_h != src_h) {
-                    
-                    gdouble w_ratio = (float)dest_w / src_w;
-                    gdouble h_ratio = (float)dest_h / src_h;
-                    gdouble ratio = MIN(w_ratio, h_ratio);
-                    
-                    if (ratio != 1.0) {
-                        src_w *= ratio;
-                        src_h *= ratio;
-                        scaled = gdk_pixbuf_scale_simple(pix, src_w, src_h, GDK_INTERP_BILINEAR);
-                        g_object_unref(pix);
-                        pix = scaled;
-                    }
-                }
-            
-            // continue to execute code in case FM_WP_CENTER
-            case FM_WP_CENTER: {
-                int x, y;
-                x = (dest_w - src_w)/2;
-                y = (dest_h - src_h)/2;
-                gdk_draw_pixbuf (pixmap, desktop->gc, pix, 0, 0, x, y, -1, -1, GDK_RGB_DITHER_NORMAL, 0, 0);
+            if (wallpaper_mode == FM_WP_TILE) {
+                dest_w = src_w;
+                dest_h = src_h;
+                pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
+            } else {
+                GdkScreen* screen = gtk_widget_get_screen (widget);
+                dest_w = gdk_screen_get_width (screen);
+                dest_h = gdk_screen_get_height (screen);
+                pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
             }
-            break;
-        }
-        
-        gdk_window_set_back_pixmap(root, pixmap, false);
-        gdk_window_set_back_pixmap(window, null, true);
-        if (pix)
-            g_object_unref (pix);
-        
-        XLib.set_pixmap (GtkWidget* widget, GdkPixmap* pixmap);
-        */
+
+            if (gdk_pixbuf_get_has_alpha(pix)
+                || wallpaper_mode == FM_WP_CENTER
+                || wallpaper_mode == FM_WP_FIT) {
+                gdk_gc_set_rgb_fg_color (desktop->gc, &desktop_bg);
+                gdk_draw_rectangle (pixmap, desktop->gc, true, 0, 0, dest_w, dest_h);
+            }
+
+            GdkPixbuf *scaled;
+            switch (wallpaper_mode) {
+                
+                case FM_WP_TILE:
+                    gdk_draw_pixbuf (pixmap, desktop->gc, pix, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
+                break;
+                
+                case FM_WP_STRETCH:
+                    
+                    if (dest_w == src_w && dest_h == src_h)
+                        scaled = (GdkPixbuf*)g_object_ref (pix);
+                    else
+                        scaled = gdk_pixbuf_scale_simple (pix, dest_w, dest_h, GDK_INTERP_BILINEAR);
+                    
+                    gdk_draw_pixbuf (pixmap, desktop->gc, scaled, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
+                    g_object_unref(scaled);
+                
+                break;
+                
+                case FM_WP_FIT:
+                    if (dest_w != src_w || dest_h != src_h) {
+                        
+                        gdouble w_ratio = (float)dest_w / src_w;
+                        gdouble h_ratio = (float)dest_h / src_h;
+                        gdouble ratio = MIN(w_ratio, h_ratio);
+                        
+                        if (ratio != 1.0) {
+                            src_w *= ratio;
+                            src_h *= ratio;
+                            scaled = gdk_pixbuf_scale_simple(pix, src_w, src_h, GDK_INTERP_BILINEAR);
+                            g_object_unref(pix);
+                            pix = scaled;
+                        }
+                    }
+                
+                // continue to execute code in case FM_WP_CENTER
+                case FM_WP_CENTER: {
+                    int x, y;
+                    x = (dest_w - src_w)/2;
+                    y = (dest_h - src_h)/2;
+                    gdk_draw_pixbuf (pixmap, desktop->gc, pix, 0, 0, x, y, -1, -1, GDK_RGB_DITHER_NORMAL, 0, 0);
+                }
+                break;
+            }
+            
+            gdk_window_set_back_pixmap(root, pixmap, false);
+            gdk_window_set_back_pixmap(window, null, true);
+            if (pix)
+                g_object_unref (pix);
+            
+            XLib.set_pixmap (GtkWidget* widget, GdkPixmap* pixmap);*/
+            
         }
         
         
@@ -1486,15 +1490,15 @@ namespace Desktop {
         
         private void _on_action_new_folder (Gtk.Action act) {
             
-            this._filemanager_new_document (Fm.Path.get_desktop(), name, true);
+            this._filemanager_new_document (Fm.Path.get_desktop(), "", true);
         }
 
         private void _on_action_new_file (Gtk.Action act) {
             
-            this._filemanager_new_document (Fm.Path.get_desktop(), name);
+            this._filemanager_new_document (Fm.Path.get_desktop());
         }
 
-        private void _filemanager_new_document (Fm.Path base_dir, string template_name, bool folder = false) {
+        private void _filemanager_new_document (Fm.Path base_dir, string template_name = "", bool folder = false) {
             
             string msg;
             string tmp_name;
@@ -1523,7 +1527,7 @@ namespace Desktop {
             Fm.Path dest;
             File dest_file = null;
             
-            int max_tries = 10;
+            int max_tries = 10; // FIXME: ....
             for (int i = 1; i < max_tries; i++) {
                 
                 test_name = "New%s(%d)".printf (tmp_name, i);
@@ -1658,6 +1662,34 @@ namespace Desktop {
             */
             
         }
+        
+        public bool get_saved_position (Desktop.Item item) {
+            
+            KeyFile kf = new KeyFile();
+            try {
+                kf.load_from_file (_items_config_file, KeyFileFlags.NONE);
+                string group = item.get_fileinfo ().get_path ().get_basename ();
+                if (kf.has_group (group) == false)
+                    return false;
+                
+                int idx_x = -1;
+                int idx_y = -1;
+            
+                idx_x = kf.get_integer (group, "index_x");
+                idx_y = kf.get_integer (group, "index_y");
+                
+                item.index_horizontal = idx_x;
+                item.index_vertical = idx_y;
+            
+            } catch (Error e) {
+                item.index_horizontal = -1;
+                item.index_vertical = -1;
+                return false;
+            }
+            
+            return true;
+        }  
+
     }
 }
 
