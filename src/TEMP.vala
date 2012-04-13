@@ -15,6 +15,366 @@
  * 
  * 
  **********************************************************************************************************************/
+        private bool _on_key_press (Gdk.EventKey evt) {
+
+            /***********************************************************************************************************
+             * 
+            Desktop.Item item;
+            int modifier =  (evt.state &  (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK));
+            
+            Fm.PathList sels;
+            
+            switch  (evt.keyval) {
+                
+                case GDK_Menu: {
+                    
+                    Fm.FileInfoList files = fm_desktop_get_selected_files (desktop);
+                    if (files) {
+                        popup_menu(desktop, evt);
+                        fm_list_unref(files);
+                    } else {
+                        if (! show_wm_menu)
+                            gtk_menu_popup (GTK_MENU(desktop_popup), null, null, null, null, 3, evt.time);
+                    }
+                    return true;
+                }
+                
+                case GDK_Left:
+                    item = get_nearest_item (this._focused, GTK_DIR_LEFT);
+                    if (item) {
+                        if (modifier == 0) {
+                            desktop.deselect_all ();
+                            item.is_selected = true;
+                        }
+                        desktop.set_focused_item (item);
+                    }
+                    return true;
+                break;
+                
+                case GDK_Right:
+                    item = get_nearest_item (desktop, desktop->focus, GTK_DIR_RIGHT);
+                    if (item) {
+                        if (modifier == 0) {
+                            deselect_all(desktop);
+                            item->is_selected = true;
+                        }
+                        set_focused_item(desktop, item);
+                    }
+                    return true;
+                break;
+                
+                case GDK_Up:
+                    item = get_nearest_item (desktop, desktop->focus, GTK_DIR_UP);
+                    if (item) {
+                        if (modifier == 0) {
+                            deselect_all(desktop);
+                            item->is_selected = true;
+                        }
+                        set_focused_item(desktop, item);
+                    }
+                    return true;
+                break;
+                
+                case GDK_Down:
+                    item = get_nearest_item (desktop, desktop->focus, GTK_DIR_DOWN);
+                    if (item) {
+                        if (modifier == 0) {
+                            deselect_all(desktop);
+                            item->is_selected = true;
+                        }
+                        set_focused_item(desktop, item);
+                    }
+                    return true;
+                break;
+                
+                case GDK_space:
+                    if ((modifier & GDK_CONTROL_MASK) && desktop->focus) {
+                        desktop->focus->is_selected = !desktop->focus->is_selected;
+                        desktop->focus.redraw ();
+                    }
+                    else
+                        activate_selected_items(desktop);
+                    return true;
+                break;
+                
+                case GDK_Return:
+                    if (modifier & GDK_MOD1_MASK) {
+                        Fm.FileInfoList infos = desktop.get_selected_files ();
+                        if (infos) {
+                            desktop.show_file_properties (infos);
+                            return true;
+                        }
+                    } else {
+                        activate_selected_items (desktop);
+                        return true;
+                    }
+                break;
+                
+                case GDK_x:
+                    if (modifier & GDK_CONTROL_MASK) {
+                        sels = fm_desktop_get_selected_paths (desktop);
+                        fm_clipboard_cut_files (desktop, sels);
+                    }
+                break;
+                
+                case GDK_c:
+                    if (modifier & GDK_CONTROL_MASK) {
+                        sels = fm_desktop_get_selected_paths (desktop);
+                        fm_clipboard_copy_files (desktop, sels);
+                    }
+                break;
+                
+                case GDK_v:
+                    if (modifier & GDK_CONTROL_MASK)
+                        fm_clipboard_paste_files (GTK_WIDGET(desktop), fm_path_get_desktop());
+                break;
+                
+                case GDK_F2:
+                    sels = fm_desktop_get_selected_paths(desktop);
+                    if (sels) {
+                        fm_rename_file (GTK_WINDOW(desktop), fm_list_peek_head(sels));
+                    }
+                break;
+                
+                case GDK_Delete:
+                    sels = fm_desktop_get_selected_paths(desktop);
+                    if (sels) {
+                        if (modifier & GDK_SHIFT_MASK)
+                            fm_delete_files (GTK_WINDOW(desktop), sels);
+                        else
+                            fm_trash_or_delete_files (GTK_WINDOW(desktop), sels);
+                    }
+                break;
+            }
+            return base.key_press_event (evt);
+            ***********************************************************************************************************/
+            return false;
+        }
+        
+        private void _on_screen_size_changed (Gdk.Screen screen) {
+            //this.resize (screen.get_width (), screen.get_height ());
+        }
+        
+        private void _on_style_set (Gtk.Style prev) {
+            
+            /*
+            Pango.Context pc = this.get_pango_context ();
+            if (font_desc)
+                pc.set_font_description (font_desc);
+            this.grid._pango_layout.context_changed ();
+            */
+        }
+
+        private void _on_direction_changed (Gtk.TextDirection prev) {
+            
+            /*
+            Pango.Context pc = this.get_pango_context ();
+            this.grid._pango_layout.context_changed ();
+            this.queue_layout_items ();
+            */
+        }
+
+        private bool _on_focus_in (Gdk.EventFocus evt) {
+            
+            /*
+            this.SET_FLAGS (GTK_HAS_FOCUS);
+            if (this._focused == false && this.items != null)
+                this._focused = this.items.data as Desktop.Item;
+            if (this._focused)
+                focus.redraw ();
+            */
+            return false;
+        }
+
+        private bool _on_focus_out (Gdk.EventFocus evt) {
+            
+            /*
+            if (this._focused) {
+                this.UNSET_FLAGS (GTK_HAS_FOCUS);
+                focus.redraw ();
+            }
+            */
+            return false;
+        }
+        
+        
+        private bool _on_single_click_timeout () {
+            return false;
+        }
+        private bool _on_single_click_timeout_temp () {
+            
+            /***********************************************************************************************************
+             * 
+            Gdk.EventButton evt;
+            Gdk.Window window;
+            int x;
+            int y;
+
+            window = this.get_window ();
+            // generate a fake button press
+            // FIXME: will this cause any problem?
+            evt.type = GDK_BUTTON_PRESS;
+            evt.window = window;
+            window.get_pointer (ref x, ref y, ref evt.state);
+            
+            evt.x = x;
+            evt.y = y;
+            evt.state |= GDK_BUTTON_PRESS_MASK;
+            evt.state &= ~GDK_BUTTON_MOTION_MASK;
+            this.on_button_press (evt);
+            
+            evt.type = GDK_BUTTON_RELEASE;
+            evt.state &= ~GDK_BUTTON_PRESS_MASK;
+            evt.state |= ~GDK_BUTTON_RELEASE_MASK;
+            this.on_button_release (evt);
+
+            this.single_click_timeout_handler = 0;
+            
+            ***********************************************************************************************************/
+            
+            return false;
+        }
+        
+        private void _set_wallpaper_temp () {
+            
+            /* Set the wallpaper (not implemented yet...)
+
+            int dest_w;
+            int dest_h;
+            
+            int src_w = pix.get_width ();
+            int src_h = pix.get_height ();
+            
+            Gdk.Window window = this.get_window ();
+            Gdk.Pixmap pixmap;
+
+            if (wallpaper_mode == FM_WP_TILE) {
+                dest_w = src_w;
+                dest_h = src_h;
+                pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
+            } else {
+                GdkScreen* screen = gtk_widget_get_screen (widget);
+                dest_w = gdk_screen_get_width (screen);
+                dest_h = gdk_screen_get_height (screen);
+                pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
+            }
+
+            if (gdk_pixbuf_get_has_alpha(pix)
+                || wallpaper_mode == FM_WP_CENTER
+                || wallpaper_mode == FM_WP_FIT) {
+                gdk_gc_set_rgb_fg_color (desktop->gc, &desktop_bg);
+                gdk_draw_rectangle (pixmap, desktop->gc, true, 0, 0, dest_w, dest_h);
+            }
+
+            GdkPixbuf *scaled;
+            switch (wallpaper_mode) {
+                
+                case FM_WP_TILE:
+                    gdk_draw_pixbuf (pixmap, desktop->gc, pix, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
+                break;
+                
+                case FM_WP_STRETCH:
+                    
+                    if (dest_w == src_w && dest_h == src_h)
+                        scaled = (GdkPixbuf*)g_object_ref (pix);
+                    else
+                        scaled = gdk_pixbuf_scale_simple (pix, dest_w, dest_h, GDK_INTERP_BILINEAR);
+                    
+                    gdk_draw_pixbuf (pixmap, desktop->gc, scaled, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
+                    g_object_unref(scaled);
+                
+                break;
+                
+                case FM_WP_FIT:
+                    if (dest_w != src_w || dest_h != src_h) {
+                        
+                        gdouble w_ratio = (float)dest_w / src_w;
+                        gdouble h_ratio = (float)dest_h / src_h;
+                        gdouble ratio = MIN(w_ratio, h_ratio);
+                        
+                        if (ratio != 1.0) {
+                            src_w *= ratio;
+                            src_h *= ratio;
+                            scaled = gdk_pixbuf_scale_simple(pix, src_w, src_h, GDK_INTERP_BILINEAR);
+                            g_object_unref(pix);
+                            pix = scaled;
+                        }
+                    }
+                
+                // continue to execute code in case FM_WP_CENTER
+                case FM_WP_CENTER: {
+                    int x, y;
+                    x = (dest_w - src_w)/2;
+                    y = (dest_h - src_h)/2;
+                    gdk_draw_pixbuf (pixmap, desktop->gc, pix, 0, 0, x, y, -1, -1, GDK_RGB_DITHER_NORMAL, 0, 0);
+                }
+                break;
+            }
+            
+            gdk_window_set_back_pixmap(root, pixmap, false);
+            gdk_window_set_back_pixmap(window, null, true);
+            if (pix)
+                g_object_unref (pix);
+            
+            XLib.set_pixmap (GtkWidget* widget, GdkPixmap* pixmap);*/
+            
+        }
+        
+        /*
+        #define INIT_BOOL(b, st, name, changed_notify)  init_bool(b, #name, G_STRUCT_OFFSET(st, name), changed_notify)
+        #define INIT_COMBO(b, st, name, changed_notify) init_combo(b, #name, G_STRUCT_OFFSET(st, name), changed_notify)
+        #define INIT_ICON_SIZES(b, name) init_icon_sizes(b, #name, G_STRUCT_OFFSET(FmConfig, name))
+        #define INIT_COLOR(b, st, name, changed_notify)  init_color(b, #name, G_STRUCT_OFFSET(st, name), changed_notify)
+        #define INIT_SPIN(b, st, name, changed_notify)  init_spin(b, #name, G_STRUCT_OFFSET(st, name), changed_notify)
+        #define INIT_ENTRY(b, st, name, changed_notify)  init_entry(b, #name, G_STRUCT_OFFSET(st, name), changed_notify)
+        */
+
+        private void _on_action_desktop_settings_temp (Gtk.Action action) {
+            
+            /*
+            if(!desktop_pref_dlg)
+            {
+                GtkBuilder* builder = gtk_builder_new();
+                GtkWidget* item, *img_preview;
+                gtk_builder_add_from_file(builder, PACKAGE_UI_DIR "/desktop-pref.ui", null);
+                desktop_pref_dlg = gtk_builder_get_object(builder, "dlg");
+
+                item = gtk_builder_get_object(builder, "wallpaper");
+                g_signal_connect(item, "file-set", G_CALLBACK(on_wallpaper_set), null);
+                img_preview = gtk_image_new();
+                gtk_misc_set_alignment(GTK_MISC(img_preview), 0.5, 0.0);
+                gtk_widget_set_size_request( img_preview, 128, 128 );
+                gtk_file_chooser_set_preview_widget( (GtkFileChooser*)item, img_preview );
+                g_signal_connect( item, "update-preview", G_CALLBACK(on_update_img_preview), img_preview );
+                if(app_config->wallpaper)
+                    gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(item), app_config->wallpaper);
+
+                INIT_COMBO(builder, FmAppConfig, wallpaper_mode, "wallpaper");
+                INIT_COLOR(builder, FmAppConfig, desktop_bg, "wallpaper");
+
+                INIT_COLOR(builder, FmAppConfig, desktop_fg, "desktop_text");
+                INIT_COLOR(builder, FmAppConfig, desktop_shadow, "desktop_text");
+
+                INIT_BOOL(builder, FmAppConfig, show_wm_menu, null);
+
+                item = gtk_builder_get_object(builder, "desktop_font");
+                if(app_config->desktop_font)
+                    gtk_font_button_set_font_name(GTK_FONT_BUTTON(item), app_config->desktop_font);
+                g_signal_connect(item, "font-set", G_CALLBACK(on_desktop_font_set), null);
+
+                g_signal_connect(desktop_pref_dlg, "response", G_CALLBACK(on_response), &desktop_pref_dlg);
+                g_object_unref(builder);
+
+                pcmanfm_ref();
+                g_signal_connect(desktop_pref_dlg, "destroy", G_CALLBACK(pcmanfm_unref), null);
+            }
+            
+            gtk_window_present(GTK_WINDOW(desktop_pref_dlg));
+            */
+            
+        }
+
+
 /***********************************************************************************************************************
  * Grid Model Functions....
  * 

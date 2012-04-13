@@ -142,11 +142,12 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
         if (event->type == GDK_BUTTON_PRESS) {
             
             xev.type = ButtonPress;
-            /**
-             * rox has an option to disable the next
-             * instruction. it is called "blackbox_hack". Does
-             * anyone know why exactly it is needed?
-             **/
+            
+            /*********************************************************************
+             * Rox has an option to disable the next instruction. it is called
+             * "blackbox_hack". Does anyone know why exactly it is needed ?
+             * 
+             */
             XUngrabPointer (dpy, event->button.time);
             
         } else {

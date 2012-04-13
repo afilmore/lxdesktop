@@ -1,4 +1,6 @@
 
+* Split libfmcore.vapi in several parts... core, gtk, etc...
+
 * (CRITICAL) Fix Vapi file bug with delegate function...
     
 * [DONE] Finalize Item Popup Menus

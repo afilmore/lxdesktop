@@ -22,6 +22,12 @@ namespace Fm {
      * 
      * 
      ******************************************************************************************************************/
+	[CCode (cheader_filename = "fm.h", cprefix = "fm_")]
+	public static bool init (Fm.Config config);
+	
+	[CCode (cheader_filename = "fm.h", cprefix = "fm_")]
+	public static void finalize ();
+	
     [CCode (cheader_filename = "fm.h", cprefix = "FM_WP_")]
     public enum WallpaperMode {
         COLOR,
@@ -53,12 +59,6 @@ namespace Fm {
 		public virtual void changed ();
 	}
 
-	[CCode (cheader_filename = "fm.h", cprefix = "fm_")]
-	public static bool init (Fm.Config config);
-	
-	[CCode (cheader_filename = "fm.h", cprefix = "fm_")]
-	public static void finalize ();
-	
     
     /*******************************************************************************************************************
      * FmPath, FmIcon, FmMimeType, FmFileinfo and FileInfoList.
@@ -124,8 +124,6 @@ namespace Fm {
 		public unowned string to_uri ();
 
         public inline bool is_virtual ();
-
-
 	}
 
 	[CCode (cheader_filename =  "fm-icon.h",
@@ -228,7 +226,7 @@ namespace Fm {
 
     
     /*******************************************************************************************************************
-     * 
+     * A generic list container supporting reference counting.
      * 
      * 
      ******************************************************************************************************************/
