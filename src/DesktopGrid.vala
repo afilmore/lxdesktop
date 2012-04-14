@@ -20,40 +20,42 @@ namespace Desktop {
     /*** const int MARGIN = 2; ***/
 
     
-    /*******************************************************************************************************************
-     * The Desktop grid basically contains a linked list to store desktop items and the desktop working area.
+    /*********************************************************************************************************
+     * The Desktop grid basically contains a linked list to store desktop items.
      * 
      * 
-     ******************************************************************************************************************/
+     ********************************************************************************************************/
     public class Grid {
         
+        // Application's Running Mode
         private bool _debug_mode = false;
         
         // Desktop Widget
-        private Gtk.Window _desktop;
-        private Gdk.Window _window;
-        uint _idle_layout = 0;
+        private Gtk.Window  _desktop;
+        private Gdk.Window  _window;
+        uint _idle_layout   = 0;
+        
+        // Desktop working area, this working area doesn't include docked panels
+        private Gdk.Rectangle       _working_area;
         
         // The list of Desktop items
         private List<Desktop.Item>  _grid_items;
         private string              _items_config_file;
         
-        // Desktop working area, this working area doesn't include docked panels
-        private Gdk.Rectangle _working_area;
-        
         // Geometry of one cell in the grid, index of last cells
-        private int _cell_width = 50;
-        private int _cell_height = 50;
-        private uint _index_last_v = 0;
-        private uint _index_last_h = 0;
+        private int     _cell_width = 50;
+        private int     _cell_height = 50;
+        private uint    _index_last_v = 0;
+        private uint    _index_last_h = 0;
         
-        // List fixed_items;
-        private Desktop.Item? _selected_item = null;
-        /*** private Desktop.Item? _drop_hilight = null; ***/
-        private Desktop.Item? _hover_item = null;
+        private Desktop.Item?   _selected_item = null;
+        /***
+        private Desktop.Item?   _drop_hilight = null;
+        private Desktop.Item?   _hover_item = null; ***/
 
-        // Icon Pixbuf renderer, replace with a Fm.CellRendererPixbuf later
-        private Gtk.CellRendererPixbuf _icon_renderer;
+        /*** Icon Pixbuf renderer, replace with Fm.CellRendererPixbuf to draw Item's arrows
+        private Fm.CellRendererPixbuf   _icon_renderer; ***/
+        private Gtk.CellRendererPixbuf  _icon_renderer;
         
         // GTK3_MIGRATION
         private Gdk.GC _gc;
@@ -188,42 +190,66 @@ namespace Desktop {
         }
         
         
-        /***************************************************************************************************************
+        /***********************************************************************
+         * 
+         * 
+         * 
+         **********************************************************************/
+        private void _calc_item_size (Desktop.Item item) {
+
+            string disp_name = item.get_disp_name ();
+            
+            // Get text size...
+            _pango_layout.set_text ("", 0);
+            _pango_layout.set_height ((int) _pango_text_h);
+            _pango_layout.set_width  ((int) _pango_text_w);
+            _pango_layout.set_text (disp_name, -1);
+
+            Pango.Rectangle logical_rect;
+            _pango_layout.get_pixel_extents (null, out logical_rect);
+            _pango_layout.set_text ("", 0);
+
+            // Set Icon/Text size...
+            item.icon_rect.width =  (int) global_config.big_icon_size;
+            item.icon_rect.height = (int) global_config.big_icon_size;
+            item.text_rect.width =  logical_rect.width + 4;
+            item.text_rect.height = logical_rect.height + 4;
+
+            // Origin on the grid...
+            item.origin_x = (item.index_horizontal  * _cell_width);
+            item.origin_y = (item.index_vertical    * _cell_height);
+            
+            // Icon position...
+            item.icon_rect.x = item.origin_x    + (_cell_width - item.icon_rect.width) / 2;
+            item.icon_rect.y = item.origin_y;
+            
+            // Text position...
+            item.text_rect.x = item.origin_x    + (_cell_width - logical_rect.width - 4) / 2;
+            item.text_rect.y = item.icon_rect.y + item.icon_rect.height + logical_rect.y;
+            
+            /*** is it needed to cache this ?
+            int text_x = (int) item.origin_x + (_cell_width - (int) _text_w) / 2 + 2;
+            int text_y = (int) item.icon_rect.y + item.icon_rect.height + 2; ***/
+            
+            
+            /*********************************************************
+             * The way PCManFm does it, it's a bit different :-D
+             * 
+             * 
+            item.icon_rect.width =  gdk_pixbuf_get_width (item.icon);
+            item.icon_rect.height = gdk_pixbuf_get_height (item.icon);
+            item.icon_rect.x =      item.x + (_cell_width - item.icon_rect.width) / 2;
+            item.icon_rect.y =      item.y + PADDING + (global_config.big_icon_size - item.icon_rect.height) / 2;
+            item.icon_rect.height   += SPACING;
+            */
+        }
+        
+        
+        /***********************************************************************
          * Drawing...
          *
          * 
-         **************************************************************************************************************/
-        public void draw_items_in_rect (Cairo.Context cr, Gdk.Rectangle expose_area) {
-            
-            foreach (Desktop.Item item in _grid_items) {
-                
-                //stdout.printf ("expose event => grid.draw_items () x = %i, y = %i, w = %i, h = %i\n",
-                //               item.text_rect.x,
-                //               item.text_rect.y,
-                //               item.text_rect.width,
-                //               item.text_rect.height);
-            
-                Gdk.Rectangle? intersect = null;
-                
-                Gdk.Rectangle tmp;
-                if (expose_area.intersect (item.icon_rect, out tmp) == true)
-                    intersect = tmp;
-                else
-                    intersect = null;
-
-                Gdk.Rectangle tmp2;
-                if (expose_area.intersect (item.text_rect, out tmp2) == true) {
-                    if (intersect != null)
-                        intersect.union (tmp2, out intersect);
-                    else
-                        intersect = tmp2;
-                }
-
-                if (intersect != null)
-                    this._draw_item (item, cr, intersect);
-            }
-        }
-        
+         **********************************************************************/
         private void _draw_item (Desktop.Item item, Cairo.Context cr, Gdk.Rectangle expose_area) {
             
             /*** stdout.printf ("item.draw: %i, %i, %i, %i\n",
@@ -242,7 +268,7 @@ namespace Desktop {
                 state = Gtk.CellRendererState.SELECTED;
             
             
-            /***********************************************************************************************************
+            /*******************************************************************
              * Draw the icon...
              * 
              * Fm.CellRendererPixbuf needs to be ported to GTK3, it's reeded to draw the small arrow for symlinks...
@@ -255,7 +281,7 @@ namespace Desktop {
                              this.icon_rect,
                              expose_area,
                              state);
-             **********************************************************************************************************/
+             ******************************************************************/
             this._icon_renderer.set ("pixbuf", item.icon);
             this._icon_renderer.render (_window,
                                         _desktop,
@@ -331,19 +357,82 @@ namespace Desktop {
             }
         }
         
+        public void draw_items_in_rect (Cairo.Context cr, Gdk.Rectangle expose_area) {
+            
+            foreach (Desktop.Item item in _grid_items) {
+                
+                //stdout.printf ("expose event => grid.draw_items () x = %i, y = %i, w = %i, h = %i\n",
+                //               item.text_rect.x,
+                //               item.text_rect.y,
+                //               item.text_rect.width,
+                //               item.text_rect.height);
+            
+                Gdk.Rectangle? intersect = null;
+                
+                Gdk.Rectangle tmp;
+                if (expose_area.intersect (item.icon_rect, out tmp) == true)
+                    intersect = tmp;
+                else
+                    intersect = null;
+
+                Gdk.Rectangle tmp2;
+                if (expose_area.intersect (item.text_rect, out tmp2) == true) {
+                    if (intersect != null)
+                        intersect.union (tmp2, out intersect);
+                    else
+                        intersect = tmp2;
+                }
+
+                if (intersect != null)
+                    this._draw_item (item, cr, intersect);
+            }
+        }
         
         public void move_items (int x, int y, int drag_x, int drag_y) {
             
-            // desktop items are being dragged
+            /*** Moving Desktop Items
             int offset_x = x - drag_x;
             int offset_y = y - drag_y;
 
             foreach (Desktop.Item item in _grid_items) {
-//                this.move_item (item2, item2.x + offset_x, item2.y + offset_y, false);
-            }
+                if (item.is_selected)
+                    item.move (_window, item.x + offset_x, item.y + offset_y, false);
+            }***/
         }
 
+        public void queue_layout_items () {
+            
+            if (_idle_layout == 0)
+                _idle_layout = GLib.Idle.add ((SourceFunc) this._on_idle_layout);
+        }
+
+        private bool _on_idle_layout () {
+            
+            this._idle_layout = 0;
+            this._layout_items ();
+            return false;
+        }
+
+        private void _layout_items () {
+            
+            //stdout.printf ("_layout_items\n");
+            
+            // the original function is different... see Grid.append_item ()
+            
+            //this.queue_draw ();
+        }
+
+
+        /* *****************************************************************************************
+         * 
+         * 
+         * 
+         ******************************************************************************************/
         public void insert_item (Desktop.Item item) {
+            
+            this._append_item (item);
+            
+            return;
             
             if (item.index_horizontal == -1 || item.index_vertical == -1 || _grid_items.length () == 0) {
                 this._append_item (item);
@@ -353,7 +442,6 @@ namespace Desktop {
             this._calc_item_size (item);
             _grid_items.append (item);
             
-            //this._append_item (item);
         }    
         
         private void _append_item (Desktop.Item item) {
@@ -404,107 +492,27 @@ namespace Desktop {
             return;
         }
         
-        private void _calc_item_size (Desktop.Item item) {
-
-            string disp_name = item.get_disp_name ();
-            // get text size...
-            _pango_layout.set_text ("", 0);
-            _pango_layout.set_height ((int) _pango_text_h);
-            _pango_layout.set_width ((int) _pango_text_w);
-            _pango_layout.set_text (disp_name, -1);
-
-            Pango.Rectangle logical_rect;
-            _pango_layout.get_pixel_extents (null, out logical_rect);
-            _pango_layout.set_text ("", 0);
-
-            // set icon / text size...
-            item.icon_rect.width =  (int) global_config.big_icon_size;
-            item.icon_rect.height = (int) global_config.big_icon_size;
-            item.text_rect.width =  logical_rect.width + 4;
-            item.text_rect.height = logical_rect.height + 4;
-
-            // origin on the grid...
-            item.origin_x = (item.index_horizontal * _cell_width);
-            item.origin_y = (item.index_vertical * _cell_height);
-            
-            // icon / text position...
-            item.icon_rect.x = item.origin_x + (_cell_width - item.icon_rect.width) / 2;
-            item.icon_rect.y = item.origin_y;
-            
-            // FIXME seems incorrect....
-            item.text_rect.x = item.origin_x + (_cell_width - logical_rect.width - 4) / 2;
-            item.text_rect.y = item.icon_rect.y + item.icon_rect.height + logical_rect.y;
-            // FIXME: do we need to cache this?
-            //int text_x = (int) item.origin_x + (_cell_width - (int) _text_w) / 2 + 2;
-            //int text_y = (int) item.icon_rect.y + item.icon_rect.height + 2;
-            
-            
-            /***********************************************************************************************************
-             * The way PCManFm does it, it's a bit different :-D
-             * 
-             * 
-            item.icon_rect.width =  gdk_pixbuf_get_width (item.icon);
-            item.icon_rect.height = gdk_pixbuf_get_height (item.icon);
-            item.icon_rect.x =      item.x + (_cell_width - item.icon_rect.width) / 2;
-            item.icon_rect.y =      item.y + PADDING + (global_config.big_icon_size - item.icon_rect.height) / 2;
-            item.icon_rect.height   += SPACING;
-            
-            */
-
-        }
-
-        public void queue_layout_items () {
-            
-            if (_idle_layout == 0)
-                _idle_layout = GLib.Idle.add ((SourceFunc) this._on_idle_layout);
-        }
-
-        private bool _on_idle_layout () {
-            
-            this._idle_layout = 0;
-            this._layout_items ();
-            return false;
-        }
-
-        private void _layout_items () {
-            
-            //stdout.printf ("_layout_items\n");
-            
-            // the original function is different... see Grid.append_item ()
-            
-            //this.queue_draw ();
-        }
-
-
-        /***************************************************************************************************************
-         * Items selection.
+        
+        /*******************************************************************************************
+         * *** Items Selection ***
          * 
          * 
-         **************************************************************************************************************/
-        static inline bool point_in_rect (double x, double y, Gdk.Rectangle rect) {
-            
-            return ((x > rect.x) &&  (x < (rect.x + rect.width)) && (y > rect.y) && (y < (rect.y + rect.height)));
-        }
-
+         * 
+         * 
+         ******************************************************************************************/
         public Desktop.Item? hit_test (double x, double y) {
             
             foreach (Desktop.Item item in _grid_items) {
                 
-                if (Grid.point_in_rect (x, y, item.icon_rect)
-                    || Grid.point_in_rect (x, y, item.text_rect))
+                if (Utils.point_in_rect (x, y, item.icon_rect)
+                    || Utils.point_in_rect (x, y, item.text_rect))
                     return item;
             }
             
             return null;
         }
 
-
-        /***************************************************************************************************************
-         * Select items when moving the rubber banding...
-         * 
-         * 
-         **************************************************************************************************************/
-        public void update_selection (Gdk.Rectangle rect) {
+        public void select_items_in_rect (Gdk.Rectangle rect) {
             
             foreach (Desktop.Item item in _grid_items) {
                 
@@ -517,18 +525,19 @@ namespace Desktop {
 
                 if (item.is_selected != selected) {
                     item.is_selected = selected;
-                    item.redraw (_window);
+                    item.invalidate_rect (_window);
                 }
             }
         }
         
         public void set_selected_item (Desktop.Item? item) {
             
-            if (this._selected_item != null)
-                _selected_item.redraw (_window);
-            
+            if (this._selected_item == null)
+                return;
+                
+            _selected_item.invalidate_rect (_window);
             this._selected_item = item;
-            
+            return;
         }
 
         public void deselect_all () {
@@ -536,7 +545,7 @@ namespace Desktop {
             foreach (Desktop.Item item in _grid_items) {
                 if (item.is_selected == true) {
                     item.is_selected = false;
-                    item.redraw (_window);
+                    item.invalidate_rect (_window);
                 }
             }
         }
@@ -555,8 +564,6 @@ namespace Desktop {
                 }
             }
             
-            //stdout.printf ("%i files added\n", num_files);
-            
             if (files.is_empty())
                 return null;
             
@@ -564,12 +571,12 @@ namespace Desktop {
         }
         
         
-        /***************************************************************************************************************
-         * Folder Model functions. When files/folders on the desktop have been changed, created, deleted, etc...
-         * The model sends a signal and these functions are called. 
+        /*******************************************************************************************
+         * Folder Model functions. When files/folders on the desktop have been changed, created,
+         * deleted, etc... The model sends a signal and these functions are called. 
          * 
          * 
-         * ************************************************************************************************************/
+         ******************************************************************************************/
         public void on_row_inserted (Gtk.TreePath path, Gtk.TreeIter it) {
             
             Gdk.Pixbuf icon;
@@ -583,7 +590,7 @@ namespace Desktop {
             /** Original code in PCManFm calls queue_layout_items (), a redraw also works...
              * this.queue_layout_items (); */
             
-            item.redraw (_window);
+            item.invalidate_rect (_window);
             
         }
 
@@ -604,13 +611,9 @@ namespace Desktop {
                 
                 count++;
                 
-                //stdout.printf ("%i path = %s\n", count, path.get_basename ());
-                
                 File file = path.to_gfile ();
                 if (file != null && !file.query_exists ()) {
                     
-                    //stdout.printf ("%s REMOVED !!!!!!!!\n", path.get_basename ());
-
                     if (item == _selected_item) {
                         
                         if (list.next != null) {
@@ -628,6 +631,7 @@ namespace Desktop {
                     }
                     
                     Desktop.Item? _drop_hilight = null; // temporary fake item...
+                    Desktop.Item? _hover_item = null;   // temporary fake item...
             
                     if (item == _drop_hilight)
                         _drop_hilight = null;
@@ -635,10 +639,7 @@ namespace Desktop {
                     if (item == _hover_item)
                         _hover_item = null;
                     
-                    //stdout.printf ("REMOVE %s NOW !!!!!!!!\n", item.get_disp_name ());
-                    
-                    item.redraw (_window);
-                    
+                    item.invalidate_rect (_window);
                     _grid_items.delete_link (list);
                     
                     //queue_layout_items (desktop);
@@ -647,7 +648,13 @@ namespace Desktop {
             
             return;    
         }
-
+        
+        
+        /*******************************************************************************************
+         * Load/Save the position of Items.
+         * 
+         * 
+         * ****************************************************************************************/
         public bool get_saved_position (Desktop.Item item) {
             
             KeyFile kf = new KeyFile();
@@ -676,8 +683,6 @@ namespace Desktop {
         }  
         
         public bool save_item_pos () {
-            
-            //stdout.printf ("save in %s\n", config_file);
             
             string config = "";
             

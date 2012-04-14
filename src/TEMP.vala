@@ -90,7 +90,7 @@
                 case GDK_space:
                     if ((modifier & GDK_CONTROL_MASK) && desktop->focus) {
                         desktop->focus->is_selected = !desktop->focus->is_selected;
-                        desktop->focus.redraw ();
+                        desktop->focus.invalidate_rect ();
                     }
                     else
                         activate_selected_items(desktop);
@@ -181,7 +181,7 @@
             if (this._focused == false && this.items != null)
                 this._focused = this.items.data as Desktop.Item;
             if (this._focused)
-                focus.redraw ();
+                focus.invalidate_rect ();
             */
             return false;
         }
@@ -191,7 +191,7 @@
             /*
             if (this._focused) {
                 this.UNSET_FLAGS (GTK_HAS_FOCUS);
-                focus.redraw ();
+                focus.invalidate_rect ();
             }
             */
             return false;
@@ -401,7 +401,7 @@ public void on_row_changed (Gtk.TreePath tp, Gtk.TreeIter it) {
             
             global_model.get (it, Fm.FileColumn.ICON, out item.icon, Fm.FileColumn.INFO, out fi, -1);
                     
-            item.redraw (_window);
+            item.invalidate_rect (_window);
             
             // FIXME: check if sorting of files is changed.
             // queue_layout_items(desktop); // needed ???
@@ -581,7 +581,7 @@ private void _select_all () {
     
     /**foreach (Desktop.Item item in _grid_items) {
         item.is_selected = true;
-        item.redraw (_window);
+        item.invalidate_rect (_window);
     }*/
 }
 
@@ -613,13 +613,17 @@ private void _set_focused_item (Desktop.Item item) {
     
     // invalidate old focused item if any
     if (_selected_item != null)
-        _selected_item.redraw (_window);
+        _selected_item.invalidate_rect (_window);
     
     // invalidate new focused item
     _selected_item = item;
     if (_selected_item != null)
-        _selected_item.redraw (_window);*/
+        _selected_item.invalidate_rect (_window);*/
 }
+
+
+// List fixed_items; // how to manage fixed position items ???
+
 
 private bool is_pos_occupied () {
     

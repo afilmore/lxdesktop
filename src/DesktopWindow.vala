@@ -390,7 +390,6 @@ namespace Desktop {
             
             Desktop.Item? clicked_item = _grid.hit_test (evt.x, evt.y);
             
-            
             /**********************************************************************
              * Left double click on a selected item, launch the selected file...
              * 
@@ -400,10 +399,6 @@ namespace Desktop {
                 && evt.button == 1
                 && clicked_item != null) {
                 
-                // action open........
-                if (clicked_item.is_special)
-                    return true; // TODO: open/browse special items...
-                
                 Fm.FileInfo? fi = clicked_item.get_fileinfo ();
                 
                 if (fi.is_dir ()
@@ -412,7 +407,7 @@ namespace Desktop {
                     this.action_open_folder (fi);
                 
                 } else if (fi.is_unknown_type ()) {
-                
+                    stdout.printf ("Special item !!!\n");
                 } else {
                     
                     this.action_open_file (fi);
@@ -423,7 +418,6 @@ namespace Desktop {
                 
                 return true;
                 
-            
             /*********************************************************
              * Single click...
              * 
@@ -455,10 +449,9 @@ namespace Desktop {
                     else
                         clicked_item.is_selected = true;
 
+                    /*** maybe the redraw can be included in set_selected_item ()... ***/
                     _grid.set_selected_item (clicked_item);
-                    
-                    
-                    clicked_item.redraw (this.get_window ());
+                    clicked_item.invalidate_rect (this.get_window ());
 
                     if (evt.button == 3)
                         this._create_popup_menu (evt);
@@ -726,7 +719,7 @@ namespace Desktop {
             this._rubber_bending_y = newy;
 
             // update selection
-            this._grid.update_selection (new_rect);
+            this._grid.select_items_in_rect (new_rect);
             
             return;
         }
@@ -823,10 +816,10 @@ namespace Desktop {
                 _drop_hilight = item;
                 
                 if (old_drop != null)
-                    old_drop.redraw (this.get_window ());
+                    old_drop.invalidate_rect (this.get_window ());
                 
                 if (item != null)
-                    item.redraw (this.get_window ());
+                    item.invalidate_rect (this.get_window ());
             }
 
             return ret;
@@ -844,7 +837,7 @@ namespace Desktop {
                 
                 _drop_hilight = null;
                 
-                old_drop.redraw (this.get_window ());
+                old_drop.invalidate_rect (this.get_window ());
             }
 
             return; // void function in Vala...
@@ -1085,7 +1078,7 @@ namespace Desktop {
         
         private void _create_popup_menu (Gdk.EventButton evt) {
             
-            /*
+            /** how to manage these fixed items ???
             bool all_fixed = true;
             bool has_fixed = false;
              
@@ -1120,23 +1113,23 @@ namespace Desktop {
             
             Fm.FileInfo? fi = files.peek_head ();
             
-            // merge some specific menu items for folders
-            /*if (_file_menu.is_single_file_type () && fi.is_dir ()) {
+            /** merge some specific menu items for folders
+            if (_file_menu.is_single_file_type () && fi.is_dir ()) {
                 act_grp.add_actions (folder_menu_actions, _file_menu);
                 ui.add_ui_from_string (folder_menu_xml, -1);
-            }*/
+            }
             
             // snap to grid...
-            // act_grp.add_actions (desktop_icon_actions, this);
+            act_grp.add_actions (desktop_icon_actions, this);
             
             // stick to current position...
-            // desktop_icon_toggle_actions[0].is_active = all_fixed;
-            // act_grp.add_toggle_actions (desktop_icon_toggle_actions, this);
+            desktop_icon_toggle_actions[0].is_active = all_fixed;
+            act_grp.add_toggle_actions (desktop_icon_toggle_actions, this);
             
-            //Gtk.Action act;
+            Gtk.Action act;
             
             // snap to grid
-            /*if (has_fixed == false) {
+            if (has_fixed == false) {
                 act = act_grp.get_action ("Snap");
                 act.set_sensitive (false);
             }*/
@@ -1162,13 +1155,14 @@ namespace Desktop {
             if (fi == null)
                 return false;
                 
-            //~ fi.is_desktop_entry ()
-            //~ fi.is_shortcut ()
-            //~ fi.is_executable_type ();
-            //~ fi.is_hidden ();
-            //~ fi.is_image ();
-            //~ fi.is_text ();
-            //|| fi.is_symlink ()
+            /*** how to handle different file types ???
+            fi.is_desktop_entry ()
+            fi.is_shortcut ()
+            fi.is_executable_type ();
+            fi.is_hidden ();
+            fi.is_image ();
+            fi.is_text ();
+            fi.is_symlink () ***/
             
             Fm.launch_file_simple (this, null, fi, null);
             
@@ -1268,21 +1262,17 @@ namespace Desktop {
                 
                 stdout.printf ("Fm.copy_file %s %s\n", template.to_str (), dest_file.to_str ());
                 
-                //Fm.copy_file (this, template, base_dir);
-                
                 File file = template.to_gfile ();
                 file.copy (dest_file.to_gfile (), FileCopyFlags.NONE);
                 
+                /*** Optionaly it could be possible to open the newly created file...
                 string cmdline = "xdg-open \"%s\"".printf (dest_file.to_str ());
                 
                 try {
                     Process.spawn_command_line_async (cmdline);
                 } catch (Error e) {
                     stdout.printf ("action_open_folder cannot open %s\n", cmdline);
-                }
-                
-                // we don't have a file info :(
-                //Fm.launch_file_simple (this, null, fi, null);
+                } ***/
                 
                 return;
             
@@ -1358,7 +1348,7 @@ namespace Desktop {
                 {
                     FmDesktopItem* item = (FmDesktopItem*)l->data;
                     item->is_selected = !item->is_selected;
-                    redraw_item(desktop, item);
+                    invalidate_rect(desktop, item);
                 }
             }*/
         }

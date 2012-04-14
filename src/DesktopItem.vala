@@ -19,7 +19,6 @@ namespace Desktop {
         
         public Gdk.Pixbuf       icon;
         private Fm.FileInfo     _fileinfo;
-        private string          _disp_name;
         
         // Position of the item on the desktop and it's index on the grid
         public int origin_x = 0;
@@ -32,19 +31,19 @@ namespace Desktop {
         
         public bool is_selected = false;
         
-        // A special item, "My Computer", "Trash", mounted volumes, etc...
-        public bool is_special = false;
+        /*** TODO: Manage Special Items like "My Computer", "Trash Can", mounted volumes, etc... ***/
         
-        // bool is_mount : 1;
-        // bool is_prelight : 1;
-        // bool fixed_pos : 1;
+        /***
+        bool is_mount : 1;
+        bool is_prelight : 1;
+        bool fixed_pos : 1; ***/
         
         
-        /***************************************************************************************************************
-         * Public Members...
+        /******************************************************************************************
+         * 
          *
          * 
-         **************************************************************************************************************/
+         *****************************************************************************************/
         public Item (Gdk.Pixbuf pix_icon, Fm.FileInfo? fileinfo = null) {
             
             icon = pix_icon;
@@ -54,19 +53,14 @@ namespace Desktop {
             icon_rect.y = 0;
             icon_rect.width = 36;
             icon_rect.height = 36;
-            
-            if (fileinfo == null) {
-                is_special = true;
-                _disp_name = "Special";
-            }
         }
     
         public string get_disp_name () {
-            if (_fileinfo != null)
-                //return _fileinfo.get_disp_name ();
-                return _fileinfo.get_path ().display_basename ();
-            else
-                return _disp_name;
+            
+            return_val_if_fail (_fileinfo != null, "INVALID ITEM");
+            
+            return _fileinfo.get_path ().display_basename ();
+            
         }
         
         public Fm.FileInfo? get_fileinfo () {
@@ -77,12 +71,32 @@ namespace Desktop {
             icon_rect.union (text_rect, out rect);
             return;
         }
+        
+        
+        /******************************************************************************************
+         * 
+         *
+         * 
+         *****************************************************************************************/
+        public void invalidate_rect (Gdk.Window window) {
+            
+            Gdk.Rectangle rect;
+            this.get_rect (out rect);
+            
+            // expend the area of one pixel ? why ?:-P
+            --rect.x;
+            --rect.y;
+            rect.width += 2;
+            rect.height += 2;
+            
+            window.invalidate_rect (rect, false);
+        }
 
         public void move_item (Gdk.Window window, int new_x, int new_y, bool redraw = false) {
             
             // invalidate current icon area to queue a redraw.
             if (redraw == true)
-                this.redraw (window);
+                this.invalidate_rect (window);
             
             // calculate the offset.
             int offset_x = new_x - origin_x;
@@ -98,35 +112,21 @@ namespace Desktop {
             this.text_rect.x += offset_x;
             this.text_rect.y += offset_y;
             
-            /* Custom positioned items, I think I'll do this a different way...
+            /*** Custom positioned items, I think I'll do this a different way...
             if (item.fixed_pos == false) {
                 item.fixed_pos = true;
                 this.fixed_items = fixed_items.prepend (item);
-            }*/
+            }***/
             
             // invalidate the new position to queue a redraw.
             if (redraw)
-                this.redraw (window);
+                this.invalidate_rect (window);
             
-            /* commented in PCManFm... check if the item is overlapped with another item
+            /*** commented in PCManFm... check if the item is overlapped with another item
             List l;
             for (l = this.items; l; l=l.next) {
                 Desktop.Item item2 = l.data as Desktop.Item;
-            }*/
-        }
-
-        public void redraw (Gdk.Window window) {
-            
-            Gdk.Rectangle rect;
-            this.get_rect (out rect);
-            
-            // expend the area of one pixel (why ?:-P)
-            --rect.x;
-            --rect.y;
-            rect.width += 2;
-            rect.height += 2;
-            
-            window.invalidate_rect (rect, false);
+            }***/
         }
     }
 }
