@@ -126,6 +126,25 @@ namespace Fm {
         public inline bool is_virtual ();
 	}
 
+	[CCode (cheader_filename = "libfm.h")]
+	[Compact]
+	public class PathList {
+		[CCode (has_construct_function = false)]
+		public PathList ();
+		[CCode (has_construct_function = false)]
+		public PathList.from_file_info_glist (GLib.List fis);
+		[CCode (has_construct_function = false)]
+		public PathList.from_file_info_gslist (GLib.SList fis);
+		[CCode (has_construct_function = false)]
+		public PathList.from_file_info_list (Fm.List fis);
+		[CCode (has_construct_function = false)]
+		public PathList.from_uri_list (string uri_list);
+		[CCode (has_construct_function = false)]
+		public PathList.from_uris (out unowned string uris);
+		public unowned string to_uri_list ();
+		public void write_uri_list (GLib.StringBuilder buf);
+	}
+
 	[CCode (cheader_filename =  "fm-icon.h",
             ref_function =      "fm_icon_ref",
             unref_function =    "fm_icon_unref")]
@@ -528,6 +547,14 @@ namespace Fm {
         [CCode (cheader_filename = "fm-clipboard.h", cprefix = "fm_clipboard_")]
         public bool paste_files (Gtk.Widget dest_widget, Fm.Path dest_dir);
     }
+
+	[CCode (cheader_filename = "fm-gtk-utils.h")]
+	public static void copy_files (Gtk.Window parent, Fm.PathList files, Fm.Path dest_dir);
+
+	[CCode (cheader_filename = "fm-gtk-utils.h")]
+	public inline void copy_file (Gtk.Window parent, Fm.Path files, Fm.Path dest_dir);
+
+
 }
 
 

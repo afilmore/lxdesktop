@@ -17,7 +17,7 @@ namespace Desktop {
     
     const int SPACING = 2;
     const int PADDING = 6;
-    // const int MARGIN = 2;
+    /*** const int MARGIN = 2; ***/
 
     
     /*******************************************************************************************************************
@@ -35,7 +35,8 @@ namespace Desktop {
         uint _idle_layout = 0;
         
         // The list of Desktop items
-        private List<Desktop.Item> _grid_items;
+        private List<Desktop.Item>  _grid_items;
+        private string              _items_config_file;
         
         // Desktop working area, this working area doesn't include docked panels
         private Gdk.Rectangle _working_area;
@@ -48,7 +49,7 @@ namespace Desktop {
         
         // List fixed_items;
         private Desktop.Item? _selected_item = null;
-        //private Desktop.Item? _drop_hilight = null;
+        /*** private Desktop.Item? _drop_hilight = null; ***/
         private Desktop.Item? _hover_item = null;
 
         // Icon Pixbuf renderer, replace with a Fm.CellRendererPixbuf later
@@ -65,9 +66,10 @@ namespace Desktop {
         uint _pango_text_w = 0;
         
         
-        public Grid (Gtk.Window desktop, bool debug = false) {
+        public Grid (Gtk.Window desktop, string config_file, bool debug = false) {
             
             _desktop = desktop;
+            _items_config_file = config_file;
             _debug_mode = debug;
             
             _grid_items = new List<Desktop.Item> ();
@@ -79,8 +81,8 @@ namespace Desktop {
             _pango_layout.set_wrap (Pango.WrapMode.WORD_CHAR);
             
             
-            /***********************************************************************************************************
-             * Create the Pixbuf renderer, start with a GtkPixbufRenderer and switch to a FmPixbufRenderer later.
+            /*******************************************************************
+             * Switch to a FmPixbufRenderer later.
              * 
              * 
             _icon_renderer = new Fm.CellRendererPixbuf ();
@@ -102,12 +104,11 @@ namespace Desktop {
         }
         
         
-        /***************************************************************************************************************
-         * This function is called from the realize handler,
-         * from the desktop's GtkWindow.
+        /***********************************************************************
+         * This function is called from the Desktop Widget's Realize handler.
          * 
          * 
-         * ************************************************************************************************************/
+         * ********************************************************************/
         public void init_gc (Gdk.Window window) {
             
             _window = window;
@@ -117,12 +118,12 @@ namespace Desktop {
         }
         
         
-        /***************************************************************************************************************
-         * Initialize the grid..., this function is called from the size_allocate handler,
-         * from the desktop's GtkWindow.
+        /***********************************************************************
+         * Initialize the grid..., this function is called from the
+         * size_allocate handler, from the desktop's GtkWindow.
          * 
          * 
-         * ************************************************************************************************************/
+         * ********************************************************************/
         public void init_layout (Gdk.Rectangle rect) {
             
             _window = _desktop.get_window ();
@@ -146,13 +147,15 @@ namespace Desktop {
             }
             
             
-            /***********************************************************************************************************
+            /*****************************************************************************
              * From Gtk+ docs :
-             * The Pango.SCALE constant represents the scale between dimensions used for Pango distances and device
-             * units. (The definition of device units is dependent on the output device; it will typically be pixels
-             * for a screen, and points for a printer.) Pango.SCALE is currently 1024, but this may be changed in the
-             * future. When setting font sizes, device units are always considered to be points
-             * (as in "12 point font"), rather than pixels.
+             * 
+             * The Pango.SCALE constant represents the scale between dimensions used for
+             * Pango distances and device units. (The definition of device units is
+             * dependent on the output device; it will typically be pixels for a screen,
+             * and points for a printer.) Pango.SCALE is currently 1024, but this may be
+             * changed in the future. When setting font sizes, device units are always
+             * considered to be points (as in "12 point font"), rather than pixels.
              */
             Pango.Context pango_context = _desktop.get_pango_context ();
             Pango.FontMetrics metrics = pango_context.get_metrics (null, null);
@@ -190,7 +193,7 @@ namespace Desktop {
          *
          * 
          **************************************************************************************************************/
-        public void draw_items (Cairo.Context cr, Gdk.Rectangle expose_area) {
+        public void draw_items_in_rect (Cairo.Context cr, Gdk.Rectangle expose_area) {
             
             foreach (Desktop.Item item in _grid_items) {
                 
@@ -223,11 +226,11 @@ namespace Desktop {
         
         private void _draw_item (Desktop.Item item, Cairo.Context cr, Gdk.Rectangle expose_area) {
             
-            /* stdout.printf ("item.draw: %i, %i, %i, %i\n",
-                              expose_area.x,
-                              expose_area.y,
-                              expose_area.width,
-                              expose_area.height);*/
+            /*** stdout.printf ("item.draw: %i, %i, %i, %i\n",
+                                expose_area.x,
+                                expose_area.y,
+                                expose_area.width,
+                                expose_area.height); ***/
             
             // GTK3_MIGRATION
             Gtk.CellRendererState state = 0;
@@ -645,7 +648,34 @@ namespace Desktop {
             return;    
         }
 
-        public bool save_item_pos (string config_file) {
+        public bool get_saved_position (Desktop.Item item) {
+            
+            KeyFile kf = new KeyFile();
+            try {
+                kf.load_from_file (_items_config_file, KeyFileFlags.NONE);
+                string group = item.get_fileinfo ().get_path ().get_basename ();
+                if (kf.has_group (group) == false)
+                    return false;
+                
+                int idx_x = -1;
+                int idx_y = -1;
+            
+                idx_x = kf.get_integer (group, "index_x");
+                idx_y = kf.get_integer (group, "index_y");
+                
+                item.index_horizontal = idx_x;
+                item.index_vertical = idx_y;
+            
+            } catch (Error e) {
+                item.index_horizontal = -1;
+                item.index_vertical = -1;
+                return false;
+            }
+            
+            return true;
+        }  
+        
+        public bool save_item_pos () {
             
             //stdout.printf ("save in %s\n", config_file);
             
@@ -653,7 +683,7 @@ namespace Desktop {
             
             try {
                 
-                File file = File.new_for_path (config_file);
+                File file = File.new_for_path (_items_config_file);
                 
                 // for some reasons we need to delete the file if it exists...
                 if (file.query_exists ())

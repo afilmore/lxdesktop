@@ -45,6 +45,7 @@ lxdesktop_SOURCES = \
 	DesktopWindow.vala \
 	DesktopGrid.vala \
 	DesktopItem.vala \
+	Utils.vala \
 	TEMP.vala \
 	misc.c \
 	$(exo_SOURCES) \

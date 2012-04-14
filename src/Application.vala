@@ -160,7 +160,7 @@ namespace Desktop {
                 
                 fi = new Fm.FileInfo.computer ();
                 item = new Desktop.Item (pixbuf, fi);
-                desktop.get_saved_position (item);
+                desktop.get_grid ().get_saved_position (item);
                 desktop.get_grid ().insert_item (item);
                 
                 /*********************************************************************
@@ -201,7 +201,7 @@ namespace Desktop {
                 fi = new Fm.FileInfo.user_special_dir (UserDirectory.DOCUMENTS);
                 if (fi != null) {
                     item = new Desktop.Item (pixbuf, fi);
-                    desktop.get_saved_position (item);
+                    desktop.get_grid ().get_saved_position (item);
                     desktop.get_grid ().insert_item (item);
                 }
                 
@@ -217,7 +217,7 @@ namespace Desktop {
                 fi = new Fm.FileInfo.user_special_dir (UserDirectory.MUSIC);
                 if (fi != null) {
                     item = new Desktop.Item (pixbuf, fi);
-                    desktop.get_saved_position (item);
+                    desktop.get_grid ().get_saved_position (item);
                     desktop.get_grid ().insert_item (item);
                 }
                 
@@ -232,7 +232,7 @@ namespace Desktop {
                                                
                 fi = new Fm.FileInfo.trash_can ();
                 item = new Desktop.Item (pixbuf, fi);
-                desktop.get_saved_position (item);
+                desktop.get_grid ().get_saved_position (item);
                 desktop.get_grid ().insert_item (item);
                 
                 Gtk.TreeIter    it;
@@ -246,7 +246,7 @@ namespace Desktop {
                     global_model.get (it, Fm.FileColumn.ICON, out icon, Fm.FileColumn.INFO, out fi, -1);
                     
                     item = new Desktop.Item (icon, fi);
-                    desktop.get_saved_position (item);
+                    desktop.get_grid ().get_saved_position (item);
                     desktop.get_grid ().insert_item (item);
                     
                 } while (global_model.iter_next (ref it) == true);

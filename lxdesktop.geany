@@ -18,22 +18,18 @@ long_line_behaviour=2
 long_line_column=120
 
 [files]
-current_page=8
-FILE_NAME_0=7904;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/Application.vala;0;4
-FILE_NAME_1=65920;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopWindow.vala;0;4
-FILE_NAME_2=688;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopGrid.vala;0;4
-FILE_NAME_3=3100;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/TEMP.vala;0;4
-FILE_NAME_4=1039;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopItem.vala;0;4
-FILE_NAME_5=704;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/misc.c;0;4
-FILE_NAME_6=0;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/vapi/libfmcore.vapi;0;4
-FILE_NAME_7=433;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopConfig.vala;0;4
-FILE_NAME_8=1119;Make;0;16;1;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/Makefile.am;0;4
-FILE_NAME_9=1866;Make;0;16;1;1;0;/home/hotnuma/Bureau/Projets/orig_libfm/src/Makefile.am;0;4
-FILE_NAME_10=0;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/gtk/fm-places-model.c;0;4
-FILE_NAME_11=1023;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/gtk/fm-places-model.h;0;4
+current_page=1
+FILE_NAME_0=2483;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/Application.vala;0;4
+FILE_NAME_1=4177;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopWindow.vala;0;4
+FILE_NAME_2=642;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/Utils.vala;0;4
+FILE_NAME_3=25348;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopGrid.vala;0;4
+FILE_NAME_4=15477;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/TEMP.vala;0;4
+FILE_NAME_5=1039;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/DesktopItem.vala;0;4
+FILE_NAME_6=5238;C;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/src/misc.c;0;4
+FILE_NAME_7=6922;Vala;0;16;0;1;0;/home/hotnuma/Bureau/Projets/lxdesktop/vapi/libfmcore.vapi;0;4
 
 [VTE]
-last_dir=/home/hotnuma/Bureau/Projets/lxdesktop
+last_dir=/home/hotnuma/Bureau/Projets/lxdesktop/src
 
 [build-menu]
 EX_00_LB=_Exécuter
