@@ -417,9 +417,24 @@ namespace Desktop {
 
         private void _layout_items () {
             
-            //stdout.printf ("_layout_items\n");
+            stdout.printf ("_layout_items\n");
             
-            // the original function is different... see Grid.append_item ()
+            foreach (Desktop.Item item in _grid_items) {
+                
+                // find invalid items.......
+                
+                if (item.cell_to_index (_num_cell.y) < 0) {
+                    stdout.printf ("%s INVALID ITEM !!!!\n", item.get_disp_name ());
+                    Gdk.Point pos;
+                    
+                    if (this.find_free_pos (out pos)) {
+                        item.cell_pos.x = pos.x;
+                        item.cell_pos.y = pos.y;
+                        this._calc_item_size (item);
+                    }
+                }
+            }
+
             
             //this.queue_draw ();
         }
@@ -446,9 +461,9 @@ namespace Desktop {
                 if (current_idx > count) {
                     // free pos found !!!!
                     
-                    Gdk.Point cell;
+                    //Gdk.Point cell;
                     
-                    Utils.index_to_cell (count, _num_cell.y, out cell);
+                    Utils.index_to_cell (count, _num_cell.y, out pos);
                     //stdout.printf ("index %d is free !!!!\n", count);
                     //stdout.printf ("(%d, %d) is free !!!!\n", cell.x, cell.y);
                     
@@ -457,6 +472,13 @@ namespace Desktop {
                     // ...
                     //count = current_idx;
                 
+                } else if (list.next == null && current_idx < (_num_cell.x * _num_cell.y)) {
+                
+                    //Gdk.Point cell;
+                    
+                    Utils.index_to_cell (current_idx + 1, _num_cell.y, out pos);
+                    
+                    return true;
                 }
 
             }
@@ -466,13 +488,14 @@ namespace Desktop {
         
         public void insert_item (Desktop.Item new_item) {
             
-            stdout.printf ("_______________________________________________________________\n");
-            stdout.printf ("%s at pos (%i, %i)\n", new_item.get_disp_name (), new_item.cell_pos.x, new_item.cell_pos.y);
+//~             stdout.printf ("_______________________________________________________________\n");
+//~             stdout.printf ("%s at pos (%i, %i)\n", new_item.get_disp_name (), new_item.cell_pos.x, new_item.cell_pos.y);
             
             if (new_item.cell_pos.x == -1
                 || new_item.cell_pos.y == -1) {
-                stdout.printf ("INVALID POSITION !!!!!\n");
-                return;
+                
+//~                 stdout.printf ("INVALID POSITION !!!!!\n");
+                
             
             } else if (_grid_items.length () != 0) {
                 
@@ -491,7 +514,7 @@ namespace Desktop {
                     if (current_idx == new_idx) {
                             
                         // there's already an item, need to find a free pos...
-                        stdout.printf ("already item %s at pos %i\n", current.get_disp_name (), current_idx);
+//~                         stdout.printf ("already item %s at pos %i\n", current.get_disp_name (), current_idx);
                         
                         Gdk.Point pos;
                         
@@ -505,7 +528,7 @@ namespace Desktop {
                     
                     } else if (current_idx > new_idx) {
                         
-                        stdout.printf ("insert before %s at pos %i\n", current.get_disp_name (), current_idx);
+//~                         stdout.printf ("insert before %s at pos %i\n", current.get_disp_name (), current_idx);
                         this._calc_item_size (new_item);
                         _grid_items.insert_before (list, new_item);
                         return;
@@ -698,7 +721,8 @@ namespace Desktop {
             KeyFile kf = new KeyFile();
             try {
                 kf.load_from_file (_items_config_file, KeyFileFlags.NONE);
-                string group = item.get_fileinfo ().get_path ().get_basename ();
+                string group = item.get_fileinfo ().get_path ().to_str ();
+                //string group = item.get_fileinfo ().get_path ().get_basename ();
                 if (kf.has_group (group) == false)
                     return false;
                 
@@ -740,7 +764,9 @@ namespace Desktop {
                 // we need to get the full path for personal folders...
                 
                 foreach (Desktop.Item item in _grid_items) {
-                    config += "[%s]\n".printf (item.get_fileinfo ().get_path ().get_basename ());
+                    config += "[%s]\n".printf (item.get_fileinfo ().get_path ().to_str ());
+                    //config += "[%s]\n".printf (item.get_fileinfo ().get_path ().get_basename ());
+                    //config += "path  = %s\n".printf (item.get_fileinfo ().get_path ().to_str ());
                     config += "index    = %d\n".printf (item.cell_to_index (_num_cell.y));
                     config += "cell_x   = %d\n".printf (item.cell_pos.x);
                     config += "cell_y   = %d\n".printf (item.cell_pos.y);

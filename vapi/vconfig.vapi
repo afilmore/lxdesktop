@@ -1,5 +1,5 @@
 [CCode (cprefix = "", lower_case_cprefix = "", cheader_filename = "config.h")]
-namespace Config {
+namespace VConfig {
 
     /* always defined to indicate that i18n is enabled */
     public const string ENABLE_NLS;
