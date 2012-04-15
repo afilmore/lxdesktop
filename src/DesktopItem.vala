@@ -21,10 +21,13 @@ namespace Desktop {
         private Fm.FileInfo     _fileinfo;
         
         // Position of the item on the desktop and it's index on the grid
-        public int origin_x = 0;
-        public int origin_y = 0;
-        public int index_vertical = -1;
-        public int index_horizontal = -1;
+//~         public int origin_x = 0;
+//~         public int origin_y = 0;
+//~         public int index_vertical = -1;
+//~         public int index_horizontal = -1;
+        
+        public Gdk.Point pixel_pos;
+        public Gdk.Point cell_pos;
         
         public Gdk.Rectangle icon_rect;
         public Gdk.Rectangle text_rect;
@@ -49,6 +52,8 @@ namespace Desktop {
             icon = pix_icon;
             _fileinfo = fileinfo;
             
+            cell_pos.x = -1;
+            cell_pos.y = -1;
             icon_rect.x = 0;
             icon_rect.y = 0;
             icon_rect.width = 36;
@@ -72,6 +77,12 @@ namespace Desktop {
             return;
         }
         
+        public int cell_to_index (int num_cell_y) {
+            
+            int idx = (num_cell_y * cell_pos.x) + cell_pos.y;
+            return (idx > -1 ? idx : -1);
+        }
+
         
         /******************************************************************************************
          * 
@@ -99,12 +110,12 @@ namespace Desktop {
                 this.invalidate_rect (window);
             
             // calculate the offset.
-            int offset_x = new_x - origin_x;
-            int offset_y = new_y - origin_y;
+            int offset_x = new_x - pixel_pos.x;
+            int offset_y = new_y - pixel_pos.y;
             
             // new origin.
-            origin_x = new_x;
-            origin_x = new_y;
+            pixel_pos.x = new_x;
+            pixel_pos.x = new_y;
             
             // move the icon and the text to the new position.
             this.icon_rect.x += offset_x;

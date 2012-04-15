@@ -45,8 +45,10 @@ namespace Desktop {
         // Geometry of one cell in the grid, index of last cells
         private int     _cell_width = 50;
         private int     _cell_height = 50;
-        private uint    _index_last_v = 0;
-        private uint    _index_last_h = 0;
+        
+        private Gdk.Point _num_cell;
+//~         private uint    _index_last_v = 0;
+//~         private uint    _index_last_h = 0;
         
         private Desktop.Item?   _selected_item = null;
         /***
@@ -181,8 +183,8 @@ namespace Desktop {
             _cell_height = (int) global_config.big_icon_size + SPACING + (int) _text_h + PADDING * 2;
             _cell_width = int.max ((int) _text_w, (int) global_config.big_icon_size) + PADDING * 2;
             
-            _index_last_v = (_working_area.height / _cell_height) -1;
-            _index_last_h = (_working_area.width / _cell_width) -1;
+            _num_cell.x = (_working_area.width  / _cell_width);
+            _num_cell.y = (_working_area.height / _cell_height);
             
             this.queue_layout_items ();
             
@@ -216,19 +218,19 @@ namespace Desktop {
             item.text_rect.height = logical_rect.height + 4;
 
             // Origin on the grid...
-            item.origin_x = (item.index_horizontal  * _cell_width);
-            item.origin_y = (item.index_vertical    * _cell_height);
+            item.pixel_pos.x = (item.cell_pos.x  * _cell_width);
+            item.pixel_pos.y = (item.cell_pos.y  * _cell_height);
             
             // Icon position...
-            item.icon_rect.x = item.origin_x    + (_cell_width - item.icon_rect.width) / 2;
-            item.icon_rect.y = item.origin_y;
+            item.icon_rect.x = item.pixel_pos.x    + (_cell_width - item.icon_rect.width) / 2;
+            item.icon_rect.y = item.pixel_pos.y;
             
             // Text position...
-            item.text_rect.x = item.origin_x    + (_cell_width - logical_rect.width - 4) / 2;
+            item.text_rect.x = item.pixel_pos.x    + (_cell_width - logical_rect.width - 4) / 2;
             item.text_rect.y = item.icon_rect.y + item.icon_rect.height + logical_rect.y;
             
             /*** is it needed to cache this ?
-            int text_x = (int) item.origin_x + (_cell_width - (int) _text_w) / 2 + 2;
+            int text_x = (int) item.pixel_pos.x + (_cell_width - (int) _text_w) / 2 + 2;
             int text_y = (int) item.icon_rect.y + item.icon_rect.height + 2; ***/
             
             
@@ -298,7 +300,7 @@ namespace Desktop {
             _pango_layout.set_text (disp_name, -1);
 
             // FIXME: do we need to cache this?
-            int text_x = (int) item.origin_x + (_cell_width - (int) _text_w) / 2 + 2;
+            int text_x = (int) item.pixel_pos.x + (_cell_width - (int) _text_w) / 2 + 2;
             int text_y = (int) item.icon_rect.y + item.icon_rect.height + 2;
 
             // draw background for text label
@@ -428,69 +430,93 @@ namespace Desktop {
          * 
          * 
          ******************************************************************************************/
-        public void insert_item (Desktop.Item item) {
+        public bool find_free_pos (out Gdk.Point pos) {
             
-            this._append_item (item);
+            int count = -1;
+                
+            unowned List<Desktop.Item>? list;
             
-            return;
+            for (list = _grid_items.first (); list != null; list = list.next) {
             
-            if (item.index_horizontal == -1 || item.index_vertical == -1 || _grid_items.length () == 0) {
-                this._append_item (item);
-                return;
+                count++;
+                
+                Desktop.Item current = list.data as Desktop.Item;
+                int current_idx = current.cell_to_index (_num_cell.y);
+
+                if (current_idx > count) {
+                    // free pos found !!!!
+                    
+                    Gdk.Point cell;
+                    
+                    Utils.index_to_cell (count, _num_cell.y, out cell);
+                    //stdout.printf ("index %d is free !!!!\n", count);
+                    //stdout.printf ("(%d, %d) is free !!!!\n", cell.x, cell.y);
+                    
+                    return true;
+                    
+                    // ...
+                    //count = current_idx;
+                
+                }
+
             }
-            
-            this._calc_item_size (item);
-            _grid_items.append (item);
-            
+
+            return false;
         }    
         
-        private void _append_item (Desktop.Item item) {
+        public void insert_item (Desktop.Item new_item) {
             
-            unowned List<Desktop.Item>? last = _grid_items.last ();
+            stdout.printf ("_______________________________________________________________\n");
+            stdout.printf ("%s at pos (%i, %i)\n", new_item.get_disp_name (), new_item.cell_pos.x, new_item.cell_pos.y);
             
-            // The list is empty, set the item on the first grid cell (0, 0)
-            if (last == null) {
-            
-                item.index_horizontal = 0;
-                item.index_vertical = 0;
-                
-                this._calc_item_size (item);
-                _grid_items.append (item);
-                
+            if (new_item.cell_pos.x == -1
+                || new_item.cell_pos.y == -1) {
+                stdout.printf ("INVALID POSITION !!!!!\n");
                 return;
-            }
             
-            Desktop.Item? previous = last.data as Desktop.Item;
-            
-            // If current vertical row is full, append on the next row
-            if (previous.index_vertical + 1 > _index_last_v) {
-                item.index_vertical = 0;
-                item.index_horizontal = previous.index_horizontal + 1;
+            } else if (_grid_items.length () != 0) {
                 
-                    if (previous.index_horizontal > _index_last_h) {
-                        // the grid is full... :-D
+                // check if grid is full......
+                
+                int new_idx = new_item.cell_to_index (_num_cell.y);
+                
+                unowned List<Desktop.Item>? list;
+                
+                for (list = _grid_items.first (); list != null; list = list.next) {
+                
+                    Desktop.Item current = list.data as Desktop.Item;
+                    int current_idx = current.cell_to_index (_num_cell.y);
+                    //stdout.printf ("%s at pos %i\n", current.get_disp_name (), current_idx);
+                    
+                    if (current_idx == new_idx) {
+                            
+                        // there's already an item, need to find a free pos...
+                        stdout.printf ("already item %s at pos %i\n", current.get_disp_name (), current_idx);
+                        
+                        Gdk.Point pos;
+                        
+                        if (this.find_free_pos (out pos)) {
+                            new_item.cell_pos.x = pos.x;
+                            new_item.cell_pos.y = pos.y;
+                            break;
+                        }
+                        
+                        return;
+                    
+                    } else if (current_idx > new_idx) {
+                        
+                        stdout.printf ("insert before %s at pos %i\n", current.get_disp_name (), current_idx);
+                        this._calc_item_size (new_item);
+                        _grid_items.insert_before (list, new_item);
                         return;
                     }
-                    
-                this._calc_item_size (item);
-                _grid_items.append (item);
-                
-                return;
+                }
             }
             
-            if (previous.index_horizontal > _index_last_h) {
-                // the grid is full... :-D
-                return;
-            }
-            
-            item.index_vertical = previous.index_vertical + 1;
-            item.index_horizontal = previous.index_horizontal;
-            
-            this._calc_item_size (item);
-            _grid_items.append (item);
-                        
+            this._calc_item_size (new_item);
+            _grid_items.append (new_item);
             return;
-        }
+        }    
         
         
         /*******************************************************************************************
@@ -579,13 +605,25 @@ namespace Desktop {
          ******************************************************************************************/
         public void on_row_inserted (Gtk.TreePath path, Gtk.TreeIter it) {
             
+            //return;
             Gdk.Pixbuf icon;
             Fm.FileInfo fi;
             
             global_model.get (it, Fm.FileColumn.ICON, out icon, Fm.FileColumn.INFO, out fi, -1);
             Desktop.Item item = new Desktop.Item (icon, fi);
             
-            this._append_item (item);
+            Gdk.Point pos;
+            
+            if (this.find_free_pos (out pos)) {
+                item.cell_pos.x = pos.x;
+                item.cell_pos.y = pos.y;
+                this.insert_item (item);
+            } else {
+                // error....
+                return;
+            
+            }
+            
             
             /** Original code in PCManFm calls queue_layout_items (), a redraw also works...
              * this.queue_layout_items (); */
@@ -667,15 +705,15 @@ namespace Desktop {
                 int idx_x = -1;
                 int idx_y = -1;
             
-                idx_x = kf.get_integer (group, "index_x");
-                idx_y = kf.get_integer (group, "index_y");
+                idx_x = kf.get_integer (group, "cell_x");
+                idx_y = kf.get_integer (group, "cell_y");
                 
-                item.index_horizontal = idx_x;
-                item.index_vertical = idx_y;
+                item.cell_pos.x = idx_x;
+                item.cell_pos.y = idx_y;
             
             } catch (Error e) {
-                item.index_horizontal = -1;
-                item.index_vertical = -1;
+                item.cell_pos.x = -1;
+                item.cell_pos.y = -1;
                 return false;
             }
             
@@ -683,6 +721,8 @@ namespace Desktop {
         }  
         
         public bool save_item_pos () {
+            
+            //return true;
             
             string config = "";
             
@@ -701,8 +741,11 @@ namespace Desktop {
                 
                 foreach (Desktop.Item item in _grid_items) {
                     config += "[%s]\n".printf (item.get_fileinfo ().get_path ().get_basename ());
-                    config += "index_x = %d\n".printf (item.index_horizontal);
-                    config += "index_y = %d\n".printf (item.index_vertical);
+                    config += "index    = %d\n".printf (item.cell_to_index (_num_cell.y));
+                    config += "cell_x   = %d\n".printf (item.cell_pos.x);
+                    config += "cell_y   = %d\n".printf (item.cell_pos.y);
+                    config += "pixel_x  = %d\n".printf (item.pixel_pos.x);
+                    config += "pixel_y  = %d\n".printf (item.pixel_pos.y);
                     config += "\n";
                 }
 

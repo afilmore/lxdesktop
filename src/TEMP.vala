@@ -15,6 +15,47 @@
  * 
  * 
  **********************************************************************************************************************/
+        /***
+        private void _append_item (Desktop.Item item) {
+            
+            uint num_items = _grid_items.length ();
+            
+            if (num_items > (_num_cell.x * _num_cell.y)) {
+                return; // The grid si full...
+            
+            // The list is empty, set the item on the first grid cell (0, 0)
+            } else if (num_items == 0) {
+            
+                item.cell_pos.x = 0;
+                item.cell_pos.y = 0;
+                
+                this._calc_item_size (item);
+                _grid_items.append (item);
+                
+                return;
+            }
+            
+            unowned List<Desktop.Item>? last = _grid_items.last ();
+            
+            Desktop.Item? previous = last.data as Desktop.Item;
+            
+            item.cell_pos.y = previous.cell_pos.y + 1;
+            item.cell_pos.x = previous.cell_pos.x;
+            
+            // If current vertical row is full, append on the next row
+            if (item.cell_pos.y >= _num_cell.y) {
+                
+                item.cell_pos.y = 0;
+                item.cell_pos.x = previous.cell_pos.x + 1;
+            }
+            
+            this._calc_item_size (item);
+            _grid_items.append (item);
+                        
+            return;
+        } ***/
+        
+        
         private bool _on_key_press (Gdk.EventKey evt) {
 
             /***********************************************************************************************************
