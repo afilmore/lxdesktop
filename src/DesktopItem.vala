@@ -21,11 +21,7 @@ namespace Desktop {
         private Fm.FileInfo     _fileinfo;
         
         // Position of the item on the desktop and it's index on the grid
-//~         public int origin_x = 0;
-//~         public int origin_y = 0;
-//~         public int index_vertical = -1;
-//~         public int index_horizontal = -1;
-        
+        //~ public int index = -1; // cache the index ???
         public Gdk.Point pixel_pos;
         public Gdk.Point cell_pos;
         

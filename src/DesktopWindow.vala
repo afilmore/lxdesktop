@@ -54,20 +54,28 @@ namespace Desktop {
          * 
          ********************************************************************************/
         private const Gtk.ActionEntry _desktop_actions[] = {
+            
             {"CreateNew",       null,                   N_("Create _New..."),
                                 "",                     null,                       null},
+            
             {"NewFolder",       "folder",               N_("Folder"),
                                 "<Ctrl><Shift>N",       null,                       _on_action_new_folder},
+            
             {"NewBlank",        "text-x-generic",       N_("Blank File"),
                                 null,                   null,                       _on_action_new_file},
+            
             {"Paste",           Gtk.Stock.PASTE,        null,
                                 null,                   null,                       _on_action_paste},
+            
             {"SelAll",          Gtk.Stock.SELECT_ALL,   null,
                                 null,                   null,                       _on_action_select_all},
+            
             {"InvSel",          null,                   N_("_Invert Selection"),
                                 "<Ctrl>I",              null,                       _on_action_invert_select},
+            
             {"Sort",            null,                   N_("_Sort Files"),
                                 null,                   null,                       null},
+            
             {"Prop",            Gtk.Stock.PROPERTIES,   N_("Desktop Preferences"),
                                 "<Alt>Return",          null,                       _on_action_desktop_settings}
         };
@@ -77,9 +85,9 @@ namespace Desktop {
                 <menu action='CreateNew'>
                     <menuitem action='NewFolder'/>
                     <menuitem action='NewBlank'/>
+                    <separator/>
+                    <placeholder name='ph1'/>
                 </menu>
-                <separator/>
-                <placeholder name='ph1'/>
                 <separator/>
                 <menuitem action='Paste'/>
                 <separator/>
@@ -92,6 +100,8 @@ namespace Desktop {
 
         // The desktop grid
         private Desktop.Grid    _grid;
+        public  Desktop.Item?   drop_hilight = null;         /*** Drop Target Highlighted Item ***/
+        public  Desktop.Item?   hover_item = null;      /*** Highlighted item for Single Click Mode ***/
         
         // Rubber banding / Drag And Drop
         private bool            _rubber_started = false;
@@ -102,8 +112,9 @@ namespace Desktop {
         private int             _drag_start_y = 0;
         private bool            _dnd_started = false;
         
-        private Fm.DndSrc       _dnd_src;
-        private Fm.DndDest      _dnd_dest;
+        private Gdk.Cursor      crossed_circle = null;
+        private Fm.DndSrc       _fm_dnd_src;
+        private Fm.DndDest      _fm_dnd_dest;
         
         /*********************************************************************************
          * Single click...
@@ -122,6 +133,8 @@ namespace Desktop {
         
         public Window () {
             
+            crossed_circle = new Gdk.Cursor (Gdk.CursorType.X_CURSOR);
+            
             this.destroy.connect ( () => {
                 
                 _grid.save_item_pos ();
@@ -139,10 +152,12 @@ namespace Desktop {
             this.button_release_event.connect   (_on_button_release);
             this.motion_notify_event.connect    (_on_motion_notify);
             
+            this.drag_begin.connect             (_on_drag_begin);
             this.drag_motion.connect            (_on_drag_motion);
+            this.drag_leave.connect             (_on_drag_leave);
             this.drag_drop.connect              (_on_drag_drop);
             this.drag_data_received.connect     (_on_drag_data_received);
-            this.drag_leave.connect             (_on_drag_leave);
+            this.drag_failed.connect            (_on_drag_failed);
             
             this.leave_notify_event.connect     (_on_leave_notify); /*** for single click... ***/
             
@@ -228,8 +243,8 @@ namespace Desktop {
             // Connect model's custom signals.
             global_model.row_inserted.connect (this.get_grid ().on_row_inserted);
             global_model.row_deleted.connect (this.get_grid ().on_row_deleted);
-            /*** global_model.row_changed.connect (this.get_grid ().on_row_changed); ***/
-            /*** global_model.rows_reordered.connect (this.get_grid ().on_rows_reordered); ***/
+            /*** global_model.row_changed.connect (this.get_grid ().on_row_changed);        ***/
+            /*** global_model.rows_reordered.connect (this.get_grid ().on_rows_reordered);  ***/
             
             /*******************************************************************
              * Setup root window events.
@@ -254,7 +269,7 @@ namespace Desktop {
 
             Gtk.drag_source_set (this,
                                  0,
-                                 desktop_default_dnd_dest_targets, // doesn't build with Fm.default_dnd_dest_targets...
+                                 desktop_default_dnd_dest_targets, // Doesn't build with Fm.default_dnd_dest_targets...
                                  Gdk.DragAction.COPY
                                  | Gdk.DragAction.MOVE
                                  | Gdk.DragAction.LINK
@@ -270,9 +285,9 @@ namespace Desktop {
             // Override FmDndSrc.
             this.drag_data_get.connect (_on_drag_data_get);
             
-            this._dnd_src = new Fm.DndSrc (this);
+            _fm_dnd_src = new Fm.DndSrc (this);
             
-            this._dnd_src.data_get.connect (_on_dnd_src_data_get);
+            _fm_dnd_src.data_get.connect (_on_dnd_src_data_get);
 
             Gtk.drag_dest_set (this,
                                0,
@@ -284,7 +299,7 @@ namespace Desktop {
             
             Gtk.drag_dest_set_target_list (this, targets);
 
-            this._dnd_dest = new Fm.DndDest (this);
+            _fm_dnd_dest = new Fm.DndDest (this);
         }
 
         public Desktop.Grid? get_grid () {
@@ -609,6 +624,11 @@ namespace Desktop {
                     this._dnd_started = true;
                     target_list = Gtk.drag_source_get_target_list (this);
                     
+                    Desktop.Item item = _grid.hit_test ((int) evt.x, (int) evt.y, true);
+                    if (item != null) {
+                        _grid.set_selected_item (item);
+                    }
+
                     /*******************************************************************************
                      * This is a workaround to convert GdkEventButton* to GdkEvent* in Vala.
                      * Thanks to Eric Gregory: 
@@ -623,6 +643,8 @@ namespace Desktop {
                                     | Gdk.DragAction.LINK,
                                     1,
                                     real_e);
+                    
+
                 } else {
                     stdout.printf ("empty list\n");
                 }
@@ -725,12 +747,58 @@ namespace Desktop {
         }
 
         
+        private inline void _set_drop_hilight (Desktop.Item? dest_item) {
+            
+            if (dest_item != drop_hilight) {
+                
+                if (drop_hilight != null)
+                    drop_hilight.invalidate_rect (this.get_window ());
+                
+                if (dest_item != null)
+                    dest_item.invalidate_rect (this.get_window ());
+                
+                drop_hilight = dest_item;
+            }
+        }
+
+        private bool _on_drag_failed (Gtk.Widget dest_widget, Gdk.DragContext drag_context, Gtk.DragResult result) {
+            
+            /*** The ::drag-begin signal is emitted on the drag source when
+             *  a drag is started. A typical reason to connect to this signal
+             *  is to set up a custom drag icon with gtk_drag_source_set_icon().
+             * Note that some widgets set up a drag icon in the default handler
+             *  of this signal, so you may have to use g_signal_connect_after()
+             *  to override what the default handler did. ***/
+             
+            stdout.printf ("DRAG FAILED !!!\n");
+            return true;
+             
+        }
+        private void _on_drag_begin (Gtk.Widget dest_widget, Gdk.DragContext drag_context) {
+            
+            /*** The ::drag-begin signal is emitted on the drag source when
+             *  a drag is started. A typical reason to connect to this signal
+             *  is to set up a custom drag icon with gtk_drag_source_set_icon().
+             * Note that some widgets set up a drag icon in the default handler
+             *  of this signal, so you may have to use g_signal_connect_after()
+             *  to override what the default handler did. ***/
+             
+            Desktop.Item selected = _grid.get_selected_item ();
+            if (selected != null) {
+                stdout.printf ("ICON !!!\n");
+                Gtk.drag_set_icon_pixbuf (drag_context, selected.icon, 0, 0);
+            }
+            stdout.printf ("DRAG BEGIN !!!\n");
+            return;
+             
+        }
+        
         /*******************************************************************************************
-         * *** Widget Signal Handlers ***
+         *  *** Widget Signal Handlers ***
          * 
-         *     Drag And Drop Handling
+         *      Drag And Drop Handling
          * 
-         * 
+         *      http://developer.gnome.org/gtk/2.24/GtkWidget.html#GtkWidget-drag-begin
          * 
          ******************************************************************************************/
         private bool _on_drag_motion (Gtk.Widget dest_widget,
@@ -739,108 +807,129 @@ namespace Desktop {
                                       int y,
                                       uint time) {
             
+            /*** The drag-motion signal is emitted on the drop site when the
+             *  user moves the cursor over the widget during a drag. The
+             *  signal handler must determine whether the cursor position
+             *  is in a drop zone or not. If it is not in a drop zone, 
+             * it returns FALSE and no further processing is necessary. 
+             * Otherwise, the handler returns TRUE. In this case, the handler is 
+             * responsible for providing the necessary information for displaying
+             *  feedback to the user, by calling gdk_drag_status().
+
+            If the decision whether the drop will be accepted or rejected can't be
+            *  made based solely on the cursor position and the type of the data, 
+            * the handler may inspect the dragged data by calling gtk_drag_get_data()
+            *  and defer the gdk_drag_status() call to the "drag-data-received" handler.
+            *  Note that you cannot not pass GTK_DEST_DEFAULT_DROP, GTK_DEST_DEFAULT_MOTION 
+            * or GTK_DEST_DEFAULT_ALL to gtk_drag_dest_set() when using the drag-motion signal that way.
+
+            Also note that there is no drag-enter signal. The drag receiver has to keep track
+            *  of whether he has received any drag-motion signals since the last "drag-leave"
+            *  and if not, treat the drag-motion signal as an "enter" signal. Upon an "enter",
+            *  the handler will typically highlight the drop site with gtk_drag_highlight().
+            ***/
+            
             Gdk.Atom target;
-            bool ret = false;
-            Gdk.DragAction action = 0;
             
-            // check if we're dragging over an item
-            Desktop.Item item = _grid.hit_test (x, y);
-            Fm.FileInfo? fi;
+            // Check if we're dragging over an item.
+            Desktop.Item dest_item = _grid.hit_test (x, y, true);
             
-            // we can only allow dropping on desktop entry file, folder, or executable files
-            if (item != null) {
-                fi = item.get_fileinfo ();
+            Desktop.Item selected = _grid.get_selected_item ();
+            
+            // none selected ?
+            if (selected == null)
+                stdout.printf ("selected == null !!!!\n");
+            
+            // same item ?
+            if (dest_item != null && dest_item == selected) {
                 
-               // FIXME: libfm cannot detect if the file is executable!
-               // !fm_file_info_is_executable_type(item->fi) &&
-                if (fi != null && fi.is_dir () == false &&
-                   fi.is_desktop_entry () == false)
-                   
-                   item = null;
+                //stdout.printf ("_on_drag_motion: %u SAME ITEM !!!\n", time);
+                return false;
+            }
+            
+            // move item ?
+            if (dest_item == null) {
+                
+                Gdk.drag_status (drag_context, Gdk.DragAction.MOVE, time);
+                this._set_drop_hilight (dest_item);
+                
+                stdout.printf ("%u:_on_drag_motion: MOVE ITEM !!!\n", time);
+                
+                return true;
+            }
+            
+            Fm.FileInfo? fi = dest_item.get_fileinfo ();
+            
+            // We can only allow dropping on desktop entry file or folder.
+            if (fi != null
+                && !fi.is_dir ()
+                && !fi.is_desktop_entry ()
+                && !fi.get_path ().is_trash_root ()) {
+               
+                //stdout.printf ("_on_drag_motion: %u CAN'T DROP ON THIS ITEM !!!\n", time);
+                Gdk.drag_status (drag_context, 0, time);
+                //Gdk.drag_status (drag_context, Gdk.DragAction.ASK, time);
+                //this.get_window ().set_cursor (crossed_circle);
+                return false;
             }
 
             // handle moving desktop items
-            if (item != null) {
-                
-                target = Gdk.Atom.intern_static_string (dnd_targets[0].target);
-                
-                if (Fm.drag_context_has_target (drag_context, target)
-                    && (drag_context.actions & Gdk.DragAction.MOVE) != 0) {
-                        
-                    // desktop item is being dragged
-                    this._dnd_dest.set_dest_file (null);
-                    action = Gdk.DragAction.MOVE; // move desktop items
-                    ret = true;
-                }
-            }
-
-            if (ret) {
-                
-                target = this._dnd_dest.find_target (drag_context);
+            target = Gdk.Atom.intern_static_string (dnd_targets[0].target);
+            
+            Gdk.DragAction action = 0;
+            if (Fm.drag_context_has_target (drag_context, target)
+                && (drag_context.actions & Gdk.DragAction.MOVE) != 0) {
+                    
+                // desktop item is being dragged
+                _fm_dnd_dest.set_dest_file (null);
+                action = Gdk.DragAction.MOVE; // move desktop items
                 
                 // try FmDndDest
-                if (target != Gdk.Atom.NONE) {
+                target = _fm_dnd_dest.find_target (drag_context);
+                
+                if (target == Gdk.Atom.NONE) {
                     
-                    Fm.FileInfo? dest_file = null;
-                    
-                    if (item != null) {
-                        
-                        // if (fm_file_info_is_dir(item->fi)) commented in PCManFm...
-                        dest_file = item.get_fileinfo ();
-                    }
-                    
-                    if (dest_file == null) {
-                        // FIXME: prevent direct access to data member
-                        dest_file = global_model.dir.dir_fi;
-                    }
+                    stdout.printf ("%u:_on_drag_motion: target == Gdk.Atom.NONE !!!\n", time);
+                    Gdk.drag_status (drag_context, 0, time);
+                    this._set_drop_hilight (dest_item);
 
-                    this._dnd_dest.set_dest_file (dest_file);
-                    action = this._dnd_dest.get_default_action (drag_context, target);
-                    
-                    ret = (action != 0);
-                    
-                } else {
-                    
-                    ret = false;
-                    action = 0;
+                    return false;
                 }
+                
+                _fm_dnd_dest.set_dest_file (fi);
+                action = _fm_dnd_dest.get_default_action (drag_context, target);
             }
-            
+
             Gdk.drag_status (drag_context, action, time);
+            this._set_drop_hilight (dest_item);
 
-            Desktop.Item? _drop_hilight = null; // temporary fake item...
-            
-            if (_drop_hilight != item) {
-                
-                Desktop.Item old_drop = _drop_hilight;
-                _drop_hilight = item;
-                
-                if (old_drop != null)
-                    old_drop.invalidate_rect (this.get_window ());
-                
-                if (item != null)
-                    item.invalidate_rect (this.get_window ());
-            }
-
-            return ret;
+//~             if (action != 0)
+//~                 stdout.printf ("%u:_on_drag_motion: MOVE ITEM !!!\n", time);
+            return (action != 0);
         }
 
         private void _on_drag_leave  (Gdk.DragContext drag_context,
                                       uint time) {
                                           
-            this._dnd_dest.drag_leave (drag_context, time);
+            /*******************************************************************
+             * The ::drag-leave signal is emitted on the drop site when the
+             * cursor leaves the widget.
+             *  A typical reason to connect to this signal is to undo things
+             * done in "drag-motion",
+             *  e.g. undo highlighting with gtk_drag_unhighlight() ***/
+            
+            stdout.printf ("%u: DRAG LEAVE !!!\n", time);
+            
+            _fm_dnd_dest.drag_leave (drag_context, time);
 
-            Desktop.Item? _drop_hilight = null; // temporary fake item...
-            if (_drop_hilight != null) {
+            if (drop_hilight != null) {
                 
-                Desktop.Item? old_drop = _drop_hilight;
-                
-                _drop_hilight = null;
-                
-                old_drop.invalidate_rect (this.get_window ());
+                drop_hilight.invalidate_rect (this.get_window ());
+                drop_hilight = null;
             }
 
-            return; // void function in Vala...
+            //this.get_window ().set_cursor (crossed_circle);
+            return;
         }
 
         private bool _on_drag_drop (Gtk.Widget dest_widget,
@@ -849,63 +938,74 @@ namespace Desktop {
                                     int y,
                                     uint time) {
                                         
-            bool ret = false;
+            /*** The ::drag-drop signal is emitted on the drop site when
+             *  the user drops the data onto the widget. The signal handler
+             *  must determine whether the cursor position is in a drop zone
+             *  or not. If it is not in a drop zone, it returns FALSE and no
+             *  further processing is necessary. Otherwise, the handler returns TRUE.
+             *  In this case, the handler must ensure that gtk_drag_finish() is called
+             * to let the source know that the drop is done. The call to gtk_drag_finish()
+             *  can be done either directly or in a "drag-data-received" handler which gets
+             *  triggered by calling gtk_drag_get_data() to receive the data for one or
+             *  more of the supported targets.
+             ***/
             
-            Gdk.Atom target;
+            stdout.printf ("DRAG DROP !!!\n");
             
-            // check if we're dragging over an item
-            Desktop.Item item = _grid.hit_test (x, y);
+            // Check if we're dragging over an item
+            Desktop.Item dest_item = _grid.hit_test (x, y);
             
-            // we can only allow dropping on desktop entry file, folder, or executable files
-            if (item != null) {
-                
-                // FIXME: libfm cannot detect if the file is executable!
-                // !fm_file_info_is_executable_type(item->fi) &&
-                
-                Fm.FileInfo? fi;
-                fi = item.get_fileinfo ();
-                
-                if (fi != null
-                    && fi.is_dir () == false
-                    && fi.is_desktop_entry () == false)
-                   item = null;
+            if (dest_item == null) {
+                stdout.printf ("MOVE !!!\n");
+                return false;
+            }
+            
+            // We can only allow dropping on desktop entry file, folder
+            /*** libfm cannot detect if the file is executable !
+                 !fm_file_info_is_executable_type(dest_item->fi) && ***/
+            
+            Fm.FileInfo? fi = dest_item.get_fileinfo ();
+            
+            if (fi == null)
+               return false;
+            
+            if (!fi.is_dir ()
+                && !fi.is_desktop_entry ()
+                && !fi.get_path ().is_trash_root ()) {
+               
+               return false;
             }
 
-            // handle moving desktop items
-            if (item != null) {
+            // Handle moving desktop items
+            
+            Gdk.Atom target = Gdk.Atom.intern_static_string (dnd_targets[0].target);
+            
+            if (Fm.drag_context_has_target (drag_context, target)
+                && (drag_context.actions & Gdk.DragAction.MOVE) != 0) {
+                   
+                stdout.printf ("move item\n");
                 
-                target = Gdk.Atom.intern_static_string (dnd_targets[0].target);
+                _grid.move_items (x, y, _drag_start_x, _drag_start_y);
                 
-                if (Fm.drag_context_has_target (drag_context, target) == true
-                   && (drag_context.actions & Gdk.DragAction.MOVE) != 0) {
-                       
-                    stdout.printf ("move item\n");
-                    _grid.move_items (x, y, _drag_start_x, _drag_start_y);
-                    
-                    ret = true;
-                    
-                    Gtk.drag_finish (drag_context, true, false, time);
+                Gtk.drag_finish (drag_context, true, false, time);
 
-                    this._grid.save_item_pos ();
-
-                    this._grid.queue_layout_items ();
-                }
-            }
-
-            if (ret) {
+                this._grid.save_item_pos ();
+                this._grid.queue_layout_items ();
                 
-                target = this._dnd_dest.find_target (drag_context);
+                target = _fm_dnd_dest.find_target (drag_context);
+                
+                stdout.printf ("try FmDndDest\n");
                 
                 // try FmDndDest
-                stdout.printf ("try FmDndDest\n");
-                ret = this._dnd_dest.drag_drop (drag_context, target, x, y, time);
-                
-                if (ret == false) {
-                    stdout.printf ("failed\n");
-                    Gtk.drag_finish (drag_context, false, false, time);
-                }
+                if (_fm_dnd_dest.drag_drop (drag_context, target, x, y, time))
+                    return true;
+                    
+                stdout.printf ("failed\n");
+                Gtk.drag_finish (drag_context, false, false, time);
+            
             }
-            return ret;
+            
+            return false;
         }
 
         private void _on_drag_data_received (Gtk.Widget dest_widget,
@@ -924,7 +1024,7 @@ namespace Desktop {
                 
                 default:
                     // check if files are received.
-                    this._dnd_dest.drag_data_received (drag_context, x, y, sel_data, info, time);
+                    _fm_dnd_dest.drag_data_received (drag_context, x, y, sel_data, info, time);
                 break;
             }
         }
@@ -946,7 +1046,7 @@ namespace Desktop {
             
             if (files != null) {
                 
-                _dnd_src.set_files (files);
+                _fm_dnd_src.set_files (files);
                 
                 // files.unref(); is it needed in Vala ???
             }
@@ -981,7 +1081,7 @@ namespace Desktop {
         public void set_background () {
             
             Gdk.Window window = this.get_window ();
-            Gdk.Window root = this.get_screen ().get_root_window ();
+            //Gdk.Window root = this.get_screen ().get_root_window ();
             
             Fm.WallpaperMode wallpaper_mode = global_config.wallpaper_mode;
             Gdk.Pixbuf? pix;
@@ -999,9 +1099,9 @@ namespace Desktop {
                 window.set_back_pixmap (null, false);
                 window.set_background (bg);
                 
-                root.set_back_pixmap (null, false);
+                /*root.set_back_pixmap (null, false);
                 root.set_background (bg);
-                root.clear ();
+                root.clear ();*/
                 window.clear ();
                 window.invalidate_rect (null, true);
                 return;
@@ -1037,8 +1137,9 @@ namespace Desktop {
             this.add_accel_group (accel_group);
         
             string xml_def =    "<popup>\n";
+            xml_def +=              "<menu action='CreateNew'>\n";
             xml_def +=              "<placeholder name='ph1'>\n";
-            
+                
             File template_dir = File.new_for_path (Environment.get_user_special_dir (UserDirectory.TEMPLATES));
             
             FileEnumerator infos = template_dir.enumerate_children (
@@ -1069,7 +1170,10 @@ namespace Desktop {
             };
 
             xml_def +=      "</placeholder>\n";
+            xml_def +=              "</menu>\n";
             xml_def +=  "</popup>\n";
+            
+            //stdout.printf (xml_def);
             
             ui.add_ui_from_string (xml_def, -1);
 
@@ -1201,8 +1305,10 @@ namespace Desktop {
             if (fi == null)
                 return false;
                 
-            // FIXME: doesn't work if contains spaces...
-            string cmdline = global_config.app_filemanager + " " + fi.get_path ().to_str ();
+            string cmdline = global_config.app_filemanager
+                             + " \""
+                             + fi.get_path ().to_str ()
+                             + "\"";
             
             try {
                 Process.spawn_command_line_async (cmdline);
@@ -1239,18 +1345,25 @@ namespace Desktop {
             string msg;
             string tmp_name = "";
             
-            bool create_from_template = false;
             
             if (file_type == Utils.NewFileNameType.FOLDER) {
                 
-//~                 msg = "Enter a name for the newly created folder:";
-//~                 tmp_name = Utils.get_new_file_name (base_dir, file_type, template_description);
-//~                 
-//~                 if (!dest_file.make_directory (null)) {
-//~                     
-//~                     stdout.printf ("ERRORRRRRR !!!!!!!\n");
-//~                     //fm_show_error (parent, null, err->message);
-//~                 }
+                msg = "Enter a name for the newly created folder:";
+                tmp_name = Utils.get_new_file_name (base_dir, file_type, template_description);
+                
+                /*** ask user for a file name...
+                string basename = Fm.get_user_input (null, _("Create New..."), _(msg), test_name);
+                
+                if (basename == null || basename == "" || dest_file == null)
+                    return; ***/
+                
+                Fm.Path dest = new Fm.Path.child (base_dir, tmp_name);
+                File dest_file = dest.to_gfile ();
+                if (!dest_file.make_directory (null)) {
+                    
+                    stdout.printf ("ERRORRRRRR !!!!!!!\n");
+                    //fm_show_error (parent, null, err->message);
+                }
 
             } else if (file_type == Utils.NewFileNameType.FROM_DESCRIPTION) {
                 
@@ -1258,6 +1371,13 @@ namespace Desktop {
                 Fm.Path template = new Fm.Path.child (template_dir, template_name);
                 
                 tmp_name = Utils.get_new_file_name (base_dir, file_type, template_description);
+                
+                /*** ask user for a file name...
+                string basename = Fm.get_user_input (null, _("Create New..."), _(msg), test_name);
+                
+                if (basename == null || basename == "" || dest_file == null)
+                    return; ***/
+                
                 Fm.Path dest_file = new Fm.Path.child (base_dir, tmp_name);
                 
                 stdout.printf ("Fm.copy_file %s %s\n", template.to_str (), dest_file.to_str ());
@@ -1281,39 +1401,25 @@ namespace Desktop {
                 msg = "Enter a name for the newly created file:";
                 tmp_name = Utils.get_new_file_name (base_dir, file_type, template_description);
                 
-//~                 FileOutputStream f = dest_file.create (FileCreateFlags.NONE);
-//~                 if (f == null) {
-//~                     
-//~                     stdout.printf ("ERRORRRRRR !!!!!!!\n");
-//~                     //fm_show_error (parent, null, err->message);
-//~                 
-//~                 } else {
-//~                     
-//~                     f.close ();
-//~                 }
+                /*** ask user for a file name...
+                string basename = Fm.get_user_input (null, _("Create New..."), _(msg), test_name);
+                
+                if (basename == null || basename == "" || dest_file == null)
+                    return; ***/
+
+                Fm.Path dest = new Fm.Path.child (base_dir, tmp_name);
+                File dest_file = dest.to_gfile ();
+                FileOutputStream f = dest_file.create (FileCreateFlags.NONE);
+                if (f == null) {
+                    
+                    stdout.printf ("ERRORRRRRR !!!!!!!\n");
+                    //fm_show_error (parent, null, err->message);
+                
+                } else {
+                    
+                    f.close ();
+                }
             }
-            
-//~             string test_name = "";
-//~             Fm.Path dest;
-//~             File dest_file = null;
-//~             
-            /*int max_tries = 50;
-            for (int i = 1; i < max_tries; i++) {
-                
-                test_name = "New%s(%d)".printf (tmp_name, i);
-                
-                dest = new Fm.Path.child (base_dir, test_name);
-                dest_file = dest.to_gfile ();
-                if (!dest_file.query_exists ())
-                    break;
-            }*/
-            
-            // ask user for a file name...
-//~             string basename = Fm.get_user_input (null, _("Create New..."), _(msg), test_name);
-//~             
-//~             if (basename == null || basename == "" || dest_file == null)
-//~                 return;
-//~             
             
             return;
         }

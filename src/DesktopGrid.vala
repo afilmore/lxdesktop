@@ -20,20 +20,20 @@ namespace Desktop {
     /*** const int MARGIN = 2; ***/
 
     
-    /*********************************************************************************************************
+    /*************************************************************************************
      * The Desktop grid basically contains a linked list to store desktop items.
      * 
      * 
-     ********************************************************************************************************/
+     ************************************************************************************/
     public class Grid {
         
         // Application's Running Mode
         private bool _debug_mode = false;
         
         // Desktop Widget
-        private Gtk.Window  _desktop;
-        private Gdk.Window  _window;
-        uint _idle_layout   = 0;
+        private Desktop.Window  _desktop;
+        private Gdk.Window      _window;
+        uint _idle_layout       = 0;
         
         // Desktop working area, this working area doesn't include docked panels
         private Gdk.Rectangle       _working_area;
@@ -42,18 +42,12 @@ namespace Desktop {
         private List<Desktop.Item>  _grid_items;
         private string              _items_config_file;
         
-        // Geometry of one cell in the grid, index of last cells
-        private int     _cell_width = 50;
-        private int     _cell_height = 50;
-        
-        private Gdk.Point _num_cell;
-//~         private uint    _index_last_v = 0;
-//~         private uint    _index_last_h = 0;
+        // Geometry of one cell in the grid, total number of cells
+        private int         _cell_width = 50;
+        private int         _cell_height = 50;
+        private Gdk.Point   _num_cell;
         
         private Desktop.Item?   _selected_item = null;
-        /***
-        private Desktop.Item?   _drop_hilight = null;
-        private Desktop.Item?   _hover_item = null; ***/
 
         /*** Icon Pixbuf renderer, replace with Fm.CellRendererPixbuf to draw Item's arrows
         private Fm.CellRendererPixbuf   _icon_renderer; ***/
@@ -70,7 +64,7 @@ namespace Desktop {
         uint _pango_text_w = 0;
         
         
-        public Grid (Gtk.Window desktop, string config_file, bool debug = false) {
+        public Grid (Desktop.Window desktop, string config_file, bool debug = false) {
             
             _desktop = desktop;
             _items_config_file = config_file;
@@ -78,7 +72,7 @@ namespace Desktop {
             
             _grid_items = new List<Desktop.Item> ();
             
-            // setup pango layout.
+            // Setup pango layout.
             _pango_layout = _desktop.create_pango_layout (null);
             _pango_layout.set_alignment (Pango.Alignment.CENTER);
             _pango_layout.set_ellipsize (Pango.EllipsizeMode.END);
@@ -142,14 +136,7 @@ namespace Desktop {
             } else {
                 
                 XLib.get_working_area (_desktop.get_screen (), out _working_area);
-                
-                // stdout.printf ("%i, %i, %i, %i\n",
-                //                _working_area.x,
-                //                _working_area.y,
-                //                _working_area.width,
-                //                _working_area.height);
             }
-            
             
             /*****************************************************************************
              * From Gtk+ docs :
@@ -166,19 +153,20 @@ namespace Desktop {
 
             int font_h = (metrics.get_ascent () + metrics.get_descent ()) / Pango.SCALE;
             
-            // set the text rect to a maximum of 72 pixels width and two lines of text.
+            // Set the text rect to a maximum of 72 pixels width and two lines of text.
             this._text_w = 72;
             this._text_h = font_h * 2;
             
             this._pango_text_w = _text_w * Pango.SCALE;
             this._pango_text_h = _text_h * Pango.SCALE;
             
-            // 4 is for drawing border
+            // Add four pixels to draw a text border.
             _text_h += 4;
             _text_w += 4;
             
-            // stdout.printf ("font_h:%i, text_h:%i, text_w:%i, pango_text_h:%u, pango_text_w:%u\n",
-            //               font_h, text_h, text_w, _pango_text_h, _pango_text_w);
+            /*** 
+                stdout.printf ("font_h:%i, text_h:%i, text_w:%i, pango_text_h:%u, pango_text_w:%u\n",
+                               font_h, text_h, text_w, _pango_text_h, _pango_text_w); ***/
             
             _cell_height = (int) global_config.big_icon_size + SPACING + (int) _text_h + PADDING * 2;
             _cell_width = int.max ((int) _text_w, (int) global_config.big_icon_size) + PADDING * 2;
@@ -229,7 +217,7 @@ namespace Desktop {
             item.text_rect.x = item.pixel_pos.x    + (_cell_width - logical_rect.width - 4) / 2;
             item.text_rect.y = item.icon_rect.y + item.icon_rect.height + logical_rect.y;
             
-            /*** is it needed to cache this ?
+            /*** is it needed to cache this ? see draw_item () ...
             int text_x = (int) item.pixel_pos.x + (_cell_width - (int) _text_w) / 2 + 2;
             int text_y = (int) item.icon_rect.y + item.icon_rect.height + 2; ***/
             
@@ -263,17 +251,15 @@ namespace Desktop {
             // GTK3_MIGRATION
             Gtk.CellRendererState state = 0;
             
-            Desktop.Item? drop_hilight = null; // temporary fake item....
-            
-            // selected item
-            if (item.is_selected == true || item == drop_hilight)
+            // Selected item
+            if (item.is_selected == true || item == _desktop.drop_hilight)
                 state = Gtk.CellRendererState.SELECTED;
-            
             
             /*******************************************************************
              * Draw the icon...
              * 
-             * Fm.CellRendererPixbuf needs to be ported to GTK3, it's reeded to draw the small arrow for symlinks...
+             * Fm.CellRendererPixbuf needs to be ported to GTK3, it's reeded to
+             * draw the small arrow for symlinks...
              * 
              * 
             renderer.set ("pixbuf", item.icon, "info", item._fileinfo.ref (), null);
@@ -299,15 +285,15 @@ namespace Desktop {
             string disp_name = item.get_disp_name ();
             _pango_layout.set_text (disp_name, -1);
 
-            // FIXME: do we need to cache this?
+            /*** Do we need to cache this ? ***/
             int text_x = (int) item.pixel_pos.x + (_cell_width - (int) _text_w) / 2 + 2;
             int text_y = (int) item.icon_rect.y + item.icon_rect.height + 2;
 
-            // draw background for text label
+            // Draw background for text label
             Gtk.Style style = _desktop.get_style ();
             Gdk.Color fg;
             
-            // selected item
+            // Selected item
             if (state == Gtk.CellRendererState.SELECTED) {
                 
                 cr.save ();
@@ -319,7 +305,7 @@ namespace Desktop {
                 
                 fg = style.fg[Gtk.StateType.SELECTED];
                 
-            // normal item / text shadow
+            // Normal item / text shadow
             } else {
                 
                 _gc.set_rgb_fg_color (global_config.color_shadow);
@@ -332,7 +318,7 @@ namespace Desktop {
                 fg = global_config.color_text;
             }
             
-            // real text
+            // Real text
             _gc.set_rgb_fg_color (fg);
             
             Gdk.draw_layout (_window,
@@ -343,7 +329,7 @@ namespace Desktop {
             
             _pango_layout.set_text ("", 0);
 
-            // draw a selection rectangle for the selected item
+            // Draw a selection rectangle for the selected item
             if (item == _selected_item && _desktop.has_focus != 0) {
                 
                 Gtk.paint_focus (style,
@@ -363,11 +349,12 @@ namespace Desktop {
             
             foreach (Desktop.Item item in _grid_items) {
                 
-                //stdout.printf ("expose event => grid.draw_items () x = %i, y = %i, w = %i, h = %i\n",
-                //               item.text_rect.x,
-                //               item.text_rect.y,
-                //               item.text_rect.width,
-                //               item.text_rect.height);
+                /***
+                    stdout.printf ("expose event => grid.draw_items () x = %i, y = %i, w = %i, h = %i\n",
+                                   item.text_rect.x,
+                                   item.text_rect.y,
+                                   item.text_rect.width,
+                                   item.text_rect.height); ***/
             
                 Gdk.Rectangle? intersect = null;
                 
@@ -417,14 +404,16 @@ namespace Desktop {
 
         private void _layout_items () {
             
-            stdout.printf ("_layout_items\n");
+            /*** stdout.printf ("_layout_items\n"); ***/
+            
+            // If some items don't have a valid position on the grid, try to find a free position for them...
             
             foreach (Desktop.Item item in _grid_items) {
                 
-                // find invalid items.......
-                
                 if (item.cell_to_index (_num_cell.y) < 0) {
-                    stdout.printf ("%s INVALID ITEM !!!!\n", item.get_disp_name ());
+                    
+                    /*** stdout.printf ("%s INVALID ITEM !!!!\n", item.get_disp_name ()); ***/
+                    
                     Gdk.Point pos;
                     
                     if (this.find_free_pos (out pos)) {
@@ -435,8 +424,7 @@ namespace Desktop {
                 }
             }
 
-            
-            //this.queue_draw ();
+            /*** this.queue_draw (); ***/
         }
 
 
@@ -459,25 +447,13 @@ namespace Desktop {
                 int current_idx = current.cell_to_index (_num_cell.y);
 
                 if (current_idx > count) {
-                    // free pos found !!!!
-                    
-                    //Gdk.Point cell;
                     
                     Utils.index_to_cell (count, _num_cell.y, out pos);
-                    //stdout.printf ("index %d is free !!!!\n", count);
-                    //stdout.printf ("(%d, %d) is free !!!!\n", cell.x, cell.y);
-                    
                     return true;
-                    
-                    // ...
-                    //count = current_idx;
                 
                 } else if (list.next == null && current_idx < (_num_cell.x * _num_cell.y)) {
                 
-                    //Gdk.Point cell;
-                    
                     Utils.index_to_cell (current_idx + 1, _num_cell.y, out pos);
-                    
                     return true;
                 }
 
@@ -488,18 +464,12 @@ namespace Desktop {
         
         public void insert_item (Desktop.Item new_item) {
             
-//~             stdout.printf ("_______________________________________________________________\n");
-//~             stdout.printf ("%s at pos (%i, %i)\n", new_item.get_disp_name (), new_item.cell_pos.x, new_item.cell_pos.y);
-            
+            // Invalid position ?
             if (new_item.cell_pos.x == -1
                 || new_item.cell_pos.y == -1) {
                 
-//~                 stdout.printf ("INVALID POSITION !!!!!\n");
-                
-            
+            // Empty grid ?
             } else if (_grid_items.length () != 0) {
-                
-                // check if grid is full......
                 
                 int new_idx = new_item.cell_to_index (_num_cell.y);
                 
@@ -509,26 +479,21 @@ namespace Desktop {
                 
                     Desktop.Item current = list.data as Desktop.Item;
                     int current_idx = current.cell_to_index (_num_cell.y);
-                    //stdout.printf ("%s at pos %i\n", current.get_disp_name (), current_idx);
                     
+                    // There's already an item here, we need to find a free position...
                     if (current_idx == new_idx) {
-                            
-                        // there's already an item, need to find a free pos...
-//~                         stdout.printf ("already item %s at pos %i\n", current.get_disp_name (), current_idx);
                         
                         Gdk.Point pos;
-                        
                         if (this.find_free_pos (out pos)) {
                             new_item.cell_pos.x = pos.x;
                             new_item.cell_pos.y = pos.y;
                             break;
                         }
-                        
                         return;
                     
                     } else if (current_idx > new_idx) {
                         
-//~                         stdout.printf ("insert before %s at pos %i\n", current.get_disp_name (), current_idx);
+                        // Most items are inserted here, that may not be very efficient but it works... :-)
                         this._calc_item_size (new_item);
                         _grid_items.insert_before (list, new_item);
                         return;
@@ -549,11 +514,24 @@ namespace Desktop {
          * 
          * 
          ******************************************************************************************/
-        public Desktop.Item? hit_test (double x, double y) {
+        public Desktop.Item? hit_test (double x, double y, bool extended = false) {
             
             foreach (Desktop.Item item in _grid_items) {
                 
-                if (Utils.point_in_rect (x, y, item.icon_rect)
+                Gdk.Rectangle rect;
+                if (extended) {
+                    rect = {item.icon_rect.x,
+                            item.icon_rect.y,
+                            item.icon_rect.width,
+                            item.text_rect.y - item.icon_rect.y + 1}; // why this pixel ?
+                } else {                                              // is there a bug in point_in_rect () ?
+                    rect = {item.icon_rect.x,
+                            item.icon_rect.y,
+                            item.icon_rect.width,
+                            item.icon_rect.height};
+                }
+                
+                if (Utils.point_in_rect (x, y, rect)
                     || Utils.point_in_rect (x, y, item.text_rect))
                     return item;
             }
@@ -579,13 +557,29 @@ namespace Desktop {
             }
         }
         
+        public inline Desktop.Item? get_selected_item () {
+            
+            return _selected_item;
+        }
+
         public void set_selected_item (Desktop.Item? item) {
             
-            if (this._selected_item == null)
+            if (this._selected_item == item)
+                return;
+                
+            if (item != null)
+                item.invalidate_rect (_window);
+            
+            if (_selected_item != null)
+                _selected_item.invalidate_rect (_window);
+            
+            this._selected_item = item;
+            
+            /*if (this._selected_item == null)
                 return;
                 
             _selected_item.invalidate_rect (_window);
-            this._selected_item = item;
+            this._selected_item = item;*/
             return;
         }
 
@@ -628,7 +622,6 @@ namespace Desktop {
          ******************************************************************************************/
         public void on_row_inserted (Gtk.TreePath path, Gtk.TreeIter it) {
             
-            //return;
             Gdk.Pixbuf icon;
             Fm.FileInfo fi;
             
@@ -641,18 +634,18 @@ namespace Desktop {
                 item.cell_pos.x = pos.x;
                 item.cell_pos.y = pos.y;
                 this.insert_item (item);
+            
             } else {
-                // error....
+                
+                // If the grid is full, we should set the item as hidden with (-1, -1) position...
+                
                 return;
-            
             }
-            
             
             /** Original code in PCManFm calls queue_layout_items (), a redraw also works...
              * this.queue_layout_items (); */
             
             item.invalidate_rect (_window);
-            
         }
 
         public void on_row_deleted (Gtk.TreePath tp) {
@@ -691,19 +684,16 @@ namespace Desktop {
                         }
                     }
                     
-                    Desktop.Item? _drop_hilight = null; // temporary fake item...
-                    Desktop.Item? _hover_item = null;   // temporary fake item...
-            
-                    if (item == _drop_hilight)
-                        _drop_hilight = null;
+                    if (item == _desktop.drop_hilight)
+                        _desktop.drop_hilight = null;
                     
-                    if (item == _hover_item)
-                        _hover_item = null;
+                    if (item == _desktop.hover_item)
+                        _desktop.hover_item = null;
                     
                     item.invalidate_rect (_window);
                     _grid_items.delete_link (list);
                     
-                    //queue_layout_items (desktop);
+                    /*** queue_layout_items (desktop); ***/
                 }
             }
             
@@ -716,13 +706,51 @@ namespace Desktop {
          * 
          * 
          * ****************************************************************************************/
+        public bool save_item_pos () {
+            
+            string config = "";
+            
+            try {
+                
+                File file = File.new_for_path (_items_config_file);
+                
+                // For some reasons we need to delete the file if it exists...
+                if (file.query_exists ())
+                    file.delete ();
+                
+                DataOutputStream dos = new DataOutputStream (file.create (FileCreateFlags.REPLACE_DESTINATION));
+                
+                /*********************************************************************************************
+                 * We save the full Item path to differentiate real folders on the desktop and virtual ones.
+                 * Needed if we have "/home/me/My Documents" and "/home/me/Desktop/My Documents"
+                 * 
+                 */
+                foreach (Desktop.Item item in _grid_items) {
+                    config += "[%s]\n".printf (item.get_fileinfo ().get_path ().to_str ());
+                    config += "index    = %d\n".printf (item.cell_to_index (_num_cell.y));
+                    config += "cell_x   = %d\n".printf (item.cell_pos.x);
+                    config += "cell_y   = %d\n".printf (item.cell_pos.y);
+                    config += "pixel_x  = %d\n".printf (item.pixel_pos.x);
+                    config += "pixel_y  = %d\n".printf (item.pixel_pos.y);
+                    config += "\n";
+                }
+
+                dos.put_string (config);
+                
+            } catch (Error e) {
+            }
+            
+            return true;
+        }
+        
         public bool get_saved_position (Desktop.Item item) {
             
             KeyFile kf = new KeyFile();
             try {
+                
                 kf.load_from_file (_items_config_file, KeyFileFlags.NONE);
                 string group = item.get_fileinfo ().get_path ().to_str ();
-                //string group = item.get_fileinfo ().get_path ().get_basename ();
+
                 if (kf.has_group (group) == false)
                     return false;
                 
@@ -743,45 +771,6 @@ namespace Desktop {
             
             return true;
         }  
-        
-        public bool save_item_pos () {
-            
-            //return true;
-            
-            string config = "";
-            
-            try {
-                
-                File file = File.new_for_path (_items_config_file);
-                
-                // for some reasons we need to delete the file if it exists...
-                if (file.query_exists ())
-                    file.delete ();
-                
-                DataOutputStream dos = new DataOutputStream (file.create (FileCreateFlags.REPLACE_DESTINATION));
-                
-                // FIXME: path.get_basename () won't work if we have a virtual item, ex : /home/me/Documents
-                // we need to get the full path for personal folders...
-                
-                foreach (Desktop.Item item in _grid_items) {
-                    config += "[%s]\n".printf (item.get_fileinfo ().get_path ().to_str ());
-                    //config += "[%s]\n".printf (item.get_fileinfo ().get_path ().get_basename ());
-                    //config += "path  = %s\n".printf (item.get_fileinfo ().get_path ().to_str ());
-                    config += "index    = %d\n".printf (item.cell_to_index (_num_cell.y));
-                    config += "cell_x   = %d\n".printf (item.cell_pos.x);
-                    config += "cell_y   = %d\n".printf (item.cell_pos.y);
-                    config += "pixel_x  = %d\n".printf (item.pixel_pos.x);
-                    config += "pixel_y  = %d\n".printf (item.pixel_pos.y);
-                    config += "\n";
-                }
-
-                dos.put_string (config);
-                
-            } catch (Error e) {
-            }
-            
-            return true;
-        }
     }
 }
 

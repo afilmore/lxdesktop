@@ -36,10 +36,7 @@ namespace Desktop {
         
     public const OptionEntry[] opt_entries = {
         
-        {"debug",           'd',    0, OptionArg.NONE,              ref global_debug_mode,
-            N_("Run In Debug Mode"),
-            null},
-        
+        {"debug",   'd',    0,  OptionArg.NONE, ref global_debug_mode,  N_("Run In Debug Mode"), null},
         {null}
     };
 
@@ -261,8 +258,6 @@ namespace Desktop {
                     
                 } while (global_model.iter_next (ref it) == true);
                 
-                
-                
             }
         }
 
@@ -275,34 +270,33 @@ namespace Desktop {
          **************************************************************************************************************/
         private static int main (string[] args) {
             
-            //Gtk.init (ref args);
-//~             if(G_UNLIKELY(!gtk_init_with_args(&argc, &argv, "", opt_entries, GETTEXT_PACKAGE, &err)))
-//~             {
-//~                 g_printf("%s\n", err->message);
-//~                 g_error_free(err);
-//~                 return 1;
-//~             }
-
             try {
                 Gtk.init_with_args (ref args, "", opt_entries, VConfig.GETTEXT_PACKAGE);
             } catch {
             }
             
-            if (global_debug_mode)
-                stdout.printf ("YES !!!!!\n");
-            
-            // create the Desktop configuration, this object derivates of Fm.Config.
+            // Create the Desktop configuration, this object derivates of Fm.Config.
             global_config = new Desktop.Config ();
-            Fm.init (global_config);
             
-            // fm_volume_manager_init ();
-
             global_app = new Application ();
-            global_app.run (global_debug_mode);
             
-            // fm_volume_manager_finalize ();
+            GLib.Application unique = new GLib.Application ("org.lxdesktop", 0);
+            unique.register ();
             
-            Fm.finalize ();
+            if (!unique.get_is_remote () || global_debug_mode) {
+                
+                Fm.init (global_config);
+                /*** fm_volume_manager_init (); ***/
+
+                global_app.run (global_debug_mode);
+            
+                /*** fm_volume_manager_finalize (); ***/
+                Fm.finalize ();
+            
+            } else {
+                
+                stdout.printf ("already running !!!!\n");
+            }
             
             return 0;
         }

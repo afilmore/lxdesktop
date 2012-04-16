@@ -124,6 +124,11 @@ namespace Fm {
 		public unowned string to_uri ();
 
         public inline bool is_virtual ();
+        public inline bool is_trash_root ();
+        public inline bool is_trash ();
+//~         #define fm_path_is_native(path) (fm_path_get_flags(path)&FM_PATH_IS_NATIVE)
+//~         #define fm_path_is_local(path) (fm_path_get_flags(path)&FM_PATH_IS_LOCAL)
+//~         #define fm_path_is_xdg_menu(path) (fm_path_get_flags(path)&FM_PATH_IS_XDG_MENU)
 	}
 
 	[CCode (cheader_filename = "libfm.h")]
