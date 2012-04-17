@@ -21,12 +21,12 @@ namespace Desktop {
         private Fm.FileInfo     _fileinfo;
         
         // Position of the item on the desktop and it's index on the grid
-        //~ public int index = -1; // cache the index ???
-        public Gdk.Point pixel_pos;
-        public Gdk.Point cell_pos;
+        /*** public int index = -1; // cache the index ??? ***/
+        public Gdk.Point        pixel_pos;
+        public Gdk.Point        cell_pos;
         
-        public Gdk.Rectangle icon_rect;
-        public Gdk.Rectangle text_rect;
+        public Gdk.Rectangle    icon_rect;
+        public Gdk.Rectangle    text_rect;
         
         public bool is_selected = false;
         
@@ -99,7 +99,7 @@ namespace Desktop {
             window.invalidate_rect (rect, false);
         }
 
-        public void move_item (Gdk.Window window, int new_x, int new_y, bool redraw = false) {
+        public void move (Gdk.Window window, int new_x, int new_y, bool redraw = false) {
             
             // invalidate current icon area to queue a redraw.
             if (redraw == true)
@@ -111,7 +111,7 @@ namespace Desktop {
             
             // new origin.
             pixel_pos.x = new_x;
-            pixel_pos.x = new_y;
+            pixel_pos.y = new_y;
             
             // move the icon and the text to the new position.
             this.icon_rect.x += offset_x;

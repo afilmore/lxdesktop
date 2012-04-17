@@ -152,7 +152,7 @@ namespace Desktop {
             this.button_release_event.connect   (_on_button_release);
             this.motion_notify_event.connect    (_on_motion_notify);
             
-            this.drag_begin.connect             (_on_drag_begin);
+            this.drag_begin.connect_after       (_on_drag_begin);
             this.drag_motion.connect            (_on_drag_motion);
             this.drag_leave.connect             (_on_drag_leave);
             this.drag_drop.connect              (_on_drag_drop);
@@ -747,6 +747,14 @@ namespace Desktop {
         }
 
         
+        /*******************************************************************************************
+         *  *** Widget Signal Handlers ***
+         * 
+         *      Drag And Drop Handling
+         * 
+         *      http://developer.gnome.org/gtk/2.24/GtkWidget.html#GtkWidget-drag-begin
+         * 
+         ******************************************************************************************/
         private inline void _set_drop_hilight (Desktop.Item? dest_item) {
             
             if (dest_item != drop_hilight) {
@@ -761,73 +769,61 @@ namespace Desktop {
             }
         }
 
-        private bool _on_drag_failed (Gtk.Widget dest_widget, Gdk.DragContext drag_context, Gtk.DragResult result) {
-            
-            /*** The ::drag-begin signal is emitted on the drag source when
-             *  a drag is started. A typical reason to connect to this signal
-             *  is to set up a custom drag icon with gtk_drag_source_set_icon().
-             * Note that some widgets set up a drag icon in the default handler
-             *  of this signal, so you may have to use g_signal_connect_after()
-             *  to override what the default handler did. ***/
-             
-            stdout.printf ("DRAG FAILED !!!\n");
-            return true;
-             
-        }
         private void _on_drag_begin (Gtk.Widget dest_widget, Gdk.DragContext drag_context) {
             
-            /*** The ::drag-begin signal is emitted on the drag source when
-             *  a drag is started. A typical reason to connect to this signal
-             *  is to set up a custom drag icon with gtk_drag_source_set_icon().
-             * Note that some widgets set up a drag icon in the default handler
-             *  of this signal, so you may have to use g_signal_connect_after()
-             *  to override what the default handler did. ***/
-             
+            /***************************************************************************************
+             * From Gtk+ Reference Manual. (2.24)
+             * 
+             * The ::drag-begin signal is emitted on the drag source when a drag is started.
+             * A typical reason to connect to this signal is to set up a custom drag icon with
+             * gtk_drag_source_set_icon().
+             * Note that some widgets set up a drag icon in the default handler of this signal,
+             * so you may have to use g_signal_connect_after() to override what the default
+             * handler did.
+             * 
+             ***/
+            
             Desktop.Item selected = _grid.get_selected_item ();
             if (selected != null) {
                 stdout.printf ("ICON !!!\n");
-                Gtk.drag_set_icon_pixbuf (drag_context, selected.icon, 0, 0);
+                Gtk.drag_set_icon_pixbuf (drag_context, selected.icon, -5, -5);
             }
             stdout.printf ("DRAG BEGIN !!!\n");
             return;
              
         }
         
-        /*******************************************************************************************
-         *  *** Widget Signal Handlers ***
-         * 
-         *      Drag And Drop Handling
-         * 
-         *      http://developer.gnome.org/gtk/2.24/GtkWidget.html#GtkWidget-drag-begin
-         * 
-         ******************************************************************************************/
         private bool _on_drag_motion (Gtk.Widget dest_widget,
                                       Gdk.DragContext drag_context,
                                       int x,
                                       int y,
                                       uint time) {
             
-            /*** The drag-motion signal is emitted on the drop site when the
-             *  user moves the cursor over the widget during a drag. The
-             *  signal handler must determine whether the cursor position
-             *  is in a drop zone or not. If it is not in a drop zone, 
-             * it returns FALSE and no further processing is necessary. 
-             * Otherwise, the handler returns TRUE. In this case, the handler is 
-             * responsible for providing the necessary information for displaying
-             *  feedback to the user, by calling gdk_drag_status().
-
-            If the decision whether the drop will be accepted or rejected can't be
-            *  made based solely on the cursor position and the type of the data, 
-            * the handler may inspect the dragged data by calling gtk_drag_get_data()
-            *  and defer the gdk_drag_status() call to the "drag-data-received" handler.
-            *  Note that you cannot not pass GTK_DEST_DEFAULT_DROP, GTK_DEST_DEFAULT_MOTION 
-            * or GTK_DEST_DEFAULT_ALL to gtk_drag_dest_set() when using the drag-motion signal that way.
-
-            Also note that there is no drag-enter signal. The drag receiver has to keep track
-            *  of whether he has received any drag-motion signals since the last "drag-leave"
-            *  and if not, treat the drag-motion signal as an "enter" signal. Upon an "enter",
-            *  the handler will typically highlight the drop site with gtk_drag_highlight().
-            ***/
+            /***************************************************************************************
+             * From Gtk+ Reference Manual. (2.24)
+             * 
+             * The drag-motion signal is emitted on the drop site when the user moves the cursor
+             * over the widget during a drag. The signal handler must determine whether the cursor
+             * position is in a drop zone or not. If it is not in a drop zone, it returns FALSE
+             * and no further processing is necessary. Otherwise, the handler returns TRUE. In
+             * this case, the handler is responsible for providing the necessary information for
+             * displaying feedback to the user, by calling gdk_drag_status().
+             * 
+             * If the decision whether the drop will be accepted or rejected can't be made based
+             * solely on the cursor position and the type of the data, the handler may inspect
+             * the dragged data by calling gtk_drag_get_data() and defer the gdk_drag_status() call
+             * to the "drag-data-received" handler.
+             * 
+             * Note that you cannot not pass GTK_DEST_DEFAULT_DROP, GTK_DEST_DEFAULT_MOTION 
+             * or GTK_DEST_DEFAULT_ALL to gtk_drag_dest_set() when using the drag-motion signal
+             * that way.
+             * 
+             * Also note that there is no drag-enter signal. The drag receiver has to keep track
+             * of whether he has received any drag-motion signals since the last "drag-leave"
+             * and if not, treat the drag-motion signal as an "enter" signal. Upon an "enter",
+             * the handler will typically highlight the drop site with gtk_drag_highlight().
+             * 
+             ***/
             
             Gdk.Atom target;
             
@@ -889,7 +885,7 @@ namespace Desktop {
                 
                 if (target == Gdk.Atom.NONE) {
                     
-                    stdout.printf ("%u:_on_drag_motion: target == Gdk.Atom.NONE !!!\n", time);
+                    //stdout.printf ("%u:_on_drag_motion: target == Gdk.Atom.NONE !!!\n", time);
                     Gdk.drag_status (drag_context, 0, time);
                     this._set_drop_hilight (dest_item);
 
@@ -911,12 +907,14 @@ namespace Desktop {
         private void _on_drag_leave  (Gdk.DragContext drag_context,
                                       uint time) {
                                           
-            /*******************************************************************
-             * The ::drag-leave signal is emitted on the drop site when the
-             * cursor leaves the widget.
-             *  A typical reason to connect to this signal is to undo things
-             * done in "drag-motion",
-             *  e.g. undo highlighting with gtk_drag_unhighlight() ***/
+            /***************************************************************************************
+             * From Gtk+ Reference Manual. (2.24)
+             * 
+             * The ::drag-leave signal is emitted on the drop site when the cursor leaves the
+             * widget. A typical reason to connect to this signal is to undo things done in
+             * "drag-motion", e.g. undo highlighting with gtk_drag_unhighlight()
+             * 
+             ***/
             
             stdout.printf ("%u: DRAG LEAVE !!!\n", time);
             
@@ -938,73 +936,63 @@ namespace Desktop {
                                     int y,
                                     uint time) {
                                         
-            /*** The ::drag-drop signal is emitted on the drop site when
-             *  the user drops the data onto the widget. The signal handler
-             *  must determine whether the cursor position is in a drop zone
-             *  or not. If it is not in a drop zone, it returns FALSE and no
-             *  further processing is necessary. Otherwise, the handler returns TRUE.
-             *  In this case, the handler must ensure that gtk_drag_finish() is called
-             * to let the source know that the drop is done. The call to gtk_drag_finish()
-             *  can be done either directly or in a "drag-data-received" handler which gets
-             *  triggered by calling gtk_drag_get_data() to receive the data for one or
-             *  more of the supported targets.
+            /***************************************************************************************
+             * From Gtk+ Reference Manual. (2.24)
+             * 
+             * The ::drag-drop signal is emitted on the drop site when the user drops the data
+             * onto the widget. The signal handler must determine whether the cursor position is
+             * in a drop zone or not. If it is not in a drop zone, it returns FALSE and no further
+             * processing is necessary. Otherwise, the handler returns TRUE.
+             * 
+             * In this case, the handler must ensure that gtk_drag_finish() is called to let the
+             * source know that the drop is done. The call to gtk_drag_finish() can be done either
+             * directly or in a "drag-data-received" handler which gets triggered by calling
+             * gtk_drag_get_data() to receive the data for one or more of the supported targets.
+             * 
              ***/
             
-            stdout.printf ("DRAG DROP !!!\n");
-            
-            // Check if we're dragging over an item
+            // Check if we're dragging over an item.
             Desktop.Item dest_item = _grid.hit_test (x, y);
             
-            if (dest_item == null) {
-                stdout.printf ("MOVE !!!\n");
-                return false;
-            }
-            
-            // We can only allow dropping on desktop entry file, folder
-            /*** libfm cannot detect if the file is executable !
-                 !fm_file_info_is_executable_type(dest_item->fi) && ***/
-            
-            Fm.FileInfo? fi = dest_item.get_fileinfo ();
-            
-            if (fi == null)
-               return false;
-            
-            if (!fi.is_dir ()
-                && !fi.is_desktop_entry ()
-                && !fi.get_path ().is_trash_root ()) {
-               
-               return false;
-            }
-
-            // Handle moving desktop items
-            
             Gdk.Atom target = Gdk.Atom.intern_static_string (dnd_targets[0].target);
+            bool can_drop = (Fm.drag_context_has_target (drag_context, target)
+                             && (drag_context.actions & Gdk.DragAction.MOVE) != 0);
             
-            if (Fm.drag_context_has_target (drag_context, target)
-                && (drag_context.actions & Gdk.DragAction.MOVE) != 0) {
-                   
-                stdout.printf ("move item\n");
+            if (dest_item == null
+                && can_drop) {
                 
-                _grid.move_items (x, y, _drag_start_x, _drag_start_y);
+                _grid.move_items (x - _drag_start_x, y - _drag_start_y);
                 
                 Gtk.drag_finish (drag_context, true, false, time);
 
                 this._grid.save_item_pos ();
                 this._grid.queue_layout_items ();
                 
-                target = _fm_dnd_dest.find_target (drag_context);
-                
-                stdout.printf ("try FmDndDest\n");
-                
-                // try FmDndDest
-                if (_fm_dnd_dest.drag_drop (drag_context, target, x, y, time))
-                    return true;
-                    
-                stdout.printf ("failed\n");
-                Gtk.drag_finish (drag_context, false, false, time);
-            
+                return true;
             }
             
+            /*******************************************************************
+             * Drop Into A Desktop Item.
+             * 
+             * Drop on Desktop Entry files, folders or Trash Can.
+             * It seems that LibFm cannot detect if the file is executable !
+             * 
+             ***/
+            Fm.FileInfo fi = dest_item.get_fileinfo ();
+            
+            if ((fi == null
+                || fi.is_dir ()
+                || fi.is_desktop_entry ()
+                || fi.get_path ().is_trash_root ())
+                && can_drop) {
+                   
+                target = _fm_dnd_dest.find_target (drag_context);
+                
+                if (_fm_dnd_dest.drag_drop (drag_context, target, x, y, time))
+                    return true;
+            }
+            
+            Gtk.drag_finish (drag_context, false, false, time);
             return false;
         }
 
@@ -1052,7 +1040,23 @@ namespace Desktop {
             }
         }
 
-
+        private bool _on_drag_failed (Gtk.Widget dest_widget, Gdk.DragContext drag_context, Gtk.DragResult result) {
+            
+            /***************************************************************************************
+             * From Gtk+ Reference Manual. (2.24)
+             * 
+             * The ::drag-failed signal is emitted on the drag source when a drag has failed.
+             * The signal handler may hook custom code to handle a failed DND operation based on
+             * the type of error, it returns TRUE is the failure has been already handled
+             * (not showing the default "drag operation failed" animation),
+             * otherwise it returns FALSE.
+             ***/
+             
+            stdout.printf ("DRAG FAILED !!!\n");
+            return true;
+        }
+        
+        
         /*******************************************************************************************
          * *** Widget Signal Handlers ***
          * 
@@ -1078,10 +1082,9 @@ namespace Desktop {
          * 
          * 
          ******************************************************************************************/
-        public void set_background () {
+        public void set_background (bool set_root = false) {
             
             Gdk.Window window = this.get_window ();
-            //Gdk.Window root = this.get_screen ().get_root_window ();
             
             Fm.WallpaperMode wallpaper_mode = global_config.wallpaper_mode;
             Gdk.Pixbuf? pix;
@@ -1099,9 +1102,12 @@ namespace Desktop {
                 window.set_back_pixmap (null, false);
                 window.set_background (bg);
                 
-                /*root.set_back_pixmap (null, false);
-                root.set_background (bg);
-                root.clear ();*/
+                if (set_root) {
+                    Gdk.Window root = this.get_screen ().get_root_window ();
+                    root.set_back_pixmap (null, false);
+                    root.set_background (bg);
+                    root.clear ();
+                }
                 window.clear ();
                 window.invalidate_rect (null, true);
                 return;

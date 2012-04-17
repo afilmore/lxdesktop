@@ -115,9 +115,15 @@ namespace Desktop {
                 
                 Desktop.Window desktop = new Desktop.Window ();
 
-                string config_file = "%s/.items-%d.conf".printf (
-                                     Environment.get_user_special_dir (UserDirectory.DESKTOP),
-                                     i);                
+                string config_file;
+                if (_debug_mode)
+                    config_file = "%s/.items-%d-debug.conf".printf (
+                                  Environment.get_user_special_dir (UserDirectory.DESKTOP),
+                                  i);                
+                else
+                    config_file = "%s/.items-%d.conf".printf (
+                                  Environment.get_user_special_dir (UserDirectory.DESKTOP),
+                                  i);                
 
                 desktop.create (config_file, _debug_mode);
             

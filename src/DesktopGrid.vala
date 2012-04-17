@@ -377,18 +377,64 @@ namespace Desktop {
             }
         }
         
-        public void move_items (int x, int y, int drag_x, int drag_y) {
+        public void move_items (int offset_x, int offset_y) {
             
-            /*** Moving Desktop Items
-            int offset_x = x - drag_x;
-            int offset_y = y - drag_y;
+            stdout.printf ("Desktop.Grid.move_items (): MOVE !!!!!!!\n");
 
-            foreach (Desktop.Item item in _grid_items) {
-                if (item.is_selected)
-                    item.move (_window, item.x + offset_x, item.y + offset_y, false);
-            }***/
+            bool align_items = true;
+            
+            unowned List<Desktop.Item>? list;
+            
+            for (list = _grid_items.first (); list != null; list = list.next) {
+            
+                Desktop.Item item = list.data as Desktop.Item;
+                if (item.is_selected) {
+                    
+                    int new_x = item.pixel_pos.x + offset_x;
+                    int new_y = item.pixel_pos.y + offset_y;
+                    
+                    // nearest cell index...
+                    int xx = (new_x + (_cell_width / 2)) / _cell_width;
+                    int yy = (new_y + (_cell_height / 2)) / _cell_height;
+                    stdout.printf ("move_items: move item to %d, %d\n", xx, yy);
+                    
+                    // cell index to top left pixel
+                    int xxx = xx * _cell_width;
+                    int yyy = yy * _cell_height;
+                    stdout.printf ("move_items: move item to %d, %d\n", xxx, yyy);
+                    
+                    // TODO: to align on the grid we need to invalidate the index pos and move the item...
+                    
+                    if (align_items) {
+                        new_x = xxx;
+                        new_y = yyy;
+                    }
+                    
+                    item.cell_pos.x = xx;
+                    item.cell_pos.y = yy;
+                    
+//~                     list.data = null;
+//~                     _grid_items.delete_link (list);
+//~                     
+//~                     this.insert_item (item);
+                    
+                    item.move (_window, new_x, new_y, true);
+                }
+            }
+
+            /*for (list = _grid_items.first (); list != null; list = list.next) {
+            
+                Desktop.Item item = list.data as Desktop.Item;
+                if (item.is_selected) {
+                    
+                    // TODO: to align on the grid we need to invalidate the index pos and move the item...
+                    
+                    
+                    
+                }
+            }*/
         }
-
+        
         public void queue_layout_items () {
             
             if (_idle_layout == 0)
