@@ -286,7 +286,7 @@ namespace Desktop {
             
             global_app = new Application ();
             
-            GLib.Application unique = new GLib.Application ("org.lxdesktop", 0);
+            GLib.Application unique = new GLib.Application ("org.noname.lxdesktop", 0);
             unique.register ();
             
             if (!unique.get_is_remote () || global_debug_mode) {

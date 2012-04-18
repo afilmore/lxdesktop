@@ -208,7 +208,7 @@ namespace Desktop {
             // Origin on the grid...
             item.pixel_pos.x = (item.cell_pos.x  * _cell_width);
             item.pixel_pos.y = (item.cell_pos.y  * _cell_height);
-            
+            item.index = item.cell_to_index (_num_cell.y);
             // Icon position...
             item.icon_rect.x = item.pixel_pos.x    + (_cell_width - item.icon_rect.width) / 2;
             item.icon_rect.y = item.pixel_pos.y;
@@ -377,12 +377,10 @@ namespace Desktop {
             }
         }
         
-        public void move_items (int offset_x, int offset_y) {
+        public void move_items (int offset_x, int offset_y, bool align_items = true) {
             
             stdout.printf ("Desktop.Grid.move_items (): MOVE !!!!!!!\n");
 
-            bool align_items = true;
-            
             unowned List<Desktop.Item>? list;
             
             for (list = _grid_items.first (); list != null; list = list.next) {
@@ -404,7 +402,6 @@ namespace Desktop {
                     stdout.printf ("move_items: move item to %d, %d\n", xxx, yyy);
                     
                     // TODO: to align on the grid we need to invalidate the index pos and move the item...
-                    
                     if (align_items) {
                         new_x = xxx;
                         new_y = yyy;
@@ -412,27 +409,31 @@ namespace Desktop {
                     
                     item.cell_pos.x = xx;
                     item.cell_pos.y = yy;
-                    
-//~                     list.data = null;
-//~                     _grid_items.delete_link (list);
-//~                     
-//~                     this.insert_item (item);
+                    item.index = item.cell_to_index (_num_cell.y);
                     
                     item.move (_window, new_x, new_y, true);
                 }
             }
 
-            /*for (list = _grid_items.first (); list != null; list = list.next) {
+            _grid_items.sort ((CompareFunc<Desktop.Item>) _compare_func);
             
-                Desktop.Item item = list.data as Desktop.Item;
-                if (item.is_selected) {
-                    
-                    // TODO: to align on the grid we need to invalidate the index pos and move the item...
-                    
-                    
-                    
-                }
-            }*/
+            /*
+             * TODO: sort the list of items....
+             * 
+             * _grid_items.sort (_compare_func)
+             * 
+             * 
+             */
+        }
+        
+        public static int _compare_func (Desktop.Item item1, Desktop.Item item2) {
+        
+            string name1 = item1.get_disp_name ();
+            string name2 = item2.get_disp_name ();
+            
+            stdout.printf ("comparing %s and %s\n", name1, name2);
+            
+            return item1.index - item2.index;
         }
         
         public void queue_layout_items () {
@@ -511,7 +512,8 @@ namespace Desktop {
         public void insert_item (Desktop.Item new_item) {
             
             // Invalid position ?
-            if (new_item.cell_pos.x == -1
+            if (new_item.index == -1
+                || new_item.cell_pos.x == -1
                 || new_item.cell_pos.y == -1) {
                 
             // Empty grid ?
@@ -531,6 +533,7 @@ namespace Desktop {
                         
                         Gdk.Point pos;
                         if (this.find_free_pos (out pos)) {
+                            new_item.index = new_idx;
                             new_item.cell_pos.x = pos.x;
                             new_item.cell_pos.y = pos.y;
                             break;
@@ -773,7 +776,7 @@ namespace Desktop {
                  */
                 foreach (Desktop.Item item in _grid_items) {
                     config += "[%s]\n".printf (item.get_fileinfo ().get_path ().to_str ());
-                    config += "index    = %d\n".printf (item.cell_to_index (_num_cell.y));
+                    config += "index    = %d\n".printf (item.index);
                     config += "cell_x   = %d\n".printf (item.cell_pos.x);
                     config += "cell_y   = %d\n".printf (item.cell_pos.y);
                     config += "pixel_x  = %d\n".printf (item.pixel_pos.x);
@@ -800,16 +803,13 @@ namespace Desktop {
                 if (kf.has_group (group) == false)
                     return false;
                 
-                int idx_x = -1;
-                int idx_y = -1;
-            
-                idx_x = kf.get_integer (group, "cell_x");
-                idx_y = kf.get_integer (group, "cell_y");
-                
-                item.cell_pos.x = idx_x;
-                item.cell_pos.y = idx_y;
+                item.index      = kf.get_integer (group, "index");;
+                item.cell_pos.x = kf.get_integer (group, "cell_x");;
+                item.cell_pos.y = kf.get_integer (group, "cell_y");;
             
             } catch (Error e) {
+                
+                item.index      = -1;
                 item.cell_pos.x = -1;
                 item.cell_pos.y = -1;
                 return false;

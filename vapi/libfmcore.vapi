@@ -306,16 +306,16 @@ namespace Fm {
                                            GLib.Error error);
 
 	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
-	public static bool launch_file_simple (Gtk.Window parent,
+	public static bool launch_file (Gtk.Window parent,
                                            GLib.AppLaunchContext ctx,
                                            Fm.FileInfo file_info,
                                            Fm.LaunchFolderFunc func);
 
 	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]
-	public static bool launch_files_simple (Gtk.Window parent,
-                                            GLib.AppLaunchContext ctx,
-                                            GLib.List file_infos,
-                                            Fm.LaunchFolderFunc func);
+	public static bool launch_multiple_files (Gtk.Window parent,
+                                                 GLib.AppLaunchContext ctx,
+                                                 GLib.List file_infos,
+                                                 Fm.LaunchFolderFunc func);
     
     /* include these when needed...
 	[CCode (cprefix = "fm_", cheader_filename = "fm-gtk-launcher.h")]

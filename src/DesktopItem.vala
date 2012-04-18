@@ -21,14 +21,14 @@ namespace Desktop {
         private Fm.FileInfo     _fileinfo;
         
         // Position of the item on the desktop and it's index on the grid
-        /*** public int index = -1; // cache the index ??? ***/
+        public int              index;
         public Gdk.Point        pixel_pos;
         public Gdk.Point        cell_pos;
         
         public Gdk.Rectangle    icon_rect;
         public Gdk.Rectangle    text_rect;
         
-        public bool is_selected = false;
+        public bool             is_selected = false;
         
         /*** TODO: Manage Special Items like "My Computer", "Trash Can", mounted volumes, etc... ***/
         
@@ -48,6 +48,7 @@ namespace Desktop {
             icon = pix_icon;
             _fileinfo = fileinfo;
             
+            index = -1;
             cell_pos.x = -1;
             cell_pos.y = -1;
             icon_rect.x = 0;

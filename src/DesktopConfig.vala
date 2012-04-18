@@ -55,7 +55,7 @@ namespace Desktop {
         public bool             show_trashcan = true;
         public bool             show_mount = false;
         
-        /*
+        /***
         char*                 desktop_font;
         private PangoFontDescription* font_desc = null;
             if (desktop_font)
@@ -85,7 +85,7 @@ namespace Desktop {
         private uint big_icon_size_changed = 0;
         private uint desktop_text_changed = 0;
         private uint desktop_font_changed = 0;
-        */
+        ***/
         
         //public Fm.FileColumn    sort_by = Fm.FileColumn.NAME; // generates a compile error in Vala....
         
@@ -101,15 +101,19 @@ namespace Desktop {
         
         public Config () {
             
-            // set a default background color.
+            // Set a default background color.
             Gdk.Color.parse ("#3C6DA5", out color_background); // Win2K's blue desktop :P
             Gdk.Color.parse ("#FFFFFF", out color_text);
             Gdk.Color.parse ("#000000", out color_shadow);
             
-            // overload libfm default config (see LibFm/src/base/fm-config.h)
+            // Overload libfm default config (see LibFm/src/base/fm-config.h)
             big_icon_size = 36;
             show_thumbnail = false;
             
+            Settings settings = new Settings ("desktop.noname.applications.filemanager");
+
+            // Getting keys
+            this.app_filemanager = settings.get_string ("default");
         }
         
         
