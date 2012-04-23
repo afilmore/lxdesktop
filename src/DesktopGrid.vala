@@ -50,8 +50,8 @@ namespace Desktop {
         private Desktop.Item?   _selected_item = null;
 
         /*** Icon Pixbuf renderer, replace with Fm.CellRendererPixbuf to draw Item's arrows
-        private Fm.CellRendererPixbuf   _icon_renderer; ***/
-        private Gtk.CellRendererPixbuf  _icon_renderer;
+        private Gtk.CellRendererPixbuf  _icon_renderer;***/
+        private Fm.CellRendererPixbuf   _icon_renderer; 
         
         // GTK3_MIGRATION
         private Gdk.GC _gc;
@@ -82,14 +82,19 @@ namespace Desktop {
             /*******************************************************************
              * Switch to a FmPixbufRenderer later.
              * 
-             * 
+             *
             _icon_renderer = new Fm.CellRendererPixbuf ();
             Object.set (_icon_renderer, "follow-state", true, null);
             Object.ref_sink (_icon_renderer);
             _icon_renderer.set_fixed_size (global_config.big_icon_size, global_config.big_icon_size);
-            */
+            
             
             _icon_renderer = new Gtk.CellRendererPixbuf ();
+            _icon_renderer.set ("follow-state", true, null);
+            _icon_renderer.ref_sink ();
+            _icon_renderer.set_fixed_size ((int) global_config.big_icon_size, (int) global_config.big_icon_size);
+            */
+            _icon_renderer = new Fm.CellRendererPixbuf ();
             _icon_renderer.set ("follow-state", true, null);
             _icon_renderer.ref_sink ();
             _icon_renderer.set_fixed_size ((int) global_config.big_icon_size, (int) global_config.big_icon_size);
@@ -270,7 +275,7 @@ namespace Desktop {
                              expose_area,
                              state);
              ******************************************************************/
-            this._icon_renderer.set ("pixbuf", item.icon);
+            this._icon_renderer.set ("pixbuf", item.icon, "info", item.get_fileinfo (), null);
             this._icon_renderer.render (_window,
                                         _desktop,
                                         item.icon_rect,
