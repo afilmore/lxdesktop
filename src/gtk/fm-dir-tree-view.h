@@ -59,7 +59,7 @@ struct _FmDirTreeView
 struct _FmDirTreeViewClass
 {
     GtkTreeViewClass parent_class;
-    void (*chdir)(FmDirTreeView* view, guint button, FmPath* path);
+    void (*directory_changed)(FmDirTreeView* view, guint button, FmPath* path);
 };
 
 

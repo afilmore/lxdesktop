@@ -40,7 +40,7 @@
 #include "fm-dnd-auto-scroll.h"
 
 enum{
-    CHDIR,
+    DIRECTORY_CHANGED,
     LOADED,
     CLICKED,
     SEL_CHANGED,
@@ -86,16 +86,16 @@ static void fm_folder_view_class_init(FmFolderViewClass *klass)
     widget_class = GTK_WIDGET_CLASS(klass);
     widget_class->focus_in_event = on_folder_view_focus_in;
     fv_class = FM_FOLDER_VIEW_CLASS(klass);
-    fv_class->chdir = on_chdir;
+    fv_class->directory_changed = on_chdir;
     fv_class->loaded = on_loaded;
 
     fm_folder_view_parent_class = (GtkScrolledWindowClass*)g_type_class_peek(GTK_TYPE_SCROLLED_WINDOW);
 
-    signals[CHDIR]=
-        g_signal_new("chdir",
+    signals[DIRECTORY_CHANGED]=
+        g_signal_new("directory-changed",
                      G_TYPE_FROM_CLASS(klass),
                      G_SIGNAL_RUN_FIRST,
-                     G_STRUCT_OFFSET(FmFolderViewClass, chdir),
+                     G_STRUCT_OFFSET(FmFolderViewClass, directory_changed),
                      NULL, NULL,
                      g_cclosure_marshal_VOID__POINTER,
                      G_TYPE_NONE, 1, G_TYPE_POINTER);
@@ -269,7 +269,7 @@ static void fm_folder_view_init(FmFolderView *self)
     gtk_scrolled_window_set_policy((GtkScrolledWindow*)self, GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
     /* config change notifications */
-    g_signal_connect(fm_config, "changed::single_click", G_CALLBACK(on_single_click_changed), self);
+//    g_signal_connect(fm_config, "changed::single_click", G_CALLBACK(on_single_click_changed), self);
 
     /* dnd support */
     self->dnd_src = fm_dnd_src_new(NULL);
@@ -494,7 +494,7 @@ static inline void create_icon_view(FmFolderView* fv, GList* sels)
 
     if(fv->mode == FM_FV_COMPACT_VIEW) /* compact view */
     {
-        fv->icon_size_changed_handler = g_signal_connect(fm_config, "changed::small_icon_size", G_CALLBACK(on_small_icon_size_changed), fv);
+//        fv->icon_size_changed_handler = g_signal_connect(fm_config, "changed::small_icon_size", G_CALLBACK(on_small_icon_size_changed), fv);
         icon_size = fm_config->small_icon_size;
         fm_cell_renderer_pixbuf_set_fixed_size(FM_CELL_RENDERER_PIXBUF(fv->renderer_pixbuf), icon_size, icon_size);
         if(model)
@@ -579,7 +579,7 @@ static inline void create_list_view(FmFolderView* fv, GList* sels)
 
     render = fm_cell_renderer_pixbuf_new();
     fv->renderer_pixbuf = render;
-    fv->icon_size_changed_handler = g_signal_connect(fm_config, "changed::small_icon_size", G_CALLBACK(on_small_icon_size_changed), fv);
+//    fv->icon_size_changed_handler = g_signal_connect(fm_config, "changed::small_icon_size", G_CALLBACK(on_small_icon_size_changed), fv);
     icon_size = fm_config->small_icon_size;
     fm_cell_renderer_pixbuf_set_fixed_size(FM_CELL_RENDERER_PIXBUF(fv->renderer_pixbuf), icon_size, icon_size);
     if(model)
@@ -892,7 +892,7 @@ gboolean fm_folder_view_chdir(FmFolderView* fv, FmPath* path)
     }
 
     /* FIXME: the signal handler should be able to cancel the loading. */
-    g_signal_emit(fv, signals[CHDIR], 0, path);
+    g_signal_emit(fv, signals[DIRECTORY_CHANGED], 0, path);
     if(fv->cwd)
         fm_path_unref(fv->cwd);
     fv->cwd = fm_path_ref(path);

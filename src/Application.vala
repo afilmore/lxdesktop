@@ -58,18 +58,50 @@ namespace Desktop {
 
         public Application (bool debug = false) {
             
-            Object (application_id:"org.noname.lxdesktop", flags:(ApplicationFlags.HANDLES_COMMAND_LINE));
+            string app_id = "org.noname.lxdesktop";
+            
+            if (debug)
+                app_id = "org.noname.lxdesktop-debug";
+            
+            Object (application_id:app_id, flags:(ApplicationFlags.HANDLES_COMMAND_LINE));
             
             _debug_mode = debug;
         }
         
-        public bool create () {
+        private void _on_startup () {
+            
+            stdout.printf ("on_startup\n");
+        }
+        
+        private void _on_activated () {
+
+            stdout.printf ("on_activated\n");
+        }
+        
+        private int _on_command_line (ApplicationCommandLine command_line) {
+            
+            /*** We handle only remote command lines here... ***/
+            if (!command_line.get_is_remote ())
+                return 0;
+            
+            stdout.printf ("Remote Command Line !!!\n");
+            
+            string[] args = command_line.get_arguments ();
+
+
+            // TODO; parse command line, create manager window....
+
+            return 0;
+        }
+        
+        
+        
+        
+        public bool create_desktop () {
             
             if (global_model != null)
                 return false;
                 
-            //_debug_mode = debug;
-            
             if (_wingroup == null)
                 _wingroup = new Gtk.WindowGroup ();
             
@@ -109,42 +141,6 @@ namespace Desktop {
             
             return true;
         }
-        
-        
-        
-        private void _on_startup () {
-            
-            stdout.printf ("on_startup\n");
-        }
-        
-        private int _on_command_line (ApplicationCommandLine command_line) {
-            
-            bool primary_instance = !command_line.get_is_remote ();
-            
-            if (primary_instance) {
-                print ("Primary Instance Command Line !!!\n");
-            } else {
-                print ("Remote Command Line !!!\n");
-            }
-            
-            string[] args = command_line.get_arguments ();
-
-            //this.activate ();
-
-            if (primary_instance) {
-
-                this.hold ();
-            }
-            return 0;
-        }
-        
-        private void _on_activated () {
-
-            stdout.printf ("on_activated\n");
-        }
-        
-        
-        
         
         private void _on_model_loaded () {
             
@@ -293,7 +289,6 @@ namespace Desktop {
                 Gtk.TreeIter    it;
                 Gdk.Pixbuf      icon;
 
-            //return;
                 // Load Desktop files/folders from the Global Model, add Desktop Items to the Grid.
                 if (!global_model.get_iter_first (out it))
                     continue;
@@ -324,13 +319,10 @@ namespace Desktop {
             } catch {
             }
             
-            // Create the Desktop configuration, this object derivates of Fm.Config.
-            global_config = new Desktop.Config ();
-            
             global_app = new Desktop.Application (global_debug_mode);
             
-            global_app.activate.connect (global_app._on_activated);
             global_app.startup.connect (global_app._on_startup);
+            global_app.activate.connect (global_app._on_activated);
             global_app.command_line.connect (global_app._on_command_line);
             
             try {
@@ -340,19 +332,26 @@ namespace Desktop {
                 return -1;
             }
             
+            /*** Primary Instance... Create The Desktop Window ***/
             if (!global_app.get_is_remote () /*|| global_debug_mode*/) {
                 
+                // Create the Desktop configuration, this object derivates of Fm.Config.
+                global_config = new Desktop.Config ();
+            
                 Fm.init (global_config);
                 // *** fm_volume_manager_init (); *** /
 
-                global_app.create ();
+                global_app.create_desktop ();
             
                 // *** fm_volume_manager_finalize (); *** /
                 Fm.finalize ();
 
+            /*** Remote Instance... Calling GApplication.run () will send the command line
+             *   to the primary instance via DBus :) Marvelous :-P
+             ***/
             } else {
                 
-                stdout.printf ("already an instance !!!\n");
+                //stdout.printf ("already an instance !!!\n");
                 return global_app.run (args);
             }
             

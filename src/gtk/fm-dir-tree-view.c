@@ -25,7 +25,7 @@
 
 enum
 {
-    CHDIR,
+    DIRECTORY_CHANGED,
     N_SIGNALS
 };
 
@@ -159,11 +159,11 @@ static void fm_dir_tree_view_class_init(FmDirTreeViewClass *klass)
     /* tree_view_class->row_expanded = on_row_expanded; */
     tree_view_class->row_activated = on_row_activated;
 
-    signals[CHDIR] =
-        g_signal_new("chdir",
+    signals[DIRECTORY_CHANGED] =
+        g_signal_new("directory-changed",
                      G_TYPE_FROM_CLASS(klass),
                      G_SIGNAL_RUN_LAST,
-                     G_STRUCT_OFFSET(FmDirTreeViewClass, chdir),
+                     G_STRUCT_OFFSET(FmDirTreeViewClass, directory_changed),
                      NULL, NULL,
                      g_cclosure_marshal_VOID__UINT_POINTER,
                      G_TYPE_NONE, 2, G_TYPE_UINT, G_TYPE_POINTER);
@@ -182,7 +182,7 @@ static void emit_chdir_if_needed(FmDirTreeView* view, GtkTreeSelection* tree_sel
         if(view->cwd)
             fm_path_unref(view->cwd);
         view->cwd = G_LIKELY(path) ? fm_path_ref(path) : NULL;
-        g_signal_emit(view, signals[CHDIR], 0, button, view->cwd);
+        g_signal_emit(view, signals[DIRECTORY_CHANGED], 0, button, view->cwd);
     }
 }
 

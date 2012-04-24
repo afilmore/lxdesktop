@@ -18,10 +18,11 @@ exo_SOURCES = \
 	$(NULL)
 
 gtk_SOURCES = \
+	gtk/fm-cell-renderer-text.c \
 	gtk/fm-dir-tree-model.c \
 	gtk/fm-dir-tree-view.c \
 	gtk/fm-folder-view.c \
-	gtk/fm-cell-renderer-text.c \
+	gtk/fm-path-entry.c \
 	$(NULL)
 
 TEMP = \
@@ -45,6 +46,7 @@ lxdesktop_SOURCES = \
 	DesktopWindow.vala \
 	DesktopGrid.vala \
 	DesktopItem.vala \
+	ManagerWindow.vala \
 	Utils.vala \
 	TEMP.vala \
 	misc.c \
@@ -57,6 +59,7 @@ lxdesktop_VALAFLAGS = \
 	--pkg vconfig \
 	--pkg gtk+-2.0 \
 	--pkg libfmcore \
+	--pkg fm-gtk \
 	$(NULL)
 
 lxdesktop_CFLAGS = \
