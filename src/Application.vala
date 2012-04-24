@@ -26,27 +26,26 @@ namespace XLib {
     extern void forward_event_to_rootwin (Gdk.Screen screen, Gdk.Event event);
 }
 
+uint global_num_windows = 0;
+
 namespace Desktop {
 
     Application     global_app;
     Desktop.Config? global_config;
-    Fm.FolderModel? global_model = null;    
     
+    bool            global_desktop = false;
     bool            global_debug_mode;
         
     public const OptionEntry[] opt_entries = {
         
-        {"debug",   'd',    0,  OptionArg.NONE, ref global_debug_mode,  N_("Run In Debug Mode"), null},
+        {"desktop", '\0',   0,  OptionArg.NONE, ref global_desktop,     N_("Launch desktop manager"),   null},
+        {"debug",   'd',    0,  OptionArg.NONE, ref global_debug_mode,  N_("Run In Debug Mode"),        null},
         {null}
     };
 
     public class Application : GLib.Application {
         
-        bool                        _debug_mode = false;
-        
-        private Gtk.WindowGroup?    _wingroup = null;
-        int                         _n_screens = 0;
-        private Desktop.Window[]    _desktops;
+        bool _debug_mode = false;
         
         /*********************************************************************
          * See where to use all these variables when needed...
@@ -94,218 +93,7 @@ namespace Desktop {
             return 0;
         }
         
-        
-        
-        
-        public bool create_desktop () {
-            
-            if (global_model != null)
-                return false;
-                
-            if (_wingroup == null)
-                _wingroup = new Gtk.WindowGroup ();
-            
-            // Create a global Folder Model for the user's Desktop Directory.
-            string desktop_path = Environment.get_user_special_dir (UserDirectory.DESKTOP);
-            DirUtils.create_with_parents (desktop_path, 0700);
-            
-            Fm.Path? path = Fm.Path.get_desktop();
-            if (path == null)
-                return false;
-            Fm.Folder? folder = Fm.Folder.get (path);
-            if (folder == null)
-                return false;
-                
-            global_model = new Fm.FolderModel (folder, false);
-            if (global_model == null)
-                return false;
-                
-            // Desktop windows will be created when the model is loaded in the "loaded" callback.
-            global_model.set_icon_size (global_config.big_icon_size);
-            global_model.loaded.connect (_on_model_loaded);
-            global_model.set_sort_column_id (Fm.FileColumn.NAME, global_config.sort_type);
-            
-            /*
-                icon_theme_changed = g_signal_connect (gtk_icon_theme_get_default(),
-                                                       "changed",
-                                                       on_icon_theme_changed,
-                                                       null);
-            */
-
-            Gtk.main ();
-            
-            /*
-                Gtk.IconTheme.get_default ().disconnect (icon_theme_changed);
-                desktop_popup.destroy ();
-            */
-            
-            return true;
-        }
-        
-        private void _on_model_loaded () {
-            
-            
-            // Create an array of desktop widgets and create a widget for every screen...
-            _n_screens = Gdk.Display.get_default ().get_n_screens ();
-            _desktops = new Desktop.Window [_n_screens];
-            
-            for (int i = 0; i < _n_screens; i++) {
-                
-                Desktop.Window desktop = new Desktop.Window ();
-
-                string config_file;
-                if (_debug_mode)
-                    config_file = "%s/.items-%d-debug.conf".printf (
-                                  Environment.get_user_special_dir (UserDirectory.DESKTOP),
-                                  i);                
-                else
-                    config_file = "%s/.items-%d.conf".printf (
-                                  Environment.get_user_special_dir (UserDirectory.DESKTOP),
-                                  i);                
-
-                desktop.create (config_file, _debug_mode);
-            
-                _desktops [i] = desktop;
-                _wingroup.add_window (desktop);
-                
-                /*********************************************************************
-                 * Create special items on the desktop, this should be configurable,
-                 * it should be possible to show/hide My Computer, My Documents and
-                 * The Trash Can from dconf settings.
-                 * 
-                 * Some modifications have been done to LibFMCore's FmPath and
-                 * FmFileInfo to create easily and hopefully in a safe way these
-                 * items.
-                 * 
-                 ********************************************************************/
-                Gtk.IconTheme icon_theme = Gtk.IconTheme.get_default ();
-                
-                Desktop.Item item;
-                string icon_name;
-                Gdk.Pixbuf pixbuf;
-                Fm.FileInfo? fi;
-                
-                /* See how to handle these special icons...
-                 * "computer"
-                 * "folder-documents"
-                 * "user-trash"
-                 * "user-trash-full"
-                 * "folder-download"
-                 * "folder-music"
-                 * "folder-pictures"
-                 * "folder-publicshares"
-                 * "folder-remote"
-                 * "folder-templates"
-                 * "folder-videos"
-                 * 
-                 */
-                
-                /*********************************************************************
-                 * My Computer
-                 * 
-                 ********************************************************************/
-                icon_name = "computer";
-                pixbuf = icon_theme.load_icon (icon_name,
-                                               (int) global_config.big_icon_size,
-                                               Gtk.IconLookupFlags.FORCE_SIZE);
-                
-                fi = new Fm.FileInfo.computer ();
-                item = new Desktop.Item (pixbuf, fi);
-                desktop.get_grid ().get_saved_position (item);
-                desktop.get_grid ().insert_item (item);
-                
-                /*********************************************************************
-                 * From Glib Reference Manual :
-                 * 
-                 * These are logical ids for special directories which are defined
-                 * depending on the platform used. You should use
-                 * g_get_user_special_dir() to retrieve the full path associated to
-                 * the logical id.
-                 * 
-                 * The GUserDirectory enumeration can be extended at later date.
-                 * Not every platform has a directory for every logical id in this
-                 * enumeration.
-                 *  
-                 * Current User's Directories (GLib 2.32)
-                 * 
-                 *  The user's Desktop directory:       G_USER_DIRECTORY_DESKTOP
-                 *  The user's Documents directory:     G_USER_DIRECTORY_DOCUMENTS
-                 *  The user's Downloads directory:     G_USER_DIRECTORY_DOWNLOAD
-                 *  The user's Music directory:         G_USER_DIRECTORY_MUSIC
-                 *  The user's Pictures directory:      G_USER_DIRECTORY_PICTURES
-                 *  The user's shared directory:        G_USER_DIRECTORY_PUBLIC_SHARE
-                 *  The user's Templates directory:     G_USER_DIRECTORY_TEMPLATES
-                 *  The user's Movies directory:        G_USER_DIRECTORY_VIDEOS
-                 *  The number of enum values:          G_USER_N_DIRECTORIES
-                 * 
-                 */
-                
-                /*********************************************************************
-                 * My Documents
-                 * 
-                 ********************************************************************/
-                icon_name = "folder-documents";
-                pixbuf = icon_theme.load_icon (icon_name,
-                                               (int) global_config.big_icon_size,
-                                               Gtk.IconLookupFlags.FORCE_SIZE);
-                
-                fi = new Fm.FileInfo.user_special_dir (UserDirectory.DOCUMENTS);
-                if (fi != null) {
-                    item = new Desktop.Item (pixbuf, fi);
-                    desktop.get_grid ().get_saved_position (item);
-                    desktop.get_grid ().insert_item (item);
-                }
-                
-                /*********************************************************************
-                 * My Music
-                 * 
-                 ********************************************************************/
-                icon_name = "folder-music";
-                pixbuf = icon_theme.load_icon (icon_name,
-                                               (int) global_config.big_icon_size,
-                                               Gtk.IconLookupFlags.FORCE_SIZE);
-                                               
-                fi = new Fm.FileInfo.user_special_dir (UserDirectory.MUSIC);
-                if (fi != null) {
-                    item = new Desktop.Item (pixbuf, fi);
-                    desktop.get_grid ().get_saved_position (item);
-                    desktop.get_grid ().insert_item (item);
-                }
-                
-                /*********************************************************************
-                 * Trash Can
-                 * 
-                 ********************************************************************/
-                icon_name = "user-trash";
-                pixbuf = icon_theme.load_icon (icon_name,
-                                               (int) global_config.big_icon_size,
-                                               Gtk.IconLookupFlags.FORCE_SIZE);
-                                               
-                fi = new Fm.FileInfo.trash_can ();
-                item = new Desktop.Item (pixbuf, fi);
-                desktop.get_grid ().get_saved_position (item);
-                desktop.get_grid ().insert_item (item);
-                
-                Gtk.TreeIter    it;
-                Gdk.Pixbuf      icon;
-
-                // Load Desktop files/folders from the Global Model, add Desktop Items to the Grid.
-                if (!global_model.get_iter_first (out it))
-                    continue;
-                    
-                do {
-                    global_model.get (it, Fm.FileColumn.ICON, out icon, Fm.FileColumn.INFO, out fi, -1);
-                    
-                    item = new Desktop.Item (icon, fi);
-                    desktop.get_grid ().get_saved_position (item);
-                    desktop.get_grid ().insert_item (item);
-                    
-                } while (global_model.iter_next (ref it) == true);
-                
-            }
-        }
-
-        
+       
         /***************************************************************************************************************
          * Application's entry point.
          *
@@ -332,61 +120,58 @@ namespace Desktop {
                 return -1;
             }
             
+            
             /*** Primary Instance... Create The Desktop Window ***/
-            if (!global_app.get_is_remote () /*|| global_debug_mode*/) {
+            if (!global_app.get_is_remote ()) {
                 
                 // Create the Desktop configuration, this object derivates of Fm.Config.
                 global_config = new Desktop.Config ();
             
                 Fm.init (global_config);
-                // *** fm_volume_manager_init (); *** /
+                /*** fm_volume_manager_init (); ***/
 
-                global_app.create_desktop ();
-            
-                // *** fm_volume_manager_finalize (); *** /
+                if (global_desktop) {
+                    
+                    Desktop.Group desktop = new Desktop.Group (global_debug_mode);
+                    desktop.create_desktop ();
+                    /***
+                        icon_theme_changed = g_signal_connect (gtk_icon_theme_get_default(),
+                                                               "changed",
+                                                               on_icon_theme_changed,
+                                                               null);
+                    ***/
+
+                    Gtk.main ();
+                    
+                    /***
+                        Gtk.IconTheme.get_default ().disconnect (icon_theme_changed);
+                        desktop_popup.destroy ();
+                    ***/
+                
+                // else create a manager window....
+                } else {
+                    
+                    Manager.Window manager = new Manager.Window ();
+                    manager.create ("", true);
+                    
+                    Gtk.main ();
+                }
+                
+                /*** fm_volume_manager_finalize (); ***/
                 Fm.finalize ();
 
+            
+            
             /*** Remote Instance... Calling GApplication.run () will send the command line
              *   to the primary instance via DBus :) Marvelous :-P
              ***/
             } else {
                 
-                //stdout.printf ("already an instance !!!\n");
+                /*** stdout.printf ("already an instance !!!\n"); ***/
                 return global_app.run (args);
             }
             
             return 0;
-            
-            /***
-            try {
-                Gtk.init_with_args (ref args, "", opt_entries, VConfig.GETTEXT_PACKAGE);
-            } catch {
-            }
-            
-            // Create the Desktop configuration, this object derivates of Fm.Config.
-            global_config = new Desktop.Config ();
-            
-            global_app = new Application (global_debug_mode);
-            
-            GLib.Application unique = new GLib.Application ("org.noname.lxdesktop", 0);
-            unique.register ();
-            
-            if (!unique.get_is_remote () || global_debug_mode) {
-                
-                Fm.init (global_config);
-                // *** fm_volume_manager_init (); *** /
-
-                global_app.run (global_debug_mode);
-            
-                // *** fm_volume_manager_finalize (); *** /
-                Fm.finalize ();
-            
-            } else {
-                
-                stdout.printf ("already running !!!!\n");
-            }
-            
-            return 0;***/
         }
     }
 }

@@ -41,8 +41,9 @@ TEMP = \
 	$(NULL)
 	
 lxdesktop_SOURCES = \
-	DesktopConfig.vala \
 	Application.vala \
+	DesktopConfig.vala \
+	DesktopGroup.vala \
 	DesktopWindow.vala \
 	DesktopGrid.vala \
 	DesktopItem.vala \

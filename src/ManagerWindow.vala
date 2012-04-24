@@ -240,10 +240,11 @@ namespace Manager {
         public Window () {
             
             this.destroy.connect ( () => {
-//                Gtk.main_quit ();
+                global_num_windows--;
+                if (global_num_windows < 1)
+                    Gtk.main_quit ();
             });
             
-//            global_num_windows++;
 
         }
         
@@ -423,6 +424,7 @@ namespace Manager {
 
             this.show_all ();
 
+            global_num_windows++;
             return true;
         }
         
