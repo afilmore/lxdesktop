@@ -40,7 +40,7 @@ namespace Desktop {
         {null}
     };
 
-    public class Application {
+    public class Application : GLib.Application {
         
         bool                        _debug_mode = false;
         
@@ -56,15 +56,19 @@ namespace Desktop {
            typedef bool (*DeleteEvtHandler) (GtkWidget*, GdkEvent*);
         *********************************************************************/
 
-        public Application () {
+        public Application (bool debug = false) {
+            
+            Object (application_id:"org.noname.lxdesktop", flags:(ApplicationFlags.HANDLES_COMMAND_LINE));
+            
+            _debug_mode = debug;
         }
         
-        public bool run (bool debug = false) {
+        public bool create () {
             
             if (global_model != null)
                 return false;
                 
-            _debug_mode = debug;
+            //_debug_mode = debug;
             
             if (_wingroup == null)
                 _wingroup = new Gtk.WindowGroup ();
@@ -74,6 +78,8 @@ namespace Desktop {
             DirUtils.create_with_parents (desktop_path, 0700);
             
             Fm.Path? path = Fm.Path.get_desktop();
+            if (path == null)
+                return false;
             Fm.Folder? folder = Fm.Folder.get (path);
             if (folder == null)
                 return false;
@@ -105,7 +111,43 @@ namespace Desktop {
         }
         
         
+        
+        private void _on_startup () {
+            
+            stdout.printf ("on_startup\n");
+        }
+        
+        private int _on_command_line (ApplicationCommandLine command_line) {
+            
+            bool primary_instance = !command_line.get_is_remote ();
+            
+            if (primary_instance) {
+                print ("Primary Instance Command Line !!!\n");
+            } else {
+                print ("Remote Command Line !!!\n");
+            }
+            
+            string[] args = command_line.get_arguments ();
+
+            //this.activate ();
+
+            if (primary_instance) {
+
+                this.hold ();
+            }
+            return 0;
+        }
+        
+        private void _on_activated () {
+
+            stdout.printf ("on_activated\n");
+        }
+        
+        
+        
+        
         private void _on_model_loaded () {
+            
             
             // Create an array of desktop widgets and create a widget for every screen...
             _n_screens = Gdk.Display.get_default ().get_n_screens ();
@@ -251,6 +293,7 @@ namespace Desktop {
                 Gtk.TreeIter    it;
                 Gdk.Pixbuf      icon;
 
+            //return;
                 // Load Desktop files/folders from the Global Model, add Desktop Items to the Grid.
                 if (!global_model.get_iter_first (out it))
                     continue;
@@ -284,7 +327,47 @@ namespace Desktop {
             // Create the Desktop configuration, this object derivates of Fm.Config.
             global_config = new Desktop.Config ();
             
-            global_app = new Application ();
+            global_app = new Desktop.Application (global_debug_mode);
+            
+            global_app.activate.connect (global_app._on_activated);
+            global_app.startup.connect (global_app._on_startup);
+            global_app.command_line.connect (global_app._on_command_line);
+            
+            try {
+                global_app.register (null);
+            } catch (Error e) {
+                print ("Application Error: %s\n", e.message);
+                return -1;
+            }
+            
+            if (!global_app.get_is_remote () /*|| global_debug_mode*/) {
+                
+                Fm.init (global_config);
+                // *** fm_volume_manager_init (); *** /
+
+                global_app.create ();
+            
+                // *** fm_volume_manager_finalize (); *** /
+                Fm.finalize ();
+
+            } else {
+                
+                stdout.printf ("already an instance !!!\n");
+                return global_app.run (args);
+            }
+            
+            return 0;
+            
+            /***
+            try {
+                Gtk.init_with_args (ref args, "", opt_entries, VConfig.GETTEXT_PACKAGE);
+            } catch {
+            }
+            
+            // Create the Desktop configuration, this object derivates of Fm.Config.
+            global_config = new Desktop.Config ();
+            
+            global_app = new Application (global_debug_mode);
             
             GLib.Application unique = new GLib.Application ("org.noname.lxdesktop", 0);
             unique.register ();
@@ -292,11 +375,11 @@ namespace Desktop {
             if (!unique.get_is_remote () || global_debug_mode) {
                 
                 Fm.init (global_config);
-                /*** fm_volume_manager_init (); ***/
+                // *** fm_volume_manager_init (); *** /
 
                 global_app.run (global_debug_mode);
             
-                /*** fm_volume_manager_finalize (); ***/
+                // *** fm_volume_manager_finalize (); *** /
                 Fm.finalize ();
             
             } else {
@@ -304,7 +387,7 @@ namespace Desktop {
                 stdout.printf ("already running !!!!\n");
             }
             
-            return 0;
+            return 0;***/
         }
     }
 }
