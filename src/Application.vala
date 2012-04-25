@@ -33,16 +33,6 @@ namespace Desktop {
     Application     global_app;
     Desktop.Config? global_config;
     
-    bool            global_desktop = false;
-    bool            global_debug_mode;
-        
-    public const OptionEntry[] opt_entries = {
-        
-        {"desktop", '\0',   0,  OptionArg.NONE, ref global_desktop,     N_("Launch desktop manager"),   null},
-        {"debug",   'd',    0,  OptionArg.NONE, ref global_debug_mode,  N_("Run In Debug Mode"),        null},
-        {null}
-    };
-
     public class Application : GLib.Application {
         
         bool _debug_mode = false;
@@ -83,12 +73,17 @@ namespace Desktop {
             if (!command_line.get_is_remote ())
                 return 0;
             
-            stdout.printf ("Remote Command Line !!!\n");
+            //stdout.printf ("-----------------------------------------------------\n");
             
             string[] args = command_line.get_arguments ();
-
-
-            // TODO; parse command line, create manager window....
+            Desktop.OptionParser options = new Desktop.OptionParser (args);
+            
+            if (!options.desktop) {
+                
+                stdout.printf ("create file manager window !!!\n");
+//~                 Manager.Window manager = new Manager.Window ();
+//~                 manager.create ("", options.debug);
+            }
 
             return 0;
         }
@@ -102,12 +97,9 @@ namespace Desktop {
          **************************************************************************************************************/
         private static int main (string[] args) {
             
-            try {
-                Gtk.init_with_args (ref args, "", opt_entries, VConfig.GETTEXT_PACKAGE);
-            } catch {
-            }
+            Desktop.OptionParser options = new Desktop.OptionParser (args);
             
-            global_app = new Desktop.Application (global_debug_mode);
+            global_app = new Desktop.Application (options.debug);
             
             global_app.startup.connect (global_app._on_startup);
             global_app.activate.connect (global_app._on_activated);
@@ -120,19 +112,19 @@ namespace Desktop {
                 return -1;
             }
             
-            
             /*** Primary Instance... Create The Desktop Window ***/
             if (!global_app.get_is_remote ()) {
                 
                 // Create the Desktop configuration, this object derivates of Fm.Config.
                 global_config = new Desktop.Config ();
             
+                Gtk.init (ref args);
                 Fm.init (global_config);
                 /*** fm_volume_manager_init (); ***/
 
-                if (global_desktop) {
+                if (options.desktop) {
                     
-                    Desktop.Group desktop = new Desktop.Group (global_debug_mode);
+                    Desktop.Group desktop = new Desktop.Group (options.debug);
                     desktop.create_desktop ();
                     /***
                         icon_theme_changed = g_signal_connect (gtk_icon_theme_get_default(),
@@ -152,7 +144,7 @@ namespace Desktop {
                 } else {
                     
                     Manager.Window manager = new Manager.Window ();
-                    manager.create ("", true);
+                    manager.create ("", options.debug);
                     
                     Gtk.main ();
                 }

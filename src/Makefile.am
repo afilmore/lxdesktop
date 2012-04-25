@@ -49,6 +49,7 @@ lxdesktop_SOURCES = \
 	DesktopItem.vala \
 	ManagerWindow.vala \
 	Utils.vala \
+	OptionsParser.vala \
 	TEMP.vala \
 	misc.c \
 	$(exo_SOURCES) \
