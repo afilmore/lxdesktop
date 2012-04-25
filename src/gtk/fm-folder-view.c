@@ -870,6 +870,8 @@ static void on_folder_loaded(FmFolder* folder, FmFolderView* fv)
 
 gboolean fm_folder_view_chdir(FmFolderView* fv, FmPath* path)
 {
+    g_return_if_fail (fv);
+
     FmFolderModel* model;
     FmFolder* folder;
 

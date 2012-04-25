@@ -378,7 +378,7 @@ namespace Manager {
             _tree_view.set_model (global_dir_tree_model);
             _tree_view.directory_changed.connect (_tree_view_on_change_directory);
             
-            _tree_view.chdir (_current_dir);
+            //_tree_view.chdir (_current_dir);
 
             // Create The Folder View...
             _folder_view = new Fm.FolderView (Fm.FolderViewMode.LIST_VIEW);
@@ -463,13 +463,19 @@ namespace Manager {
                  * so we may ensures that the TreeView Location is graphically updated...
                  * 
                  ***/
-                while (Gtk.events_pending ()) {
-                  Gtk.main_iteration ();
-                }
+//~                 while (Gtk.events_pending ()) {
+//~                   Gtk.main_iteration ();
+//~                 }
             }
             
-            if (caller != DirChangeCaller.FOLDER_VIEW)
-                _folder_view.chdir (path);
+            if (caller != DirChangeCaller.FOLDER_VIEW) {
+                if (_folder_view == null) {
+                    print ("Folder View is NULL !!!!\n");
+                } else {
+                
+                    _folder_view.chdir (path);
+                }
+            }
             
             /***
             

@@ -48,6 +48,7 @@ lxdesktop_SOURCES = \
 	Desktop/DesktopGrid.vala \
 	Desktop/DesktopItem.vala \
 	FileManager/ManagerWindow.vala \
+	FileManager/ManagerGroup.vala \
 	Misc/Utils.vala \
 	Misc/OptionsParser.vala \
 	Misc/TEMP.vala \

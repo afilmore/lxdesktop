@@ -32,6 +32,8 @@ namespace Desktop {
 
     Application     global_app;
     Desktop.Config? global_config;
+    Desktop.Group?  global_desktop_group;
+    Manager.Group?  global_manager_group;
     
     public class Application : GLib.Application {
         
@@ -73,16 +75,16 @@ namespace Desktop {
             if (!command_line.get_is_remote ())
                 return 0;
             
-            //stdout.printf ("-----------------------------------------------------\n");
-            
             string[] args = command_line.get_arguments ();
             Desktop.OptionParser options = new Desktop.OptionParser (args);
             
             if (!options.desktop) {
                 
                 stdout.printf ("create file manager window !!!\n");
-//~                 Manager.Window manager = new Manager.Window ();
-//~                 manager.create ("", options.debug);
+                if (global_manager_group == null)
+                    global_manager_group = new Manager.Group (options.debug);
+                
+                global_manager_group.create_manager ();
             }
 
             return 0;
@@ -124,27 +126,30 @@ namespace Desktop {
 
                 if (options.desktop) {
                     
-                    Desktop.Group desktop = new Desktop.Group (options.debug);
-                    desktop.create_desktop ();
-                    /***
-                        icon_theme_changed = g_signal_connect (gtk_icon_theme_get_default(),
-                                                               "changed",
-                                                               on_icon_theme_changed,
-                                                               null);
-                    ***/
+                    if (global_desktop_group == null) {
+                        global_desktop_group = new Desktop.Group (options.debug);
+                        global_desktop_group.create_desktop ();
+                        /***
+                            icon_theme_changed = g_signal_connect (gtk_icon_theme_get_default(),
+                                                                   "changed",
+                                                                   on_icon_theme_changed,
+                                                                   null);
+                        ***/
 
-                    Gtk.main ();
-                    
-                    /***
-                        Gtk.IconTheme.get_default ().disconnect (icon_theme_changed);
-                        desktop_popup.destroy ();
-                    ***/
-                
+                        Gtk.main ();
+                        
+                        /***
+                            Gtk.IconTheme.get_default ().disconnect (icon_theme_changed);
+                            desktop_popup.destroy ();
+                        ***/
+                    }
                 // else create a manager window....
                 } else {
                     
-                    Manager.Window manager = new Manager.Window ();
-                    manager.create ("", options.debug);
+                    if (global_manager_group == null)
+                        global_manager_group = new Manager.Group (options.debug);
+                    
+                    global_manager_group.create_manager ();
                     
                     Gtk.main ();
                 }
