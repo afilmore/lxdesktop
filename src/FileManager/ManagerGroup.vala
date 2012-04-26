@@ -29,13 +29,13 @@ namespace Manager {
             //_window_list = new List<Manager.Window> ();
         }
         
-        public bool create_manager () {
+        public bool create_manager (string[] files) {
             
             if (_wingroup == null)
                 _wingroup = new Gtk.WindowGroup ();
             
             Manager.Window manager = new Manager.Window ();
-            manager.create ("", _debug_mode);
+            manager.create (files, "", _debug_mode);
             
             _wingroup.add_window (manager);
             //_window_list.append (manager);

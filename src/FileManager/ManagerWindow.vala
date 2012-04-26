@@ -272,7 +272,7 @@ namespace Manager {
          * 
          * 
          ********************************************************************************/
-        public bool create (string config_file, bool debug = false) {
+        public bool create (string[] files, string config_file, bool debug = false) {
             
             _debug_mode = debug;
             
@@ -415,8 +415,22 @@ namespace Manager {
             
             _folder_view.grab_focus ();
 
+            
+            
+            
             // TODO: save last directory on exit and reload it here... :-P
-            this._change_directory (Fm.Path.get_desktop ());
+            Fm.Path path;
+            if (files[0] != "")
+                path = new Fm.Path.for_str (files[0]);
+            else
+                path = Fm.Path.get_desktop ();
+            this._change_directory (path);
+            
+            //this._change_directory (Fm.Path.get_desktop ());
+            
+            
+            
+            
             
             /*** Create the default popup menu... ***/
             _default_popup = _ui.get_widget ("/popup") as Gtk.Menu;
@@ -468,14 +482,8 @@ namespace Manager {
 //~                 }
             }
             
-            if (caller != DirChangeCaller.FOLDER_VIEW) {
-                if (_folder_view == null) {
-                    print ("Folder View is NULL !!!!\n");
-                } else {
-                
-                    _folder_view.chdir (path);
-                }
-            }
+            if (caller != DirChangeCaller.FOLDER_VIEW)
+                _folder_view.chdir (path);
             
             /***
             
@@ -576,7 +584,7 @@ namespace Manager {
                         //_file_menu = null;
                         _file_menu = new Fm.FileMenu.for_files (this, files, _folder_view.get_cwd (), false);
                         //_file_menu = new Fm.FileMenu.for_files (this, files, null, true);
-                        _file_menu.set_folder_func (this._open_folder_func);
+                        //_file_menu.set_folder_func (this._open_folder_func);
 
                         // Merge Specific Folder Menu Items...
                         if (_file_menu.is_single_file_type () && fi.is_dir ()) {
@@ -604,9 +612,11 @@ namespace Manager {
                 break;
             }
         }
+        
+        private bool _open_folder_func (AppLaunchContext ctx, List folder_infos, void *user_data) {
 
-         private bool _open_folder_func (AppLaunchContext ctx, List folder_infos, void *user_data) {
-
+            return false;
+            
             /* There's a bug in the function Vapi File definition...
             unowned List<Fm.FileInfo>? l = (List<Fm.FileInfo>) folder_infos; */
             

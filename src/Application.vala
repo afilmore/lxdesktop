@@ -80,11 +80,11 @@ namespace Desktop {
             
             if (!options.desktop) {
                 
-                stdout.printf ("create file manager window !!!\n");
+                //stdout.printf ("create file manager window !!!\n");
                 if (global_manager_group == null)
                     global_manager_group = new Manager.Group (options.debug);
                 
-                global_manager_group.create_manager ();
+                global_manager_group.create_manager (options.remaining);
             }
 
             return 0;
@@ -149,7 +149,7 @@ namespace Desktop {
                     if (global_manager_group == null)
                         global_manager_group = new Manager.Group (options.debug);
                     
-                    global_manager_group.create_manager ();
+                    global_manager_group.create_manager (options.remaining);
                     
                     Gtk.main ();
                 }

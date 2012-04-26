@@ -42,6 +42,7 @@ namespace Desktop {
             
             desktop = false;
             debug = false;
+            remaining = {""};
             
             string[] sa_args = {};
             

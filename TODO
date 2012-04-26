@@ -1,11 +1,41 @@
+/***********************************************************************************************************************
+ * This software is an experimental rewrite of PcManFm originally written
+ * by Hong Jen Yee aka PCMan for LXDE project. (http://lxde.org/)
+ * 
+ * Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License Version 2.
+ * http://www.gnu.org/licenses/gpl-2.0.txt
+ * 
+ * 
+ **********************************************************************************************************************/
 
-* Split libfmcore.vapi in several parts... core, gtk, etc...
+    *   Code Cleanup In LibFM's Source Code.
+    
+        src/gtk/fm-path-entry.c
+        src/gtk/fm-path-entry.h
+        
+        src/gtk/fm-dir-tree-model.c
+        src/gtk/fm-dir-tree-model.h
+        
+        src/gtk/fm-dir-tree-view.c
+        src/gtk/fm-dir-tree-view.h
+        
+        src/gtk/fm-folder-view.c
+        src/gtk/fm-folder-view.h
 
-* (CRITICAL) Fix Vapi file bug with delegate function...
+        src/gtk/fm-cell-renderer-text.c
+        src/gtk/fm-cell-renderer-text.h
+        
+        
+* [DONE] Split libfmcore.vapi in several parts... core, gtk, etc...
+
+* [CRITICAL] Fix Vapi file bug with delegate function...
     
 * [DONE] Finalize Item Popup Menus
 
-* Finalize Drag And Drop, testing needed...
+* [DONE] Finalize Drag And Drop, testing needed...
 
 * Create Custom Properties Dialogs for "Computer" Item for example
 

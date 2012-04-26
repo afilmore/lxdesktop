@@ -1188,7 +1188,7 @@ namespace Desktop {
             
             // Create a menu and set the open folder function.
             _file_menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), false);
-            _file_menu.set_folder_func ((Fm.LaunchFolderFunc) this.action_open_folder_func);
+            //_file_menu.set_folder_func ((Fm.LaunchFolderFunc) this.action_open_folder_func);
             
             Gtk.ActionGroup act_grp = _file_menu.get_action_group ();
             act_grp.set_translation_domain ("");
@@ -1227,7 +1227,7 @@ namespace Desktop {
             return true;
         }
         
-        public bool action_open_folder_func (GLib.AppLaunchContext ctx,
+        /*public bool action_open_folder_func (GLib.AppLaunchContext ctx,
                                              GLib.List<Fm.FileInfo>? folder_infos,
                                              void* user_data) {
             
@@ -1237,11 +1237,11 @@ namespace Desktop {
             stdout.printf ("\tuser_data = %#x \n", (uint) user_data);
             stdout.printf ("\tDesktopWindow = %#x \n", (uint) this);
             
-            /* ***************************************************************************
+             ***************************************************************************
              * WARNING !!!
              * There's a problem in the Vapi file definition for this function,
              * folder_infos is given as the first parameter which is wrong of course...
-             */
+             
             unowned List<Fm.FileInfo>? folder_list = (GLib.List<Fm.FileInfo>) ctx;
             
             if (folder_list == null)
@@ -1252,14 +1252,22 @@ namespace Desktop {
                 action_open_folder (fi);
             }
             return true;
-        }
+        }*/
         
         public bool action_open_folder (Fm.FileInfo? fi) {
             
             if (fi == null)
                 return false;
                 
-            string cmdline = global_config.app_filemanager
+            if (global_manager_group == null)
+                global_manager_group = new Manager.Group (_debug_mode);
+            
+            string[] folders = {};
+            folders[0] = fi.get_path ().to_str ();
+            folders[1] = "";
+            global_manager_group.create_manager (folders);
+            
+            /*string cmdline = global_config.app_filemanager
                              + " \""
                              + fi.get_path ().to_str ()
                              + "\"";
@@ -1269,7 +1277,7 @@ namespace Desktop {
             } catch (Error e) {
                 stdout.printf ("action_open_folder cannot open %s\n", cmdline);
             }
-            
+            */
             return true;
         }
         
