@@ -41,18 +41,17 @@ TEMP = \
 	$(NULL)
 	
 lxdesktop_SOURCES = \
-	Application.vala \
-	Desktop/DesktopConfig.vala \
+	Common/DesktopConfig.vala \
+	Common/OptionsParser.vala \
+	Common/Utils.vala \
+	Common/xlib.c \
 	Desktop/DesktopGroup.vala \
 	Desktop/DesktopWindow.vala \
 	Desktop/DesktopGrid.vala \
 	Desktop/DesktopItem.vala \
 	FileManager/ManagerWindow.vala \
 	FileManager/ManagerGroup.vala \
-	Misc/Utils.vala \
-	Misc/OptionsParser.vala \
-	Misc/TEMP.vala \
-	Misc/misc.c \
+	Application.vala \
 	$(exo_SOURCES) \
 	$(gtk_SOURCES) \
 	$(NULL)

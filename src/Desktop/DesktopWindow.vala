@@ -1227,33 +1227,6 @@ namespace Desktop {
             return true;
         }
         
-        /*public bool action_open_folder_func (GLib.AppLaunchContext ctx,
-                                             GLib.List<Fm.FileInfo>? folder_infos,
-                                             void* user_data) {
-            
-            stdout.printf ("DesktopWindow.action_open_folder_func:\n");
-            stdout.printf ("\tAppLaunchContext = %#x \n", (uint) ctx);
-            stdout.printf ("\tGLib.List = %#x \n", (uint) folder_infos);
-            stdout.printf ("\tuser_data = %#x \n", (uint) user_data);
-            stdout.printf ("\tDesktopWindow = %#x \n", (uint) this);
-            
-             ***************************************************************************
-             * WARNING !!!
-             * There's a problem in the Vapi file definition for this function,
-             * folder_infos is given as the first parameter which is wrong of course...
-             
-            unowned List<Fm.FileInfo>? folder_list = (GLib.List<Fm.FileInfo>) ctx;
-            
-            if (folder_list == null)
-                return false;
-            
-            foreach (Fm.FileInfo fi in folder_list) {
-                
-                action_open_folder (fi);
-            }
-            return true;
-        }*/
-        
         public bool action_open_folder (Fm.FileInfo? fi) {
             
             if (fi == null)
@@ -1267,17 +1240,6 @@ namespace Desktop {
             folders[1] = "";
             global_manager_group.create_manager (folders);
             
-            /*string cmdline = global_config.app_filemanager
-                             + " \""
-                             + fi.get_path ().to_str ()
-                             + "\"";
-            
-            try {
-                Process.spawn_command_line_async (cmdline);
-            } catch (Error e) {
-                stdout.printf ("action_open_folder cannot open %s\n", cmdline);
-            }
-            */
             return true;
         }
         
