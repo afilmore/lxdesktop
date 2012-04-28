@@ -79,6 +79,87 @@ namespace Utils {
         
         return test_name;
     }
+        public void filemanager_new_document (Fm.Path base_dir,
+                                                Utils.NewFileNameType file_type,
+                                                string template_name = "",
+                                                string template_description = "") {
+            
+            string msg;
+            string tmp_name = "";
+            
+            
+            if (file_type == Utils.NewFileNameType.FOLDER) {
+                
+                msg = "Enter a name for the newly created folder:";
+                tmp_name = Utils.get_new_file_name (base_dir, file_type, template_description);
+                
+                /*** ask user for a file name...
+                string basename = Fm.get_user_input (null, _("Create New..."), _(msg), test_name);
+                
+                if (basename == null || basename == "" || dest_file == null)
+                    return; ***/
+                
+                Fm.Path dest = new Fm.Path.child (base_dir, tmp_name);
+                File dest_file = dest.to_gfile ();
+                if (!dest_file.make_directory (null)) {
+                    
+                    stdout.printf ("ERRORRRRRR !!!!!!!\n");
+                    //fm_show_error (parent, null, err->message);
+                }
+
+            } else if (file_type == Utils.NewFileNameType.FROM_DESCRIPTION) {
+                
+                Fm.Path template_dir = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.TEMPLATES));
+                Fm.Path template = new Fm.Path.child (template_dir, template_name);
+                
+                tmp_name = Utils.get_new_file_name (base_dir, file_type, template_description);
+                
+                /*** ask user for a file name...
+                string basename = Fm.get_user_input (null, _("Create New..."), _(msg), test_name);
+                
+                if (basename == null || basename == "" || dest_file == null)
+                    return; ***/
+                
+                Fm.Path dest_file = new Fm.Path.child (base_dir, tmp_name);
+                
+                stdout.printf ("Fm.copy_file %s %s\n", template.to_str (), dest_file.to_str ());
+                
+                File file = template.to_gfile ();
+                file.copy (dest_file.to_gfile (), FileCopyFlags.NONE);
+                
+                /*** Optionaly it could be possible to open the newly created file...
+                string cmdline = "xdg-open \"%s\"".printf (dest_file.to_str ());
+                
+                try {
+                    Process.spawn_command_line_async (cmdline);
+                } catch (Error e) {
+                    stdout.printf ("action_open_folder cannot open %s\n", cmdline);
+                } ***/
+                
+                return;
+            
+            } else if (file_type == Utils.NewFileNameType.FILE) {
+                
+                msg = "Enter a name for the newly created file:";
+                tmp_name = Utils.get_new_file_name (base_dir, file_type, template_description);
+                
+                /*** ask user for a file name...
+                string basename = Fm.get_user_input (null, _("Create New..."), _(msg), test_name);
+                
+                if (basename == null || basename == "" || dest_file == null)
+                    return; ***/
+
+                Fm.Path dest = new Fm.Path.child (base_dir, tmp_name);
+                File dest_file = dest.to_gfile ();
+                FileOutputStream f = dest_file.create (FileCreateFlags.NONE);
+                if (f == null)
+                    return;
+                    
+                f.close ();
+            }
+            
+            return;
+        }
 }
 
 

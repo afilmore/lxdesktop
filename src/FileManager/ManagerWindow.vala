@@ -77,32 +77,6 @@ namespace Manager {
             <toolitem action='Go'/>
         </toolbar>
         
-        <popup>
-          <menu action='CreateNew'>
-            <menuitem action='NewFolder'/>
-            <menuitem action='NewBlank'/>
-          </menu>
-          
-          <separator/>
-          
-          <menuitem action='Paste'/>
-          
-          <menu action='Sort'>
-            <menuitem action='Desc'/>
-            <menuitem action='Asc'/>
-            <separator/>
-            <menuitem action='ByName'/>
-            <menuitem action='ByMTime'/>
-          </menu>
-          
-          <menuitem action='ShowHidden'/>
-          
-          <separator/>
-          
-          <menuitem action='Properties'/>
-          
-        </popup>
-        
         <accelerator action='Location'/>
         <accelerator action='Location2'/>
     """;
@@ -123,6 +97,18 @@ namespace Manager {
         
         private bool _debug_mode = false;
         
+        private const Gtk.ActionEntry _default_popup_actions[] = {
+            
+            {"CreateNew", null, N_("Create _New..."), "", null,                     null},
+            {"NewFolder", "folder", N_("Folder"), "<Ctrl><Shift>N", null,           null},
+            {"NewBlank", "text-x-generic", N_("Blank File"), null, null,            null},
+            {"Paste", Gtk.Stock.PASTE, null, null, null,                            null},
+            {"SelAll", Gtk.Stock.SELECT_ALL, null, null, null,                      null},
+            {"InvSel", null, N_("_Invert Selection"), "<Ctrl>I", null,              null},
+            {"Properties", Gtk.Stock.PROPERTIES, N_("Desktop Preferences"),
+                           "<Alt>Return", null,                                     null}
+        };
+
         private const Gtk.ActionEntry _main_win_actions[] = {
             
             {"FileMenu", null, N_("_File"), null, null, null},
@@ -172,13 +158,7 @@ namespace Manager {
             
             /*** For accelerators ***/
             {"Location", null, null, "<Alt>d", null,                                _on_location},
-            {"Location2", null, null, "<Ctrl>L", null,                              _on_location},
-            
-            /*** For The Popup Menu ***/
-            {"CreateNew", Gtk.Stock.NEW, null, null, null, null},
-            {"NewFolder", "folder", N_("Folder"), null, null,                       null},
-            {"NewBlank", "text-x-generic", N_("Blank FIle"), null, null,            null},
-            {"Properties", Gtk.Stock.PROPERTIES, null, null, null,                  _on_properties}
+            {"Location2", null, null, "<Ctrl>L", null,                              _on_location}
         };
 
         private const Gtk.ToggleActionEntry _main_win_toggle_actions[] = {
@@ -228,6 +208,7 @@ namespace Manager {
         private Fm.FileMenu     _file_menu;
         private Gtk.Menu?       _files_popup;
         
+        private Desktop.Popup?  _desktop_popup_class;
         private Gtk.Menu        _default_popup;
         
         /***
@@ -430,11 +411,16 @@ namespace Manager {
             
             
             
+//~             if (_desktop_popup_class == null)
+//~                 _desktop_popup_class = new Desktop.Popup (Fm.Path.get_desktop());
+//~             
+//~             _default_popup = _desktop_popup_class.create_desktop_popup (_default_popup_actions);
+//~             
             
             
             /*** Create the default popup menu... ***/
-            _default_popup = _ui.get_widget ("/popup") as Gtk.Menu;
-            _default_popup.attach_to_widget (this, null);
+            /*_default_popup = _ui.get_widget ("/popup") as Gtk.Menu;*/
+//~             _default_popup.attach_to_widget (this, null);
 
             this.show_all ();
 
@@ -605,6 +591,11 @@ namespace Manager {
                     
                     // Default Contextual Menu...
                     } else {
+                        
+                        if (_desktop_popup_class == null)
+                            _desktop_popup_class = new Desktop.Popup (_path_entry.get_path ());
+                        
+                        _default_popup = _desktop_popup_class.create_desktop_popup (_default_popup_actions);
                         
                         _default_popup.popup (null, null, null, 3, Gtk.get_current_event_time ());
                     }

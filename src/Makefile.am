@@ -42,6 +42,7 @@ TEMP = \
 	
 lxdesktop_SOURCES = \
 	Common/DesktopConfig.vala \
+	Common/DesktopPopup.vala \
 	Common/OptionsParser.vala \
 	Common/Utils.vala \
 	Common/xlib.c \

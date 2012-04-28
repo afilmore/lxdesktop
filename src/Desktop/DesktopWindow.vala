@@ -47,56 +47,21 @@ namespace Desktop {
         
         bool _debug_mode = false;
         
-        
         /*********************************************************************************
          * Desktop Menu.
          * 
          * 
          ********************************************************************************/
-        private const Gtk.ActionEntry _desktop_actions[] = {
-            
-            {"CreateNew",       null,                   N_("Create _New..."),
-                                "",                     null,                       null},
-            
-            {"NewFolder",       "folder",               N_("Folder"),
-                                "<Ctrl><Shift>N",       null,                       _on_action_new_folder},
-            
-            {"NewBlank",        "text-x-generic",       N_("Blank File"),
-                                null,                   null,                       _on_action_new_file},
-            
-            {"Paste",           Gtk.Stock.PASTE,        null,
-                                null,                   null,                       _on_action_paste},
-            
-            {"SelAll",          Gtk.Stock.SELECT_ALL,   null,
-                                null,                   null,                       _on_action_select_all},
-            
-            {"InvSel",          null,                   N_("_Invert Selection"),
-                                "<Ctrl>I",              null,                       _on_action_invert_select},
-            
-            {"Sort",            null,                   N_("_Sort Files"),
-                                null,                   null,                       null},
-            
-            {"Prop",            Gtk.Stock.PROPERTIES,   N_("Desktop Preferences"),
-                                "<Alt>Return",          null,                       _on_action_desktop_settings}
+        private const Gtk.ActionEntry _default_popup_actions[] = {
+            {"CreateNew", null, N_("Create _New..."), "", null,                     null},
+            {"NewFolder", "folder", N_("Folder"), "<Ctrl><Shift>N", null,           _on_action_new_folder},
+            {"NewBlank", "text-x-generic", N_("Blank File"), null, null,            _on_action_new_file},
+            {"Paste", Gtk.Stock.PASTE, null, null, null,                            _on_action_paste},
+            {"SelAll", Gtk.Stock.SELECT_ALL, null, null, null,                      _on_action_select_all},
+            {"InvSel", null, N_("_Invert Selection"), "<Ctrl>I", null,              _on_action_invert_select},
+            {"Properties", Gtk.Stock.PROPERTIES, N_("Desktop Preferences"),
+                           "<Alt>Return", null,                                     _on_action_desktop_settings}
         };
-        
-        private const string _desktop_menu_xml = """
-            <popup>
-                <menu action='CreateNew'>
-                    <menuitem action='NewFolder'/>
-                    <menuitem action='NewBlank'/>
-                    <separator/>
-                    <placeholder name='ph1'/>
-                </menu>
-                <separator/>
-                <menuitem action='Paste'/>
-                <separator/>
-                <menuitem action='SelAll'/>
-                <menuitem action='InvSel'/>
-                <separator/>
-                <menuitem action='Prop'/>
-            </popup>
-        """;
 
         // The desktop grid
         private Desktop.Grid    _grid;
@@ -125,10 +90,13 @@ namespace Desktop {
          *
          ********************************************************************************/
         
-        
+        // Desktop Popup...
+        private Desktop.Popup?  _desktop_popup_class;
         private bool            _show_wm_menu = false;  /*** Show the window manager's menu ***/
         private Gtk.Menu?       _desktop_popup;
         private Gtk.Menu?       _popup_menu;
+        
+        
         private Fm.FileMenu     _file_menu;             // Doesn't work if not global........
         
         public Window () {
@@ -498,8 +466,17 @@ namespace Desktop {
                             
                     // Is it needed to destroy/unref previous created menu ???
                     
-                    _desktop_popup = this._create_desktop_popup ();
+                    if (_desktop_popup_class == null)
+                        _desktop_popup_class = new Desktop.Popup (Fm.Path.get_desktop());
                     
+                    _desktop_popup = _desktop_popup_class.create_desktop_popup (_default_popup_actions);
+                    
+                    
+                   /* Test.Popup test = new Test.Popup ();
+                    test.create ((Func) _test_template);
+                    
+                    _desktop_popup = this._create_desktop_popup ();
+                    */
                     if (_desktop_popup == null) {
                         stdout.printf ("cannot create contextual popup, popup == null\n");
                         return true;
@@ -1116,60 +1093,6 @@ namespace Desktop {
          * 
          * 
          ******************************************************************************************/
-        private Gtk.Menu _create_desktop_popup () {
-            
-            Gtk.ActionGroup act_grp = new Gtk.ActionGroup ("Desktop");
-            act_grp.set_translation_domain (null);
-            act_grp.add_actions (_desktop_actions, this);
-            
-            Gtk.UIManager ui = new Gtk.UIManager ();
-            ui.insert_action_group (act_grp, 0);
-            ui.add_ui_from_string (_desktop_menu_xml, -1);
-        
-            Gtk.AccelGroup accel_group = ui.get_accel_group ();
-            this.add_accel_group (accel_group);
-        
-            string xml_def =    "<popup>\n";
-            xml_def +=              "<menu action='CreateNew'>\n";
-            xml_def +=              "<placeholder name='ph1'>\n";
-                
-            File template_dir = File.new_for_path (Environment.get_user_special_dir (UserDirectory.TEMPLATES));
-            
-            FileEnumerator infos = template_dir.enumerate_children (
-                "standard::*", FileQueryInfoFlags.NONE);
-            
-            FileInfo info;
-            while ((info = infos.next_file ()) != null) {
-                
-                FileType type = info.get_file_type();
-                
-                if (type != FileType.REGULAR /*** && type != FileType.SYMBOLIC_LINK ***/)
-                    continue;
-                
-                string file_name = info.get_name ();
-                string file_description = ContentType.get_description (info.get_content_type ());
-                    
-                Gtk.Action action = new Gtk.Action (file_name,
-                                                    file_description,
-                                                    "test tooltip...",
-                                                    null);
-                
-                action.activate.connect (this._test_template);
-                //gtk_action_set_gicon(act, g_app_info_get_icon(app));
-                
-                act_grp.add_action (action);
-                
-                xml_def += "<menuitem action='%s'/>\n".printf (file_name);
-            };
-
-            xml_def +=      "</placeholder>\n";
-            xml_def +=              "</menu>\n";
-            xml_def +=  "</popup>\n";
-            
-            ui.add_ui_from_string (xml_def, -1);
-            return ui.get_widget ("/popup") as Gtk.Menu;
-        }
-        
         private void _create_popup_menu (Gdk.EventButton evt) {
             
             /*** merge some specific menu items for folders
@@ -1188,7 +1111,6 @@ namespace Desktop {
             
             // Create a menu and set the open folder function.
             _file_menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), false);
-            //_file_menu.set_folder_func ((Fm.LaunchFolderFunc) this.action_open_folder_func);
             
             Gtk.ActionGroup act_grp = _file_menu.get_action_group ();
             act_grp.set_translation_domain ("");
@@ -1245,104 +1167,14 @@ namespace Desktop {
         
         private void _on_action_new_folder (Gtk.Action action) {
             
-            this._filemanager_new_document (Fm.Path.get_desktop(), Utils.NewFileNameType.FOLDER);
+            Utils.filemanager_new_document (Fm.Path.get_desktop(), Utils.NewFileNameType.FOLDER);
         }
 
         private void _on_action_new_file (Gtk.Action action) {
             
-            this._filemanager_new_document (Fm.Path.get_desktop(), Utils.NewFileNameType.FILE);
+            Utils.filemanager_new_document (Fm.Path.get_desktop(), Utils.NewFileNameType.FILE);
         }
 
-        private void _test_template (Gtk.Action action) {
-            
-            this._filemanager_new_document (Fm.Path.get_desktop(),
-                                            Utils.NewFileNameType.FROM_DESCRIPTION,
-                                            action.name,
-                                            action.label);
-        }
-        
-        private void _filemanager_new_document (Fm.Path base_dir,
-                                                Utils.NewFileNameType file_type,
-                                                string template_name = "",
-                                                string template_description = "") {
-            
-            string msg;
-            string tmp_name = "";
-            
-            
-            if (file_type == Utils.NewFileNameType.FOLDER) {
-                
-                msg = "Enter a name for the newly created folder:";
-                tmp_name = Utils.get_new_file_name (base_dir, file_type, template_description);
-                
-                /*** ask user for a file name...
-                string basename = Fm.get_user_input (null, _("Create New..."), _(msg), test_name);
-                
-                if (basename == null || basename == "" || dest_file == null)
-                    return; ***/
-                
-                Fm.Path dest = new Fm.Path.child (base_dir, tmp_name);
-                File dest_file = dest.to_gfile ();
-                if (!dest_file.make_directory (null)) {
-                    
-                    stdout.printf ("ERRORRRRRR !!!!!!!\n");
-                    //fm_show_error (parent, null, err->message);
-                }
-
-            } else if (file_type == Utils.NewFileNameType.FROM_DESCRIPTION) {
-                
-                Fm.Path template_dir = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.TEMPLATES));
-                Fm.Path template = new Fm.Path.child (template_dir, template_name);
-                
-                tmp_name = Utils.get_new_file_name (base_dir, file_type, template_description);
-                
-                /*** ask user for a file name...
-                string basename = Fm.get_user_input (null, _("Create New..."), _(msg), test_name);
-                
-                if (basename == null || basename == "" || dest_file == null)
-                    return; ***/
-                
-                Fm.Path dest_file = new Fm.Path.child (base_dir, tmp_name);
-                
-                stdout.printf ("Fm.copy_file %s %s\n", template.to_str (), dest_file.to_str ());
-                
-                File file = template.to_gfile ();
-                file.copy (dest_file.to_gfile (), FileCopyFlags.NONE);
-                
-                /*** Optionaly it could be possible to open the newly created file...
-                string cmdline = "xdg-open \"%s\"".printf (dest_file.to_str ());
-                
-                try {
-                    Process.spawn_command_line_async (cmdline);
-                } catch (Error e) {
-                    stdout.printf ("action_open_folder cannot open %s\n", cmdline);
-                } ***/
-                
-                return;
-            
-            } else if (file_type == Utils.NewFileNameType.FILE) {
-                
-                msg = "Enter a name for the newly created file:";
-                tmp_name = Utils.get_new_file_name (base_dir, file_type, template_description);
-                
-                /*** ask user for a file name...
-                string basename = Fm.get_user_input (null, _("Create New..."), _(msg), test_name);
-                
-                if (basename == null || basename == "" || dest_file == null)
-                    return; ***/
-
-                Fm.Path dest = new Fm.Path.child (base_dir, tmp_name);
-                File dest_file = dest.to_gfile ();
-                FileOutputStream f = dest_file.create (FileCreateFlags.NONE);
-                if (f == null)
-                    return;
-                    
-                f.close ();
-            }
-            
-            return;
-        }
-        
         private void _on_action_paste (Gtk.Action action) {
             
             Fm.Path path = Fm.Path.get_desktop ();
