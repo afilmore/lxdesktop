@@ -63,6 +63,7 @@ lxdesktop_VALAFLAGS = \
 	--pkg $(GTK_PKG) \
 	--pkg libfmcore \
 	--pkg fm-gtk \
+	-D ENABLE_GTK3 \
 	$(NULL)
 
 lxdesktop_CFLAGS = \

@@ -84,13 +84,21 @@ if test $use_gtk3 == yes ; then
     pkg_modules="gtk+-3.0 >= 3.0.8"
     CPPFLAGS="$CPPFLAGS -DENABLE_GTK3"
     GTK_PKG="gtk+-3.0"
-    #AC_DEFINE(ENABLE_GTK3, 1, [Enable GTK3])
+    AC_DEFINE(ENABLE_GTK3, 1, [Enable GTK3])
+    fm_modules="libfmcore-3.0 >= 0.1.99"
 else
     pkg_modules="gtk+-2.0 >= 2.24.0"
     GTK_PKG="gtk+-2.0"
     #AC_DEFINE_UNQUOTED(GTK_PKG, "gtk+-2.0", [Enable GTK3])
+    fm_modules="libfmcore-2.0 >= 0.1.99"
 fi
+AC_SUBST(ENABLE_GTK3)
 AC_SUBST(GTK_PKG)
+
+
+PKG_CHECK_MODULES(FM, [$fm_modules])
+AC_SUBST(FM_CFLAGS)
+AC_SUBST(FM_LIBS)
 
 PKG_CHECK_MODULES(GTK, [$pkg_modules])
 AC_SUBST(GTK_CFLAGS)
@@ -115,11 +123,6 @@ gmodule_modules="gmodule-2.0"
 PKG_CHECK_MODULES(GMODULE, [$gmodule_modules])
 AC_SUBST(GMODULE_CFLAGS)
 AC_SUBST(GMODULE_LIBS)
-
-fm_modules="libfmcore-2.0 >= 0.1.99"
-PKG_CHECK_MODULES(FM, [$fm_modules])
-AC_SUBST(FM_CFLAGS)
-AC_SUBST(FM_LIBS)
 
 menu_modules="libmenu-cache >= 0.3.2"
 PKG_CHECK_MODULES(MENU_CACHE, [$menu_modules])

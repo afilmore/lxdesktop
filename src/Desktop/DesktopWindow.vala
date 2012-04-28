@@ -114,7 +114,7 @@ namespace Desktop {
             this.size_allocate.connect          (_on_size_allocate);
             this.size_request.connect           (_on_size_request);
             
-#if HAVE_GTK_3
+#if !HAVE_GTK_3
 
             this.expose_event.connect           (_on_expose);
 
@@ -1065,6 +1065,7 @@ namespace Desktop {
                 Gdk.Color bg = global_config.color_background;
                 
                 // GTK3 MIGRATION
+#if !ENABLE_GTK3
                 Gdk.rgb_find_color (this.get_colormap (), ref bg);
                 
                 window.set_back_pixmap (null, false);
@@ -1077,6 +1078,7 @@ namespace Desktop {
                     root.clear ();
                 }
                 window.clear ();
+#endif
                 window.invalidate_rect (null, true);
                 return;
             }

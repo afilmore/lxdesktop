@@ -54,8 +54,9 @@ namespace Desktop {
         private Fm.CellRendererPixbuf   _icon_renderer; 
         
         // GTK3_MIGRATION
+#if !ENABLE_GTK3
         private Gdk.GC _gc;
-        
+#endif        
         // Text drawing...
         private Pango.Layout _pango_layout;
         uint _text_h = 0;
@@ -117,7 +118,9 @@ namespace Desktop {
             _window = window;
             
             // GTK3_MIGRATION
+#if !ENABLE_GTK3
             this._gc = new Gdk.GC (window);
+#endif
         }
         
         
@@ -276,12 +279,20 @@ namespace Desktop {
                              state);
              ******************************************************************/
             this._icon_renderer.set ("pixbuf", item.icon, "info", item.get_fileinfo (), null);
+#if !ENABLE_GTK3
             this._icon_renderer.render (_window,
                                         _desktop,
                                         item.icon_rect,
                                         item.icon_rect,
                                         expose_area,
                                         state);
+#else
+            this._icon_renderer.render (cr,
+                                        _desktop,
+                                        item.icon_rect,
+                                        item.icon_rect,
+                                        state);
+#endif
             
             _pango_layout.set_text ("", 0);
             _pango_layout.set_width ((int) this._pango_text_w);
@@ -313,17 +324,19 @@ namespace Desktop {
             // Normal item / text shadow
             } else {
                 
+#if !ENABLE_GTK3
                 _gc.set_rgb_fg_color (global_config.color_shadow);
                 Gdk.draw_layout (_window,
                                  this._gc,
                                  text_x + 1,
                                  text_y + 1,
                                  this._pango_layout);
-                
+#endif                
                 fg = global_config.color_text;
             }
             
             // Real text
+#if !ENABLE_GTK3
             _gc.set_rgb_fg_color (fg);
             
             Gdk.draw_layout (_window,
@@ -331,7 +344,6 @@ namespace Desktop {
                              text_x,
                              text_y,
                              this._pango_layout);
-            
             _pango_layout.set_text ("", 0);
 
             // Draw a selection rectangle for the selected item
@@ -348,6 +360,7 @@ namespace Desktop {
                                  item.text_rect.width,
                                  item.text_rect.height);
             }
+#endif            
         }
         
         public void draw_items_in_rect (Cairo.Context cr, Gdk.Rectangle expose_area) {
