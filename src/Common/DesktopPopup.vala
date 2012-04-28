@@ -17,53 +17,61 @@ namespace Desktop {
     
     public class Popup {
         
+        private const Gtk.ActionEntry _default_popup_actions[] = {
+            {"CreateNew", null, N_("Create _New..."), "", null,                     null},
+            {"NewFolder", "folder", N_("Folder"), "<Ctrl><Shift>N", null,           _on_action_new_folder},
+            {"NewBlank", "text-x-generic", N_("Blank File"), null, null,            _on_action_new_file},
+            {"Paste", Gtk.Stock.PASTE, null, null, null,                            _on_action_paste},
+            {"Properties", Gtk.Stock.PROPERTIES, N_("Desktop Preferences"),
+                           "<Alt>Return", null,                                     _on_action_proterties}
+        };
+
         private const string _desktop_menu_xml = """
             <popup>
                 <menu action='CreateNew'>
                     <menuitem action='NewFolder'/>
                     <menuitem action='NewBlank'/>
                     <separator/>
-                    <placeholder name='ph1'/>
+                    <placeholder name='NewFromTemplate'/>
                 </menu>
+                
                 <separator/>
                 <menuitem action='Paste'/>
-                <separator/>
-                <menuitem action='SelAll'/>
-                <menuitem action='InvSel'/>
+                
                 <separator/>
                 <menuitem action='Properties'/>
             </popup>
         """;
         
-        Fm.Path _dest_directory;
+        Fm.Path     _dest_directory;
+        Gtk.Widget  _owner_widget;
 
-        public Popup (Fm.Path destination) {
+        public Popup (Gtk.Widget owner, Fm.Path destination) {
             _dest_directory = destination;
+            _owner_widget = owner;
         }
         
-        public Gtk.Menu create_desktop_popup (Gtk.ActionEntry[] desktop_actions) {
-            
-            //function = action_callback;
+        public Gtk.Menu create_desktop_popup () {
             
             Gtk.ActionGroup action_group = new Gtk.ActionGroup ("Desktop");
             action_group.set_translation_domain ("");
-            action_group.add_actions (desktop_actions, this);
+            action_group.add_actions (_default_popup_actions, this);
             
             Gtk.UIManager ui = new Gtk.UIManager ();
             ui.insert_action_group (action_group, 0);
             ui.add_ui_from_string (_desktop_menu_xml, -1);
         
-            /*Gtk.AccelGroup accel_group = ui.get_accel_group ();
+            /***Gtk.AccelGroup accel_group = ui.get_accel_group ();
             this.add_accel_group (accel_group);
-        */
+            ***/
+            
             string xml_def =    "<popup>\n";
             xml_def +=              "<menu action='CreateNew'>\n";
-            xml_def +=              "<placeholder name='ph1'>\n";
+            xml_def +=              "<placeholder name='NewFromTemplate'>\n";
                 
             File template_dir = File.new_for_path (Environment.get_user_special_dir (UserDirectory.TEMPLATES));
             
-            FileEnumerator infos = template_dir.enumerate_children (
-                "standard::*", FileQueryInfoFlags.NONE);
+            FileEnumerator infos = template_dir.enumerate_children ("standard::*", FileQueryInfoFlags.NONE);
             
             FileInfo info;
             while ((info = infos.next_file ()) != null) {
@@ -81,13 +89,8 @@ namespace Desktop {
                                                     "test tooltip...",
                                                     null);
                 
-                action.activate.connect (_test_template);
-                /*action.activate.connect ( (act) => {
-                    
-                    action_callback (act);
-                });*/
-                
-                //gtk_action_set_gicon(act, g_app_info_get_icon(app));
+                action.activate.connect (_on_action_new_from_template);
+                /***gtk_action_set_gicon(act, g_app_info_get_icon(app));***/
                 
                 action_group.add_action (action);
                 
@@ -102,14 +105,6 @@ namespace Desktop {
             return ui.get_widget ("/popup") as Gtk.Menu;
         }
         
-        private void _test_template (Gtk.Action action) {
-            
-            Utils.filemanager_new_document (_dest_directory,
-                                            Utils.NewFileNameType.FROM_DESCRIPTION,
-                                            action.name,
-                                            action.label);
-        }
-        
         private void _on_action_new_folder (Gtk.Action action) {
             
             Utils.filemanager_new_document (_dest_directory, Utils.NewFileNameType.FOLDER);
@@ -120,15 +115,21 @@ namespace Desktop {
             Utils.filemanager_new_document (_dest_directory, Utils.NewFileNameType.FILE);
         }
 
+        private void _on_action_new_from_template (Gtk.Action action) {
+            
+            Utils.filemanager_new_document (_dest_directory,
+                                            Utils.NewFileNameType.FROM_DESCRIPTION,
+                                            action.name,
+                                            action.label);
+        }
+        
         private void _on_action_paste (Gtk.Action action) {
             
-            //Fm.Path path = Fm.Path.get_desktop ();
-            //Fm.Clipboard.paste_files (this, _dest_directory);
+            Fm.Clipboard.paste_files (_owner_widget, _dest_directory);
         }
 
-        
-        
-        
+        private void _on_action_proterties (Gtk.Action action) {
+        }
     }
 }
 

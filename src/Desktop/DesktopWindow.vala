@@ -52,7 +52,7 @@ namespace Desktop {
          * 
          * 
          ********************************************************************************/
-        private const Gtk.ActionEntry _default_popup_actions[] = {
+        /*private const Gtk.ActionEntry _default_popup_actions[] = {
             {"CreateNew", null, N_("Create _New..."), "", null,                     null},
             {"NewFolder", "folder", N_("Folder"), "<Ctrl><Shift>N", null,           _on_action_new_folder},
             {"NewBlank", "text-x-generic", N_("Blank File"), null, null,            _on_action_new_file},
@@ -61,7 +61,7 @@ namespace Desktop {
             {"InvSel", null, N_("_Invert Selection"), "<Ctrl>I", null,              _on_action_invert_select},
             {"Properties", Gtk.Stock.PROPERTIES, N_("Desktop Preferences"),
                            "<Alt>Return", null,                                     _on_action_desktop_settings}
-        };
+        };*/
 
         // The desktop grid
         private Desktop.Grid    _grid;
@@ -114,8 +114,12 @@ namespace Desktop {
             this.size_allocate.connect          (_on_size_allocate);
             this.size_request.connect           (_on_size_request);
             
+#if HAVE_GTK_3
+
             this.expose_event.connect           (_on_expose);
-            
+
+#endif            
+
             this.button_press_event.connect     (_on_button_press);
             this.button_release_event.connect   (_on_button_release);
             this.motion_notify_event.connect    (_on_motion_notify);
@@ -380,20 +384,23 @@ namespace Desktop {
                 && evt.button == 1
                 && clicked_item != null) {
                 
-                Fm.FileInfo? fi = clicked_item.get_fileinfo ();
+                //Fm.FileInfo? fi = ;
                 
-                if (fi.is_dir ()
-                || fi.is_mountable ()
-                || fi.is_unknown_type ()) { /* TODO use is_uri () ??? or something... */
-                    
-                    this.action_open_folder (fi);
+                this._action_open_file (clicked_item.get_fileinfo ());
                 
-                /***} else if (fi.is_unknown_type ()) {
-                    stdout.printf ("Special item !!!\n"); ***/
-                } else {
-                    
-                    this.action_open_file (fi);
-                }
+                
+//~                 if (fi.is_dir ()
+//~                 || fi.is_mountable ()
+//~                 || fi.is_unknown_type ()) { /* TODO use is_uri () ??? or something... */
+//~                     
+//~                     this.action_open_folder (fi);
+//~                 
+//~                 /***} else if (fi.is_unknown_type ()) {
+//~                     stdout.printf ("Special item !!!\n"); ***/
+//~                 } else {
+//~                     
+//~                     this.action_open_file (fi);
+//~                 }
                 
                 if (this.has_focus == 0)
                     this.grab_focus ();
@@ -467,16 +474,10 @@ namespace Desktop {
                     // Is it needed to destroy/unref previous created menu ???
                     
                     if (_desktop_popup_class == null)
-                        _desktop_popup_class = new Desktop.Popup (Fm.Path.get_desktop());
+                        _desktop_popup_class = new Desktop.Popup (this, Fm.Path.get_desktop());
                     
-                    _desktop_popup = _desktop_popup_class.create_desktop_popup (_default_popup_actions);
+                    _desktop_popup = _desktop_popup_class.create_desktop_popup (/*_default_popup_actions*/);
                     
-                    
-                   /* Test.Popup test = new Test.Popup ();
-                    test.create ((Func) _test_template);
-                    
-                    _desktop_popup = this._create_desktop_popup ();
-                    */
                     if (_desktop_popup == null) {
                         stdout.printf ("cannot create contextual popup, popup == null\n");
                         return true;
@@ -1041,6 +1042,9 @@ namespace Desktop {
         }
         
         
+        
+        
+        
         /*******************************************************************************************
          * Desktop background...
          * 
@@ -1087,6 +1091,11 @@ namespace Desktop {
         }
         
         
+        
+        
+        
+        
+        
         /*******************************************************************************************
          * Contextual Menus...
          * 
@@ -1124,13 +1133,21 @@ namespace Desktop {
         }
         
         
+        
+        
+        
+        
+        
+        
+        
+        
         /*******************************************************************************************
          * Application actions...
          * 
          * 
          * 
          ******************************************************************************************/
-        public bool action_open_file (Fm.FileInfo? fi) {
+        private bool _action_open_file (Fm.FileInfo? fi) {
             
             if (fi == null)
                 return false;
@@ -1144,12 +1161,23 @@ namespace Desktop {
             fi.is_text ();
             fi.is_symlink () ***/
             
-            Fm.launch_file (this, null, fi, null);
+            if (fi.is_dir ()
+            || fi.is_mountable ()
+            || fi.is_unknown_type ()) { /* TODO use is_uri () ??? or something... */
+                
+                this._action_open_folder (fi);
+            
+            /***} else if (fi.is_unknown_type ()) {
+                stdout.printf ("Special item !!!\n"); ***/
+            } else {
+                
+                Fm.launch_file (this, null, fi, null);
+            }
             
             return true;
         }
         
-        public bool action_open_folder (Fm.FileInfo? fi) {
+        private bool _action_open_folder (Fm.FileInfo? fi) {
             
             if (fi == null)
                 return false;
@@ -1165,22 +1193,6 @@ namespace Desktop {
             return true;
         }
         
-        private void _on_action_new_folder (Gtk.Action action) {
-            
-            Utils.filemanager_new_document (Fm.Path.get_desktop(), Utils.NewFileNameType.FOLDER);
-        }
-
-        private void _on_action_new_file (Gtk.Action action) {
-            
-            Utils.filemanager_new_document (Fm.Path.get_desktop(), Utils.NewFileNameType.FILE);
-        }
-
-        private void _on_action_paste (Gtk.Action action) {
-            
-            Fm.Path path = Fm.Path.get_desktop ();
-            Fm.Clipboard.paste_files (this, path);
-        }
-
         private void _on_action_select_all (Gtk.Action action) {
             
             /***
@@ -1209,10 +1221,28 @@ namespace Desktop {
                 }
             }***/
         }
+        
+        
+        /*******************************************************************************************
+        private void _on_action_new_folder (Gtk.Action action) {
+            
+            Utils.filemanager_new_document (Fm.Path.get_desktop(), Utils.NewFileNameType.FOLDER);
+        }
+
+        private void _on_action_new_file (Gtk.Action action) {
+            
+            Utils.filemanager_new_document (Fm.Path.get_desktop(), Utils.NewFileNameType.FILE);
+        }
+
+        private void _on_action_paste (Gtk.Action action) {
+            
+            Fm.Path path = Fm.Path.get_desktop ();
+            Fm.Clipboard.paste_files (this, path);
+        }
 
         private void _on_action_desktop_settings (Gtk.Action action) {
             return;
-        }
+        }***/
     }
 }
 

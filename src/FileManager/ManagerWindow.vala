@@ -97,7 +97,7 @@ namespace Manager {
         
         private bool _debug_mode = false;
         
-        private const Gtk.ActionEntry _default_popup_actions[] = {
+        /*private const Gtk.ActionEntry _default_popup_actions[] = {
             
             {"CreateNew", null, N_("Create _New..."), "", null,                     null},
             {"NewFolder", "folder", N_("Folder"), "<Ctrl><Shift>N", null,           null},
@@ -107,7 +107,7 @@ namespace Manager {
             {"InvSel", null, N_("_Invert Selection"), "<Ctrl>I", null,              null},
             {"Properties", Gtk.Stock.PROPERTIES, N_("Desktop Preferences"),
                            "<Alt>Return", null,                                     null}
-        };
+        };*/
 
         private const Gtk.ActionEntry _main_win_actions[] = {
             
@@ -408,16 +408,11 @@ namespace Manager {
             this._change_directory (path);
             
             //this._change_directory (Fm.Path.get_desktop ());
-            
-            
-            
 //~             if (_desktop_popup_class == null)
 //~                 _desktop_popup_class = new Desktop.Popup (Fm.Path.get_desktop());
 //~             
 //~             _default_popup = _desktop_popup_class.create_desktop_popup (_default_popup_actions);
 //~             
-            
-            
             /*** Create the default popup menu... ***/
             /*_default_popup = _ui.get_widget ("/popup") as Gtk.Menu;*/
 //~             _default_popup.attach_to_widget (this, null);
@@ -567,10 +562,7 @@ namespace Manager {
                     if (fi != null) {
                         
                         Fm.FileInfoList files = _folder_view.get_selected_files ();
-                        //_file_menu = null;
                         _file_menu = new Fm.FileMenu.for_files (this, files, _folder_view.get_cwd (), false);
-                        //_file_menu = new Fm.FileMenu.for_files (this, files, null, true);
-                        //_file_menu.set_folder_func (this._open_folder_func);
 
                         // Merge Specific Folder Menu Items...
                         if (_file_menu.is_single_file_type () && fi.is_dir ()) {
@@ -580,22 +572,16 @@ namespace Manager {
                             ui.add_ui_from_string (global_folder_menu_xml, -1);
                         }
 
-                        //if (_files_popup != null) {
-                            //_files_popup.destroy ();
-                        //    _files_popup = null;
-                        //}
                         _files_popup = _file_menu.get_menu ();
                         _files_popup.popup (null, null, null, 3, Gtk.get_current_event_time ());
-//~                         Gtk.Menu files_popup = _file_menu.get_menu ();
-//~                         files_popup.popup (null, null, null, 3, Gtk.get_current_event_time ());
                     
                     // Default Contextual Menu...
                     } else {
                         
                         if (_desktop_popup_class == null)
-                            _desktop_popup_class = new Desktop.Popup (_path_entry.get_path ());
+                            _desktop_popup_class = new Desktop.Popup (this, _path_entry.get_path ());
                         
-                        _default_popup = _desktop_popup_class.create_desktop_popup (_default_popup_actions);
+                        _default_popup = _desktop_popup_class.create_desktop_popup ();
                         
                         _default_popup.popup (null, null, null, 3, Gtk.get_current_event_time ());
                     }
@@ -604,25 +590,6 @@ namespace Manager {
             }
         }
         
-        private bool _open_folder_func (AppLaunchContext ctx, List folder_infos, void *user_data) {
-
-            return false;
-            
-            /* There's a bug in the function Vapi File definition...
-            unowned List<Fm.FileInfo>? l = (List<Fm.FileInfo>) folder_infos; */
-            
-            unowned List<Fm.FileInfo>? list = (List<Fm.FileInfo>) ctx;
-            
-            //this._change_directory (fi.get_path ());
-
-            foreach (Fm.FileInfo fi in list) {
-                
-                // TODO: Open in a new window
-            }
-            
-            return true;
-        }
-
 
         /*********************************************************************************
          * Statusbar Informations...

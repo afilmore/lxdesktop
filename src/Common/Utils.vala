@@ -133,7 +133,7 @@ namespace Utils {
                 try {
                     Process.spawn_command_line_async (cmdline);
                 } catch (Error e) {
-                    stdout.printf ("action_open_folder cannot open %s\n", cmdline);
+                    stdout.printf ("cannot open %s\n", cmdline);
                 } ***/
                 
                 return;
