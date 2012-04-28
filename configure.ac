@@ -83,6 +83,7 @@ GTK_PKG=""
 if test $use_gtk3 == yes ; then
     pkg_modules="gtk+-3.0 >= 3.0.8"
     CPPFLAGS="$CPPFLAGS -DENABLE_GTK3"
+    VALAFLAGS="$VALAFLAGS -D ENABLE_GTK3"
     GTK_PKG="gtk+-3.0"
     AC_DEFINE(ENABLE_GTK3, 1, [Enable GTK3])
     fm_modules="libfmcore-3.0 >= 0.1.99"
@@ -92,6 +93,7 @@ else
     #AC_DEFINE_UNQUOTED(GTK_PKG, "gtk+-2.0", [Enable GTK3])
     fm_modules="libfmcore-2.0 >= 0.1.99"
 fi
+AC_SUBST(VALAFLAGS)
 AC_SUBST(ENABLE_GTK3)
 AC_SUBST(GTK_PKG)
 

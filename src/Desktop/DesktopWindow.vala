@@ -111,10 +111,10 @@ namespace Desktop {
             });
             
             this.realize.connect                (_on_realize);
+#if !ENABLE_GTK3
             this.size_allocate.connect          (_on_size_allocate);
             this.size_request.connect           (_on_size_request);
             
-#if !HAVE_GTK_3
 
             this.expose_event.connect           (_on_expose);
 
@@ -306,6 +306,7 @@ namespace Desktop {
             
         }
 
+#if !ENABLE_GTK3
         private void _on_size_allocate (Gdk.Rectangle rect) {
             
             /*** stdout.printf ("_on_size_allocate: %i, %i, %i, %i\n", rect.x, rect.y, rect.width, rect.height); ***/
@@ -358,7 +359,7 @@ namespace Desktop {
             
             return true;
         }
-
+#endif
 
         /*********************************************************************************
          * *** Widget Signal Handlers ***
@@ -402,9 +403,10 @@ namespace Desktop {
 //~                     this.action_open_file (fi);
 //~                 }
                 
+#if !ENABLE_GTK3
                 if (this.has_focus == 0)
                     this.grab_focus ();
-                
+#endif                
                 return true;
                 
             /*********************************************************
@@ -445,9 +447,10 @@ namespace Desktop {
                     if (evt.button == 3)
                         this._create_popup_menu (evt);
                         
+#if !ENABLE_GTK3
                     if (this.has_focus == 0)
                         this.grab_focus ();
-                    
+#endif                    
                     return true;
                 
                 // Start rubber banding
@@ -459,9 +462,10 @@ namespace Desktop {
                     this._rubber_bending_x = (int) evt.x;
                     this._rubber_bending_y = (int) evt.y;
                     
+#if !ENABLE_GTK3
                     if (this.has_focus == 0)
                         this.grab_focus ();
-                    
+#endif                    
                     return true;
                 
                 
@@ -497,9 +501,10 @@ namespace Desktop {
             Gdk.Event* real_e = (Gdk.Event*)(&evt);
             XLib.forward_event_to_rootwin (this.get_screen(), real_e);
 
+#if !ENABLE_GTK3
             if (this.has_focus == 0)
                 this.grab_focus ();
-            
+#endif            
             return true;
         }
         
@@ -845,6 +850,7 @@ namespace Desktop {
             target = Gdk.Atom.intern_static_string (dnd_targets[0].target);
             
             Gdk.DragAction action = 0;
+#if !ENABLE_GTK3
             if (Fm.drag_context_has_target (drag_context, target)
                 && (drag_context.actions & Gdk.DragAction.MOVE) != 0) {
                     
@@ -864,7 +870,7 @@ namespace Desktop {
                 _fm_dnd_dest.set_dest_file (fi);
                 action = _fm_dnd_dest.get_default_action (drag_context, target);
             }
-
+#endif
             Gdk.drag_status (drag_context, action, time);
             this._set_drop_hilight (dest_item);
 
@@ -922,9 +928,12 @@ namespace Desktop {
             Desktop.Item dest_item = _grid.hit_test (x, y);
             
             Gdk.Atom target = Gdk.Atom.intern_static_string (dnd_targets[0].target);
+#if !ENABLE_GTK3
             bool can_drop = (Fm.drag_context_has_target (drag_context, target)
                              && (drag_context.actions & Gdk.DragAction.MOVE) != 0);
-            
+#else
+            bool can_drop = false;
+#endif
             if (dest_item == null
                 && can_drop) {
                 
