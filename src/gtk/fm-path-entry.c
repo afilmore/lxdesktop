@@ -27,6 +27,9 @@
 #include <string.h>
 #include <gio/gio.h>
 #include <gdk/gdkkeysyms.h>
+#include <gtk3-migration.h>
+
+
 /* properties */
 enum
 {
@@ -145,7 +148,7 @@ static gboolean fm_path_entry_key_press(GtkWidget   *widget, GdkEventKey *event,
     int pos;
     switch( event->keyval )
     {
-    case GDK_Tab:
+    case GDK_KEY_Tab:
         {
             gtk_entry_completion_insert_prefix(priv->completion);
             gtk_editable_set_position(GTK_EDITABLE(entry), -1);

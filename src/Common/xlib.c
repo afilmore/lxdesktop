@@ -181,7 +181,7 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
         return;
     }
     
-    xev.window =        GDK_WINDOW_XWINDOW (gdk_screen_get_root_window (gscreen));
+    xev.window =        gdk_x11_window_get_xid (gdk_screen_get_root_window (gscreen));
     xev.root =          xev.window;
     xev.subwindow =     None;
     xev.time =          event->button.time;
@@ -217,7 +217,7 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
     return;
 }
 
-
+#if !ENABLE_GTK3
 void xlib_set_pixmap (GtkWidget *widget, GdkPixmap *pixmap) {
     
     GdkWindow *window = gtk_widget_get_window (widget);
@@ -273,5 +273,5 @@ void xlib_set_pixmap (GtkWidget *widget, GdkPixmap *pixmap) {
     
     return;
 }
-
+#endif
 

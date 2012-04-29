@@ -251,7 +251,7 @@ private bool _on_key_press (Gdk.EventKey evt) {
     
     switch  (evt.keyval) {
         
-        case GDK_Menu: {
+        case GDK_KEY_Menu: {
             
             Fm.FileInfoList files = fm_desktop_get_selected_files (desktop);
             if (files) {
@@ -264,7 +264,7 @@ private bool _on_key_press (Gdk.EventKey evt) {
             return true;
         }
         
-        case GDK_Left:
+        case GDK_KEY_Left:
             item = get_nearest_item (this._focused, GTK_DIR_LEFT);
             if (item) {
                 if (modifier == 0) {
@@ -276,7 +276,7 @@ private bool _on_key_press (Gdk.EventKey evt) {
             return true;
         break;
         
-        case GDK_Right:
+        case GDK_KEY_Right:
             item = get_nearest_item (desktop, desktop->focus, GTK_DIR_RIGHT);
             if (item) {
                 if (modifier == 0) {
@@ -288,7 +288,7 @@ private bool _on_key_press (Gdk.EventKey evt) {
             return true;
         break;
         
-        case GDK_Up:
+        case GDK_KEY_Up:
             item = get_nearest_item (desktop, desktop->focus, GTK_DIR_UP);
             if (item) {
                 if (modifier == 0) {
@@ -300,7 +300,7 @@ private bool _on_key_press (Gdk.EventKey evt) {
             return true;
         break;
         
-        case GDK_Down:
+        case GDK_KEY_Down:
             item = get_nearest_item (desktop, desktop->focus, GTK_DIR_DOWN);
             if (item) {
                 if (modifier == 0) {
@@ -312,7 +312,7 @@ private bool _on_key_press (Gdk.EventKey evt) {
             return true;
         break;
         
-        case GDK_space:
+        case GDK_KEY_space:
             if ((modifier & GDK_CONTROL_MASK) && desktop->focus) {
                 desktop->focus->is_selected = !desktop->focus->is_selected;
                 desktop->focus.invalidate_rect ();
@@ -322,7 +322,7 @@ private bool _on_key_press (Gdk.EventKey evt) {
             return true;
         break;
         
-        case GDK_Return:
+        case GDK_KEY_Return:
             if (modifier & GDK_MOD1_MASK) {
                 Fm.FileInfoList infos = desktop.get_selected_files ();
                 if (infos) {
@@ -335,33 +335,33 @@ private bool _on_key_press (Gdk.EventKey evt) {
             }
         break;
         
-        case GDK_x:
+        case GDK_KEY_x:
             if (modifier & GDK_CONTROL_MASK) {
                 sels = fm_desktop_get_selected_paths (desktop);
                 fm_clipboard_cut_files (desktop, sels);
             }
         break;
         
-        case GDK_c:
+        case GDK_KEY_c:
             if (modifier & GDK_CONTROL_MASK) {
                 sels = fm_desktop_get_selected_paths (desktop);
                 fm_clipboard_copy_files (desktop, sels);
             }
         break;
         
-        case GDK_v:
+        case GDK_KEY_v:
             if (modifier & GDK_CONTROL_MASK)
                 fm_clipboard_paste_files (GTK_WIDGET(desktop), fm_path_get_desktop());
         break;
         
-        case GDK_F2:
+        case GDK_KEY_F2:
             sels = fm_desktop_get_selected_paths(desktop);
             if (sels) {
                 fm_rename_file (GTK_WINDOW(desktop), fm_list_peek_head(sels));
             }
         break;
         
-        case GDK_Delete:
+        case GDK_KEY_Delete:
             sels = fm_desktop_get_selected_paths(desktop);
             if (sels) {
                 if (modifier & GDK_SHIFT_MASK)
