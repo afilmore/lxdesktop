@@ -1062,11 +1062,15 @@ namespace Desktop {
             Gdk.Window window = this.get_window ();
             
             Fm.WallpaperMode wallpaper_mode = global_config.wallpaper_mode;
-            Gdk.Pixbuf? pix;
+            Gdk.Pixbuf? pix = null;
+            try {
+                pix = new Gdk.Pixbuf.from_file (global_config.wallpaper);
+            } catch (Error e) {
+            }
             
             if (wallpaper_mode == Fm.WallpaperMode.COLOR
                || global_config.wallpaper == ""
-               || (pix = new Gdk.Pixbuf.from_file (global_config.wallpaper)) == null) {
+               || (pix == null)) {
                 
                 // The solid color for the desktop background
                 Gdk.Color bg = global_config.color_background;
@@ -1202,21 +1206,21 @@ namespace Desktop {
             return true;
         }
         
+            /***
         private void _on_action_select_all (Gtk.Action action) {
             
-            /***
             int i;
             for(i=0; i < n_screens; ++i)
             {
                 FmDesktop* desktop = desktops[i];
                 select_all(desktop);
             }
-            ***/
         }
+            ***/
 
+            /***
         private void _on_action_invert_select (Gtk.Action action) {
             
-            /***
             int i;
             for(i=0; i < n_screens; ++i)
             {
@@ -1228,8 +1232,8 @@ namespace Desktop {
                     item->is_selected = !item->is_selected;
                     invalidate_rect(desktop, item);
                 }
-            }***/
         }
+            }***/
         
         
         /*******************************************************************************************

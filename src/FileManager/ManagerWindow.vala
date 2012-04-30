@@ -285,7 +285,10 @@ namespace Manager {
             this.add_accel_group (accel_group);
             
             _ui.insert_action_group (action_group, 0);
-            _ui.add_ui_from_string (global_main_menu_xml, -1);
+            try {
+                _ui.add_ui_from_string (global_main_menu_xml, -1);
+            } catch (Error e) {
+            }
             
             Gtk.MenuBar menubar = _ui.get_widget ("/menubar") as Gtk.MenuBar;
             main_vbox.pack_start (menubar, false, true, 0);
@@ -530,7 +533,7 @@ namespace Manager {
                 // Double click on an item in the Folder View...
                 case Fm.FolderViewClickType.ACTIVATED: {
                     
-                    string target = fi.get_target ();
+                    //string target = fi.get_target ();
                     
                     if (fi == null)
                         return;
@@ -569,7 +572,10 @@ namespace Manager {
                             Gtk.UIManager ui = _file_menu.get_ui ();
                             Gtk.ActionGroup action_group = _file_menu.get_action_group ();
                             action_group.add_actions (_folder_menu_actions, null);
-                            ui.add_ui_from_string (global_folder_menu_xml, -1);
+                            try {
+                                ui.add_ui_from_string (global_folder_menu_xml, -1);
+                            } catch (Error e) {
+                            }
                         }
 
                         _files_popup = _file_menu.get_menu ();
@@ -964,9 +970,9 @@ namespace Manager {
          * 
          * 
          ********************************************************************************/
-        private void _on_properties (Gtk.Action action) {
+        /*private void _on_properties (Gtk.Action action) {
             
-            /* Write a function instead of that f***ing code... 
+             Write a function instead of that f***ing code... 
             
             Fm.FileInfo fi = _folder_view.model.dir.dir_fi;
             
@@ -974,8 +980,8 @@ namespace Manager {
             
             files.push_tail (fi);
             
-            Fm.show_file_properties (files);*/
-        }
+            Fm.show_file_properties (files);
+        }*/
     }
 }
 

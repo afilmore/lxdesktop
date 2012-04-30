@@ -103,7 +103,7 @@ namespace Desktop {
                 
                 Desktop.Item item;
                 string icon_name;
-                Gdk.Pixbuf pixbuf;
+                Gdk.Pixbuf? pixbuf = null;
                 Fm.FileInfo? fi;
                 
                 /* See how to handle these special icons...
@@ -126,9 +126,12 @@ namespace Desktop {
                  * 
                  ********************************************************************/
                 icon_name = "computer";
-                pixbuf = icon_theme.load_icon (icon_name,
+                try {
+                    pixbuf = icon_theme.load_icon (icon_name,
                                                (int) global_config.big_icon_size,
                                                Gtk.IconLookupFlags.FORCE_SIZE);
+                } catch (Error e) {
+                }
                 
                 fi = new Fm.FileInfo.computer ();
                 item = new Desktop.Item (pixbuf, fi);
@@ -166,9 +169,13 @@ namespace Desktop {
                  * 
                  ********************************************************************/
                 icon_name = "folder-documents";
-                pixbuf = icon_theme.load_icon (icon_name,
+                
+                try {
+                    pixbuf = icon_theme.load_icon (icon_name,
                                                (int) global_config.big_icon_size,
                                                Gtk.IconLookupFlags.FORCE_SIZE);
+                } catch (Error e) {
+                }
                 
                 fi = new Fm.FileInfo.user_special_dir (UserDirectory.DOCUMENTS);
                 if (fi != null) {
@@ -182,9 +189,12 @@ namespace Desktop {
                  * 
                  ********************************************************************/
                 icon_name = "folder-music";
-                pixbuf = icon_theme.load_icon (icon_name,
+                try {
+                    pixbuf = icon_theme.load_icon (icon_name,
                                                (int) global_config.big_icon_size,
                                                Gtk.IconLookupFlags.FORCE_SIZE);
+                } catch (Error e) {
+                }
                                                
                 fi = new Fm.FileInfo.user_special_dir (UserDirectory.MUSIC);
                 if (fi != null) {
@@ -198,9 +208,12 @@ namespace Desktop {
                  * 
                  ********************************************************************/
                 icon_name = "user-trash";
-                pixbuf = icon_theme.load_icon (icon_name,
+                try {
+                    pixbuf = icon_theme.load_icon (icon_name,
                                                (int) global_config.big_icon_size,
                                                Gtk.IconLookupFlags.FORCE_SIZE);
+                } catch (Error e) {
+                }
                                                
                 fi = new Fm.FileInfo.trash_can ();
                 item = new Desktop.Item (pixbuf, fi);

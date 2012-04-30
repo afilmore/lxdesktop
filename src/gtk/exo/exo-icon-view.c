@@ -3653,7 +3653,7 @@ exo_icon_view_paint_item (ExoIconView     *icon_view,
   if (item->selected)
     {
       flags = GTK_CELL_RENDERER_SELECTED;
-      state = gtk_widget_has_focus (icon_view) ? GTK_STATE_SELECTED : GTK_STATE_ACTIVE;
+      state = gtk_widget_has_focus ((GtkWidget*) icon_view) ? GTK_STATE_SELECTED : GTK_STATE_ACTIVE;
 #if 0
       /* FIXME We hardwire background drawing behind text cell renderers
        * here. This is ugly, but it's done to be consistent with GtkIconView.
@@ -7273,7 +7273,7 @@ exo_icon_view_set_drag_dest_item (ExoIconView            *icon_view,
 
   /* special case a drop on an empty model */
   icon_view->priv->empty_view_drop = FALSE;
-  if (pos == GTK_TREE_VIEW_DROP_BEFORE && path
+  if (pos == (ExoIconViewDropPosition) GTK_TREE_VIEW_DROP_BEFORE && path
       && gtk_tree_path_get_depth (path) == 1
       && gtk_tree_path_get_indices (path)[0] == 0)
     {

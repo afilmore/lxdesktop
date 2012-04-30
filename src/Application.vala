@@ -21,7 +21,7 @@
  **********************************************************************************************************************/
 namespace XLib {
     /*** These are XLib specifics written in C (misc.c) ***/
-    extern void set_wallpaper (Gdk.Pixbuf pix, Fm.WallpaperMode wallpaper_mode);
+    //extern void set_wallpaper (Gdk.Pixbuf pix, Fm.WallpaperMode wallpaper_mode);
     extern void get_working_area (Gdk.Screen screen, out Gdk.Rectangle rect);
     extern void forward_event_to_rootwin (Gdk.Screen screen, Gdk.Event event);
 }

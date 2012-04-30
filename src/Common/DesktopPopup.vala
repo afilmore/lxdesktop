@@ -59,49 +59,53 @@ namespace Desktop {
             
             Gtk.UIManager ui = new Gtk.UIManager ();
             ui.insert_action_group (action_group, 0);
-            ui.add_ui_from_string (_desktop_menu_xml, -1);
-        
+            
+            try {
+                ui.add_ui_from_string (_desktop_menu_xml, -1);
+
             /***Gtk.AccelGroup accel_group = ui.get_accel_group ();
             this.add_accel_group (accel_group);
             ***/
             
-            string xml_def =    "<popup>\n";
-            xml_def +=              "<menu action='CreateNew'>\n";
-            xml_def +=              "<placeholder name='NewFromTemplate'>\n";
-                
-            File template_dir = File.new_for_path (Environment.get_user_special_dir (UserDirectory.TEMPLATES));
-            
-            FileEnumerator infos = template_dir.enumerate_children ("standard::*", FileQueryInfoFlags.NONE);
-            
-            FileInfo info;
-            while ((info = infos.next_file ()) != null) {
-                
-                FileType type = info.get_file_type();
-                
-                if (type != FileType.REGULAR /*** && type != FileType.SYMBOLIC_LINK ***/)
-                    continue;
-                
-                string file_name = info.get_name ();
-                string file_description = ContentType.get_description (info.get_content_type ());
+                string xml_def =    "<popup>\n";
+                xml_def +=              "<menu action='CreateNew'>\n";
+                xml_def +=              "<placeholder name='NewFromTemplate'>\n";
                     
-                Gtk.Action action = new Gtk.Action (file_name,
-                                                    file_description,
-                                                    "test tooltip...",
-                                                    null);
-                
-                action.activate.connect (_on_action_new_from_template);
-                /***gtk_action_set_gicon(act, g_app_info_get_icon(app));***/
-                
-                action_group.add_action (action);
-                
-                xml_def += "<menuitem action='%s'/>\n".printf (file_name);
-            };
-
-            xml_def +=      "</placeholder>\n";
-            xml_def +=              "</menu>\n";
-            xml_def +=  "</popup>\n";
+                File template_dir = File.new_for_path (Environment.get_user_special_dir (UserDirectory.TEMPLATES));
             
-            ui.add_ui_from_string (xml_def, -1);
+                FileEnumerator infos = template_dir.enumerate_children ("standard::*", FileQueryInfoFlags.NONE);
+
+                FileInfo info;
+                while ((info = infos.next_file ()) != null) {
+                    
+                    FileType type = info.get_file_type();
+                    
+                    if (type != FileType.REGULAR /*** && type != FileType.SYMBOLIC_LINK ***/)
+                        continue;
+                    
+                    string file_name = info.get_name ();
+                    string file_description = ContentType.get_description (info.get_content_type ());
+                        
+                    Gtk.Action action = new Gtk.Action (file_name,
+                                                        file_description,
+                                                        "test tooltip...",
+                                                        null);
+                    
+                    action.activate.connect (_on_action_new_from_template);
+                    /***gtk_action_set_gicon(act, g_app_info_get_icon(app));***/
+                    
+                    action_group.add_action (action);
+                    
+                    xml_def += "<menuitem action='%s'/>\n".printf (file_name);
+                };
+
+                xml_def +=      "</placeholder>\n";
+                xml_def +=              "</menu>\n";
+                xml_def +=  "</popup>\n";
+                
+                ui.add_ui_from_string (xml_def, -1);
+            } catch (Error e) {
+            }
             return ui.get_widget ("/popup") as Gtk.Menu;
         }
         
