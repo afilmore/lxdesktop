@@ -312,9 +312,11 @@ gboolean              exo_icon_view_get_dest_item_at_pos      (ExoIconView      
                                                                gint                      drag_y,
                                                                GtkTreePath             **path,
                                                                ExoIconViewDropPosition  *pos);
+
+#if !ENABLE_GTK3
 GdkPixmap            *exo_icon_view_create_drag_icon          (ExoIconView              *icon_view,
                                                                GtkTreePath              *path);
-
+#endif
 
 /* Interactive search support */
 gboolean                      exo_icon_view_get_enable_search         (const ExoIconView            *icon_view);

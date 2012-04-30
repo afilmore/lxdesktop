@@ -235,6 +235,7 @@ static gint                 exo_icon_view_layout_rows                    (ExoIco
                                                                           gint                   *maximum_width,
                                                                           gint                    max_cols);
 static void                 exo_icon_view_layout                         (ExoIconView            *icon_view);
+#if !ENABLE_GTK3
 static void                 exo_icon_view_paint_item                     (ExoIconView            *icon_view,
                                                                           ExoIconViewItem        *item,
                                                                           GdkRectangle           *area,
@@ -242,6 +243,7 @@ static void                 exo_icon_view_paint_item                     (ExoIco
                                                                           gint                    x,
                                                                           gint                    y,
                                                                           gboolean                draw_focus);
+#endif
 static void                 exo_icon_view_queue_draw_item                (ExoIconView            *icon_view,
                                                                           ExoIconViewItem        *item);
 static void                 exo_icon_view_queue_layout                   (ExoIconView            *icon_view);
@@ -505,8 +507,10 @@ struct _ExoIconViewPrivate
   gboolean doing_rubberband;
   gint rubberband_x_1, rubberband_y_1;
   gint rubberband_x2, rubberband_y2;
+#if !ENABLE_GTK3
   GdkGC *rubberband_border_gc;
   GdkGC *rubberband_fill_gc;
+#endif
 
   gint scroll_timeout_id;
   gint scroll_value_diff;
@@ -633,10 +637,14 @@ exo_icon_view_class_init (ExoIconViewClass *klass)
   gtkwidget_class = GTK_WIDGET_CLASS (klass);
   gtkwidget_class->realize = exo_icon_view_realize;
   gtkwidget_class->unrealize = exo_icon_view_unrealize;
+#if !ENABLE_GTK3
   gtkwidget_class->size_request = exo_icon_view_size_request;
+#endif
   gtkwidget_class->size_allocate = exo_icon_view_size_allocate;
   gtkwidget_class->style_set = exo_icon_view_style_set;
+#if !ENABLE_GTK3
   gtkwidget_class->expose_event = exo_icon_view_expose_event;
+#endif
   gtkwidget_class->motion_notify_event = exo_icon_view_motion_notify_event;
   gtkwidget_class->button_press_event = exo_icon_view_button_press_event;
   gtkwidget_class->button_release_event = exo_icon_view_button_release_event;
@@ -1002,6 +1010,7 @@ exo_icon_view_class_init (ExoIconViewClass *klass)
                   g_cclosure_marshal_VOID__VOID,
                   G_TYPE_NONE, 0);
 
+#if !ENABLE_GTK3
   /**
    * ExoIconView::set-scroll-adjustments:
    * @icon_view   : a #ExoIconView.
@@ -1017,7 +1026,7 @@ exo_icon_view_class_init (ExoIconViewClass *klass)
                   _exo_marshal_VOID__OBJECT_OBJECT,
                   G_TYPE_NONE, 2,
                   GTK_TYPE_ADJUSTMENT, GTK_TYPE_ADJUSTMENT);
-
+#endif
   /**
    * ExoIconView::select-all:
    * @icon_view : a #ExoIconView.
@@ -1122,9 +1131,9 @@ exo_icon_view_class_init (ExoIconViewClass *klass)
   /* Key bindings */
   gtkbinding_set = gtk_binding_set_by_class (klass);
   gtk_binding_entry_add_signal (gtkbinding_set, GDK_KEY_a, GDK_CONTROL_MASK, "select-all", 0);
-  gtk_binding_entry_add_signal (gtkbinding_set, GDK_KEY_a, GDK_CONTROL_MASK | GDK_KEY_SHIFT_MASK, "unselect-all", 0);
-  gtk_binding_entry_add_signal (gtkbinding_set, GDK_space, GDK_KEY_CONTROL_MASK, "toggle-cursor-item", 0);
-  gtk_binding_entry_add_signal (gtkbinding_set, GDK_space, 0, "activate-cursor-item", 0);
+  gtk_binding_entry_add_signal (gtkbinding_set, GDK_KEY_a, GDK_CONTROL_MASK | GDK_SHIFT_MASK, "unselect-all", 0);
+  gtk_binding_entry_add_signal (gtkbinding_set, GDK_KEY_space, GDK_CONTROL_MASK, "toggle-cursor-item", 0);
+  gtk_binding_entry_add_signal (gtkbinding_set, GDK_KEY_space, 0, "activate-cursor-item", 0);
   gtk_binding_entry_add_signal (gtkbinding_set, GDK_KEY_Return, 0, "activate-cursor-item", 0);
   gtk_binding_entry_add_signal (gtkbinding_set, GDK_KEY_ISO_Enter, 0, "activate-cursor-item", 0);
   gtk_binding_entry_add_signal (gtkbinding_set, GDK_KEY_KP_Enter, 0, "activate-cursor-item", 0);
@@ -1182,7 +1191,7 @@ exo_icon_view_init (ExoIconView *icon_view)
   icon_view->priv->text_cell = -1;
   icon_view->priv->pixbuf_cell = -1;
 
-  GTK_WIDGET_SET_FLAGS (icon_view, GTK_CAN_FOCUS);
+  gtk_widget_set_can_focus (icon_view, TRUE);
 
   exo_icon_view_set_adjustments (icon_view, NULL, NULL);
 
@@ -1447,27 +1456,40 @@ exo_icon_view_realize (GtkWidget *widget)
   GdkWindowAttr       attributes;
   gint                attributes_mask;
 
-  GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED);
+  gtk_widget_set_realized (widget, TRUE);
 
   /* Allocate the clipping window */
   attributes.window_type = GDK_WINDOW_CHILD;
-  attributes.x = widget->allocation.x;
-  attributes.y = widget->allocation.y;
-  attributes.width = widget->allocation.width;
-  attributes.height = widget->allocation.height;
+  GtkAllocation allocation;
+  gtk_widget_get_allocation (widget, &allocation);
+  attributes.x = allocation.x;
+  attributes.y = allocation.y;
+  attributes.width = allocation.width;
+  attributes.height = allocation.height;
   attributes.wclass = GDK_INPUT_OUTPUT;
   attributes.visual = gtk_widget_get_visual (widget);
+  
+#if !ENABLE_GTK3
   attributes.colormap = gtk_widget_get_colormap (widget);
+#endif
+  
   attributes.event_mask = GDK_VISIBILITY_NOTIFY_MASK;
+#if !ENABLE_GTK3
   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
-  widget->window = gdk_window_new (gtk_widget_get_parent_window (widget), &attributes, attributes_mask);
-  gdk_window_set_user_data (widget->window, widget);
+#else
+  attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL;
+#endif
+  
+  GdkWindow *window;
+  window = gdk_window_new (gtk_widget_get_parent_window (widget), &attributes, attributes_mask);
+  gtk_widget_set_window (widget, window);
+  gdk_window_set_user_data (window, widget);
 
   /* Allocate the icons window */
   attributes.x = 0;
   attributes.y = 0;
-  attributes.width = MAX (priv->width, widget->allocation.width);
-  attributes.height = MAX (priv->height, widget->allocation.height);
+  attributes.width = MAX (priv->width, allocation.width);
+  attributes.height = MAX (priv->height, allocation.height);
   attributes.event_mask = GDK_EXPOSURE_MASK
                         | GDK_SCROLL_MASK
                         | GDK_POINTER_MOTION_MASK
@@ -1476,14 +1498,15 @@ exo_icon_view_realize (GtkWidget *widget)
                         | GDK_KEY_PRESS_MASK
                         | GDK_KEY_RELEASE_MASK
                         | gtk_widget_get_events (widget);
-  priv->bin_window = gdk_window_new (widget->window, &attributes, attributes_mask);
+  priv->bin_window = gdk_window_new (window, &attributes, attributes_mask);
   gdk_window_set_user_data (priv->bin_window, widget);
 
   /* Attach style/background */
+#if !ENABLE_GTK3
   widget->style = gtk_style_attach (widget->style, widget->window);
   gdk_window_set_background (priv->bin_window, &widget->style->base[widget->state]);
   gdk_window_set_background (widget->window, &widget->style->base[widget->state]);
-
+#endif
   /* map the icons window */
   gdk_window_show (priv->bin_window);
 }
@@ -1524,7 +1547,7 @@ exo_icon_view_size_request (GtkWidget      *widget,
   for (lp = priv->children; lp != NULL; lp = lp->next)
     {
       child = lp->data;
-      if (GTK_WIDGET_VISIBLE (child->widget))
+      if (gtk_widget_get_visible (child->widget))
         gtk_widget_size_request (child->widget, &child_requisition);
     }
 }
@@ -1574,13 +1597,13 @@ exo_icon_view_size_allocate (GtkWidget     *widget,
   ExoIconView   *icon_view = EXO_ICON_VIEW (widget);
 
   /* apply the new size allocation */
-  widget->allocation = *allocation;
-
+  gtk_widget_set_allocation (widget, allocation);
   /* move/resize the clipping window, the icons window
    * will be handled by exo_icon_view_layout().
    */
-  if (GTK_WIDGET_REALIZED (widget))
-    gdk_window_move_resize (widget->window, allocation->x, allocation->y, allocation->width, allocation->height);
+  GdkWindow *window = gtk_widget_get_window (widget);
+  if (gtk_widget_get_realized (widget))
+    gdk_window_move_resize (window, allocation->x, allocation->y, allocation->width, allocation->height);
 
   /* layout the items */
   exo_icon_view_layout (icon_view);
@@ -1590,23 +1613,23 @@ exo_icon_view_size_allocate (GtkWidget     *widget,
 
   /* update the horizontal scroll adjustment accordingly */
   hadjustment = icon_view->priv->hadjustment;
-  hadjustment->page_size = allocation->width;
-  hadjustment->page_increment = allocation->width * 0.9;
-  hadjustment->step_increment = allocation->width * 0.1;
-  hadjustment->lower = 0;
-  hadjustment->upper = MAX (allocation->width, icon_view->priv->width);
-  if (hadjustment->value > hadjustment->upper - hadjustment->page_size)
-    gtk_adjustment_set_value (hadjustment, MAX (0, hadjustment->upper - hadjustment->page_size));
+  gtk_adjustment_set_page_size (hadjustment, allocation->width);
+  gtk_adjustment_set_page_increment (hadjustment, allocation->width * 0.9);
+  gtk_adjustment_set_step_increment (hadjustment, allocation->width * 0.1);
+  gtk_adjustment_set_lower (hadjustment, 0);
+  gtk_adjustment_set_upper (hadjustment, MAX (allocation->width, icon_view->priv->width));
+  if (gtk_adjustment_get_value (hadjustment) > gtk_adjustment_get_upper (hadjustment) - gtk_adjustment_get_page_size (hadjustment))
+    gtk_adjustment_set_value (hadjustment, MAX (0, gtk_adjustment_get_upper (hadjustment) - gtk_adjustment_get_page_size (hadjustment)));
 
   /* update the vertical scroll adjustment accordingly */
   vadjustment = icon_view->priv->vadjustment;
-  vadjustment->page_size = allocation->height;
-  vadjustment->page_increment = allocation->height * 0.9;
-  vadjustment->step_increment = allocation->height * 0.1;
-  vadjustment->lower = 0;
-  vadjustment->upper = MAX (allocation->height, icon_view->priv->height);
-  if (vadjustment->value > vadjustment->upper - vadjustment->page_size)
-    gtk_adjustment_set_value (vadjustment, MAX (0, vadjustment->upper - vadjustment->page_size));
+  gtk_adjustment_set_page_size (vadjustment, allocation->height);
+  gtk_adjustment_set_page_increment (vadjustment, allocation->height * 0.9);
+  gtk_adjustment_set_step_increment (vadjustment, allocation->height * 0.1);
+  gtk_adjustment_set_lower (vadjustment, 0);
+  gtk_adjustment_set_upper (vadjustment, MAX (allocation->height, icon_view->priv->height));
+  if (gtk_adjustment_get_value (vadjustment) > gtk_adjustment_get_upper (vadjustment) - gtk_adjustment_get_page_size (vadjustment))
+    gtk_adjustment_set_value (vadjustment, MAX (0, gtk_adjustment_get_upper (vadjustment) - gtk_adjustment_get_page_size (vadjustment)));
 
   /* we need to emit "changed" ourselves */
   gtk_adjustment_changed (hadjustment);
@@ -1625,8 +1648,10 @@ exo_icon_view_style_set (GtkWidget *widget,
   (*GTK_WIDGET_CLASS (exo_icon_view_parent_class)->style_set) (widget, previous_style);
 
   /* apply the new style for the bin_window if we're realized */
-  if (GTK_WIDGET_REALIZED (widget))
+#if !ENABLE_GTK3
+  if (gtk_widget_get_realized (widget))
     gdk_window_set_background (icon_view->priv->bin_window, &widget->style->base[widget->state]);
+#endif
 }
 
 
@@ -1699,8 +1724,10 @@ exo_icon_view_expose_event (GtkWidget      *widget,
       /* we take advantage of double-buffering here and use only a single
        * draw_rectangle() operation w/o having to take care of clipping.
        */
+#if !ENABLE_GTK3
       gdk_draw_rectangle (event->window, priv->rubberband_fill_gc, TRUE,
                           rubber_rect.x, rubber_rect.y, rubber_rect.width, rubber_rect.height);
+#endif
     }
 
   /* determine the last interesting coordinate (depending on the layout mode) */
@@ -1729,14 +1756,17 @@ exo_icon_view_expose_event (GtkWidget      *widget,
         }
 
       /* check if this item needs an update */
+#if !ENABLE_GTK3
       if (G_LIKELY (gdk_region_rect_in (event->region, &item->area) != GDK_OVERLAP_RECTANGLE_OUT))
         {
           exo_icon_view_paint_item (icon_view, item, &event_area, event->window, item->area.x, item->area.y, TRUE);
           if (G_UNLIKELY (dest_index >= 0 && dest_item == NULL && dest_index == g_list_index (priv->items, item)))
             dest_item = item;
         }
+#endif
     }
 
+#if !ENABLE_GTK3
   /* draw the drag indicator */
   if (G_UNLIKELY (dest_item != NULL))
     {
@@ -1744,7 +1774,7 @@ exo_icon_view_expose_event (GtkWidget      *widget,
         {
         case EXO_ICON_VIEW_DROP_INTO:
           gtk_paint_focus (widget->style, priv->bin_window,
-                           GTK_WIDGET_STATE (widget), NULL, widget,
+                           gtk_widget_get_state (widget), NULL, widget,
                            "iconview-drop-indicator",
                            dest_item->area.x, dest_item->area.y,
                            dest_item->area.width, dest_item->area.height);
@@ -1752,7 +1782,7 @@ exo_icon_view_expose_event (GtkWidget      *widget,
 
         case EXO_ICON_VIEW_DROP_ABOVE:
           gtk_paint_focus (widget->style, priv->bin_window,
-                           GTK_WIDGET_STATE (widget), NULL, widget,
+                           gtk_widget_get_state (widget), NULL, widget,
                            "iconview-drop-indicator",
                            dest_item->area.x, dest_item->area.y - 1,
                            dest_item->area.width, 2);
@@ -1760,7 +1790,7 @@ exo_icon_view_expose_event (GtkWidget      *widget,
 
         case EXO_ICON_VIEW_DROP_LEFT:
           gtk_paint_focus (widget->style, priv->bin_window,
-                           GTK_WIDGET_STATE (widget), NULL, widget,
+                           gtk_widget_get_state (widget), NULL, widget,
                            "iconview-drop-indicator",
                            dest_item->area.x - 1, dest_item->area.y,
                            2, dest_item->area.height);
@@ -1768,7 +1798,7 @@ exo_icon_view_expose_event (GtkWidget      *widget,
 
         case EXO_ICON_VIEW_DROP_BELOW:
           gtk_paint_focus (widget->style, priv->bin_window,
-                           GTK_WIDGET_STATE (widget), NULL, widget,
+                           gtk_widget_get_state (widget), NULL, widget,
                            "iconview-drop-indicator",
                            dest_item->area.x, dest_item->area.y + dest_item->area.height - 1,
                            dest_item->area.width, 2);
@@ -1776,7 +1806,7 @@ exo_icon_view_expose_event (GtkWidget      *widget,
 
         case EXO_ICON_VIEW_DROP_RIGHT:
           gtk_paint_focus (widget->style, priv->bin_window,
-                           GTK_WIDGET_STATE (widget), NULL, widget,
+                           gtk_widget_get_state (widget), NULL, widget,
                            "iconview-drop-indicator",
                            dest_item->area.x + dest_item->area.width - 1, dest_item->area.y,
                            2, dest_item->area.height);
@@ -1799,7 +1829,7 @@ exo_icon_view_expose_event (GtkWidget      *widget,
 
   /* let the GtkContainer forward the expose event to all children */
   (*GTK_WIDGET_CLASS (exo_icon_view_parent_class)->expose_event) (widget, event);
-
+#endif
   return FALSE;
 }
 
@@ -1820,7 +1850,9 @@ rubberband_scroll_timeout (gpointer user_data)
              : icon_view->priv->hadjustment;
 
   /* determine the new scroll value */
-  value = MIN (adjustment->value + icon_view->priv->scroll_value_diff, adjustment->upper - adjustment->page_size);
+  value = MIN (gtk_adjustment_get_value (adjustment)
+               + icon_view->priv->scroll_value_diff,
+               gtk_adjustment_get_upper (adjustment) - gtk_adjustment_get_page_size (adjustment));
 
   /* apply the new value */
   gtk_adjustment_set_value (adjustment, value);
@@ -1843,30 +1875,33 @@ exo_icon_view_motion_notify_event (GtkWidget      *widget,
   GdkCursor       *cursor;
   gint             size;
   gint             abso;
-
+  
   exo_icon_view_maybe_begin_drag (icon_view, event);
 
   if (icon_view->priv->doing_rubberband)
     {
       exo_icon_view_update_rubberband (widget);
 
+      GtkAllocation allocation;
+      gtk_widget_get_allocation (widget, &allocation);
+      
       if (icon_view->priv->layout_mode == EXO_ICON_VIEW_LAYOUT_ROWS)
         {
           abso = event->y - icon_view->priv->height *
-             (icon_view->priv->vadjustment->value /
-             (icon_view->priv->vadjustment->upper -
-              icon_view->priv->vadjustment->lower));
+             (gtk_adjustment_get_value (icon_view->priv->vadjustment) /
+             (gtk_adjustment_get_upper (icon_view->priv->vadjustment) -
+              gtk_adjustment_get_lower (icon_view->priv->vadjustment)));
 
-          size = widget->allocation.height;
+          size = allocation.height;
         }
       else
         {
           abso = event->x - icon_view->priv->width *
-             (icon_view->priv->hadjustment->value /
-             (icon_view->priv->hadjustment->upper -
-              icon_view->priv->hadjustment->lower));
+             (gtk_adjustment_get_value (icon_view->priv->hadjustment) /
+             (gtk_adjustment_get_upper (icon_view->priv->hadjustment) -
+              gtk_adjustment_get_lower (icon_view->priv->hadjustment)));
 
-          size = widget->allocation.width;
+          size = allocation.width;
         }
 
       if (abso < 0 || abso > size)
@@ -2027,7 +2062,7 @@ exo_icon_view_put (ExoIconView     *icon_view,
   icon_view->priv->children = g_list_append (icon_view->priv->children, child);
 
   /* setup the parent for the child */
-  if (GTK_WIDGET_REALIZED (icon_view))
+  if (gtk_widget_get_realized (icon_view))
     gtk_widget_set_parent_window (child->widget, icon_view->priv->bin_window);
   gtk_widget_set_parent (widget, GTK_WIDGET (icon_view));
 }
@@ -2050,7 +2085,7 @@ exo_icon_view_remove_widget (GtkCellEditable *editable,
       for (lp = icon_view->priv->cell_list; lp != NULL; lp = lp->next)
         ((ExoIconViewCellInfo *) lp->data)->editing = FALSE;
 
-      if (GTK_WIDGET_HAS_FOCUS (editable))
+      if (gtk_widget_has_focus (editable))
         gtk_widget_grab_focus (GTK_WIDGET (icon_view));
 
       g_signal_handlers_disconnect_by_func (editable, exo_icon_view_remove_widget, icon_view);
@@ -2186,7 +2221,7 @@ exo_icon_view_button_press_event (GtkWidget      *widget,
   if (G_UNLIKELY (icon_view->priv->single_click_timeout_id != 0))
     g_source_remove (icon_view->priv->single_click_timeout_id);
 
-  if (G_UNLIKELY (!GTK_WIDGET_HAS_FOCUS (widget)))
+  if (G_UNLIKELY (!gtk_widget_has_focus (widget)))
     gtk_widget_grab_focus (widget);
 
   if (event->button == 1 && event->type == GDK_BUTTON_PRESS)
@@ -2311,7 +2346,7 @@ exo_icon_view_button_press_event (GtkWidget      *widget,
   /* grab focus and stop drawing the keyboard focus indicator on single clicks */
   if (G_LIKELY (event->type != GDK_2BUTTON_PRESS && event->type != GDK_3BUTTON_PRESS))
     {
-      if (!GTK_WIDGET_HAS_FOCUS (icon_view))
+      if (!gtk_widget_has_focus (icon_view))
         gtk_widget_grab_focus (GTK_WIDGET (icon_view));
       EXO_ICON_VIEW_UNSET_FLAG (icon_view, EXO_ICON_VIEW_DRAW_KEYFOCUS);
     }
@@ -2389,11 +2424,11 @@ exo_icon_view_scroll_event (GtkWidget      *widget,
   adjustment = icon_view->priv->hadjustment;
 
   /* determine the scroll delta */
-  delta = pow (adjustment->page_size, 2.0 / 3.0);
+  delta = pow (gtk_adjustment_get_page_size (adjustment), 2.0 / 3.0);
   delta = (event->direction == GDK_SCROLL_UP) ? -delta : delta;
 
   /* apply the new adjustment value */
-  value = CLAMP (adjustment->value + delta, adjustment->lower, adjustment->upper - adjustment->page_size);
+  value = CLAMP (gtk_adjustment_get_value (adjustment) + delta, gtk_adjustment_get_lower (adjustment), gtk_adjustment_get_upper (adjustment) - gtk_adjustment_get_page_size (adjustment));
   gtk_adjustment_set_value (adjustment, value);
 
   return TRUE;
@@ -2442,7 +2477,7 @@ exo_icon_view_key_press_event (GtkWidget   *widget,
   /* allocate a new event to forward */
   new_event = gdk_event_copy ((GdkEvent *) event);
   g_object_unref (G_OBJECT (new_event->key.window));
-  new_event->key.window = g_object_ref (G_OBJECT (icon_view->priv->search_entry->window));
+  new_event->key.window = g_object_ref (G_OBJECT (gtk_widget_get_window (icon_view->priv->search_entry)));
 
   /* send the event to the search entry. If the "preedit-changed" signal is
    * emitted during this event, priv->search_imcontext_changed will be set.
@@ -2516,8 +2551,8 @@ exo_icon_view_leave_notify_event (GtkWidget        *widget,
                                   GdkEventCrossing *event)
 {
   /* reset cursor to default */
-  if (GTK_WIDGET_REALIZED (widget))
-    gdk_window_set_cursor (widget->window, NULL);
+  if (gtk_widget_get_realized (widget))
+    gdk_window_set_cursor (gtk_widget_get_window (widget), NULL);
 
   /* call the parent's leave_notify_event (if any) */
   if (GTK_WIDGET_CLASS (exo_icon_view_parent_class)->leave_notify_event != NULL)
@@ -2532,6 +2567,7 @@ exo_icon_view_leave_notify_event (GtkWidget        *widget,
 static void
 exo_icon_view_update_rubberband (gpointer data)
 {
+#if !ENABLE_GTK3
   ExoIconView *icon_view;
   gint x, y;
   GdkRectangle old_area;
@@ -2588,6 +2624,7 @@ exo_icon_view_update_rubberband (gpointer data)
   icon_view->priv->rubberband_y2 = y;
 
   exo_icon_view_update_rubberband_selection (icon_view);
+#endif
 }
 
 
@@ -2597,6 +2634,7 @@ exo_icon_view_start_rubberbanding (ExoIconView  *icon_view,
                                    gint          x,
                                    gint          y)
 {
+#if !ENABLE_GTK3
   const GdkColor *background_color;
   GdkColor       *color;
   guchar          alpha;
@@ -2656,6 +2694,7 @@ exo_icon_view_start_rubberbanding (ExoIconView  *icon_view,
                                        0, 0, NULL, NULL,
                                        drag_data);
     }
+#endif
 }
 
 
@@ -2663,6 +2702,7 @@ exo_icon_view_start_rubberbanding (ExoIconView  *icon_view,
 static void
 exo_icon_view_stop_rubberbanding (ExoIconView *icon_view)
 {
+#if !ENABLE_GTK3
   gpointer drag_data;
 
   if (G_LIKELY (icon_view->priv->doing_rubberband))
@@ -2687,6 +2727,7 @@ exo_icon_view_stop_rubberbanding (ExoIconView *icon_view)
                                              drag_data);
         }
     }
+#endif
 }
 
 
@@ -2747,7 +2788,7 @@ exo_icon_view_item_hit_test (ExoIconView      *icon_view,
     {
       ExoIconViewCellInfo *info = (ExoIconViewCellInfo *)l->data;
 
-      if (!info->cell->visible)
+      if (!gtk_cell_renderer_get_visible (info->cell))
         continue;
 
       box = item->box[info->position];
@@ -2793,6 +2834,7 @@ exo_icon_view_set_adjustments (ExoIconView   *icon_view,
                                GtkAdjustment *hadj,
                                GtkAdjustment *vadj)
 {
+#if !ENABLE_GTK3
   gboolean need_adjust = FALSE;
 
   if (hadj)
@@ -2844,6 +2886,7 @@ exo_icon_view_set_adjustments (ExoIconView   *icon_view,
 
   if (need_adjust)
     exo_icon_view_adjustment_changed (NULL, icon_view);
+#endif
 }
 
 
@@ -2964,7 +3007,7 @@ static void
 exo_icon_view_adjustment_changed (GtkAdjustment *adjustment,
                                   ExoIconView   *icon_view)
 {
-  if (GTK_WIDGET_REALIZED (icon_view))
+  if (gtk_widget_get_realized (icon_view))
     {
       gdk_window_move (icon_view->priv->bin_window, -icon_view->priv->hadjustment->value, -icon_view->priv->vadjustment->value);
 
@@ -3359,7 +3402,7 @@ exo_icon_view_layout (ExoIconView *icon_view)
       || priv->height != GTK_WIDGET (icon_view)->requisition.height)
     gtk_widget_queue_resize_no_redraw (GTK_WIDGET (icon_view));
 
-  if (GTK_WIDGET_REALIZED (icon_view))
+  if (gtk_widget_get_realized (icon_view))
     {
       gdk_window_resize (priv->bin_window,
                          MAX (priv->width, GTK_WIDGET (icon_view)->allocation.width),
@@ -3593,7 +3636,7 @@ exo_icon_view_paint_item (ExoIconView     *icon_view,
   if (item->selected)
     {
       flags = GTK_CELL_RENDERER_SELECTED;
-      state = GTK_WIDGET_HAS_FOCUS (icon_view) ? GTK_STATE_SELECTED : GTK_STATE_ACTIVE;
+      state = gtk_widget_has_focus (icon_view) ? GTK_STATE_SELECTED : GTK_STATE_ACTIVE;
 #if 0
       /* FIXME We hardwire background drawing behind text cell renderers
        * here. This is ugly, but it's done to be consistent with GtkIconView.
@@ -3953,7 +3996,7 @@ exo_icon_view_row_deleted (GtkTreeModel *model,
         g_source_remove (icon_view->priv->single_click_timeout_id);
 
       /* in single click mode, we also reset the cursor when realized */
-      if (G_UNLIKELY (icon_view->priv->single_click && GTK_WIDGET_REALIZED (icon_view)))
+      if (G_UNLIKELY (icon_view->priv->single_click && gtk_widget_get_realized (icon_view)))
         gdk_window_set_cursor (icon_view->priv->bin_window, NULL);
     }
 
@@ -4070,7 +4113,7 @@ exo_icon_view_real_move_cursor (ExoIconView     *icon_view,
                            step == GTK_MOVEMENT_PAGES ||
                            step == GTK_MOVEMENT_BUFFER_ENDS, FALSE);
 
-  if (!GTK_WIDGET_HAS_FOCUS (GTK_WIDGET (icon_view)))
+  if (!gtk_widget_has_focus (GTK_WIDGET (icon_view)))
     return FALSE;
 
   exo_icon_view_stop_editing (icon_view, FALSE);
@@ -4290,7 +4333,7 @@ exo_icon_view_move_cursor_up_down (ExoIconView *icon_view,
   gint             cell = -1;
   gint             step;
 
-  if (!GTK_WIDGET_HAS_FOCUS (icon_view))
+  if (!gtk_widget_has_focus (icon_view))
     return;
 
   if (!icon_view->priv->cursor_item)
@@ -4383,7 +4426,7 @@ exo_icon_view_move_cursor_page_up_down (ExoIconView *icon_view,
   ExoIconViewItem *item;
   gboolean dirty = FALSE;
 
-  if (!GTK_WIDGET_HAS_FOCUS (icon_view))
+  if (!gtk_widget_has_focus (icon_view))
     return;
 
   if (!icon_view->priv->cursor_item)
@@ -4440,7 +4483,7 @@ exo_icon_view_move_cursor_left_right (ExoIconView *icon_view,
   gint             cell = -1;
   gint             step;
 
-  if (!GTK_WIDGET_HAS_FOCUS (icon_view))
+  if (!gtk_widget_has_focus (icon_view))
     return;
 
   if (!icon_view->priv->cursor_item)
@@ -4538,7 +4581,7 @@ exo_icon_view_move_cursor_start_end (ExoIconView *icon_view,
   gboolean         dirty = FALSE;
   GList           *lp;
 
-  if (!GTK_WIDGET_HAS_FOCUS (icon_view))
+  if (!gtk_widget_has_focus (icon_view))
     return;
 
   lp = (count < 0) ? icon_view->priv->items : g_list_last (icon_view->priv->items);
@@ -5319,7 +5362,7 @@ exo_icon_view_set_model (ExoIconView  *icon_view,
         g_source_remove (icon_view->priv->single_click_timeout_id);
 
       /* reset cursor when in single click mode and realized */
-      if (G_UNLIKELY (icon_view->priv->single_click && GTK_WIDGET_REALIZED (icon_view)))
+      if (G_UNLIKELY (icon_view->priv->single_click && gtk_widget_get_realized (icon_view)))
         gdk_window_set_cursor (icon_view->priv->bin_window, NULL);
     }
 
@@ -5390,7 +5433,7 @@ exo_icon_view_set_model (ExoIconView  *icon_view,
   /* notify listeners */
   g_object_notify (G_OBJECT (icon_view), "model");
 
-  if (GTK_WIDGET_REALIZED (icon_view))
+  if (gtk_widget_get_realized (icon_view))
     gtk_widget_queue_resize (GTK_WIDGET (icon_view));
 }
 
@@ -5836,7 +5879,7 @@ exo_icon_view_scroll_to_path (ExoIconView *icon_view,
   g_return_if_fail (col_align >= 0.0 && col_align <= 1.0);
 
   /* Delay scrolling if either not realized or pending layout() */
-  if (!GTK_WIDGET_REALIZED (icon_view) || icon_view->priv->layout_idle_id != 0)
+  if (!gtk_widget_get_realized (icon_view) || icon_view->priv->layout_idle_id != 0)
     {
       /* release the previous scroll_to_path reference */
       if (G_UNLIKELY (icon_view->priv->scroll_to_path != NULL))
@@ -5869,14 +5912,14 @@ exo_icon_view_scroll_to_path (ExoIconView *icon_view,
           offset =  y + item->area.y - focus_width -
             row_align * (GTK_WIDGET (icon_view)->allocation.height - item->area.height);
           value = CLAMP (icon_view->priv->vadjustment->value + offset,
-                         icon_view->priv->vadjustment->lower,
+                         gtk_adjustment_get_lower (icon_view->priv->vadjustment),
                          icon_view->priv->vadjustment->upper - icon_view->priv->vadjustment->page_size);
           gtk_adjustment_set_value (icon_view->priv->vadjustment, value);
 
           offset = x + item->area.x - focus_width -
             col_align * (GTK_WIDGET (icon_view)->allocation.width - item->area.width);
           value = CLAMP (icon_view->priv->hadjustment->value + offset,
-                         icon_view->priv->hadjustment->lower,
+                         gtk_adjustment_get_lower (icon_view->priv->hadjustment),
                          icon_view->priv->hadjustment->upper - icon_view->priv->hadjustment->page_size);
           gtk_adjustment_set_value (icon_view->priv->hadjustment, value);
 
@@ -6450,14 +6493,14 @@ exo_icon_view_autoscroll (ExoIconView *icon_view)
   if (voffset != 0)
     {
       value = CLAMP (icon_view->priv->vadjustment->value + voffset,
-                     icon_view->priv->vadjustment->lower,
+                     gtk_adjustment_get_lower (icon_view->priv->vadjustment),
                      icon_view->priv->vadjustment->upper - icon_view->priv->vadjustment->page_size);
       gtk_adjustment_set_value (icon_view->priv->vadjustment, value);
     }
   if (hoffset != 0)
     {
       value = CLAMP (icon_view->priv->hadjustment->value + hoffset,
-                     icon_view->priv->hadjustment->lower,
+                     gtk_adjustment_get_lower (icon_view->priv->hadjustment),
                      icon_view->priv->hadjustment->upper - icon_view->priv->hadjustment->page_size);
       gtk_adjustment_set_value (icon_view->priv->hadjustment, value);
     }
@@ -7346,7 +7389,7 @@ exo_icon_view_create_drag_icon (ExoIconView *icon_view,
   g_return_val_if_fail (gtk_tree_path_get_depth (path) > 0, NULL);
 
   /* verify that the widget is realized */
-  if (G_UNLIKELY (!GTK_WIDGET_REALIZED (icon_view)))
+  if (G_UNLIKELY (!gtk_widget_get_realized (icon_view)))
     return NULL;
 
   idx = gtk_tree_path_get_indices (path)[0];
@@ -7362,7 +7405,7 @@ exo_icon_view_create_drag_icon (ExoIconView *icon_view,
                                      -1);
 
           gc = gdk_gc_new (drawable);
-          gdk_gc_set_rgb_fg_color (gc, &widget->style->base[GTK_WIDGET_STATE (widget)]);
+          gdk_gc_set_rgb_fg_color (gc, &widget->style->base[gtk_widget_get_state (widget)]);
           gdk_draw_rectangle (drawable, gc, TRUE, 0, 0, item->area.width + 2, item->area.height + 2);
 
           area.x = 0;
@@ -7584,7 +7627,7 @@ exo_icon_view_single_click_timeout (gpointer user_data)
   GDK_THREADS_ENTER ();
 
   /* verify that we are in single-click mode, have focus and a prelit item */
-  if (GTK_WIDGET_HAS_FOCUS (icon_view) && icon_view->priv->single_click && icon_view->priv->prelit_item != NULL)
+  if (gtk_widget_has_focus (icon_view) && icon_view->priv->single_click && icon_view->priv->prelit_item != NULL)
     {
       /* work on the prelit item */
       item = icon_view->priv->prelit_item;
@@ -8166,14 +8209,14 @@ exo_icon_view_search_start (ExoIconView *icon_view,
     return FALSE;
 
   /* check if we already display the search window */
-  if (icon_view->priv->search_window != NULL && GTK_WIDGET_VISIBLE (icon_view->priv->search_window))
+  if (icon_view->priv->search_window != NULL && gtk_widget_get_visible (icon_view->priv->search_window))
     return TRUE;
 
   /* we only start interactive search if we have focus,
    * we don't want to start interactive search if one of
    * our children has the focus.
    */
-  if (!GTK_WIDGET_HAS_FOCUS (icon_view))
+  if (!gtk_widget_has_focus (icon_view))
     return FALSE;
 
   /* verify that we have a search column */
@@ -8292,8 +8335,9 @@ exo_icon_view_search_position_func (ExoIconView *icon_view,
 {
   GtkRequisition requisition;
   GdkRectangle   monitor;
-  GdkWindow     *view_window = GTK_WIDGET (icon_view)->window;
-  GdkScreen     *screen = gdk_drawable_get_screen (view_window);
+  GdkWindow     *view_window = gtk_widget_get_window (GTK_WIDGET (icon_view));
+  //GdkScreen     *screen = gdk_drawable_get_screen (view_window);
+  GdkScreen     *screen = gdk_window_get_screen (view_window);
   gint           view_width, view_height;
   gint           view_x, view_y;
   gint           monitor_num;

@@ -20,7 +20,7 @@
 #include <math.h>
 
 #include <fm.h>
-
+#include <gtk3-migration.h>
 
 /***********************************************************************************************************************
  * Adapted from PCManFM's update_working_area

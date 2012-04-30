@@ -257,7 +257,7 @@ void fm_folder_view_set_mode (FmFolderView* fv, FmFolderViewMode mode)
 
         if ( G_LIKELY (fv->view) )
         {
-            has_focus = GTK_WIDGET_HAS_FOCUS (fv->view);
+            has_focus = gtk_widget_has_focus (fv->view);
             /* preserve old selections */
             sels = fm_folder_view_get_selected_tree_paths (fv);
 
@@ -1183,7 +1183,7 @@ gboolean on_folder_view_focus_in (GtkWidget* widget, GdkEventFocus* evt)
 void on_chdir (FmFolderView* fv, FmPath* dir_path)
 {
     GtkWidget* toplevel = gtk_widget_get_toplevel ( (GtkWidget*)fv);
-    if (GTK_WIDGET_REALIZED (toplevel))
+    if (gtk_widget_get_realized (toplevel))
     {
         GdkCursor* cursor = gdk_cursor_new (GDK_WATCH);
         gdk_window_set_cursor (toplevel->window, cursor);
@@ -1193,7 +1193,7 @@ void on_chdir (FmFolderView* fv, FmPath* dir_path)
 void on_loaded (FmFolderView* fv, FmPath* dir_path)
 {
     GtkWidget* toplevel = gtk_widget_get_toplevel ( (GtkWidget*)fv);
-    if (GTK_WIDGET_REALIZED (toplevel))
+    if (gtk_widget_get_realized (toplevel))
         gdk_window_set_cursor (toplevel->window, NULL);
 }
 
