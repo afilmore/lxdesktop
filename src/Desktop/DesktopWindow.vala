@@ -111,13 +111,11 @@ namespace Desktop {
             });
             
             this.realize.connect                (_on_realize);
+            
 #if !ENABLE_GTK3
             this.size_allocate.connect          (_on_size_allocate);
             this.size_request.connect           (_on_size_request);
-            
-
             this.expose_event.connect           (_on_expose);
-
 #endif            
 
             this.button_press_event.connect     (_on_button_press);
