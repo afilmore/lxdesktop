@@ -1186,7 +1186,7 @@ void on_chdir (FmFolderView* fv, FmPath* dir_path)
     if (gtk_widget_get_realized (toplevel))
     {
         GdkCursor* cursor = gdk_cursor_new (GDK_WATCH);
-        gdk_window_set_cursor (toplevel->window, cursor);
+        gdk_window_set_cursor (gtk_widget_get_window (toplevel), cursor);
     }
 }
 
@@ -1194,7 +1194,7 @@ void on_loaded (FmFolderView* fv, FmPath* dir_path)
 {
     GtkWidget* toplevel = gtk_widget_get_toplevel ((GtkWidget*)fv);
     if (gtk_widget_get_realized (toplevel))
-        gdk_window_set_cursor (toplevel->window, NULL);
+        gdk_window_set_cursor (gtk_widget_get_window (toplevel), NULL);
 }
 
 void on_model_loaded (FmFolderModel* model, FmFolderView* fv)
