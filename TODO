@@ -11,6 +11,11 @@
  * 
  **********************************************************************************************************************/
 
+    *   Mark "GTK3_REMOVE" And "GTK3_TODO" the changes between GTK2 and GTK3
+    
+        There's currently "ENABLE_GTK3", "GTK3_REMOVE" and "GTK3_TODO"
+        It will be ported when there's no more "GTK3_SOMETHING" in the code. :-P
+    
     *   Code Cleanup In LibFM's Source Code.
     
         src/gtk/fm-path-entry.c
@@ -29,14 +34,14 @@
         src/gtk/fm-cell-renderer-text.h
         
         
-* [DONE] Split libfmcore.vapi in several parts... core, gtk, etc...
+    * [DONE] Split libfmcore.vapi in several parts... core, gtk, etc...
 
-* [CRITICAL] Fix Vapi file bug with delegate function...
-    
-* [DONE] Finalize Item Popup Menus
+    * [CRITICAL] Fix Vapi file bug with delegate function...
+        
+    * [DONE] Finalize Item Popup Menus
 
-* [DONE] Finalize Drag And Drop, testing needed...
+    * [DONE] Finalize Drag And Drop, testing needed...
 
-* Create Custom Properties Dialogs for "Computer" Item for example
+    * Create Custom Properties Dialogs for "Computer" Item for example
 
 

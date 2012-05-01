@@ -217,6 +217,7 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
     return;
 }
 
+// GTK3_TODO
 #if !ENABLE_GTK3
 void xlib_set_pixmap (GtkWidget *widget, GdkPixmap *pixmap) {
     

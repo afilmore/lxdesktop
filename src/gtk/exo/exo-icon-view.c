@@ -1547,7 +1547,7 @@ exo_icon_view_size_request (GtkWidget      *widget,
   for (lp = priv->children; lp != NULL; lp = lp->next)
     {
       child = lp->data;
-      // GTK3_MIGRATION
+      // GTK3_TODO
       if (gtk_widget_get_visible (child->widget))
         gtk_widget_size_request (child->widget, &child_requisition);
     }
@@ -3489,7 +3489,7 @@ exo_icon_view_calculate_item_size (ExoIconView     *icon_view,
       if (G_UNLIKELY (!gtk_widget_get_visible ((GtkWidget*) info->cell)))
         continue;
 
-      // GTK3_MIGRATION
+      // GTK3_TODO
       gtk_cell_renderer_get_size (info->cell, GTK_WIDGET (icon_view),
                                   NULL, NULL, NULL,
                                   &item->box[info->position].width,
@@ -6503,7 +6503,7 @@ exo_icon_view_autoscroll (ExoIconView *icon_view)
   gint hoffset, voffset;
   gfloat value;
 
-  // GTK3_MIGRATION
+  // GTK3_REMOVE
   gdk_window_get_pointer (gtk_widget_get_window ((GtkWidget*)icon_view), &px, &py, NULL);
 #if !ENABLE_GTK3
   gdk_window_get_geometry (gtk_widget_get_window ((GtkWidget*)icon_view), &x, &y, &width, &height, NULL);
@@ -8394,7 +8394,7 @@ exo_icon_view_search_position_func (ExoIconView *icon_view,
 
   gdk_window_get_origin (view_window, &view_x, &view_y);
   gdk_drawable_get_size (view_window, &view_width, &view_height);
-  // GTK3_MIGRATION
+  // GTK3_TODO
   gtk_widget_size_request (search_dialog, &requisition);
 
   if (view_x + view_width - requisition.width > gdk_screen_get_width (screen))
