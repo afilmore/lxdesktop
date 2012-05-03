@@ -11,6 +11,23 @@
  * 
  ******************************************************************************/
 
+ 1 - Backup Your Personal Data :-D
+ 
+ 2 - Install Needed Dev Packages (see configure.ac)
+ 
+ 3 - Install LibFmCore (LibFmCore's README)
+ 
+ 4 - You Need Last Vala Release : http://ftp.gnome.org/pub/GNOME/sources/vala/0.17/vala-0.17.0.changes
+     If not available, patch your Vapi Files : http://bugzilla-attachments.gnome.org/attachment.cgi?id=210903
+ 
+ 5 - Build With : make clean;make distclean;./autogen.sh && ./configure --enable-gtk3=yes --enable-debug=yes --prefix=/usr && make
+ 
+ 4 - Try It In Debug Mode : "src/lxdesktop -d --desktop" to run the Desktop,
+                            "src/lxdesktop -d" to run the File Manager. :)
+ 
+ 5 - Pray That It Would Work And That It Won't Screw Up Your Files :-P
+ 
+ 6 - Enjoy :)
 
 
 
