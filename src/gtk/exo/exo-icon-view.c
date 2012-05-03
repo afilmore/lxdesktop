@@ -43,7 +43,6 @@
 #endif
 
 #include <gdk/gdkkeysyms.h>
-#include <gtk3-migration.h>
 
 /*
 #include <exo/exo-config.h>

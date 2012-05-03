@@ -669,8 +669,10 @@ namespace Desktop {
             Gdk.cairo_rectangle (cr, rect);
             cr.clip ();
             cr.paint ();
+            
             // DEPRECATED
             Gdk.cairo_set_source_color (cr, clr);
+            
             cr.rectangle (rect.x + 0.5, rect.y + 0.5, rect.width - 1, rect.height - 1);
             cr.stroke ();
             cr.restore ();

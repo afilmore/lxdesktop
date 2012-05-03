@@ -22,7 +22,6 @@
 #include <gdk/gdkkeysyms.h>
 #include <string.h>
 
-#include <gtk3-migration.h>
 
 enum
 {

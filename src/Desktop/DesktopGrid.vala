@@ -48,9 +48,6 @@ namespace Desktop {
         private Gdk.Point   _num_cell;
         
         private Desktop.Item?   _selected_item = null;
-
-        /*** Icon Pixbuf renderer, replace with Fm.CellRendererPixbuf to draw Item's arrows
-        private Gtk.CellRendererPixbuf  _icon_renderer;***/
         private Fm.CellRendererPixbuf   _icon_renderer; 
         
         // GTK3_REMOVE
@@ -74,28 +71,13 @@ namespace Desktop {
             
             _grid_items = new List<Desktop.Item> ();
             
-            // Setup pango layout.
+            // Setup The Pango Layout.
             _pango_layout = _desktop.create_pango_layout (null);
             _pango_layout.set_alignment (Pango.Alignment.CENTER);
             _pango_layout.set_ellipsize (Pango.EllipsizeMode.END);
             _pango_layout.set_wrap (Pango.WrapMode.WORD_CHAR);
             
-            
-            /*******************************************************************
-             * Switch to a FmPixbufRenderer later.
-             * 
-             *
-            _icon_renderer = new Fm.CellRendererPixbuf ();
-            Object.set (_icon_renderer, "follow-state", true, null);
-            Object.ref_sink (_icon_renderer);
-            _icon_renderer.set_fixed_size (global_config.big_icon_size, global_config.big_icon_size);
-            
-            
-            _icon_renderer = new Gtk.CellRendererPixbuf ();
-            _icon_renderer.set ("follow-state", true, null);
-            _icon_renderer.ref_sink ();
-            _icon_renderer.set_fixed_size ((int) global_config.big_icon_size, (int) global_config.big_icon_size);
-            */
+            // Setup The Icon Renderer.
             _icon_renderer = new Fm.CellRendererPixbuf ();
             _icon_renderer.set ("follow-state", true, null);
             _icon_renderer.ref_sink ();
@@ -837,6 +819,10 @@ namespace Desktop {
             
             return true;
         }
+        
+        
+        
+        
         
         
         /*******************************************************************************************

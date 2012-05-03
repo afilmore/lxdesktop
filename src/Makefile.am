@@ -21,25 +21,11 @@ gtk_SOURCES = \
 	gtk/fm-cell-renderer-text.c \
 	gtk/fm-dir-tree-model.c \
 	gtk/fm-dir-tree-view.c \
+	gtk/fm-folder-model.c \
 	gtk/fm-folder-view.c \
 	gtk/fm-path-entry.c \
 	$(NULL)
 
-TEMP = \
-	gtk/fm-places-model.c \
-	gtk/fm-places-view.c \
-	gtk/fm-places-view.h
-	gtk/fm-places-model.h
-	gtk/fm-folder-view.h
-	gtk/fm-dir-tree-view.h
-	gtk/fm-dir-tree-model.h
-	gtk/exo/exo-icon-view.h \
-	gtk/exo/exo-private.h \
-	gtk/exo/exo-marshal.h \
-	gtk/exo/exo-string.h \
-	gtk/exo/exo-tree-view.h \
-	$(NULL)
-	
 lxdesktop_SOURCES = \
 	Common/DesktopConfig.vala \
 	Common/DesktopPopup.vala \

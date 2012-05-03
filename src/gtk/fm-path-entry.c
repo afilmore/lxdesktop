@@ -27,7 +27,6 @@
 #include <string.h>
 #include <gio/gio.h>
 #include <gdk/gdkkeysyms.h>
-#include <gtk3-migration.h>
 
 
 /* properties */

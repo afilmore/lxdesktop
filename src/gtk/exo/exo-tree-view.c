@@ -31,7 +31,6 @@
 #include "exo-marshal.h"
 #include "exo-private.h"
 
-#include <gtk3-migration.h>
 
 #define             I_(string)  g_intern_static_string(string)
 
