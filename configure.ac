@@ -75,24 +75,24 @@ AC_SUBST(XLIB_LIBS)
 # Configure With Gtk2 > 2.24.0 or Gtk3 > 3.0.8
 #
 ##########################################################################################
-AC_ARG_ENABLE([gtk3],
- [AS_HELP_STRING([--enable-gtk3], [Build With GTK3])],
- [use_gtk3=$enableval], [use_gtk3=no])
-
+#~ AC_ARG_ENABLE([gtk3],
+ #~ [AS_HELP_STRING([--enable-gtk3], [Build With GTK3])],
+ #~ [use_gtk3=$enableval], [use_gtk3=no])
+#~ 
 GTK_PKG=""
-if test $use_gtk3 == yes ; then
+#~ if test $use_gtk3 == yes ; then
     pkg_modules="gtk+-3.0 >= 3.0.8"
     CPPFLAGS="$CPPFLAGS -DENABLE_GTK3"
     VALAFLAGS="$VALAFLAGS -D ENABLE_GTK3"
     GTK_PKG="gtk+-3.0"
     AC_DEFINE(ENABLE_GTK3, 1, [Enable GTK3])
     fm_modules="libfmcore-3.0 >= 0.1.99"
-else
-    pkg_modules="gtk+-2.0 >= 2.24.0"
-    GTK_PKG="gtk+-2.0"
-    #AC_DEFINE_UNQUOTED(GTK_PKG, "gtk+-2.0", [Enable GTK3])
-    fm_modules="libfmcore-2.0 >= 0.1.99"
-fi
+#~ else
+    #~ pkg_modules="gtk+-2.0 >= 2.24.0"
+    #~ GTK_PKG="gtk+-2.0"
+    #~ #AC_DEFINE_UNQUOTED(GTK_PKG, "gtk+-2.0", [Enable GTK3])
+    #~ fm_modules="libfmcore-2.0 >= 0.1.99"
+#~ fi
 AC_SUBST(VALAFLAGS)
 AC_SUBST(ENABLE_GTK3)
 AC_SUBST(GTK_PKG)
