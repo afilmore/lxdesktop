@@ -47,22 +47,12 @@ namespace Desktop {
         
         bool _debug_mode = false;
         
+        
         /*********************************************************************************
          * Desktop Menu.
          * 
          * 
          ********************************************************************************/
-        /*private const Gtk.ActionEntry _default_popup_actions[] = {
-            {"CreateNew", null, N_("Create _New..."), "", null,                     null},
-            {"NewFolder", "folder", N_("Folder"), "<Ctrl><Shift>N", null,           _on_action_new_folder},
-            {"NewBlank", "text-x-generic", N_("Blank File"), null, null,            _on_action_new_file},
-            {"Paste", Gtk.Stock.PASTE, null, null, null,                            _on_action_paste},
-            {"SelAll", Gtk.Stock.SELECT_ALL, null, null, null,                      _on_action_select_all},
-            {"InvSel", null, N_("_Invert Selection"), "<Ctrl>I", null,              _on_action_invert_select},
-            {"Properties", Gtk.Stock.PROPERTIES, N_("Desktop Preferences"),
-                           "<Alt>Return", null,                                     _on_action_desktop_settings}
-        };*/
-
         // The desktop grid
         private Desktop.Grid    _grid;
         public  Desktop.Item?   drop_hilight = null;         /*** Drop Target Highlighted Item ***/
@@ -112,17 +102,8 @@ namespace Desktop {
             
             this.realize.connect                (_on_realize);
             
-            #if ENABLE_GTK3
             this.size_allocate.connect          (_on_size_allocate);
             this.draw.connect                   (_on_draw);
-            #endif            
-            
-            // GTK3_REMOVE
-            #if !ENABLE_GTK3
-            this.size_allocate.connect          (_on_gtk2_size_allocate);
-            this.size_request.connect           (_on_gtk2_size_request);
-            this.expose_event.connect           (_on_gtk2_expose);
-            #endif            
 
             this.button_press_event.connect     (_on_button_press);
             this.button_release_event.connect   (_on_button_release);
@@ -219,6 +200,7 @@ namespace Desktop {
             // Connect model's custom signals.
             global_model.row_inserted.connect (this.get_grid ().on_row_inserted);
             global_model.row_deleted.connect (this.get_grid ().on_row_deleted);
+            
             /*** global_model.row_changed.connect (this.get_grid ().on_row_changed);        ***/
             /*** global_model.rows_reordered.connect (this.get_grid ().on_rows_reordered);  ***/
             
@@ -309,7 +291,6 @@ namespace Desktop {
             
         }
 
-        #if ENABLE_GTK3
         private void _on_size_allocate (Gtk.Allocation allocation) {
             
             /*** stdout.printf ("_on_size_allocate: %i, %i, %i, %i\n", rect.x, rect.y, rect.width, rect.height); ***/
@@ -364,7 +345,6 @@ namespace Desktop {
             
             return true;
         }
-        #endif
 
 
         /*********************************************************************************
@@ -391,23 +371,7 @@ namespace Desktop {
                 && evt.button == 1
                 && clicked_item != null) {
                 
-                //Fm.FileInfo? fi = ;
-                
                 this._action_open_file (clicked_item.get_fileinfo ());
-                
-                
-//~                 if (fi.is_dir ()
-//~                 || fi.is_mountable ()
-//~                 || fi.is_unknown_type ()) { /* TODO use is_uri () ??? or something... */
-//~                     
-//~                     this.action_open_folder (fi);
-//~                 
-//~                 /***} else if (fi.is_unknown_type ()) {
-//~                     stdout.printf ("Special item !!!\n"); ***/
-//~                 } else {
-//~                     
-//~                     this.action_open_file (fi);
-//~                 }
                 
                 if (!this.has_focus)
                     this.grab_focus ();
@@ -670,7 +634,7 @@ namespace Desktop {
             cr.clip ();
             cr.paint ();
             
-            // DEPRECATED
+            // DEPRECATED replace with gdk_cairo_set_source_rgba ()
             Gdk.cairo_set_source_color (cr, clr);
             
             cr.rectangle (rect.x + 0.5, rect.y + 0.5, rect.width - 1, rect.height - 1);
@@ -770,11 +734,13 @@ namespace Desktop {
              ***/
             
             Desktop.Item selected = _grid.get_selected_item ();
+            
             if (selected != null) {
                 stdout.printf ("ICON !!!\n");
                 Gtk.drag_set_icon_pixbuf (drag_context, selected.icon, -5, -5);
             }
             stdout.printf ("DRAG BEGIN !!!\n");
+            
             return;
              
         }
@@ -1058,9 +1024,6 @@ namespace Desktop {
         }
         
         
-        
-        
-        
         /*******************************************************************************************
          * Desktop background...
          * 
@@ -1068,37 +1031,41 @@ namespace Desktop {
          ******************************************************************************************/
         public void set_background (bool set_root = false) {
             
-            #if ENABLE_GTK3
             Gdk.Window window = this.get_window ();
             
             Fm.WallpaperMode wallpaper_mode = global_config.wallpaper_mode;
-            Gdk.Pixbuf? pix = null;
-            try {
-                pix = new Gdk.Pixbuf.from_file (global_config.wallpaper);
-            } catch (Error e) {
-            }
             
-            if (wallpaper_mode == Fm.WallpaperMode.COLOR
-               || global_config.wallpaper == ""
-               || (pix == null)) {
+            Gdk.Pixbuf? pix = null;
+            
+            // Set A Wallpaper (Not Implemented Yet...)
+            if (wallpaper_mode != Fm.WallpaperMode.COLOR) {
                 
+                try {
+                    pix = new Gdk.Pixbuf.from_file (global_config.wallpaper);
+                } catch (Error e) {
+                }
+            
+            // Set A Solid Color...
+            } else {
+
                 // The solid color for the desktop background
                 Gdk.Color bg = global_config.color_background;
                 
-// GTK3_TODO
+                // GTK3_TODO
+                
                 //Gdk.rgb_find_color (this.get_colormap (), ref bg);
                 
                 //window.set_back_pixmap (null, false);
                 
-                // DEPRECATED
+                // DEPRECATED Use gdk_window_set_background_rgba() instead
                 window.set_background (bg);
                 
                 if (set_root) {
                     Gdk.Window root = this.get_screen ().get_root_window ();
                     
                     //root.set_back_pixmap (null, false);
-                    // DEPRECATED
                     
+                    // DEPRECATED Use gdk_window_set_background_rgba() instead
                     root.set_background (bg);
                     //root.clear ();
                 }
@@ -1110,20 +1077,11 @@ namespace Desktop {
             
             this._set_wallpaper ();
             return;
-            
-            #else
-            this._gtk2_set_background (set_root);
-            #endif
         }
         
         private void _set_wallpaper () {
             /*** This function is in TEMP.vala, currently unused... ***/
         }
-        
-        
-        
-        
-        
         
         
         /*******************************************************************************************
@@ -1148,7 +1106,7 @@ namespace Desktop {
             if (files == null)
                 return;
             
-            // Create a menu and set the open folder function.
+            // Create The Popup Menu.
             _file_menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), false);
             
             Gtk.ActionGroup act_grp = _file_menu.get_action_group ();
@@ -1161,14 +1119,6 @@ namespace Desktop {
             
             return;
         }
-        
-        
-        
-        
-        
-        
-        
-        
         
         
         /*******************************************************************************************
@@ -1199,6 +1149,7 @@ namespace Desktop {
             
             /***} else if (fi.is_unknown_type ()) {
                 stdout.printf ("Special item !!!\n"); ***/
+            
             } else {
                 
                 Fm.launch_file (this, null, fi, null);
@@ -1251,129 +1202,6 @@ namespace Desktop {
                 }
         }
             }***/
-        
-        
-        /*******************************************************************************************
-        private void _on_action_new_folder (Gtk.Action action) {
-            
-            Utils.filemanager_new_document (Fm.Path.get_desktop(), Utils.NewFileNameType.FOLDER);
-        }
-
-        private void _on_action_new_file (Gtk.Action action) {
-            
-            Utils.filemanager_new_document (Fm.Path.get_desktop(), Utils.NewFileNameType.FILE);
-        }
-
-        private void _on_action_paste (Gtk.Action action) {
-            
-            Fm.Path path = Fm.Path.get_desktop ();
-            Fm.Clipboard.paste_files (this, path);
-        }
-
-        private void _on_action_desktop_settings (Gtk.Action action) {
-            return;
-        }***/
-        
-        
-        /*******************************************************************************************
-         * Gtk2 Functions... Will Be Removed...
-         * 
-         * GTK3_REMOVE
-         * 
-         ******************************************************************************************/
-        #if !ENABLE_GTK3
-        private void _on_gtk2_size_allocate (Gdk.Rectangle rect) {
-            
-            /*** stdout.printf ("_on_size_allocate: %i, %i, %i, %i\n", rect.x, rect.y, rect.width, rect.height); ***/
-            
-            // Setup the size of items.
-            _grid.init_layout (rect);
-            
-            // Scale the wallpaper
-            if (base.is_realized () == true
-                && global_config.wallpaper_mode != Fm.WallpaperMode.COLOR
-                && global_config.wallpaper_mode != Fm.WallpaperMode.TILE) {
-                
-                this.set_background ();
-            }
-
-            base.size_allocate (rect);
-        }
-
-        private void _on_gtk2_size_request (Gtk.Requisition req) {
-            
-            Gdk.Screen screen = this.get_screen ();
-            if (_debug_mode == true ) {
-                req.width = (screen.get_width () /4) *3;
-                req.height = (screen.get_height () /4) *3;
-            } else {
-                req.width = screen.get_width ();
-                req.height = screen.get_height ();
-            }
-            
-            /*** stdout.printf ("_on_size_request: %i, %i\n", req.width, req.height); ***/
-        }
-
-        private bool _on_gtk2_expose (Gdk.EventExpose evt) {
-            
-            /*** stdout.printf ("_on_expose: visible=%u, mapped=%u\n",
-                                (uint) this.get_visible (),
-                                (uint) this.get_mapped ()); ***/
-            
-            if (this.get_visible () == false || this.get_mapped () == false)
-                return true;
-
-            Cairo.Context cr = Gdk.cairo_create (this.get_window ());
-            
-            // Rubber banding
-            if (_rubber_started == true)
-                this._paint_rubber_banding_rect (cr, evt.area);
-
-            // Draw desktop icons
-            this._grid.draw_items_in_rect (cr, evt.area);
-            
-            return true;
-        }
-
-        private void _gtk2_set_background (bool set_root = false) {
-            
-            Gdk.Window window = this.get_window ();
-            
-            Fm.WallpaperMode wallpaper_mode = global_config.wallpaper_mode;
-            Gdk.Pixbuf? pix = null;
-            try {
-                pix = new Gdk.Pixbuf.from_file (global_config.wallpaper);
-            } catch (Error e) {
-            }
-            
-            if (wallpaper_mode == Fm.WallpaperMode.COLOR
-               || global_config.wallpaper == ""
-               || (pix == null)) {
-                
-                // The solid color for the desktop background
-                Gdk.Color bg = global_config.color_background;
-                
-                Gdk.rgb_find_color (this.get_colormap (), ref bg);
-                
-                window.set_back_pixmap (null, false);
-                window.set_background (bg);
-                
-                if (set_root) {
-                    Gdk.Window root = this.get_screen ().get_root_window ();
-                    root.set_back_pixmap (null, false);
-                    root.set_background (bg);
-                    root.clear ();
-                }
-                window.clear ();
-                window.invalidate_rect (null, true);
-                return;
-            }
-            
-            this._set_wallpaper ();
-            
-            return;
-        }
-        #endif
     }
 }
 

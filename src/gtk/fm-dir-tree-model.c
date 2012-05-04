@@ -353,6 +353,8 @@ static void fm_dir_tree_model_get_value  ( GtkTreeModel *tree_model,
                 g_value_set_string ( value, _ ("<No Sub Folder>"));
             else
                 g_value_set_string ( value, _ ("Loading..."));
+            //~ if (!parent->folder || !fm_folder_get_is_loaded (parent->folder))
+                //~ g_value_set_string ( value, _ ("Loading..."));
         }
         break;
     case FM_DIR_TREE_MODEL_COL_INFO:

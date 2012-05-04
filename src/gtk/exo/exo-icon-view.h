@@ -1,4 +1,3 @@
-/* $Id$ */
 /*-
  * Copyright (c) 2004-2006  os-cillation e.K.
  * Copyright (c) 2002,2004  Anders Carlsson <andersca@gnu.org>
@@ -15,10 +14,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Library General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 /* Modified by Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
@@ -73,7 +72,7 @@ typedef void (*ExoIconViewForeachFunc) (ExoIconView *icon_view,
  * entered by the user. Note the return value is reversed from what you would normally
  * expect, though it has some similarity to strcmp() returning 0 for equal strings.
  *
- * Return value: %FALSE if the row matches, %TRUE otherwise.
+ * Returns: %FALSE if the row matches, %TRUE otherwise.
  **/
 typedef gboolean (*ExoIconViewSearchEqualFunc) (GtkTreeModel *model,
                                                 gint          column,

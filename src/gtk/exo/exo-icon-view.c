@@ -1,4 +1,3 @@
-/* $Id$ */
 /*-
  * Copyright (c) 2008       Jannis Pohlmann <jannis@xfce.org>
  * Copyright (c) 2004-2006  os-cillation e.K.
@@ -16,10 +15,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Library General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 /* Modified by Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
@@ -97,6 +96,20 @@ exo_icon_view_layout_mode_get_type (void)
 }
 #define EXO_TYPE_ICON_VIEW_LAYOUT_MODE (exo_icon_view_layout_mode_get_type())
 /* enumerations from "exo-mount-point.h" */
+
+/**
+ * SECTION: exo-icon-view
+ * @title: ExoIconView
+ * @short_description: A widget which displays a list of icons in a grid
+ * @include: exo/exo.h
+ *
+ * #ExoIconView provides an alternative view on a list model.
+ * It displays the model as a grid of icons with labels. Like
+ * #GtkTreeView, it allows to select one or multiple items
+ * (depending on the selection mode, see exo_icon_view_set_selection_mode()).
+ * In addition to selection with the arrow keys, #ExoIconView supports
+ * rubberband selection, which is controlled by dragging the pointer.
+ **/
 
 
 /* the search dialog timeout (in ms) */
@@ -984,7 +997,7 @@ exo_icon_view_class_init (ExoIconViewClass *klass)
   /**
    * ExoIconView::item-activated:
    * @icon_view : a #ExoIconView.
-   * @path      :
+   * @path      : the #GtkTreePath of the activated item.
    **/
   icon_view_signals[ITEM_ACTIVATED] =
     g_signal_new (I_("item-activated"),
@@ -1013,8 +1026,8 @@ exo_icon_view_class_init (ExoIconViewClass *klass)
   /**
    * ExoIconView::set-scroll-adjustments:
    * @icon_view   : a #ExoIconView.
-   * @hadjustment :
-   * @vadjustment :
+   * @hadjustment : the new horizontal #GtkAdjustment.
+   * @vadjustment : the new vertical #GtkAdjustment.
    **/
   gtkwidget_class->set_scroll_adjustments_signal =
     g_signal_new (I_("set-scroll-adjustments"),
@@ -1082,7 +1095,7 @@ exo_icon_view_class_init (ExoIconViewClass *klass)
    * ExoIconView::activate-cursor-item:
    * @icon_view : a #ExoIconView.
    *
-   * Return value:
+   * Returns:
    **/
   icon_view_signals[ACTIVATE_CURSOR_ITEM] =
     g_signal_new (I_("activate-cursor-item"),
@@ -1097,7 +1110,7 @@ exo_icon_view_class_init (ExoIconViewClass *klass)
    * ExoIconView::start-interactive-search:
    * @iconb_view : a #ExoIconView.
    *
-   * Return value:
+   * Returns:
    **/
   icon_view_signals[START_INTERACTIVE_SEARCH] =
     g_signal_new (I_("start-interactive-search"),
@@ -1114,7 +1127,7 @@ exo_icon_view_class_init (ExoIconViewClass *klass)
    * @step      :
    * @count     :
    *
-   * Return value:
+   * Returns:
    **/
   icon_view_signals[MOVE_CURSOR] =
     g_signal_new (I_("move-cursor"),
@@ -4937,7 +4950,7 @@ exo_icon_view_cell_layout_reorder (GtkCellLayout   *layout,
  *
  * Creates a new #ExoIconView widget
  *
- * Return value: A newly created #ExoIconView widget
+ * Returns: A newly created #ExoIconView widget
  **/
 GtkWidget*
 exo_icon_view_new (void)
@@ -4953,7 +4966,7 @@ exo_icon_view_new (void)
  *
  * Creates a new #ExoIconView widget with the model @model.
  *
- * Return value: A newly created #ExoIconView widget.
+ * Returns: A newly created #ExoIconView widget.
  **/
 GtkWidget*
 exo_icon_view_new_with_model (GtkTreeModel *model)
@@ -5033,7 +5046,7 @@ exo_icon_view_icon_to_widget_coords (const ExoIconView *icon_view,
  * See exo_icon_view_get_item_at_pos(), if you are also interested in
  * the cell at the specified position.
  *
- * Return value: The #GtkTreePath corresponding to the icon or %NULL
+ * Returns: The #GtkTreePath corresponding to the icon or %NULL
  *               if no icon exists at that position.
  **/
 GtkTreePath*
@@ -5070,7 +5083,7 @@ exo_icon_view_get_path_at_pos (const ExoIconView *icon_view,
  * obtains the cell at the specified position. The returned path should
  * be freed with gtk_tree_path_free().
  *
- * Return value: %TRUE if an item exists at the specified position
+ * Returns: %TRUE if an item exists at the specified position
  *
  * Since: 0.3.1
  **/
@@ -5110,7 +5123,7 @@ exo_icon_view_get_item_at_pos (const ExoIconView *icon_view,
  *
  * Both paths should be freed with gtk_tree_path_free() after use.
  *
- * Return value: %TRUE, if valid paths were placed in @start_path and @end_path
+ * Returns: %TRUE, if valid paths were placed in @start_path and @end_path
  *
  * Since: 0.3.1
  **/
@@ -5193,7 +5206,7 @@ exo_icon_view_selected_foreach (ExoIconView           *icon_view,
  *
  * Gets the selection mode of the @icon_view.
  *
- * Return value: the current selection mode
+ * Returns: the current selection mode
  **/
 GtkSelectionMode
 exo_icon_view_get_selection_mode (const ExoIconView *icon_view)
@@ -5237,7 +5250,7 @@ exo_icon_view_set_selection_mode (ExoIconView      *icon_view,
  * Returns the #ExoIconViewLayoutMode used to layout the
  * items in the @icon_view.
  *
- * Return value: the layout mode of @icon_view.
+ * Returns: the layout mode of @icon_view.
  *
  * Since: 0.3.1.5
  **/
@@ -5292,7 +5305,7 @@ exo_icon_view_set_layout_mode (ExoIconView          *icon_view,
  * Returns the model the #ExoIconView is based on. Returns %NULL if the
  * model is unset.
  *
- * Return value: A #GtkTreeModel, or %NULL if none is currently being used.
+ * Returns: A #GtkTreeModel, or %NULL if none is currently being used.
  **/
 GtkTreeModel*
 exo_icon_view_get_model (const ExoIconView *icon_view)
@@ -5631,7 +5644,7 @@ exo_icon_view_unselect_path (ExoIconView *icon_view,
  * g_list_free (list);
  * </programlisting></informalexample>
  *
- * Return value: A #GList containing a #GtkTreePath for each selected row.
+ * Returns: A #GList containing a #GtkTreePath for each selected row.
  **/
 GList*
 exo_icon_view_get_selected_items (const ExoIconView *icon_view)
@@ -5717,7 +5730,7 @@ exo_icon_view_unselect_all (ExoIconView *icon_view)
  * Returns %TRUE if the icon pointed to by @path is currently
  * selected. If @icon does not point to a valid location, %FALSE is returned.
  *
- * Return value: %TRUE if @path is selected.
+ * Returns: %TRUE if @path is selected.
  **/
 gboolean
 exo_icon_view_path_is_selected (const ExoIconView *icon_view,
@@ -5767,7 +5780,7 @@ exo_icon_view_item_activated (ExoIconView *icon_view,
  *
  * The returned #GtkTreePath must be freed with gtk_tree_path_free().
  *
- * Return value: %TRUE if the cursor is set.
+ * Returns: %TRUE if the cursor is set.
  *
  * Since: 0.3.1
  **/
@@ -5966,7 +5979,7 @@ exo_icon_view_scroll_to_path (ExoIconView *icon_view,
  * Returns the value of the ::orientation property which determines
  * whether the labels are drawn beside the icons instead of below.
  *
- * Return value: the relative position of texts and icons
+ * Returns: the relative position of texts and icons
  *
  * Since: 0.3.1
  **/
@@ -6017,7 +6030,7 @@ exo_icon_view_set_orientation (ExoIconView   *icon_view,
  *
  * Returns the value of the ::columns property.
  *
- * Return value: the number of columns, or -1
+ * Returns: the number of columns, or -1
  */
 gint
 exo_icon_view_get_columns (const ExoIconView *icon_view)
@@ -6065,7 +6078,7 @@ exo_icon_view_set_columns (ExoIconView *icon_view,
  *
  * Returns the value of the ::item-width property.
  *
- * Return value: the width of a single item, or -1
+ * Returns: the width of a single item, or -1
  *
  * Since: 0.3.1
  */
@@ -6116,7 +6129,7 @@ exo_icon_view_set_item_width (ExoIconView *icon_view,
  *
  * Returns the value of the ::spacing property.
  *
- * Return value: the space between cells
+ * Returns: the space between cells
  *
  * Since: 0.3.1
  */
@@ -6165,7 +6178,7 @@ exo_icon_view_set_spacing (ExoIconView *icon_view,
  *
  * Returns the value of the ::row-spacing property.
  *
- * Return value: the space between rows
+ * Returns: the space between rows
  *
  * Since: 0.3.1
  */
@@ -6213,7 +6226,7 @@ exo_icon_view_set_row_spacing (ExoIconView *icon_view,
  *
  * Returns the value of the ::column-spacing property.
  *
- * Return value: the space between columns
+ * Returns: the space between columns
  *
  * Since: 0.3.1
  **/
@@ -6261,7 +6274,7 @@ exo_icon_view_set_column_spacing (ExoIconView *icon_view,
  *
  * Returns the value of the ::margin property.
  *
- * Return value: the space at the borders
+ * Returns: the space at the borders
  *
  * Since: 0.3.1
  **/
@@ -7346,7 +7359,7 @@ exo_icon_view_get_drag_dest_item (ExoIconView              *icon_view,
  * #exo_icon_view_widget_to_icon_coords() if you need to translate
  * widget coordinates first.
  *
- * Return value: whether there is an item at the given position.
+ * Returns: whether there is an item at the given position.
  *
  * Since: 0.3.1
  **/
@@ -7406,7 +7419,7 @@ exo_icon_view_get_dest_item_at_pos (ExoIconView              *icon_view,
  * Creates a #GdkPixmap representation of the item at @path.
  * This image is used for a drag icon.
  *
- * Return value: a newly-allocated pixmap of the drag icon.
+ * Returns: a newly-allocated pixmap of the drag icon.
  *
  * Since: 0.3.1
  **/
@@ -7474,7 +7487,7 @@ exo_icon_view_create_drag_icon (ExoIconView *icon_view,
  * Retrieves whether the user can reorder the list via drag-and-drop.
  * See exo_icon_view_set_reorderable().
  *
- * Return value: %TRUE if the list can be reordered.
+ * Returns: %TRUE if the list can be reordered.
  *
  * Since: 0.3.1
  **/
@@ -7551,7 +7564,7 @@ exo_icon_view_set_reorderable (ExoIconView *icon_view,
  * Returns %TRUE if @icon_view is currently in single click mode,
  * else %FALSE will be returned.
  *
- * Return value: whether @icon_view is currently in single click mode.
+ * Returns: whether @icon_view is currently in single click mode.
  *
  * Since: 0.3.1.3
  **/
@@ -7602,7 +7615,7 @@ exo_icon_view_set_single_click (ExoIconView *icon_view,
  * in single click mode. A value of %0 means that the behavior
  * is disabled and the user must alter the selection manually.
  *
- * Return value: the single click autoselect timeout or %0 if
+ * Returns: the single click autoselect timeout or %0 if
  *               the behavior is disabled.
  *
  * Since: 0.3.1.5
@@ -7755,8 +7768,7 @@ exo_icon_view_single_click_timeout_destroy (gpointer user_data)
  * Returns whether or not the @icon_view allows to start
  * interactive searching by typing in text.
  *
- * Return value: whether or not to let the user search
- *               interactively.
+ * Returns: whether or not to let the user search interactively.
  *
  * Since: 0.3.1.3
  **/
@@ -7805,7 +7817,7 @@ exo_icon_view_set_enable_search (ExoIconView *icon_view,
  *
  * Returns the column searched on by the interactive search code.
  *
- * Return value: the column the interactive search code searches in.
+ * Returns: the column the interactive search code searches in.
  *
  * Since: 0.3.1.3
  **/
@@ -7855,7 +7867,7 @@ exo_icon_view_set_search_column (ExoIconView *icon_view,
  *
  * Returns the compare function currently in use.
  *
- * Return value: the currently used compare function for the search code.
+ * Returns: the currently used compare function for the search code.
  *
  * Since: 0.3.1.3
  **/
@@ -7910,7 +7922,7 @@ exo_icon_view_set_search_equal_func (ExoIconView               *icon_view,
  *
  * Returns the search dialog positioning function currently in use.
  *
- * Return value: the currently used function for positioning the search dialog.
+ * Returns: the currently used function for positioning the search dialog.
  *
  * Since: 0.3.1.3
  **/

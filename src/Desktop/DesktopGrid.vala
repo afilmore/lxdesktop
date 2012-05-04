@@ -50,11 +50,6 @@ namespace Desktop {
         private Desktop.Item?   _selected_item = null;
         private Fm.CellRendererPixbuf   _icon_renderer; 
         
-        // GTK3_REMOVE
-        #if !ENABLE_GTK3
-        private Gdk.GC _gc;
-        #endif        
-        
         // Text drawing...
         private Pango.Layout _pango_layout;
         uint _text_h = 0;
@@ -99,13 +94,7 @@ namespace Desktop {
         public void init_gc (Gdk.Window window) {
             
             _window = window;
-            
-            // GTK3_REMOVE
-            #if !ENABLE_GTK3
-            this._gc = new Gdk.GC (window);
-            #endif
-        }
-        
+        }    
         
         /***********************************************************************
          * Initialize the grid..., this function is called from the
@@ -231,7 +220,6 @@ namespace Desktop {
          *
          * 
          **********************************************************************/
-        #if ENABLE_GTK3
         private void _draw_item (Desktop.Item item, Cairo.Context cr, Gdk.Rectangle expose_area) {
             
             Gtk.CellRendererState state = 0;
@@ -268,17 +256,19 @@ namespace Desktop {
             Gtk.Style style = _desktop.get_style ();
             Gdk.Color fg;
             
-            Gtk.StyleContext context;
+            Gtk.StyleContext context = _desktop.get_style_context ();
             //Gtk.StateFlags flags;
-            Gdk.RGBA rgba;
+            Gdk.RGBA color = {0, 0, 0, 0};
             
             // Selected item
             if (state == Gtk.CellRendererState.SELECTED) {
                 
                 cr.save ();
                 Gdk.cairo_rectangle (cr, item.text_rect);
-                // DEPRECATED
+                
+                // DEPRECATED replace with gdk_cairo_set_source_rgba ()
                 Gdk.cairo_set_source_color (cr, style.bg[Gtk.StateType.SELECTED]);
+                
                 cr.clip ();
                 cr.paint ();
                 cr.restore ();
@@ -290,17 +280,17 @@ namespace Desktop {
                 
                 cr.save ();
                 
-                /* clip */
+                // Clip.
                 Gdk.cairo_rectangle (cr, item.text_rect);
                 cr.clip ();
                 
-                /* set the correct source color */
-                context = _desktop.get_style_context ();
                 //state = _desktop.get_state_flags ();
-                rgba = context.get_color (Gtk.StateFlags.SELECTED);
-                Gdk.cairo_set_source_rgba (cr, rgba);
+                //rgba = context.get_color (Gtk.StateFlags.SELECTED);
                 
-                /* draw the text */
+                color.parse ("Black");
+                Gdk.cairo_set_source_rgba (cr, color);
+                
+                // draw the text.
                 cr.move_to (text_x + 1, text_y + 1);
                 Pango.cairo_show_layout (cr, this._pango_layout);
                 
@@ -309,20 +299,22 @@ namespace Desktop {
                 fg = global_config.color_text;
             }
             
-            // Real text
+            // Real text.
             cr.save ();
             
-            /* clip */
+            // Clip.
             Gdk.cairo_rectangle (cr, item.text_rect);
             cr.clip ();
             
-            /* set the correct source color */
-            context = _desktop.get_style_context ();
+            // Set the correct source color.
+            //context = _desktop.get_style_context ();
             //state = _desktop.get_state_flags ();
-            rgba = context.get_color (Gtk.StateFlags.NORMAL);
-            Gdk.cairo_set_source_rgba (cr, rgba);
+            //rgba = context.get_color (Gtk.StateFlags.NORMAL);
+
+            color.parse ("White");
+            Gdk.cairo_set_source_rgba (cr, color);
             
-            /* draw the text */
+            // Draw the text.
             cr.move_to (text_x, text_y);
             Pango.cairo_show_layout (cr, this._pango_layout);
             
@@ -340,7 +332,6 @@ namespace Desktop {
                                           item.text_rect.height);
             }
         }
-        #endif
 
         public void draw_items_in_rect (Cairo.Context cr, Gdk.Rectangle expose_area) {
             
@@ -370,11 +361,7 @@ namespace Desktop {
                 }
 
                 if (intersect != null) {
-                    #if !ENABLE_GTK3
-                    this._gtk2_draw_item (item, cr, intersect);
-                    #else
                     this._draw_item (item, cr, intersect);
-                    #endif
                 }
             }
         }
@@ -825,106 +812,6 @@ namespace Desktop {
         
         
         
-        /*******************************************************************************************
-         * Gtk2 Functions... Will Be Removed...
-         * 
-         * GTK3_REMOVE
-         * 
-         ******************************************************************************************/
-        #if !ENABLE_GTK3
-        private void _gtk2_draw_item (Desktop.Item item, Cairo.Context cr, Gdk.Rectangle expose_area) {
-            
-            /*** stdout.printf ("item.draw: %i, %i, %i, %i\n",
-                                expose_area.x,
-                                expose_area.y,
-                                expose_area.width,
-                                expose_area.height); ***/
-            
-            Gtk.CellRendererState state = 0;
-            
-            // Selected item
-            if (item.is_selected == true || item == _desktop.drop_hilight)
-                state = Gtk.CellRendererState.SELECTED;
-            
-            
-            /*******************************************************************
-             * Draw the icon...
-             * 
-             * 
-             ******************************************************************/
-            this._icon_renderer.set ("pixbuf", item.icon, "info", item.get_fileinfo (), null);
-            this._icon_renderer.render (_window,
-                                        _desktop,
-                                        item.icon_rect,
-                                        item.icon_rect,
-                                        expose_area,
-                                        state);
-            
-            _pango_layout.set_text ("", 0);
-            _pango_layout.set_width ((int) this._pango_text_w);
-            _pango_layout.set_height ((int) this._pango_text_h);
-
-            string disp_name = item.get_disp_name ();
-            _pango_layout.set_text (disp_name, -1);
-
-            /*** Do we need to cache this ? ***/
-            int text_x = (int) item.pixel_pos.x + (_cell_width - (int) _text_w) / 2 + 2;
-            int text_y = (int) item.icon_rect.y + item.icon_rect.height + 2;
-
-            // Draw background for text label
-            Gtk.Style style = _desktop.get_style ();
-            Gdk.Color fg;
-            
-            // Selected item
-            if (state == Gtk.CellRendererState.SELECTED) {
-                
-                cr.save ();
-                Gdk.cairo_rectangle (cr, item.text_rect);
-                Gdk.cairo_set_source_color (cr, style.bg[Gtk.StateType.SELECTED]);
-                cr.clip ();
-                cr.paint ();
-                cr.restore ();
-                
-                fg = style.fg[Gtk.StateType.SELECTED];
-                
-            // Normal item / text shadow
-            } else {
-                
-                _gc.set_rgb_fg_color (global_config.color_shadow);
-                Gdk.draw_layout (_window,
-                                 this._gc,
-                                 text_x + 1,
-                                 text_y + 1,
-                                 this._pango_layout);
-                fg = global_config.color_text;
-            }
-            
-            // Real text
-            _gc.set_rgb_fg_color (fg);
-            
-            Gdk.draw_layout (_window,
-                             this._gc,
-                             text_x,
-                             text_y,
-                             this._pango_layout);
-            _pango_layout.set_text ("", 0);
-
-            // Draw a selection rectangle for the selected item
-            if (item == _selected_item && _desktop.has_focus != 0) {
-                
-                Gtk.paint_focus (style,
-                                 _window,
-                                 _desktop.get_state (),
-                                 expose_area,
-                                 _desktop,
-                                 "icon_view",
-                                 item.text_rect.x,
-                                 item.text_rect.y,
-                                 item.text_rect.width,
-                                 item.text_rect.height);
-            }
-        }
-        #endif            
     }
 }
 
