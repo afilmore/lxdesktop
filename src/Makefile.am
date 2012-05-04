@@ -19,6 +19,7 @@ exo_SOURCES = \
 
 gtk_SOURCES = \
 	gtk/fm-cell-renderer-text.c \
+	gtk/fm-dir-tree-item.c \
 	gtk/fm-dir-tree-model.c \
 	gtk/fm-dir-tree-view.c \
 	gtk/fm-folder-model.c \

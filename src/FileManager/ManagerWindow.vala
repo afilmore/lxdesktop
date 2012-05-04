@@ -361,6 +361,7 @@ namespace Manager {
             
             _tree_view.set_model (global_dir_tree_model);
             _tree_view.directory_changed.connect (_tree_view_on_change_directory);
+            _tree_view.button_release_event.connect (_tree_view_on_button_release);
             
             //_tree_view.chdir (_current_dir);
 
@@ -510,6 +511,46 @@ namespace Manager {
             /*** stdout.printf ("_tree_view_on_change_directory: %u, %s\n", button, path.to_str ()); ***/
             
             this._change_directory (path, DirChangeCaller.DIR_TREEVIEW, false);
+        }
+
+        private bool _tree_view_on_button_release (Gdk.EventButton event) {
+        
+            /*** ***/ stdout.printf ("_tree_view_on_button_release\n"); 
+            
+            if (event.button != 3)
+                return false;
+            
+            Gtk.TreeSelection sel = _tree_view.get_selection ();
+            List<Gtk.TreePath>? sels = sel.get_selected_rows (null);
+            Gtk.TreeIter it;
+            if (sels != null)
+            {
+                
+                if (global_dir_tree_model.get_iter (out it, sels.data))
+                {
+                    unowned Fm.FileInfo? fi;
+                    global_dir_tree_model.get (it, 2, out fi, -1);
+                    if (fi != null) {
+                        stdout.printf ("%s\n", fi.get_disp_name ());
+                        _file_menu = new Fm.FileMenu.for_file (this, fi, _tree_view.get_cwd (), false);
+
+                        // Merge Specific Folder Menu Items...
+                        if (_file_menu.is_single_file_type () && fi.is_dir ()) {
+                            Gtk.UIManager ui = _file_menu.get_ui ();
+                            Gtk.ActionGroup action_group = _file_menu.get_action_group ();
+                            action_group.add_actions (_folder_menu_actions, null);
+                            try {
+                                ui.add_ui_from_string (global_folder_menu_xml, -1);
+                            } catch (Error e) {
+                            }
+                        }
+
+                        _files_popup = _file_menu.get_menu ();
+                        _files_popup.popup (null, null, null, 3, Gtk.get_current_event_time ());
+                    }
+                }
+            }
+            return true;
         }
 
         
@@ -956,10 +997,10 @@ namespace Manager {
             const string authors[] = {"Axel FILMORE <axel.filmore@gmail.com>", null};
             
             Gtk.AboutDialog about_dialog = new Gtk.AboutDialog ();
-            about_dialog.set_program_name ("lxmanager");
+            about_dialog.set_program_name ("lxdesktop");
             about_dialog.set_authors (authors);
             about_dialog.set_comments ("A Simple File Manager");
-            about_dialog.set_website ("https://github.com/afilmore/lxmanager");
+            about_dialog.set_website ("https://github.com/afilmore/lxdesktop");
             about_dialog.run ();
             about_dialog.destroy ();
         }
@@ -972,7 +1013,6 @@ namespace Manager {
          ********************************************************************************/
         /*private void _on_properties (Gtk.Action action) {
             
-             Write a function instead of that f***ing code... 
             
             Fm.FileInfo fi = _folder_view.model.dir.dir_fi;
             
