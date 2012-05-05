@@ -61,13 +61,7 @@ static gboolean fm_dir_tree_model_iter_parent           (GtkTreeModel *tree_mode
 static void fm_dir_tree_model_finalize (GObject *object);
 
 static void on_theme_changed (GtkIconTheme* theme, FmDirTreeModel* model);
-static void on_folder_loaded (FmFolder* folder, GList* item_list);
-static void on_folder_files_added (FmFolder* folder, GSList* files, GList* item_list);
-static void on_folder_files_removed (FmFolder* folder, GSList* files, GList* item_list);
-static void on_folder_files_changed (FmFolder* folder, GSList* files, GList* item_list);
-static inline void item_to_tree_iter (FmDirTreeModel* model, GList* item_list, GtkTreeIter* it);
 
-static void item_queue_subdir_check (FmDirTreeModel* model, GList* item_list);
 
 
 G_DEFINE_TYPE_WITH_CODE (FmDirTreeModel,
@@ -501,7 +495,8 @@ static void item_reload_icon (FmDirTreeModel* model, FmDirTreeItem* dir_tree_ite
         }
     }
 }
-static inline void item_to_tree_iter (FmDirTreeModel* model, GList* item_list, GtkTreeIter* it)
+
+inline void item_to_tree_iter (FmDirTreeModel* model, GList* item_list, GtkTreeIter* it)
 {
     it->stamp = model->stamp;
     // We simply store a GList pointer in the iter 
@@ -509,7 +504,8 @@ static inline void item_to_tree_iter (FmDirTreeModel* model, GList* item_list, G
     it->user_data2 = it->user_data3 = NULL;
 }
 
-static inline GtkTreePath* item_to_tree_path (FmDirTreeModel* model, GList* item_list)
+
+inline GtkTreePath* item_to_tree_path (FmDirTreeModel* model, GList* item_list)
 {
     GtkTreeIter it;
     item_to_tree_iter (model, item_list, &it);
@@ -563,6 +559,7 @@ static GList* insert_item (FmDirTreeModel* model, GList* parent_l, GtkTreePath* 
     GList *last_l = NULL;
     GtkTreeIter it;
     int n = 0;
+    
     for (item_list = parent_item->children; item_list; item_list=item_list->next, ++n)
     {
         FmDirTreeItem* dir_tree_item = (FmDirTreeItem*)item_list->data;
@@ -596,6 +593,7 @@ static GList* insert_item (FmDirTreeModel* model, GList* parent_l, GtkTreePath* 
 
     // add a placeholder child item to make the node expandable 
     //add_place_holder_child_item (model, new_item_list, tp, TRUE);
+    
     gtk_tree_path_up (tp);
 
     // Check Subdirectories: check if the dir has subdirs and make it expandable if needed. 
@@ -613,7 +611,7 @@ static GList* insert_item (FmDirTreeModel* model, GList* parent_l, GtkTreePath* 
  * original value before returning from the function.
  * 
  ****************************************************************************************/
-static GList* insert_file_info (FmDirTreeModel* model, GList* parent_l, GtkTreePath* tp, FmFileInfo* fi)
+GList* insert_file_info (FmDirTreeModel* model, GList* parent_l, GtkTreePath* tp, FmFileInfo* fi)
 {
 //    GtkTreeIter it;
     
@@ -637,7 +635,7 @@ static GList* insert_file_info (FmDirTreeModel* model, GList* parent_l, GtkTreeP
     return item_list;
 }
 
-static void remove_item (FmDirTreeModel* model, GList* item_list)
+void remove_item (FmDirTreeModel* model, GList* item_list)
 {
     GtkTreePath* tp = item_to_tree_path (model, item_list);
     FmDirTreeItem* dir_tree_item = (FmDirTreeItem*)item_list->data;
@@ -653,7 +651,7 @@ static void remove_item (FmDirTreeModel* model, GList* item_list)
 }
 
 // find child item by filename, and retrive its index if idx is not NULL. 
-static GList* children_by_name (FmDirTreeModel* model, GList* children, const char* name, int* idx)
+GList* children_by_name (FmDirTreeModel* model, GList* children, const char* name, int* idx)
 {
     GList* l;
     int i = 0;
@@ -739,14 +737,18 @@ void fm_dir_tree_model_expand_row (FmDirTreeModel* model, GtkTreeIter* it, GtkTr
     if (dir_tree_item->n_expand == 0)
     {
         // Dynamically load content of the folder...
-        FmFolder* folder = fm_folder_get (dir_tree_item->fi->path);
-        dir_tree_item->folder = folder;
+        
+        fm_dir_tree_item_set_folder (item_list);
+        //~ FmFolder* folder = fm_folder_get (dir_tree_item->fi->path);
+        //~ dir_tree_item->folder = folder;
+//~ 
+        //~ // Associate the data with loaded handler...
+        //~ g_signal_connect (folder, "loaded", G_CALLBACK (on_folder_loaded), item_list);
+        //~ g_signal_connect (folder, "files-added", G_CALLBACK (on_folder_files_added), item_list);
+        //~ g_signal_connect (folder, "files-removed", G_CALLBACK (on_folder_files_removed), item_list);
+        //~ g_signal_connect (folder, "files-changed", G_CALLBACK (on_folder_files_changed), item_list);
 
-        // Associate the data with loaded handler...
-        g_signal_connect (folder, "loaded", G_CALLBACK (on_folder_loaded), item_list);
-        g_signal_connect (folder, "files-added", G_CALLBACK (on_folder_files_added), item_list);
-        g_signal_connect (folder, "files-removed", G_CALLBACK (on_folder_files_removed), item_list);
-        g_signal_connect (folder, "files-changed", G_CALLBACK (on_folder_files_changed), item_list);
+        FmFolder* folder = dir_tree_item->folder;
 
         // If the folder is already loaded, call "loaded" handler ourselves...
         if (fm_folder_get_is_loaded (folder))
@@ -847,122 +849,6 @@ gboolean fm_dir_tree_model_get_show_hidden (FmDirTreeModel* model)
 
 
 
-
-inline void item_free_folder (GList* item_list)
-{
-    FmDirTreeItem* dir_tree_item = (FmDirTreeItem*)item_list->data;
-    if (dir_tree_item->folder)
-    {
-        FmFolder* folder = dir_tree_item->folder;
-        g_signal_handlers_disconnect_by_func (folder, on_folder_loaded, item_list);
-        g_signal_handlers_disconnect_by_func (folder, on_folder_files_added, item_list);
-        g_signal_handlers_disconnect_by_func (folder, on_folder_files_removed, item_list);
-        g_signal_handlers_disconnect_by_func (folder, on_folder_files_changed, item_list);
-        g_object_unref (folder);
-        dir_tree_item->folder = NULL;
-    }
-}
-
-
-
-static void on_folder_loaded (FmFolder* folder, GList* item_list)
-{
-    FmDirTreeItem* dir_tree_item = (FmDirTreeItem*)item_list->data;
-    FmDirTreeModel* model = dir_tree_item->model;
-    GList* place_holder_l;
-
-    place_holder_l = dir_tree_item->children;
-    
-    // If we have loaded sub dirs, remove the place holder...
-    if (dir_tree_item->children->next)
-    {
-        remove_item (model, place_holder_l);
-    }
-    
-    // If we have no sub dirs, leave the place holder and let it show "Empty" 
-    else
-    {
-        GtkTreeIter it;
-        GtkTreePath* tp = item_to_tree_path (model, place_holder_l);
-        item_to_tree_iter (model, place_holder_l, &it);
-        gtk_tree_model_row_changed ((GtkTreeModel*) model, tp, &it);
-        gtk_tree_path_free (tp);
-    }
-}
-
-static void on_folder_files_added (FmFolder* folder, GSList* files, GList* item_list)
-{
-    GSList* l;
-    FmDirTreeItem* dir_tree_item = (FmDirTreeItem*)item_list->data;
-    FmDirTreeModel* model = dir_tree_item->model;
-    GtkTreePath* tp = item_to_tree_path (model, item_list);
-    for (l = files; l; l = l->next)
-    {
-        FmFileInfo* fi = FM_FILE_INFO (l->data);
-        
-        /*** should FmFolder generate "files-added" signal on
-         * its first-time loading? Isn't "loaded" signal enough ? ***/
-        
-        if (fm_file_info_is_dir (fi))
-        {
-            // Ensure that the file is not yet in our model
-            GList* new_item_list = children_by_name (model, dir_tree_item->children, fi->path->name, NULL);
-            if (!new_item_list)
-                new_item_list = insert_file_info (model, item_list, tp, fi);
-        }
-    }
-    gtk_tree_path_free (tp);
-}
-
-static void on_folder_files_removed (FmFolder* folder, GSList* files, GList* item_list)
-{
-    GSList* l;
-    FmDirTreeItem* dir_tree_item = (FmDirTreeItem*)item_list->data;
-    FmDirTreeModel* model = dir_tree_item->model;
-    // GtkTreePath* tp = item_to_tree_path (model, item_list);
-    for (l = files; l; l = l->next)
-    {
-        FmFileInfo* fi = FM_FILE_INFO (l->data);
-        GList* rm_item_list = children_by_name (model, dir_tree_item->children, fi->path->name, NULL);
-        if (rm_item_list)
-            remove_item (model, rm_item_list);
-    }
-    // gtk_tree_path_free (tp); 
-}
-
-static void on_folder_files_changed (FmFolder* folder, GSList* files, GList* item_list)
-{
-    GSList* l;
-    FmDirTreeItem* dir_tree_item = (FmDirTreeItem*)item_list->data;
-    FmDirTreeModel* model = dir_tree_item->model;
-    GtkTreePath* tp = item_to_tree_path (model, item_list);
-
-    printf ("files changed!!\n");
-
-    for (l = files; l; l = l->next)
-    {
-        FmFileInfo* fi = FM_FILE_INFO (l->data);
-        int idx;
-        GList* changed_item_list = children_by_name (model, dir_tree_item->children, fi->path->name, &idx);
-        
-        // g_debug ("changed file: %s", fi->path->name); 
-        if (changed_item_list)
-        {
-            
-            FmDirTreeItem* changed_item = (FmDirTreeItem*)changed_item_list->data;
-            if (changed_item->fi)
-                fm_file_info_unref (changed_item->fi);
-            
-            changed_item->fi = fm_file_info_ref (fi);
-            
-            // FIXME: inform gtk tree view about the change 
-
-            // Check Subdirectories: check if we have sub folder 
-            item_queue_subdir_check (model, changed_item_list);
-        }
-    }
-    gtk_tree_path_free (tp);
-}
 
 /*****************************************************************************************
  * Check Subdirectories:
@@ -1093,7 +979,7 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable* cancellabl
 
 }
 
-static void item_queue_subdir_check (FmDirTreeModel* model, GList* item_list)
+void item_queue_subdir_check (FmDirTreeModel* model, GList* item_list)
 {
     FmDirTreeItem* dir_tree_item = (FmDirTreeItem*)item_list->data;
     g_return_if_fail (dir_tree_item->fi != NULL);

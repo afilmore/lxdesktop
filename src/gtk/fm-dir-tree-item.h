@@ -52,10 +52,13 @@ struct _FmDirTreeItem
 
 
 inline FmDirTreeItem* fm_dir_tree_item_new (FmDirTreeModel* model, GList* parent_l);
+void fm_dir_tree_item_set_folder (GList* item_l);
 inline void fm_dir_tree_item_free (FmDirTreeItem* item);
 
 inline void _g_list_foreach_l (GList* list, GFunc func, gpointer user_data);
 void fm_dir_tree_item_free_l (GList* item_l);
+
+void on_folder_loaded (FmFolder* folder, GList* item_list);
 
 G_END_DECLS
 #endif
