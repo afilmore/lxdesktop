@@ -156,7 +156,9 @@ static void fm_dir_tree_view_class_init (FmDirTreeViewClass *klass)
 
     tree_view_class->test_expand_row = on_test_expand_row;
     tree_view_class->row_collapsed = on_row_collapsed;
+    
     /* tree_view_class->row_expanded = on_row_expanded; */
+    
     tree_view_class->row_activated = on_row_activated;
 
     signals[DIRECTORY_CHANGED] =
@@ -212,12 +214,6 @@ static void fm_dir_tree_view_finalize (GObject *object)
     G_OBJECT_CLASS (fm_dir_tree_view_parent_class)->finalize (object);
 }
 
-/* defined in fm-dir-tree-model.c */
-gboolean _fm_dir_tree_view_select_function (GtkTreeSelection *selection,
-                                           GtkTreeModel *model,
-                                           GtkTreePath *path,
-                                           gboolean path_currently_selected,
-                                           gpointer data);
 
 
 static void fm_dir_tree_view_init (FmDirTreeView *view)
@@ -241,8 +237,7 @@ static void fm_dir_tree_view_init (FmDirTreeView *view)
 
     tree_sel = gtk_tree_view_get_selection ((GtkTreeView*) view);
     gtk_tree_selection_set_mode (tree_sel, GTK_SELECTION_BROWSE);
-    gtk_tree_selection_set_select_function (tree_sel,
-                        _fm_dir_tree_view_select_function, view, NULL);
+    gtk_tree_selection_set_select_function (tree_sel, _fm_dir_tree_view_select_function, view, NULL);
     g_signal_connect (tree_sel, "changed", G_CALLBACK (on_sel_changed), view);
 }
 
@@ -311,7 +306,10 @@ static void expand_pending_path (FmDirTreeView* view, GtkTreeModel* model, GtkTr
         gtk_tree_path_free (tp);
         /* after being expanded, the row now owns a FmFolder object. */
         gtk_tree_model_get (model, &it, FM_DIR_TREE_MODEL_COL_FOLDER, &folder, -1);
-
+        
+        if (!folder)
+            return;
+        
         if (view->cur_expanded_folder) /* This should not happen. Otherwise it's a bug. */
             g_object_unref (view->cur_expanded_folder);
         view->cur_expanded_folder = FM_FOLDER (g_object_ref (folder));

@@ -24,7 +24,6 @@
  * 
  * 
  **********************************************************************************************************************/
-
 #ifndef __FM_DIR_TREE_MODEL_H__
 #define __FM_DIR_TREE_MODEL_H__
 
@@ -69,14 +68,12 @@ struct _FmDirTreeModel
     int icon_size;
     gboolean show_hidden;
 
-#if 0
     /* check if a folder has subdir */
     GQueue subdir_checks;
     GMutex* subdir_checks_mutex;
     GCancellable* subdir_cancellable;
     gboolean job_running;
     GList* current_subdir_check;
-#endif
 };
 
 struct _FmDirTreeModelClass
@@ -84,28 +81,26 @@ struct _FmDirTreeModelClass
     GObjectClass parent_class;
 };
 
+FmDirTreeModel* fm_dir_tree_model_new (void);
+GType fm_dir_tree_model_get_type (void);
 
-GType fm_dir_tree_model_get_type(void);
-FmDirTreeModel* fm_dir_tree_model_new(void);
+void fm_dir_tree_model_add_root (FmDirTreeModel* model, FmFileInfo* root, GtkTreeIter* it);
 
-void fm_dir_tree_model_add_root(FmDirTreeModel* model, FmFileInfo* root, GtkTreeIter* it);
+void fm_dir_tree_model_expand_row (FmDirTreeModel* model, GtkTreeIter* it, GtkTreePath* tp);
+void fm_dir_tree_model_collapse_row (FmDirTreeModel* model, GtkTreeIter* it, GtkTreePath* tp);
 
-void fm_dir_tree_model_expand_row(FmDirTreeModel* model, GtkTreeIter* it, GtkTreePath* tp);
-void fm_dir_tree_model_collapse_row(FmDirTreeModel* model, GtkTreeIter* it, GtkTreePath* tp);
+void fm_dir_tree_model_set_icon_size (FmDirTreeModel* model, guint icon_size);
+guint fm_dir_tree_get_icon_size (FmDirTreeModel* model);
 
-void fm_dir_tree_model_set_icon_size(FmDirTreeModel* model, guint icon_size);
-guint fm_dir_tree_get_icon_size(FmDirTreeModel* model);
+void fm_dir_tree_model_set_show_hidden (FmDirTreeModel* model, gboolean show_hidden);
+gboolean fm_dir_tree_model_get_show_hidden (FmDirTreeModel* model);
 
-void fm_dir_tree_model_set_show_hidden(FmDirTreeModel* model, gboolean show_hidden);
-gboolean fm_dir_tree_model_get_show_hidden(FmDirTreeModel* model);
+inline void item_free_folder (GList* item_l);
 
-void dir_tree_on_folder_loaded (FmFolder* folder, GList* item_l);
-void dir_tree_on_folder_files_added (FmFolder* folder, GSList* files, GList* item_l);
-void dir_tree_on_folder_files_removed (FmFolder* folder, GSList* files, GList* item_l);
-void dir_tree_on_folder_files_changed (FmFolder* folder, GSList* files, GList* item_l);
-
+gboolean _fm_dir_tree_view_select_function (GtkTreeSelection *selection, GtkTreeModel *model, GtkTreePath *path,
+                                            gboolean path_currently_selected, gpointer data);
 
 
 G_END_DECLS
-
 #endif /* __FM_DIR_TREE_MODEL_H__ */
+

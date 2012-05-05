@@ -62,7 +62,7 @@ inline FmDirTreeItem* fm_dir_tree_item_new (FmDirTreeModel* model, GList* parent
     return item;
 }
 
-static inline void item_free_folder (GList* item_l);
+inline void item_free_folder (GList* item_l);
 
 /* Most of time fm_dir_tree_item_free_l () should be called instead. */
 inline void fm_dir_tree_item_free (FmDirTreeItem* item)
@@ -94,21 +94,6 @@ void fm_dir_tree_item_free_l (GList* item_l)
     FmDirTreeItem* item = (FmDirTreeItem*)item_l->data;
     item_free_folder (item_l);
     fm_dir_tree_item_free (item);
-}
-
-static inline void item_free_folder (GList* item_l)
-{
-    FmDirTreeItem* item = (FmDirTreeItem*)item_l->data;
-    if (item->folder)
-    {
-        FmFolder* folder = item->folder;
-        g_signal_handlers_disconnect_by_func (folder, dir_tree_on_folder_loaded, item_l);
-        g_signal_handlers_disconnect_by_func (folder, dir_tree_on_folder_files_added, item_l);
-        g_signal_handlers_disconnect_by_func (folder, dir_tree_on_folder_files_removed, item_l);
-        g_signal_handlers_disconnect_by_func (folder, dir_tree_on_folder_files_changed, item_l);
-        g_object_unref (folder);
-        item->folder = NULL;
-    }
 }
 
 

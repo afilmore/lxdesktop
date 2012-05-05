@@ -44,6 +44,7 @@ struct _FmDirTreeItem
     FmFolder* folder;
     GdkPixbuf* icon;
     guint n_expand;
+    
     GList* parent; /* parent node */
     GList* children; /* child items */
     GList* hidden_children;
