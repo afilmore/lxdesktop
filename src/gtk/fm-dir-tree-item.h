@@ -29,36 +29,35 @@
 
 #include <gtk/gtk.h>
 #include <glib-object.h>
+
 #include "fm-dir-tree-model.h"
 #include "fm-folder.h"
 #include "fm-file-info.h"
 
 G_BEGIN_DECLS
 
-
 typedef struct _FmDirTreeItem FmDirTreeItem;
 struct _FmDirTreeItem
 {
-    FmDirTreeModel* model; /* FIXME: storing model pointer in every item is a waste */
-    FmFileInfo* fi;
-    FmFolder* folder;
-    GdkPixbuf* icon;
-    guint n_expand;
+    FmDirTreeModel  *model;
+    FmFileInfo      *fi;
+    FmFolder        *folder;
+    GdkPixbuf       *icon;
+    guint           n_expand;
     
-    GList* parent; /* parent node */
-    GList* children; /* child items */
-    GList* hidden_children;
+    GList           *parent;            /* parent node */
+    GList           *children;          /* child items */
+    GList           *hidden_children;
 };
 
 
-inline void _g_list_foreach_l (GList* list, GFunc func, gpointer user_data);
 inline FmDirTreeItem* fm_dir_tree_item_new (FmDirTreeModel* model, GList* parent_l);
-void fm_dir_tree_item_free_l (GList* item_l);
 inline void fm_dir_tree_item_free (FmDirTreeItem* item);
 
+inline void _g_list_foreach_l (GList* list, GFunc func, gpointer user_data);
+void fm_dir_tree_item_free_l (GList* item_l);
 
 G_END_DECLS
-
-#endif /* __FM_DIR_TREE_ITEM_H__ */
+#endif
 
 

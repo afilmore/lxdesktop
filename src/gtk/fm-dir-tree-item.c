@@ -28,30 +28,10 @@
 #include <config.h>
 #endif
 
-#include "fm-dir-tree-item.h"
-#include "fm-dir-tree-model.h"
-#include "fm-folder.h"
-#include "fm-icon-pixbuf.h"
-
 #include <glib/gi18n-lib.h>
 #include <string.h>
 
-
-/* a varient of g_list_foreach which does the same thing, but pass GList* element
- * itself as the first parameter to func (), not the element data. */
-inline void _g_list_foreach_l (GList* list, GFunc func, gpointer user_data)
-{
-    while (list)
-    {
-        GList *next = list->next;
-        (*func) (list, user_data);
-        list = next;
-    }
-}
-
-/*
-static void item_queue_subdir_check (FmDirTreeModel* model, GList* item_l);
-*/
+#include "fm-dir-tree-item.h"
 
 
 inline FmDirTreeItem* fm_dir_tree_item_new (FmDirTreeModel* model, GList* parent_l)
@@ -94,6 +74,18 @@ void fm_dir_tree_item_free_l (GList* item_l)
     FmDirTreeItem* item = (FmDirTreeItem*)item_l->data;
     item_free_folder (item_l);
     fm_dir_tree_item_free (item);
+}
+
+/* a varient of g_list_foreach which does the same thing, but pass GList* element
+ * itself as the first parameter to func (), not the element data. */
+inline void _g_list_foreach_l (GList* list, GFunc func, gpointer user_data)
+{
+    while (list)
+    {
+        GList *next = list->next;
+        (*func) (list, user_data);
+        list = next;
+    }
 }
 
 
