@@ -19,6 +19,7 @@
 
 #include "fm-dir-tree-view.h"
 #include "fm-dir-tree-model.h"
+#include "fm-cell-renderer-pixbuf.h"
 #include <gdk/gdkkeysyms.h>
 #include <string.h>
 
@@ -225,9 +226,16 @@ static void fm_dir_tree_view_init (FmDirTreeView *view)
     /* gtk_tree_view_set_enable_tree_lines (view, TRUE); */
 
     col = gtk_tree_view_column_new ();
-    render = gtk_cell_renderer_pixbuf_new ();
+    
+    //~ render = gtk_cell_renderer_pixbuf_new ();
+    render = fm_cell_renderer_pixbuf_new ();
+    fm_cell_renderer_pixbuf_set_fixed_size (FM_CELL_RENDERER_PIXBUF (render), 16, 16);
+    
     gtk_tree_view_column_pack_start (col, render, FALSE);
-    gtk_tree_view_column_set_attributes (col, render, "pixbuf", FM_DIR_TREE_MODEL_COL_ICON, NULL);
+    //gtk_tree_view_column_set_attributes (col, render, "pixbuf", FM_DIR_TREE_MODEL_COL_ICON, NULL);
+    gtk_tree_view_column_set_attributes (col, render, "pixbuf", FM_DIR_TREE_MODEL_COL_ICON, "info", FM_DIR_TREE_MODEL_COL_INFO, NULL);
+    //gtk_tree_view_column_set_attributes (col, render, "info", FM_DIR_TREE_MODEL_COL_INFO, NULL);
+    //gtk_cell_layout_add_attribute ((GtkCellLayout*)view, render, "info", FM_DIR_TREE_MODEL_COL_INFO);
 
     render = gtk_cell_renderer_text_new ();
     gtk_tree_view_column_pack_start (col, render, TRUE);
