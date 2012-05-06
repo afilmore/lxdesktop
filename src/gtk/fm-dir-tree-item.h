@@ -52,8 +52,10 @@ struct _FmDirTreeItem
 
 
 inline FmDirTreeItem* fm_dir_tree_item_new (FmDirTreeModel* model, GList* parent_l);
+inline void fm_dir_tree_item_free (FmDirTreeItem* dir_tree_item);
+GdkPixbuf *fm_dir_tree_item_get_icon (FmDirTreeItem* dir_tree_item, int icon_size);
+
 void fm_dir_tree_item_set_folder (GList* item_l);
-inline void fm_dir_tree_item_free (FmDirTreeItem* item);
 
 inline void _g_list_foreach_l (GList* list, GFunc func, gpointer user_data);
 void fm_dir_tree_item_free_l (GList* item_l);

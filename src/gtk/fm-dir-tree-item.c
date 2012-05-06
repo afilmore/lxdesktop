@@ -32,10 +32,12 @@
 #include <string.h>
 
 #include "fm-dir-tree-item.h"
+#include "fm-icon-pixbuf.h"
 
 static void on_folder_files_added (FmFolder* folder, GSList* files, GList* item_list);
 static void on_folder_files_removed (FmFolder* folder, GSList* files, GList* item_list);
 static void on_folder_files_changed (FmFolder* folder, GSList* files, GList* item_list);
+static inline void item_free_folder (GList* item_l);
 
 inline FmDirTreeItem* fm_dir_tree_item_new (FmDirTreeModel* model, GList* parent_l)
 {
@@ -45,7 +47,15 @@ inline FmDirTreeItem* fm_dir_tree_item_new (FmDirTreeModel* model, GList* parent
     return item;
 }
 
-inline void item_free_folder (GList* item_l);
+GdkPixbuf *fm_dir_tree_item_get_icon (FmDirTreeItem *dir_tree_item, int icon_size)
+{
+    g_return_val_if_fail (dir_tree_item->fi, NULL);
+    
+    if (!dir_tree_item->icon)
+        dir_tree_item->icon = fm_icon_get_pixbuf (dir_tree_item->fi->icon, MAX (icon_size, 16));
+    
+    return dir_tree_item->icon;
+}
 
 /* Most of time fm_dir_tree_item_free_l () should be called instead. */
 inline void fm_dir_tree_item_free (FmDirTreeItem* item)
@@ -203,7 +213,7 @@ inline void _g_list_foreach_l (GList* list, GFunc func, gpointer user_data)
     }
 }
 
-inline void item_free_folder (GList* item_list)
+static inline void item_free_folder (GList* item_list)
 {
     FmDirTreeItem* dir_tree_item = (FmDirTreeItem*)item_list->data;
     if (dir_tree_item->folder)

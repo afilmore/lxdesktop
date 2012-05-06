@@ -346,16 +346,17 @@ namespace Manager {
                 job.run_sync_with_mainloop ();
 
                 global_dir_tree_model = new Fm.DirTreeModel ();
-                
+                global_dir_tree_model.set_show_hidden (true);
                 Fm.FileInfoList file_infos = job.file_infos;
                 
-                unowned List<Fm.FileInfo>? list = (List<Fm.FileInfo>) ( (Queue) file_infos).head;
+                unowned List<Fm.FileInfo>? list = (List<Fm.FileInfo>) ((Queue) file_infos).head;
                 
                 for (l = list; l != null; l = l.next) {
                     
                     Fm.FileInfo? fi = (Fm.FileInfo) l.data;
                     
-                    global_dir_tree_model.add_root (fi, null);
+                    bool expand = (fi.get_path ().is_virtual () == false);
+                    global_dir_tree_model.add_root (fi, null, expand);
                 }
             }
             
@@ -368,7 +369,7 @@ namespace Manager {
             // Create The Folder View...
             _folder_view = new Fm.FolderView (Fm.FolderViewMode.LIST_VIEW);
             
-            _folder_view.set_show_hidden (false);
+            _folder_view.set_show_hidden (true);
             _folder_view.sort (Gtk.SortType.ASCENDING, Fm.FileColumn.NAME);
             _folder_view.set_selection_mode (Gtk.SelectionMode.MULTIPLE);
             

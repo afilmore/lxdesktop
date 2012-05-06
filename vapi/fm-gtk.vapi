@@ -46,7 +46,7 @@ namespace Fm {
         [CCode (has_construct_function = false)]
 		public DirTreeModel ();
 		
-        public void add_root (Fm.FileInfo root, Gtk.TreeIter? it);
+        public void add_root (Fm.FileInfo root, Gtk.TreeIter? it, bool expand = true);
 		
         public void collapse_row (Gtk.TreeIter it, Gtk.TreePath tp);
 		public void expand_row (Gtk.TreeIter it, Gtk.TreePath tp);
@@ -96,7 +96,7 @@ namespace Fm {
 		public weak Fm.Folder dir;      /* FIXME: avoid direct member access... */
 
 		[CCode (has_construct_function = false)]
-		public FolderModel (Fm.Folder dir, bool show_hidden);
+		public FolderModel (Fm.Folder dir, bool show_hidden = false);
 		
         public void set_folder (Fm.Folder dir);
         

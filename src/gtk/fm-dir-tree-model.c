@@ -33,7 +33,6 @@
 
 #include "fm-dir-tree-model.h"
 #include "fm-dir-tree-item.h"
-#include "fm-icon-pixbuf.h"
 
 static GType column_types[N_FM_DIR_TREE_MODEL_COLS];
 
@@ -95,9 +94,11 @@ static void fm_dir_tree_model_tree_model_init (GtkTreeModelIface *iface)
     column_types[FM_DIR_TREE_MODEL_COL_FOLDER] = G_TYPE_POINTER;
 }
 
-FmDirTreeModel *fm_dir_tree_model_new (void)
+FmDirTreeModel *fm_dir_tree_model_new ()
 {
-    return (FmDirTreeModel*) g_object_new (FM_TYPE_DIR_TREE_MODEL, NULL);
+    FmDirTreeModel *dir_tree_model = (FmDirTreeModel*) g_object_new (FM_TYPE_DIR_TREE_MODEL, NULL);
+    //dir_tree_model->show_hidden = show_hidden;
+    return dir_tree_model;
 }
 
 static void fm_dir_tree_model_class_init (FmDirTreeModelClass *klass)
@@ -269,9 +270,7 @@ static void fm_dir_tree_model_get_value (GtkTreeModel *tree_model, GtkTreeIter *
         {
             if (dir_tree_item->fi && dir_tree_item->fi->icon)
             {
-                if (!dir_tree_item->icon)
-                    dir_tree_item->icon = fm_icon_get_pixbuf (dir_tree_item->fi->icon, model->icon_size);
-                g_value_set_object (value, dir_tree_item->icon);
+                g_value_set_object (value, fm_dir_tree_item_get_icon (dir_tree_item, model->icon_size));
             }
             else
             {
@@ -478,7 +477,7 @@ static void item_reload_icon (FmDirTreeModel* model, FmDirTreeItem* dir_tree_ite
         gtk_tree_path_append_index (tp, 0);
         for (l = dir_tree_item->children; l; l=l->next)
         {
-            child = (FmDirTreeItem*)l->data;
+            child = (FmDirTreeItem*) l->data;
             item_reload_icon (model, child, tp);
             gtk_tree_path_next (tp);
         }
@@ -616,7 +615,7 @@ GList* insert_file_info (FmDirTreeModel* model, GList* parent_l, GtkTreePath* tp
 //    GtkTreeIter it;
     
     GList* item_list;
-    //~ FmDirTreeItem* parent_item = (FmDirTreeItem*)parent_l->data;
+    FmDirTreeItem* parent_item = (FmDirTreeItem*)parent_l->data;
     
     FmDirTreeItem* dir_tree_item = fm_dir_tree_item_new (model, parent_l);
     dir_tree_item->fi = fm_file_info_ref (fi);
@@ -625,12 +624,12 @@ GList* insert_file_info (FmDirTreeModel* model, GList* parent_l, GtkTreePath* tp
     
     // Show Hidden Files...
     
-    //~ if (!model->show_hidden && fi->path->name[0] == '.') // hidden folder 
-    //~ {
-        //~ parent_item->hidden_children = g_list_prepend (parent_item->hidden_children, dir_tree_item);
-        //~ item_list = parent_item->hidden_children;
-    //~ }
-    //~ else
+    if (!model->show_hidden && fi->path->name[0] == '.') // hidden folder 
+    {
+        parent_item->hidden_children = g_list_prepend (parent_item->hidden_children, dir_tree_item);
+        item_list = parent_item->hidden_children;
+    }
+    else
         item_list = insert_item (model, parent_l, tp, dir_tree_item);
     return item_list;
 }
@@ -698,7 +697,7 @@ static void remove_all_children (FmDirTreeModel* model, GList* item_list, GtkTre
     gtk_tree_path_up (tp);
 }
 
-void fm_dir_tree_model_add_root (FmDirTreeModel* model, FmFileInfo* root, GtkTreeIter* iter)
+void fm_dir_tree_model_add_root (FmDirTreeModel* model, FmFileInfo* root, GtkTreeIter* iter, gboolean expand)
 {
     GtkTreeIter it;
     GtkTreePath* tp;
@@ -711,7 +710,8 @@ void fm_dir_tree_model_add_root (FmDirTreeModel* model, FmFileInfo* root, GtkTre
     
     item_list = g_list_last (model->roots);
     
-    add_place_holder_child_item (model, item_list, NULL, FALSE);
+    if (expand)
+        add_place_holder_child_item (model, item_list, NULL, FALSE);
 
     // Emit row-inserted signal for the new root item...
     item_to_tree_iter (model, item_list, &it);
@@ -739,14 +739,6 @@ void fm_dir_tree_model_expand_row (FmDirTreeModel* model, GtkTreeIter* it, GtkTr
         // Dynamically load content of the folder...
         
         fm_dir_tree_item_set_folder (item_list);
-        //~ FmFolder* folder = fm_folder_get (dir_tree_item->fi->path);
-        //~ dir_tree_item->folder = folder;
-//~ 
-        //~ // Associate the data with loaded handler...
-        //~ g_signal_connect (folder, "loaded", G_CALLBACK (on_folder_loaded), item_list);
-        //~ g_signal_connect (folder, "files-added", G_CALLBACK (on_folder_files_added), item_list);
-        //~ g_signal_connect (folder, "files-removed", G_CALLBACK (on_folder_files_removed), item_list);
-        //~ g_signal_connect (folder, "files-changed", G_CALLBACK (on_folder_files_changed), item_list);
 
         FmFolder* folder = dir_tree_item->folder;
 
@@ -826,6 +818,10 @@ guint fm_dir_tree_get_icon_size (FmDirTreeModel* model)
 
 void fm_dir_tree_model_set_show_hidden (FmDirTreeModel* model, gboolean show_hidden)
 {
+    g_return_if_fail (model);
+    
+    model->show_hidden = show_hidden;
+    return;
     if (show_hidden != model->show_hidden)
     {
         // Filter the model to hide hidden folders...

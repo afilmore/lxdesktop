@@ -80,7 +80,7 @@ struct _FmDirTreeModelClass
 FmDirTreeModel* fm_dir_tree_model_new       (void);
 GType fm_dir_tree_model_get_type            (void);
 
-void fm_dir_tree_model_add_root             (FmDirTreeModel* model, FmFileInfo* root, GtkTreeIter* it);
+void fm_dir_tree_model_add_root             (FmDirTreeModel* model, FmFileInfo* root, GtkTreeIter* it, gboolean expand);
 
 void fm_dir_tree_model_expand_row           (FmDirTreeModel* model, GtkTreeIter* it, GtkTreePath* tp);
 void fm_dir_tree_model_collapse_row         (FmDirTreeModel* model, GtkTreeIter* it, GtkTreePath* tp);
@@ -90,8 +90,6 @@ guint fm_dir_tree_get_icon_size             (FmDirTreeModel* model);
 
 void fm_dir_tree_model_set_show_hidden      (FmDirTreeModel* model, gboolean show_hidden);
 gboolean fm_dir_tree_model_get_show_hidden  (FmDirTreeModel* model);
-
-inline void item_free_folder                (GList* item_list);
 
 gboolean _fm_dir_tree_view_select_function  (GtkTreeSelection *selection, GtkTreeModel *model, GtkTreePath *path,
                                              gboolean path_currently_selected, gpointer data);
