@@ -259,9 +259,11 @@ static void fm_dir_tree_model_get_value (GtkTreeModel *tree_model, GtkTreeIter *
     g_return_if_fail (iter->stamp == model->stamp);
 
     g_value_init (value, column_types[column]);
+    
     item_list = (GList*) iter->user_data;
+    g_return_if_fail (item_list);
+    
     dir_tree_item = (FmDirTreeItem*) item_list->data;
-
     g_return_if_fail (dir_tree_item);
     
     switch (column)
@@ -270,7 +272,7 @@ static void fm_dir_tree_model_get_value (GtkTreeModel *tree_model, GtkTreeIter *
         {
             if (dir_tree_item->fi && dir_tree_item->fi->icon)
             {
-                g_value_set_object (value, fm_dir_tree_item_get_icon (dir_tree_item, model->icon_size));
+                g_value_set_object (value, fm_dir_tree_item_get_pixbuf (dir_tree_item, model->icon_size));
             }
             else
             {
@@ -486,7 +488,7 @@ static void item_reload_icon (FmDirTreeModel* model, FmDirTreeItem* dir_tree_ite
 
     for (l = dir_tree_item->hidden_children; l; l=l->next)
     {
-        child = (FmDirTreeItem*)l->data;
+        child = (FmDirTreeItem*) l->data;
         if (child->icon)
         {
             g_object_unref (child->icon);
@@ -498,6 +500,7 @@ static void item_reload_icon (FmDirTreeModel* model, FmDirTreeItem* dir_tree_ite
 inline void item_to_tree_iter (FmDirTreeModel* model, GList* item_list, GtkTreeIter* it)
 {
     it->stamp = model->stamp;
+    
     // We simply store a GList pointer in the iter 
     it->user_data = item_list;
     it->user_data2 = it->user_data3 = NULL;
@@ -612,18 +615,13 @@ static GList* insert_item (FmDirTreeModel* model, GList* parent_l, GtkTreePath* 
  ****************************************************************************************/
 GList* insert_file_info (FmDirTreeModel* model, GList* parent_l, GtkTreePath* tp, FmFileInfo* fi)
 {
-//    GtkTreeIter it;
-    
     GList* item_list;
     FmDirTreeItem* parent_item = (FmDirTreeItem*)parent_l->data;
     
     FmDirTreeItem* dir_tree_item = fm_dir_tree_item_new (model, parent_l);
     dir_tree_item->fi = fm_file_info_ref (fi);
 
-    // fm_file_info_is_hidden () is slower here
-    
     // Show Hidden Files...
-    
     if (!model->show_hidden && fi->path->name[0] == '.') // hidden folder 
     {
         parent_item->hidden_children = g_list_prepend (parent_item->hidden_children, dir_tree_item);
@@ -631,6 +629,7 @@ GList* insert_file_info (FmDirTreeModel* model, GList* parent_l, GtkTreePath* tp
     }
     else
         item_list = insert_item (model, parent_l, tp, dir_tree_item);
+    
     return item_list;
 }
 
@@ -639,6 +638,7 @@ void remove_item (FmDirTreeModel* model, GList* item_list)
     GtkTreePath* tp = item_to_tree_path (model, item_list);
     FmDirTreeItem* dir_tree_item = (FmDirTreeItem*)item_list->data;
     FmDirTreeItem* parent_item = (FmDirTreeItem*)dir_tree_item->parent ? dir_tree_item->parent->data : NULL;
+    
     fm_dir_tree_item_free_l (item_list);
     
     if (parent_item)
@@ -822,6 +822,7 @@ void fm_dir_tree_model_set_show_hidden (FmDirTreeModel* model, gboolean show_hid
     
     model->show_hidden = show_hidden;
     return;
+    
     if (show_hidden != model->show_hidden)
     {
         // Filter the model to hide hidden folders...

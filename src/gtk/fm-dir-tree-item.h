@@ -39,28 +39,34 @@ G_BEGIN_DECLS
 typedef struct _FmDirTreeItem FmDirTreeItem;
 struct _FmDirTreeItem
 {
-    FmDirTreeModel  *model;
+    
     FmFileInfo      *fi;
+    
+    FmDirTreeModel  *model;
+    
     FmFolder        *folder;
+    
     GdkPixbuf       *icon;
+    
     guint           n_expand;
     
-    GList           *parent;            /* parent node */
-    GList           *children;          /* child items */
+    GList           *parent;            // Parent Node...
+    GList           *children;          // Child Items...
     GList           *hidden_children;
 };
 
+// Creation/Destruction...
+inline FmDirTreeItem *fm_dir_tree_item_new (FmDirTreeModel *model, GList *parent_l);
+inline void fm_dir_tree_item_free (FmDirTreeItem *dir_tree_item);
+inline void _g_list_foreach_l (GList *list, GFunc func, gpointer user_data);
+void fm_dir_tree_item_free_l (GList *item_l);
 
-inline FmDirTreeItem* fm_dir_tree_item_new (FmDirTreeModel* model, GList* parent_l);
-inline void fm_dir_tree_item_free (FmDirTreeItem* dir_tree_item);
-GdkPixbuf *fm_dir_tree_item_get_icon (FmDirTreeItem* dir_tree_item, int icon_size);
+// Get The Pixbuf To Display In The Tree Model...
+GdkPixbuf *fm_dir_tree_item_get_pixbuf (FmDirTreeItem *dir_tree_item, int icon_size);
 
-void fm_dir_tree_item_set_folder (GList* item_l);
+void fm_dir_tree_item_set_folder (GList *item_l);
 
-inline void _g_list_foreach_l (GList* list, GFunc func, gpointer user_data);
-void fm_dir_tree_item_free_l (GList* item_l);
-
-void on_folder_loaded (FmFolder* folder, GList* item_list);
+void on_folder_loaded (FmFolder *folder, GList *item_list);
 
 G_END_DECLS
 #endif
