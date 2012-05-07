@@ -56,7 +56,7 @@ struct _FmDirTreeItem
 };
 
 // Creation/Destruction...
-inline FmDirTreeItem *fm_dir_tree_item_new (FmDirTreeModel *model, GList *parent_l);
+inline FmDirTreeItem *fm_dir_tree_item_new (FmDirTreeModel *model, GList *parent_l, FmFileInfo *file_info);
 inline void fm_dir_tree_item_free (FmDirTreeItem *dir_tree_item);
 inline void _g_list_foreach_l (GList *list, GFunc func, gpointer user_data);
 void fm_dir_tree_item_free_l (GList *item_l);

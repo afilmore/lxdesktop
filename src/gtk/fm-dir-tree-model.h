@@ -94,12 +94,12 @@ gboolean fm_dir_tree_model_get_show_hidden  (FmDirTreeModel* model);
 gboolean _fm_dir_tree_view_select_function  (GtkTreeSelection *selection, GtkTreeModel *model, GtkTreePath *path,
                                              gboolean path_currently_selected, gpointer data);
 
-void remove_item (FmDirTreeModel* model, GList* item_list);
-GList* insert_file_info (FmDirTreeModel* model, GList* parent_l, GtkTreePath* tp, FmFileInfo* fi);
-inline void item_to_tree_iter (FmDirTreeModel* model, GList* item_list, GtkTreeIter* it);
-inline GtkTreePath* item_to_tree_path (FmDirTreeModel* model, GList* item_list);
-void item_queue_subdir_check (FmDirTreeModel* model, GList* item_list);
-GList* children_by_name (FmDirTreeModel* model, GList* children, const char* name, int* idx);
+void fm_dir_tree_model_remove_item (FmDirTreeModel* model, GList* item_list);
+GList* fm_dir_tree_model_insert_file_info (FmDirTreeModel* model, GList* parent_l, GtkTreePath* tp, FmFileInfo* fi);
+inline void fm_dir_tree_model_item_to_tree_iter (FmDirTreeModel* model, GList* item_list, GtkTreeIter* it);
+inline GtkTreePath* fm_dir_tree_model_item_to_tree_path (FmDirTreeModel* model, GList* item_list);
+void fm_dir_tree_model_item_queue_subdir_check (FmDirTreeModel* model, GList* item_list);
+GList* fm_dir_tree_model_children_by_name (FmDirTreeModel* model, GList* children, const char* name, int* idx);
 
 
 

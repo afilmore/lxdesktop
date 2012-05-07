@@ -347,6 +347,7 @@ namespace Manager {
 
                 global_dir_tree_model = new Fm.DirTreeModel ();
                 global_dir_tree_model.set_show_hidden (true);
+                
                 Fm.FileInfoList file_infos = job.file_infos;
                 
                 unowned List<Fm.FileInfo>? list = (List<Fm.FileInfo>) ((Queue) file_infos).head;
@@ -356,6 +357,7 @@ namespace Manager {
                     Fm.FileInfo? fi = (Fm.FileInfo) l.data;
                     
                     bool expand = (fi.get_path ().is_virtual () == false);
+                    
                     global_dir_tree_model.add_root (fi, null, expand);
                 }
             }
@@ -410,6 +412,7 @@ namespace Manager {
                 path = new Fm.Path.for_str (files[0]);
             else
                 path = Fm.Path.get_desktop ();
+            
             this._change_directory (path);
             
             //this._change_directory (Fm.Path.get_desktop ());
