@@ -89,6 +89,7 @@ namespace Desktop {
                 _desktops [i] = desktop;
                 _wingroup.add_window (desktop);
                 
+                
                 /*********************************************************************
                  * Create special items on the desktop, this should be configurable,
                  * it should be possible to show/hide My Computer, My Documents and
@@ -105,21 +106,6 @@ namespace Desktop {
                 string icon_name;
                 Gdk.Pixbuf? pixbuf = null;
                 Fm.FileInfo? fi;
-                
-                /* See how to handle these special icons...
-                 * "computer"
-                 * "folder-documents"
-                 * "user-trash"
-                 * "user-trash-full"
-                 * "folder-download"
-                 * "folder-music"
-                 * "folder-pictures"
-                 * "folder-publicshares"
-                 * "folder-remote"
-                 * "folder-templates"
-                 * "folder-videos"
-                 * 
-                 */
                 
                 /*********************************************************************
                  * My Computer
@@ -203,6 +189,76 @@ namespace Desktop {
                     desktop.get_grid ().insert_item (item);
                 }
                 
+                /*********************************************************************
+                 * My Pictures...
+                 * 
+                 ********************************************************************/
+                icon_name = "folder-pictures";
+                try {
+                    pixbuf = icon_theme.load_icon (icon_name,
+                                               (int) global_config.big_icon_size,
+                                               Gtk.IconLookupFlags.FORCE_SIZE);
+                } catch (Error e) {
+                }
+                                               
+                fi = new Fm.FileInfo.user_special_dir (UserDirectory.PICTURES);
+                if (fi != null) {
+                    item = new Desktop.Item (pixbuf, fi);
+                    desktop.get_grid ().get_saved_position (item);
+                    desktop.get_grid ().insert_item (item);
+                }
+                
+                /*********************************************************************
+                 * My Downloads...
+                 * 
+                 ********************************************************************/
+                icon_name = "folder-download";
+                try {
+                    pixbuf = icon_theme.load_icon (icon_name,
+                                               (int) global_config.big_icon_size,
+                                               Gtk.IconLookupFlags.FORCE_SIZE);
+                } catch (Error e) {
+                }
+                                               
+                fi = new Fm.FileInfo.user_special_dir (UserDirectory.DOWNLOAD);
+                if (fi != null) {
+                    item = new Desktop.Item (pixbuf, fi);
+                    desktop.get_grid ().get_saved_position (item);
+                    desktop.get_grid ().insert_item (item);
+                }
+                
+                /*********************************************************************
+                 * My Videos...
+                 * 
+                 ********************************************************************/
+                icon_name = "folder-videos";
+                try {
+                    pixbuf = icon_theme.load_icon (icon_name,
+                                               (int) global_config.big_icon_size,
+                                               Gtk.IconLookupFlags.FORCE_SIZE);
+                } catch (Error e) {
+                }
+                                               
+                fi = new Fm.FileInfo.user_special_dir (UserDirectory.VIDEOS);
+                if (fi != null) {
+                    item = new Desktop.Item (pixbuf, fi);
+                    desktop.get_grid ().get_saved_position (item);
+                    desktop.get_grid ().insert_item (item);
+                }
+                
+                /***
+                 * See how to handle these special icons...
+                 * 
+                 * "user-trash-full"
+                 * "folder-publicshares"
+                 * "folder-remote"
+                 * "folder-templates"
+                 * 
+                 * PUBLIC_SHARE
+                 * TEMPLATES
+                 * 
+                 */
+                 
                 /*********************************************************************
                  * Trash Can
                  * 
