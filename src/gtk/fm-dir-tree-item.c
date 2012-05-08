@@ -84,6 +84,11 @@ inline FmDirTreeItem *fm_dir_tree_item_new (FmDirTreeModel *model, GList *parent
             FmIcon *icon = fm_icon_from_name ("user-trash");
             fm_file_info_set_fm_icon (file_info, icon);
         }
+        else
+        {
+            FmIcon *icon = fm_icon_from_name ("user-home");
+            fm_file_info_set_fm_icon (file_info, icon);
+        }
     }
     
     return item;

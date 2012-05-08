@@ -353,9 +353,9 @@ namespace Manager {
                 // Root FileSystem...
                 job.add (Fm.Path.get_root ());
                 
+                // Administration Programs...
                 job.add (new Fm.Path.for_uri ("menu://applications/system/Administration"));
                 
-                // Administration Programs...
                 job.run_sync_with_mainloop ();
 
                 global_dir_tree_model = new Fm.DirTreeModel ();

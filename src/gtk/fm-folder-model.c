@@ -50,6 +50,7 @@ struct _FmFolderItem
 {
     FmFileInfo* inf;
     GdkPixbuf* icon;
+    
     gboolean is_thumbnail : 1;
     gboolean thumbnail_loading : 1;
     gboolean thumbnail_failed : 1;
@@ -462,9 +463,11 @@ void fm_folder_model_get_value (GtkTreeModel *tree_model,
 
     switch ( column )
     {
+    
     case COL_FILE_GICON:
         g_value_set_object (value, info->icon->gicon);
         break;
+    
     case COL_FILE_ICON:
     {
         if ( G_UNLIKELY (!folder_item->icon) )

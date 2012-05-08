@@ -839,6 +839,8 @@ guint fm_dir_tree_get_icon_size (FmDirTreeModel *model)
     return model->icon_size;
 }
 
+
+
 void fm_dir_tree_model_set_show_hidden (FmDirTreeModel *model, gboolean show_hidden)
 {
     g_return_if_fail (model);
@@ -864,6 +866,30 @@ gboolean fm_dir_tree_model_get_show_hidden (FmDirTreeModel *model)
 {
     return model->show_hidden;
 }
+
+// Currently Unused...
+#if 0
+static void item_show_hidden_children (FmDirTreeModel* model, GList* item_l, gboolean show_hidden)
+{
+    FmDirTreeItem* item = (FmDirTreeItem*)item_l->data;
+//    GList* child_l;
+    /* TODO: show hidden items */
+    if (show_hidden)
+    {
+        while (item->hidden_children)
+        {
+
+        }
+    }
+    else
+    {
+        while (item->children)
+        {
+
+        }
+    }
+}
+#endif
 
 
 
