@@ -76,6 +76,16 @@ inline FmDirTreeItem *fm_dir_tree_item_new (FmDirTreeModel *model, GList *parent
     
     // set a flag for root items ????
     
+    if (!parent_node)
+    {
+        FmPath *path = fm_file_info_get_path (file_info);
+        if (fm_path_is_trash_root (path))
+        {
+            FmIcon *icon = fm_icon_from_name ("user-trash");
+            fm_file_info_set_fm_icon (file_info, icon);
+        }
+    }
+    
     return item;
 }
 
@@ -140,7 +150,7 @@ GdkPixbuf *fm_dir_tree_item_get_pixbuf (FmDirTreeItem *dir_tree_item, int icon_s
  * 
  * 
  ********************************************************************/
-void fm_dir_tree_item_set_folder (GList *item_list)
+FmFolder *fm_dir_tree_item_set_folder (GList *item_list)
 {
     FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;
     
@@ -152,6 +162,8 @@ void fm_dir_tree_item_set_folder (GList *item_list)
     g_signal_connect (folder, "files-added",    G_CALLBACK (on_folder_files_added),     item_list);
     g_signal_connect (folder, "files-removed",  G_CALLBACK (on_folder_files_removed),   item_list);
     g_signal_connect (folder, "files-changed",  G_CALLBACK (on_folder_files_changed),   item_list);
+    
+    return folder;
 }
 
 static inline void fm_dir_tree_item_free_folder (GList *item_list)
@@ -169,6 +181,7 @@ static inline void fm_dir_tree_item_free_folder (GList *item_list)
     g_signal_handlers_disconnect_by_func (folder, on_folder_files_changed,  item_list);
     
     g_object_unref (folder);
+    
     dir_tree_item->folder = NULL;
 }
 

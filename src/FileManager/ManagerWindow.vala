@@ -330,19 +330,32 @@ namespace Manager {
                 
                 unowned List<Fm.FileInfo>? l;
                 
+                
                 /*************************************************************************
                  * Create TreeView Root Items....
                  * 
                  * 
                  ************************************************************************/
+                // Desktop...
                 job.add (Fm.Path.get_desktop ());
+                
+                // Documents...
                 Fm.Path path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DOCUMENTS));
                 job.add (path);
+                
+                // Computer...
                 path = new Fm.Path.for_uri ("computer:///");
                 job.add (path);
+                
+                // Trash Can...
                 job.add (Fm.Path.get_trash ());
+                
+                // Root FileSystem...
                 job.add (Fm.Path.get_root ());
+                
                 job.add (new Fm.Path.for_uri ("menu://applications/system/Administration"));
+                
+                // Administration Programs...
                 job.run_sync_with_mainloop ();
 
                 global_dir_tree_model = new Fm.DirTreeModel ();
@@ -356,7 +369,14 @@ namespace Manager {
                     
                     Fm.FileInfo? fi = (Fm.FileInfo) l.data;
                     
-                    bool expand = (fi.get_path ().is_virtual () == false);
+                    //bool expand = (fi.get_path ().is_virtual () == false);
+                    bool expand = true;
+                    if (fi.get_path ().is_virtual ()) {
+                        expand = false;
+                    }
+                    
+                    
+                    
                     
                     global_dir_tree_model.add_root (fi, null, expand);
                 }
