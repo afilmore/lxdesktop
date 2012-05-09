@@ -536,7 +536,7 @@ namespace Desktop {
                     
                     if (item) {
                         window.set_cursor (hand_cursor);
-                        // FIXME: timeout should be customizable
+                        // FIXME_pcm: timeout should be customizable
                         if (this.single_click_timeout_handler == 0)
                             this.single_click_timeout_handler = g_timeout_add (400,
                                                                                on_single_click_timeout,
@@ -1143,7 +1143,7 @@ namespace Desktop {
             
             if (fi.is_dir ()
             || fi.is_mountable ()
-            || fi.is_unknown_type ()) { /* TODO use is_uri () ??? or something... */
+            || fi.is_unknown_type ()) { /* TODO_axl use is_uri () ??? or something... */
                 
                 this._action_open_folder (fi);
             

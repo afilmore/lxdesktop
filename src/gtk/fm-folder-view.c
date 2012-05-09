@@ -270,7 +270,7 @@ void fm_folder_view_set_mode (FmFolderView* fv, FmFolderViewMode mode)
             fm_dnd_unset_dest_auto_scroll (fv->view);
 
             gtk_widget_destroy (fv->view);
-            /* FIXME: compact view and icon view actually use the same
+            /* FIXME_pcm: compact view and icon view actually use the same
              * type of widget, ExoIconView. So it may be better to
              * reuse the widget when available. */
         }
@@ -300,7 +300,7 @@ void fm_folder_view_set_mode (FmFolderView* fv, FmFolderViewMode mode)
         g_list_foreach (sels,  (GFunc)gtk_tree_path_free, NULL);
         g_list_free (sels);
 
-        /* FIXME: maybe calling set_icon_size here is a good idea */
+        /* FIXME_pcm: maybe calling set_icon_size here is a good idea */
 
         gtk_drag_source_set (fv->view, GDK_BUTTON1_MASK,
             fm_default_dnd_src_targets, N_FM_DND_SRC_DEFAULT_TARGETS,
@@ -442,7 +442,7 @@ gboolean fm_folder_view_chdir (FmFolderView* fv, FmPath* path)
         }
     }
 
-    /* FIXME: the signal handler should be able to cancel the loading. */
+    /* FIXME_pcm: the signal handler should be able to cancel the loading. */
     g_signal_emit (fv, signals[DIRECTORY_CHANGED], 0, path);
     if (fv->cwd)
         fm_path_unref (fv->cwd);
@@ -645,7 +645,7 @@ void fm_folder_view_select_file_paths (FmFolderView* fv, FmPathList* paths)
     }
 }
 
-/* FIXME: select files by custom func, not yet implemented */
+/* FIXME_pcm: select files by custom func, not yet implemented */
 void fm_folder_view_custom_select (FmFolderView* fv, GFunc filter, gpointer user_data)
 {
 
@@ -674,7 +674,7 @@ FmFolder* fm_folder_view_get_folder (FmFolderView* fv)
 
 void on_sel_changed (GObject* obj, FmFolderView* fv)
 {
-    /* FIXME: this is inefficient, but currently there is no better way */
+    /* FIXME_pcm: this is inefficient, but currently there is no better way */
     FmFileInfo* files = (FmFileInfo*) fm_folder_view_get_selected_files (fv);
     g_signal_emit (fv, signals[SEL_CHANGED], 0, files);
     if (files)
@@ -760,7 +760,7 @@ gboolean on_btn_pressed (GtkWidget* view, GdkEventButton* evt, FmFolderView* fv)
     if (!fv->model)
         return FALSE;
 
-    /* FIXME: handle single click activation */
+    /* FIXME_pcm: handle single click activation */
     if (evt->type == GDK_BUTTON_PRESS)
     {
         /* special handling for ExoIconView */
@@ -865,7 +865,7 @@ static void set_icon_size (FmFolderView* fv, guint icon_size)
 
     if (fv->mode != FM_FV_LIST_VIEW) /* this is an ExoIconView */
     {
-        /* FIXME: reset ExoIconView item sizes */
+        /* FIXME_pcm: reset ExoIconView item sizes */
     }
 }
 
@@ -883,7 +883,7 @@ static void on_small_icon_size_changed (FmConfig* cfg, FmFolderView* fv)
 
 static void on_thumbnail_size_changed (FmConfig* cfg, FmFolderView* fv)
 {
-    /* FIXME: thumbnail and icons should have different sizes */
+    /* FIXME_pcm: thumbnail and icons should have different sizes */
     /* maybe a separate API: fm_folder_model_set_thumbnail_size () */
     set_icon_size (fv, cfg->thumbnail_size);
 }
@@ -982,7 +982,7 @@ static gboolean on_drag_motion (GtkWidget *dest_widget,
         }
         else
         {
-            /* FIXME: prevent direct access to data members. */
+            /* FIXME_pcm: prevent direct access to data members. */
             FmFolderModel* model =  (FmFolderModel*)fv->model;
 //            FmPath* dir_path =  model->dir->dir_path;
             fm_dnd_dest_set_dest_file (fv->dnd_dest, model->dir->dir_fi);
@@ -1034,7 +1034,7 @@ static inline void create_icon_view (FmFolderView* fv, GList* sels)
 
         render = fm_cell_renderer_text_new ();
         g_object_set ((GObject*)render,
-                     "xalign", 1.0, /* FIXME: why this needs to be 1.0? */
+                     "xalign", 1.0, /* FIXME_pcm: why this needs to be 1.0? */
                      "yalign", 0.5,
                      NULL);
         exo_icon_view_set_layout_mode ( (ExoIconView*)fv->view, EXO_ICON_VIEW_LAYOUT_COLS);
@@ -1051,7 +1051,7 @@ static inline void create_icon_view (FmFolderView* fv, GList* sels)
                 fm_folder_model_set_icon_size (model, icon_size);
 
             render = fm_cell_renderer_text_new ();
-            /* FIXME: set the sizes of cells according to iconsize */
+            /* FIXME_pcm: set the sizes of cells according to iconsize */
             g_object_set ((GObject*)render,
                          "wrap-mode", PANGO_WRAP_WORD_CHAR,
                          "wrap-width", 90,
@@ -1071,7 +1071,7 @@ static inline void create_icon_view (FmFolderView* fv, GList* sels)
                 fm_folder_model_set_icon_size (model, icon_size);
 
             render = fm_cell_renderer_text_new ();
-            /* FIXME: set the sizes of cells according to iconsize */
+            /* FIXME_pcm: set the sizes of cells according to iconsize */
             g_object_set ((GObject*)render,
                          "wrap-mode", PANGO_WRAP_WORD_CHAR,
                          "wrap-width", 180,
@@ -1165,7 +1165,7 @@ static inline void create_list_view (FmFolderView* fv, GList* sels)
     ts = gtk_tree_view_get_selection ((GtkTreeView*)fv->view);
     g_signal_connect (fv->view, "row-activated", G_CALLBACK (on_tree_view_row_activated), fv);
     g_signal_connect (ts, "changed", G_CALLBACK (on_sel_changed), fv);
-    /*cancel_pending_row_activated (fv);*/ /* FIXME: is this needed? */
+    /*cancel_pending_row_activated (fv);*/ /* FIXME_pcm: is this needed? */
     gtk_tree_view_set_model ((GtkTreeView*)fv->view, fv->model);
     gtk_tree_selection_set_mode (ts, fv->sel_mode);
     for (l = sels;l;l=l->next)
@@ -1204,7 +1204,7 @@ void on_model_loaded (FmFolderModel* model, FmFolderView* fv)
 {
     FmFolder* folder = model->dir;
 //    char* msg;
-    /* FIXME: prevent direct access to data members */
+    /* FIXME_pcm: prevent direct access to data members */
     g_signal_emit (fv, signals[LOADED], 0, folder->dir_path);
 }
 

@@ -218,12 +218,12 @@ void fm_folder_model_tree_sortable_init (GtkTreeSortableIface *iface)
 
 void fm_folder_model_drag_source_init (GtkTreeDragSourceIface *iface)
 {
-    /* FIXME: Unused. Will this cause any problem? */
+    /* FIXME_pcm: Unused. Will this cause any problem? */
 }
 
 void fm_folder_model_drag_dest_init (GtkTreeDragDestIface *iface)
 {
-    /* FIXME: Unused. Will this cause any problem? */
+    /* FIXME_pcm: Unused. Will this cause any problem? */
 }
 
 void fm_folder_model_finalize (GObject *object)
@@ -722,7 +722,7 @@ _sort_by_name:
             goto _sort_by_name;
         break;
     case COL_FILE_DESC:
-        /* FIXME: this is very slow */
+        /* FIXME_pcm: this is very slow */
         ret = g_utf8_collate (fm_file_info_get_desc (file1), fm_file_info_get_desc (file2));
         if (0 == ret)
             goto _sort_by_name;
@@ -872,7 +872,7 @@ void fm_folder_model_file_changed (FmFolderModel* model, FmFileInfo* file)
         return;
 
     items_it = g_sequence_get_begin_iter (model->items);
-    /* FIXME: write a  GCompareDataFunc for this */
+    /* FIXME_pcm: write a  GCompareDataFunc for this */
     while ( !g_sequence_iter_is_end (items_it) )
     {
         folder_item =  (FmFolderItem*)g_sequence_get (items_it);
@@ -1174,7 +1174,7 @@ static void reload_thumbnail (FmFolderModel* model, GSequenceIter* seq_it, FmFol
     }
 }
 
-/* FIXME: how about hidden files? */
+/* FIXME_pcm: how about hidden files? */
 void on_thumbnail_local_changed (FmConfig* cfg, gpointer user_data)
 {
     FmFolderModel* model =  (FmFolderModel*)user_data;
@@ -1195,7 +1195,7 @@ void on_thumbnail_local_changed (FmConfig* cfg, gpointer user_data)
             {
                 fm_thumbnail_request_cancel (req);
                 model->thumbnail_requests = g_list_delete_link (model->thumbnail_requests, l);
-                /* FIXME: folder_item->thumbnail_loading should be set to FALSE. */
+                /* FIXME_pcm: folder_item->thumbnail_loading should be set to FALSE. */
             }
             l = next;
         }
@@ -1226,7 +1226,7 @@ void on_thumbnail_local_changed (FmConfig* cfg, gpointer user_data)
         model->thumbnail_requests = g_list_concat (model->thumbnail_requests, new_reqs);
 }
 
-/* FIXME: how about hidden files? */
+/* FIXME_pcm: how about hidden files? */
 void on_thumbnail_max_changed (FmConfig* cfg, gpointer user_data)
 {
     FmFolderModel* model =  (FmFolderModel*)user_data;

@@ -260,7 +260,7 @@ namespace Manager {
             this.set_default_size ((screen.get_width() / 4) * 3, (screen.get_height() / 4) * 3);
             this.set_position (Gtk.WindowPosition.CENTER);
 
-            // TODO: save last directory on exit and reload it here... :-P
+            // TODO_axl: save last directory on exit and reload it here... :-P
             _current_dir = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DESKTOP));
             
             
@@ -386,8 +386,6 @@ namespace Manager {
             _tree_view.directory_changed.connect (_tree_view_on_change_directory);
             _tree_view.button_release_event.connect (_tree_view_on_button_release);
             
-            //_tree_view.chdir (_current_dir);
-
             // Create The Folder View...
             _folder_view = new Fm.FolderView (Fm.FolderViewMode.LIST_VIEW);
             
@@ -426,7 +424,7 @@ namespace Manager {
             
             
             
-            // TODO: save last directory on exit and reload it here... :-P
+            // TODO_axl: save last directory on exit and reload it here... :-P
             Fm.Path path;
             if (files[0] != "")
                 path = new Fm.Path.for_str (files[0]);
@@ -435,16 +433,6 @@ namespace Manager {
             
             this._change_directory (path);
             
-            //this._change_directory (Fm.Path.get_desktop ());
-//~             if (_desktop_popup_class == null)
-//~                 _desktop_popup_class = new Desktop.Popup (Fm.Path.get_desktop());
-//~             
-//~             _default_popup = _desktop_popup_class.create_desktop_popup (_default_popup_actions);
-//~             
-            /*** Create the default popup menu... ***/
-            /*_default_popup = _ui.get_widget ("/popup") as Gtk.Menu;*/
-//~             _default_popup.attach_to_widget (this, null);
-
             this.show_all ();
 
             global_num_windows++;
@@ -539,39 +527,50 @@ namespace Manager {
 
         private bool _tree_view_on_button_release (Gdk.EventButton event) {
         
-            /*** ***/ stdout.printf ("_tree_view_on_button_release\n"); 
+            /*** stdout.printf ("_tree_view_on_button_release\n"); ***/ 
             
             if (event.button != 3)
                 return false;
             
+            Gtk.TreePath path;
+            
+            
+            if (!_tree_view.get_path_at_pos ((int) event.x, (int) event.y, out path, null, null, null))
+                return true;
+            
+//~              {
+//~                         select = gtk_tree_view_get_selection (GTK_TREE_VIEW (view));
+//~                         gtk_tree_selection_unselect_all (select);
+//~                         gtk_tree_selection_select_path (select, path);
+//~                         gtk_tree_path_free (path);
+//~                     }
             Gtk.TreeSelection sel = _tree_view.get_selection ();
             List<Gtk.TreePath>? sels = sel.get_selected_rows (null);
             Gtk.TreeIter it;
-            if (sels != null)
-            {
+            if (sels == null)
+                return true;
                 
-                if (global_dir_tree_model.get_iter (out it, sels.data))
-                {
-                    unowned Fm.FileInfo? fi;
-                    global_dir_tree_model.get (it, 2, out fi, -1);
-                    if (fi != null) {
-                        stdout.printf ("%s\n", fi.get_disp_name ());
-                        _file_menu = new Fm.FileMenu.for_file (this, fi, _tree_view.get_cwd (), false);
+            if (global_dir_tree_model.get_iter (out it, sels.data))
+            {
+                unowned Fm.FileInfo? fi;
+                global_dir_tree_model.get (it, 2, out fi, -1);
+                if (fi != null) {
+                    stdout.printf ("%s\n", fi.get_disp_name ());
+                    _file_menu = new Fm.FileMenu.for_file (this, fi, _tree_view.get_cwd (), false);
 
-                        // Merge Specific Folder Menu Items...
-                        if (_file_menu.is_single_file_type () && fi.is_dir ()) {
-                            Gtk.UIManager ui = _file_menu.get_ui ();
-                            Gtk.ActionGroup action_group = _file_menu.get_action_group ();
-                            action_group.add_actions (_folder_menu_actions, null);
-                            try {
-                                ui.add_ui_from_string (global_folder_menu_xml, -1);
-                            } catch (Error e) {
-                            }
+                    // Merge Specific Folder Menu Items...
+                    if (_file_menu.is_single_file_type () && fi.is_dir ()) {
+                        Gtk.UIManager ui = _file_menu.get_ui ();
+                        Gtk.ActionGroup action_group = _file_menu.get_action_group ();
+                        action_group.add_actions (_folder_menu_actions, null);
+                        try {
+                            ui.add_ui_from_string (global_folder_menu_xml, -1);
+                        } catch (Error e) {
                         }
-
-                        _files_popup = _file_menu.get_menu ();
-                        _files_popup.popup (null, null, null, 3, Gtk.get_current_event_time ());
                     }
+
+                    _files_popup = _file_menu.get_menu ();
+                    _files_popup.popup (null, null, null, 3, Gtk.get_current_event_time ());
                 }
             }
             return true;
@@ -680,7 +679,7 @@ namespace Manager {
             if (files)
             {
                 string msg;
-                // FIXME: display total size of all selected files. 
+                // FIXME_pcm: display total size of all selected files. 
                 if (fm_list_get_length (files) == 1) // only one file is selected 
                 {
                     Fm.FileInfo fi = fm_list_peek_head (files);
@@ -718,7 +717,7 @@ namespace Manager {
                 int total_files = fm_list_get_length (folder->files);
                 int shown_files = gtk_tree_model_iter_n_children (GTK_TREE_MODEL (model), null);
 
-                // FIXME: do not access data members. 
+                // FIXME_pcm: do not access data members. 
                 msg = g_strdup_printf ("%d files are listed  (%d hidden).", shown_files,  (total_files - shown_files) );
                 gtk_statusbar_pop (GTK_STATUSBAR (win->statusbar), win->statusbar_ctx);
                 gtk_statusbar_push (GTK_STATUSBAR (win->statusbar), win->statusbar_ctx, msg);

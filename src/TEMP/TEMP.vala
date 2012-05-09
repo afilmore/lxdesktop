@@ -300,7 +300,7 @@
 
             /***********************************************************************************************************
              * Handle text changes...
-             * FIXME: we only need to redraw text lables
+             * FIXME_pcm: we only need to redraw text lables
             
             for (int i=0; i < _n_screens; ++i)
                 desktops[i].queue_draw ();
@@ -315,7 +315,7 @@
              * 
              * 
             font_desc = null;
-            // FIXME: this is a little bit dirty
+            // FIXME_pcm: this is a little bit dirty
             if (font_desc)
                 pango_font_description_free (font_desc);
 
@@ -652,7 +652,7 @@ private bool _on_single_click_timeout_temp () {
 
     window = this.get_window ();
     // generate a fake button press
-    // FIXME: will this cause any problem?
+    // FIXME_pcm: will this cause any problem?
     evt.type = GDK_BUTTON_PRESS;
     evt.window = window;
     window.get_pointer (ref x, ref y, ref evt.state);
@@ -843,7 +843,7 @@ public void on_row_changed (Gtk.TreePath tp, Gtk.TreeIter it) {
                     
             item.invalidate_rect (_window);
             
-            // FIXME: check if sorting of files is changed.
+            // FIXME_pcm: check if sorting of files is changed.
             // queue_layout_items(desktop); // needed ???
             
             return;

@@ -346,7 +346,7 @@ namespace Manager {
                 //job.add (Fm.Path.get_apps_menu ());
                 
                 /**
-                 * FIXME: maybe it's cleaner to use run_async here ?
+                 * FIXME_pcm: maybe it's cleaner to use run_async here ?
                  * 
                  **/
                 
@@ -482,7 +482,7 @@ namespace Manager {
 //~                 int total_files = fm_list_get_length (folder->files);
 //~                 int shown_files = gtk_tree_model_iter_n_children (GTK_TREE_MODEL (model), null);
 //~ 
-//~                 // FIXME: do not access data members. 
+//~                 // FIXME_pcm: do not access data members. 
 //~                 msg = g_strdup_printf ("%d files are listed  (%d hidden).", shown_files,  (total_files - shown_files) );
 //~                 gtk_statusbar_pop (GTK_STATUSBAR (win->statusbar), win->statusbar_ctx);
 //~                 gtk_statusbar_push (GTK_STATUSBAR (win->statusbar), win->statusbar_ctx, msg);
@@ -543,7 +543,7 @@ namespace Manager {
 //~             for (; l; l=l->next)
 //~             {
 //~                 Fm.FileInfo fi =  (Fm.FileInfo)l->data;
-//~                 // FIXME: open in new window 
+//~                 // FIXME_pcm: open in new window 
 //~             }
             return true;
         }
@@ -565,10 +565,10 @@ namespace Manager {
                     if (fi.is_dir ()) {
                         this.change_directory (fi.get_path (), DirChangeCaller.NONE);
                     
-                    /*** FIXME: use accessor functions. 
+                    /*** FIXME_axl: use accessor functions. 
                     } else if (fi->target) {
                     
-                        // FIXME: use Fm.Path here. 
+                        // FIXME_axl: use Fm.Path here. 
                         //chdir_by_name (fi->target);
                         this.chdir_by_name (fi.get_path ().to_str ());
                     
@@ -629,7 +629,7 @@ namespace Manager {
 //~             if (files)
 //~             {
 //~                 string msg;
-//~                 // FIXME: display total size of all selected files. 
+//~                 // FIXME_pcm: display total size of all selected files. 
 //~                 if (fm_list_get_length (files) == 1) // only one file is selected 
 //~                 {
 //~                     Fm.FileInfo fi = fm_list_peek_head (files);
@@ -768,7 +768,7 @@ namespace Manager {
 //~             if ( !fm_list_is_empty (files) )
 //~             {
 //~                 fm_rename_file (GTK_WINDOW (win), fm_list_peek_head (files));
-//~                 // FIXME: is it ok to only rename the first selected file here. 
+//~                 // FIXME_pcm: is it ok to only rename the first selected file here. 
 //~             }
 //~             fm_list_unref (files);
         }
@@ -815,7 +815,7 @@ namespace Manager {
                 fm_nav_history_back (win->nav_history, scroll_pos);
                 item = fm_nav_history_get_cur (win->nav_history);
                 
-                // FIXME: should this be driven by a signal emitted on FmNavHistory? 
+                // FIXME_pcm: should this be driven by a signal emitted on FmNavHistory? 
                 chdir_without_history (win, item->path);
             }*/
         }
@@ -827,10 +827,10 @@ namespace Manager {
                 FmNavHistoryItem* item;
                 int scroll_pos = gtk_adjustment_get_value (gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (win->folder_view)));
                 fm_nav_history_forward (win->nav_history, scroll_pos);
-                // FIXME: should this be driven by a signal emitted on FmNavHistory? 
+                // FIXME_pcm: should this be driven by a signal emitted on FmNavHistory? 
                 item = fm_nav_history_get_cur (win->nav_history);
                 
-                // FIXME: should this be driven by a signal emitted on FmNavHistory? 
+                // FIXME_pcm: should this be driven by a signal emitted on FmNavHistory? 
                 chdir_without_history (win, item->path);
             }*/
         }
@@ -900,7 +900,7 @@ namespace Manager {
         private void _on_prop (Gtk.Action action) {
 
 //~             Fm.FolderView fv = FM_FOLDER_VIEW (win->folder_view);
-//~             // FIXME: should prevent directly accessing data members 
+//~             // FIXME_pcm: should prevent directly accessing data members 
 //~             Fm.FileInfo fi = FM_FOLDER_MODEL (fv->model)->dir->dir_fi;
 //~             Fm.FileInfoList files = fm_file_info_list_new ();
 //~             fm_list_push_tail (files, fi);

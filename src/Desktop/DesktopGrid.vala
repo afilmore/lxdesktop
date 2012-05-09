@@ -390,7 +390,7 @@ namespace Desktop {
                     int yyy = yy * _cell_height;
                     stdout.printf ("move_items: move item to %d, %d\n", xxx, yyy);
                     
-                    // TODO: to align on the grid we need to invalidate the index pos and move the item...
+                    // TODO_axl: to align on the grid we need to invalidate the index pos and move the item...
                     if (align_items) {
                         new_x = xxx;
                         new_y = yyy;
@@ -407,7 +407,7 @@ namespace Desktop {
             _grid_items.sort ((CompareFunc<Desktop.Item>) _compare_func);
             
             /*
-             * TODO: sort the list of items....
+             * TODO_axl: sort the list of items....
              * 
              * _grid_items.sort (_compare_func)
              * 

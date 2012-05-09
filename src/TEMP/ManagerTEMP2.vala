@@ -26,7 +26,7 @@
                 fm_nav_history_back (win->nav_history, scroll_pos);
                 item = fm_nav_history_get_cur (win->nav_history);
                 
-                // FIXME: should this be driven by a signal emitted on FmNavHistory? 
+                // FIXME_pcm: should this be driven by a signal emitted on FmNavHistory? 
                 chdir_without_history (win, item->path);
             }*/
         }
@@ -38,10 +38,10 @@
                 FmNavHistoryItem* item;
                 int scroll_pos = gtk_adjustment_get_value (gtk_scrolled_window_get_vadjustment (GTK_SCROLLED_WINDOW (win->folder_view)));
                 fm_nav_history_forward (win->nav_history, scroll_pos);
-                // FIXME: should this be driven by a signal emitted on FmNavHistory? 
+                // FIXME_pcm: should this be driven by a signal emitted on FmNavHistory? 
                 item = fm_nav_history_get_cur (win->nav_history);
                 
-                // FIXME: should this be driven by a signal emitted on FmNavHistory? 
+                // FIXME_pcm: should this be driven by a signal emitted on FmNavHistory? 
                 chdir_without_history (win, item->path);
             }*/
         }
@@ -364,13 +364,13 @@ private void create_bookmarks_menu () {
 
     GList* l;
     int i = 0;
-    // FIXME: direct access to data member is not allowed 
+    // FIXME_pcm: direct access to data member is not allowed 
     for (l=win->bookmarks->items;l;l=l->next)
     {
         FmBookmarkItem* item =  (FmBookmarkItem*)l->data;
         GtkWidget* mi = gtk_image_menu_item_new_with_label (item->name);
         gtk_widget_show (mi);
-        // gtk_image_menu_item_set_image (); // FIXME: set icons for menu items
+        // gtk_image_menu_item_set_image (); // FIXME_pcm: set icons for menu items
         g_object_set_qdata_full (G_OBJECT (mi), fm_qdata_id, fm_path_ref (item->path),  (GDestroyNotify)fm_path_unref);
         g_signal_connect (mi, "activate", G_CALLBACK (on_bookmark), win);
         gtk_menu_shell_insert (GTK_MENU_SHELL (win->bookmarks_menu), mi, i);
@@ -415,7 +415,7 @@ private void on_history_item (GtkMenuItem* mi) {
     fm_nav_history_jump (win->nav_history, l, scroll_pos);
     item = fm_nav_history_get_cur (win->nav_history);
     
-    // FIXME: should this be driven by a signal emitted on FmNavHistory? 
+    // FIXME_pcm: should this be driven by a signal emitted on FmNavHistory? 
     chdir_without_history (win, item->path);
 }
 
@@ -486,7 +486,7 @@ _retry:
 
         if (!err) // select the newly created file 
         {
-            //FIXME: this doesn't work since the newly created file will
+            //FIXME_pcm: this doesn't work since the newly created file will
             // only be shown after file-created event was fired on its
             //folder's monitor and after FmFolder handles it in idle
             //handler. So, we cannot select it since it's not yet in
@@ -520,7 +520,7 @@ _retry:
 
         if (!err) // select the newly created file 
         {
-            //FIXME: this doesn't work since the newly created file will
+            //FIXME_pcm: this doesn't work since the newly created file will
              // only be shown after file-created event was fired on its
              // folder's monitor and after FmFolder handles it in idle
              // handler. So, we cannot select it since it's not yet in

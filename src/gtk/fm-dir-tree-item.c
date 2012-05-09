@@ -292,7 +292,7 @@ static void on_folder_files_changed (FmFolder *folder, GSList *files, GList *ite
             
             changed_item->fi = fm_file_info_ref (fi);
             
-            // FIXME: inform gtk tree view about the change 
+            // FIXME_pcm: inform gtk tree view about the change 
 
             // Check Subdirectories: check if we have sub folder 
             fm_dir_tree_model_item_queue_subdir_check (model, changed_item_list);

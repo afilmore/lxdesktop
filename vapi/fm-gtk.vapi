@@ -93,7 +93,7 @@ namespace Fm {
     [CCode (cheader_filename = "gtk/fm-folder-model.h")]
 	public class FolderModel : GLib.Object, Gtk.TreeModel, Gtk.TreeSortable, Gtk.TreeDragSource, Gtk.TreeDragDest {
 
-		public weak Fm.Folder dir;      /* FIXME: avoid direct member access... */
+		public weak Fm.Folder dir;      /* FIXME_axl: avoid direct member access... */
 
 		[CCode (has_construct_function = false)]
 		public FolderModel (Fm.Folder dir, bool show_hidden = false);

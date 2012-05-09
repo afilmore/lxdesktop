@@ -296,7 +296,7 @@ static void on_dir_list_finished (gpointer user_data)
      * that time. So completion doesn't work. So, we trigger a 'changed'
      * signal here to let GtkEntry do the completion with the new model again. */
 
-    /* trigger completion popup. FIXME: this is a little bit dirty.
+    /* trigger completion popup. FIXME_pcm: this is a little bit dirty.
      * A even more dirty thing to do is to check if we finished after
      * 300 ms timeout happens. */
     g_signal_emit_by_name (entry, "changed", 0);
@@ -382,7 +382,7 @@ static void fm_path_entry_changed (GtkEditable *editable, gpointer user_data)
             priv->parent_len = parent_len;
             /* g_debug ("parent dir is changed to %s", priv->parent_dir); */
 
-            /* FIXME: convert utf-8 encoded path to on-disk encoding. */
+            /* FIXME_pcm: convert utf-8 encoded path to on-disk encoding. */
             data->entry = entry;
             if (priv->parent_dir[0] == '~') /* special case for home dir */
             {
@@ -520,7 +520,7 @@ static void fm_path_entry_completion_render_func (GtkCellLayout *cell_layout,
         g_object_set (cell, "markup", markup, NULL);
         g_free (markup);
     }
-    /* FIXME: We don't need a custom render func if we don't hightlight */
+    /* FIXME_pcm: We don't need a custom render func if we don't hightlight */
     else
         g_object_set (cell, "text", model_file_name, NULL);
     g_free (model_file_name);
@@ -566,7 +566,7 @@ void fm_path_entry_set_path (FmPathEntry *entry, FmPath* path)
     priv->path = fm_path_ref (path);
 
     disp_path = fm_path_display_name (path, FALSE);
-    /* FIXME: blocks changed signal */
+    /* FIXME_pcm: blocks changed signal */
     gtk_entry_set_text ((GtkEntry*) entry, disp_path);
     g_free (disp_path);
 }
@@ -590,7 +590,7 @@ static gboolean fm_path_entry_match_func (GtkEntryCompletion   *completion,
     if (model_basename[0] == '.' && typed_basename[0] != '.')
         ret = FALSE; /* ignore hidden files when needed. */
     else
-        ret = g_str_has_prefix (model_basename, typed_basename); /* FIXME: should we be case insensitive here? */
+        ret = g_str_has_prefix (model_basename, typed_basename); /* FIXME_pcm: should we be case insensitive here? */
     g_free (model_basename);
     return ret;
 }

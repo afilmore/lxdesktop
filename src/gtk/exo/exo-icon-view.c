@@ -3667,7 +3667,7 @@ exo_icon_view_paint_item (ExoIconView     *icon_view,
       flags = GTK_CELL_RENDERER_SELECTED;
       state = gtk_widget_has_focus ((GtkWidget*) icon_view) ? GTK_STATE_SELECTED : GTK_STATE_ACTIVE;
 #if 0
-      /* FIXME We hardwire background drawing behind text cell renderers
+      /* FIXME_exo We hardwire background drawing behind text cell renderers
        * here. This is ugly, but it's done to be consistent with GtkIconView.
        * The additional info->is_text attribute is used for performance
        * optimization and should be removed alongside the following code. */
@@ -3708,7 +3708,7 @@ exo_icon_view_paint_item (ExoIconView     *icon_view,
 
       cairo_destroy (cr);
 
-      /* FIXME Ugly code ends here */
+      /* FIXME_exo Ugly code ends here */
 #endif
     }
   else
@@ -6642,7 +6642,7 @@ set_destination (ExoIconView    *icon_view,
   if (old_dest_path)
     gtk_tree_path_free (old_dest_path);
 
-  if (TRUE /* FIXME if the location droppable predicate */)
+  if (TRUE /* FIXME_exo if the location droppable predicate */)
     {
       can_drop = TRUE;
     }
@@ -6757,7 +6757,7 @@ exo_icon_view_maybe_begin_drag (ExoIconView    *icon_view,
                                            path))
     goto out;
 
-  /* FIXME Check whether we're a start button, if not return FALSE and
+  /* FIXME_exo Check whether we're a start button, if not return FALSE and
    * free path
    */
 

@@ -30,7 +30,7 @@ namespace Desktop {
         
         public bool             is_selected = false;
         
-        /*** TODO: Manage Special Items like "My Computer", "Trash Can", mounted volumes, etc... ***/
+        /*** TODO_axl: Manage Special Items like "My Computer", "Trash Can", mounted volumes, etc... ***/
         
         /***
         bool is_mount : 1;

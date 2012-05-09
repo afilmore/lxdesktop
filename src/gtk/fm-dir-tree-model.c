@@ -873,7 +873,7 @@ static void item_show_hidden_children (FmDirTreeModel* model, GList* item_l, gbo
 {
     FmDirTreeItem* item = (FmDirTreeItem*)item_l->data;
 //    GList* child_l;
-    /* TODO: show hidden items */
+    /* TODO_axl: show hidden items */
     if (show_hidden)
     {
         while (item->hidden_children)
