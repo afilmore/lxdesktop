@@ -18,16 +18,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/* Modified by Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
- * on 2008.05.11 for use in PCManFM */
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
 #include <glib/gi18n-lib.h>
 #include "exo-tree-view.h"
-#include "exo-string.h"
+//#include "exo-string.h"
 #include "exo-marshal.h"
 #include "exo-private.h"
 

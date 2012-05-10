@@ -27,13 +27,13 @@
 #define __EXO_LXDE_H__
 
 #include "exo-icon-view.h"
-#include "exo-string.h"
+//#include "exo-string.h"
 #include "exo-marshal.h"
 #include "exo-private.h"
 
 G_BEGIN_DECLS;
 
-/* from exo/exo-marshal.h */
+// From exo/exo-marshal.h
 #if defined(G_PARAM_STATIC_NAME) && defined(G_PARAM_STATIC_NICK) && defined(G_PARAM_STATIC_BLURB)
 #define EXO_PARAM_READABLE  (G_PARAM_READABLE \
                            | G_PARAM_STATIC_NAME \
@@ -55,11 +55,11 @@ G_BEGIN_DECLS;
 
 #define             I_(string)  g_intern_static_string(string)
 
-/* from exo/exo-enum-types.h */
+// From exo/exo-enum-types.h
 GType
 exo_icon_view_layout_mode_get_type (void);
 #define EXO_TYPE_ICON_VIEW_LAYOUT_MODE (exo_icon_view_layout_mode_get_type())
-/* enumerations from "exo-mount-point.h" */
+
 
 G_END_DECLS;
 #endif
