@@ -1,4 +1,5 @@
 /***********************************************************************************************************************
+ * 
  * fm-dir-tree-model.c
  * 
  * Copyright 2010 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
@@ -63,7 +64,8 @@ static void on_theme_changed                            (GtkIconTheme *theme, Fm
 static gboolean subdir_check_job                        (GIOSchedulerJob *job, GCancellable *cancellable,
                                                          gpointer user_data);
 
-static void fm_dir_tree_model_add_place_holder_child_item (FmDirTreeModel *model, GList *parent_l, GtkTreePath *tp, gboolean emit_signal);
+static void fm_dir_tree_model_add_place_holder_child_item (FmDirTreeModel *model, GList *parent_l, GtkTreePath *tp,
+                                                           gboolean emit_signal);
 
 
 G_DEFINE_TYPE_WITH_CODE (FmDirTreeModel,

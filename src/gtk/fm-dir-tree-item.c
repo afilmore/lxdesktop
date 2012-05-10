@@ -1,4 +1,5 @@
 /***********************************************************************************************************************
+ * 
  * fm-dir-tree-item.c
  * 
  * Copyright 2010 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
@@ -86,7 +87,7 @@ inline FmDirTreeItem *fm_dir_tree_item_new (FmDirTreeModel *model, GList *parent
         }
         else
         {
-            FmIcon *icon = fm_icon_from_name ("user-home");
+            FmIcon *icon = fm_icon_from_name ("drive-harddisk");
             fm_file_info_set_fm_icon (file_info, icon);
         }
     }

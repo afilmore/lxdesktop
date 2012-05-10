@@ -17,6 +17,27 @@ namespace Fm {
 	
     
     /*************************************************************************************
+     * Pixbuf Renderer...
+     * 
+     * 
+     ************************************************************************************/
+	[CCode (cheader_filename = "gtk/fm-cell-renderer-pixbuf.h")]
+	public class CellRendererPixbuf : Gtk.CellRendererPixbuf {
+//~ 		public weak Fm.FileInfo fi;
+//~ 		public int fixed_h;
+//~ 		public int fixed_w;
+		
+        [CCode (has_construct_function = false, type = "GtkCellRenderer*")]
+		public CellRendererPixbuf ();
+		
+        public void set_fixed_size (int w, int h);
+		
+        [NoAccessorMethod]
+		public void* info { get; set; }
+	}
+
+
+    /*************************************************************************************
      * Fm.PathEntry
      * 
      * 

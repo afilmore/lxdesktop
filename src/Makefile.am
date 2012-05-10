@@ -18,6 +18,7 @@ exo_SOURCES = \
 	$(NULL)
 
 gtk_SOURCES = \
+	gtk/fm-cell-renderer-pixbuf.c \
 	gtk/fm-cell-renderer-text.c \
 	gtk/fm-dir-tree-item.c \
 	gtk/fm-dir-tree-model.c \

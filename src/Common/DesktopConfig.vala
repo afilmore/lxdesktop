@@ -82,7 +82,7 @@ namespace Desktop {
             Gdk.Color.parse ("#000000", out color_shadow);
             
             // Overload LibFmcore's Default Config...
-            base.show_thumbnail = false;
+            base.show_thumbnail = true;
             base.confirm_delete = false;
         }
     }
