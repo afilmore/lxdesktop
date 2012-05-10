@@ -1,4 +1,4 @@
-/*******************************************************************************
+/***********************************************************************************************************************
  * This software is an experimental rewrite of PcManFm originally written
  * by Hong Jen Yee aka PCMan for LXDE project. (http://lxde.org/)
  * 
@@ -9,62 +9,62 @@
  * http://www.gnu.org/licenses/gpl-2.0.txt
  * 
  * 
- ******************************************************************************/
- ------------------------------------------------------------------------------
+ **********************************************************************************************************************/
+    []  
+    
+    -   LibFmCore's Code Cleanup
+    
+        *   fm_file_info_new should be private...
+
+        *   Rename icon, type, and fi into fm_icon, mime_type and file_info...
+        
+        *   How to organise the src tree a better way ?
+        
+        *   Merge base/utils and gtk/gtk-utils..... add _foreach function....
+        
+        *   Maybe merge base/fm-icon and gtk/fm-icon-pixbuf.....
+    
+ ----------------------------------------------------------------------------------------------------------------------
+    []  
+    
+    -   Handle Special Items Icons....
+    
+        *   Analyse FmFileInfo usage, handle custom icons for special items...
+    
+        *   
+    
+ ----------------------------------------------------------------------------------------------------------------------
     []
     
-    * ...
- ------------------------------------------------------------------------------
+    -   GTK3 Migration...
+    
+        *   There's currently "ENABLE_GTK3", "GTK3_REMOVE" and "GTK3_TODO"
+            It will be ported when there's no more "GTK3_SOMETHING" in the code. :-P
+    
+        *   ./gtk/fm-dnd-src.c:161:#if !ENABLE_GTK3
+
+ ----------------------------------------------------------------------------------------------------------------------
     []
     
-    * Analyse FmFileInfo usage, handle custom icons for special items...
+    -   GSettings Parameters...
     
-    * Rename icon, type, and fi into fm_icon, mime_type and file_info...
-    
-    * Organise source tree...
-    
-    how to organise the src tree a better way...........
-    
-    * Merge base/fm-icon and gtk/fm-icon-pixbuf.....
-    
- ------------------------------------------------------------------------------
-    [DONE]
-    
-    * Mark "GTK3_REMOVE" And "GTK3_TODO" the changes between GTK2 and GTK3
-    
-        There's currently "ENABLE_GTK3", "GTK3_REMOVE" and "GTK3_TODO"
-        It will be ported when there's no more "GTK3_SOMETHING" in the code. :-P
-    
- ------------------------------------------------------------------------------
+        *   Add Archivers Popup...
+        
+        *   Enable thumbnails...
+        
+ ----------------------------------------------------------------------------------------------------------------------
     []
     
-    * Code Cleanup In LibFM's Source Code.
+    -   ...
     
-    *     
-
-old items...
-
-* fm_file_info_new....
-
-* create a /src/dialog subdirectory...
-
-* GTK3 Port :
-    ./gtk/fm-dnd-src.c:161:#if !ENABLE_GTK3
-
-* base/fm-archiver.c
-    - Read archiver list from Gsettings instead of Text File...
-    
-* gtk/fm-folder-model.c
-    - enable thumbnails...
-    
-* [DONE] gtk/fm-file-properties.c
-    - add file properties dialog...
-    
-* [DONE] gtk/fm-app-chooser-dlg.c
-    - add app chooser dialog...
-    
-* [DONE] gtk/fm-progress-dlg.c
-    - add progress and rename dialogs...
-    
+        * ...
+        
+        * ...
+        
+ ----------------------------------------------------------------------------------------------------------------------
+        
+        
+        
+        
 
 

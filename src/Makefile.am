@@ -13,6 +13,7 @@ exo_SOURCES = \
 	gtk/exo/exo-icon-view.c \
 	gtk/exo/exo-private.c \
 	gtk/exo/exo-tree-view.c \
+	gtk/exo/exo-lxde.c \
 	gtk/exo/exo-marshal.c \
 	gtk/exo/exo-string.c \
 	$(NULL)

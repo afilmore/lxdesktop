@@ -21,16 +21,13 @@
  * MA 02110-1301 USA
  */
 
-/* Modified by Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
- * on 2009-08-30 for use in libfm */
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-/* #ifdef HAVE_MATH_H */
+// PCMAN: #ifdef HAVE_MATH_H
 #include <math.h>
-/* #endif */
+// PCMAN: #endif
 #ifdef HAVE_MEMORY_H
 #include <memory.h>
 #endif
@@ -43,59 +40,7 @@
 
 #include <gdk/gdkkeysyms.h>
 
-/*
-#include <exo/exo-config.h>
-#include <exo/exo-enum-types.h>
-#include <exo/exo-icon-view.h>
-#include <exo/exo-marshal.h>
-#include <exo/exo-private.h>
-#include <exo/exo-string.h>
-#include <exo/exo-alias.h>
-*/
-#include "exo-icon-view.h"
-#include "exo-string.h"
-#include "exo-marshal.h"
-#include "exo-private.h"
-
-/* from exo/exo-marshal.h */
-#if defined(G_PARAM_STATIC_NAME) && defined(G_PARAM_STATIC_NICK) && defined(G_PARAM_STATIC_BLURB)
-#define EXO_PARAM_READABLE  (G_PARAM_READABLE \
-                           | G_PARAM_STATIC_NAME \
-                           | G_PARAM_STATIC_NICK \
-                           | G_PARAM_STATIC_BLURB)
-#define EXO_PARAM_WRITABLE  (G_PARAM_WRITABLE \
-                           | G_PARAM_STATIC_NAME \
-                           | G_PARAM_STATIC_NICK \
-                           | G_PARAM_STATIC_BLURB)
-#define EXO_PARAM_READWRITE (G_PARAM_READWRITE \
-                           | G_PARAM_STATIC_NAME \
-                           | G_PARAM_STATIC_NICK \
-                           | G_PARAM_STATIC_BLURB)
-#else
-#define EXO_PARAM_READABLE  (G_PARAM_READABLE)
-#define EXO_PARAM_WRITABLE  (G_PARAM_WRITABLE)
-#define EXO_PARAM_READWRITE (G_PARAM_READWRITE)
-#endif
-
-#define             I_(string)  g_intern_static_string(string)
-
-/* from exo/exo-enum-types.h */
-GType
-exo_icon_view_layout_mode_get_type (void)
-{
-    static GType type = 0;
-    if (type == 0) {
-    static const GEnumValue values[] = {
-    { EXO_ICON_VIEW_LAYOUT_ROWS, "EXO_ICON_VIEW_LAYOUT_ROWS", "rows" },
-    { EXO_ICON_VIEW_LAYOUT_COLS, "EXO_ICON_VIEW_LAYOUT_COLS", "cols" },
-    { 0, NULL, NULL }
-    };
-    type = g_enum_register_static ("ExoIconViewLayoutMode", values);
-  }
-    return type;
-}
-#define EXO_TYPE_ICON_VIEW_LAYOUT_MODE (exo_icon_view_layout_mode_get_type())
-/* enumerations from "exo-mount-point.h" */
+#include "exo-lxde.h"
 
 /**
  * SECTION: exo-icon-view
@@ -3666,8 +3611,13 @@ exo_icon_view_paint_item (ExoIconView     *icon_view,
     {
       flags = GTK_CELL_RENDERER_SELECTED;
       state = gtk_widget_has_focus ((GtkWidget*) icon_view) ? GTK_STATE_SELECTED : GTK_STATE_ACTIVE;
+
+      /* This is commit by Jannis Pohlmann:
+       * (http://git.xfce.org/xfce/exo/commit/?id=4078857f545e4430685243003c7446bac853086e)
+       * reverted by LXDE developers... */
+
 #if 0
-      /* FIXME_exo We hardwire background drawing behind text cell renderers
+      /* FIXME We hardwire background drawing behind text cell renderers
        * here. This is ugly, but it's done to be consistent with GtkIconView.
        * The additional info->is_text attribute is used for performance
        * optimization and should be removed alongside the following code. */
@@ -3708,7 +3658,7 @@ exo_icon_view_paint_item (ExoIconView     *icon_view,
 
       cairo_destroy (cr);
 
-      /* FIXME_exo Ugly code ends here */
+      /* FIXME Ugly code ends here */
 #endif
     }
   else
@@ -6642,7 +6592,7 @@ set_destination (ExoIconView    *icon_view,
   if (old_dest_path)
     gtk_tree_path_free (old_dest_path);
 
-  if (TRUE /* FIXME_exo if the location droppable predicate */)
+  if (TRUE /* FIXME if the location droppable predicate */)
     {
       can_drop = TRUE;
     }
@@ -6757,7 +6707,7 @@ exo_icon_view_maybe_begin_drag (ExoIconView    *icon_view,
                                            path))
     goto out;
 
-  /* FIXME_exo Check whether we're a start button, if not return FALSE and
+  /* FIXME Check whether we're a start button, if not return FALSE and
    * free path
    */
 
@@ -8569,7 +8519,7 @@ exo_icon_view_search_timeout_destroy (gpointer user_data)
 }
 
 
-/*
+/* PCMAN
 #define __EXO_ICON_VIEW_C__
 #include <exo/exo-aliasdef.c>
 */

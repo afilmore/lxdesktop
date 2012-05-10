@@ -20,10 +20,7 @@
  * MA 02110-1301 USA
  */
 
-/* Modified by Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
- * on 2009-08-30 for use in libfm */
-
-/*
+/* LXDE
 #if !defined (EXO_INSIDE_EXO_H) && !defined (EXO_COMPILATION)
 #error "Only <exo/exo.h> can be included directly, this file may disappear or change contents."
 #endif
