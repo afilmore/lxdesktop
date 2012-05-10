@@ -648,10 +648,12 @@ namespace Manager {
                     // Default Contextual Menu...
                     } else {
                         
-                        if (_desktop_popup_class == null)
-                            _desktop_popup_class = new Desktop.Popup (this, _path_entry.get_path ());
+                        // TODO_axl: do this a better way...
                         
-                        _default_popup = _desktop_popup_class.create_desktop_popup ();
+                        if (_desktop_popup_class == null)
+                            _desktop_popup_class = new Desktop.Popup (this);
+                        
+                        _default_popup = _desktop_popup_class.create_desktop_popup (_path_entry.get_path ());
                         
                         _default_popup.popup (null, null, null, 3, Gtk.get_current_event_time ());
                     }

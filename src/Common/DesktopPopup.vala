@@ -46,12 +46,13 @@ namespace Desktop {
         Fm.Path     _dest_directory;
         Gtk.Widget  _owner_widget;
 
-        public Popup (Gtk.Widget owner, Fm.Path destination) {
-            _dest_directory = destination;
+        public Popup (Gtk.Widget owner) {
             _owner_widget = owner;
         }
         
-        public Gtk.Menu create_desktop_popup () {
+        public Gtk.Menu create_desktop_popup (Fm.Path destination) {
+            
+            _dest_directory = destination;
             
             Gtk.ActionGroup action_group = new Gtk.ActionGroup ("Desktop");
             action_group.set_translation_domain ("");

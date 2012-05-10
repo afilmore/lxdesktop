@@ -444,10 +444,11 @@ namespace Desktop {
                             
                     // Is it needed to destroy/unref previous created menu ???
                     
+                    // TODO_axl: do this a better way...
                     if (_desktop_popup_class == null)
-                        _desktop_popup_class = new Desktop.Popup (this, Fm.Path.get_desktop());
+                        _desktop_popup_class = new Desktop.Popup (this);
                     
-                    _desktop_popup = _desktop_popup_class.create_desktop_popup (/*_default_popup_actions*/);
+                    _desktop_popup = _desktop_popup_class.create_desktop_popup (Fm.Path.get_desktop());
                     
                     if (_desktop_popup == null) {
                         stdout.printf ("cannot create contextual popup, popup == null\n");
