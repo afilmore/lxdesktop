@@ -309,7 +309,7 @@ namespace Manager {
             
             // Add The HPaned Container...
             _hpaned = new Gtk.HPaned ();
-            _hpaned.set_position (150);
+            _hpaned.set_position (200);
             main_vbox.pack_start (_hpaned, true, true, 0);
             
             // Add The Left Side Pane...
