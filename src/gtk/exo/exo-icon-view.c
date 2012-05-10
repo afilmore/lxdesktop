@@ -25,9 +25,9 @@
 #include <config.h>
 #endif
 
-// PCMAN: #ifdef HAVE_MATH_H
+// LXDE_CHANGES: #ifdef HAVE_MATH_H
 #include <math.h>
-// PCMAN: #endif
+// LXDE_CHANGES: #endif
 #ifdef HAVE_MEMORY_H
 #include <memory.h>
 #endif
@@ -8519,7 +8519,7 @@ exo_icon_view_search_timeout_destroy (gpointer user_data)
 }
 
 
-/* PCMAN
+/* LXDE_CHANGES
 #define __EXO_ICON_VIEW_C__
 #include <exo/exo-aliasdef.c>
 */

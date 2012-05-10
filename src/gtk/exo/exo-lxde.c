@@ -30,9 +30,9 @@
 #include <config.h>
 #endif
 
-// PCMAN: #ifdef HAVE_MATH_H
+// LXDE_CHANGES: #ifdef HAVE_MATH_H
 #include <math.h>
-// PCMAN: #endif
+// LXDE_CHANGES: #endif
 #ifdef HAVE_MEMORY_H
 #include <memory.h>
 #endif
