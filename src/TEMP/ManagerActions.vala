@@ -333,6 +333,80 @@
         }
 
 
+
+
+
+
+
+
+        /*********************************************************************************
+         * File Menu...
+         * 
+         * 
+         ********************************************************************************/
+        private void _on_open_in_new_win (Gtk.Action act) {
+
+            /*** From Popup Menu ***
+            Fm.PathList sels = _folder_view.get_selected_file_paths ();
+            GList l;
+            for ( l = fm_list_peek_head_link (sels); l; l=l->next )
+            {
+                Fm.Path path =  (Fm.Path)l->data;
+                
+                // *** Duplicated Code ***
+                win = new ();
+                gtk_window_set_default_size (GTK_WINDOW (win), 640, 480);
+                chdir (win, path);
+                gtk_window_present (GTK_WINDOW (win));
+                 
+                
+            }
+            fm_list_unref (sels);
+            ***/
+        }
+        
+       /*********************************************************************************
+         * View Menu...
+         * 
+         * 
+         ********************************************************************************/
+        private void _on_sort_type (Gtk.Action act, Gtk.Action cur) {
+            /*
+            int val = cur.get_current_value ();
+            _folder_view.sort (val, -1);*/
+        }
+        
+        private void _on_sort_by (Gtk.Action act, Gtk.Action cur) {
+
+            /*int val = cur.get_current_value ();
+            _folder_view.sort (-1, val);*/
+        }
+
+        private void _on_change_mode (Gtk.Action act, Gtk.Action cur) {
+
+            /*int mode = cur.get_current_value ();
+            _folder_view.set_mode (mode);*/
+        }
+
+        private void _on_show_hidden (Gtk.Action act) {
+            
+            /*bool active = cur.get_current_value ();
+            _folder_view.set_show_hidden (active);
+            this._update_statusbar ();*/
+        }
+        
+        
+
+
+
+
+
+
+
+
+
+
+
         /*********************************************************************************
          * Popup Menu...
          * 
@@ -349,3 +423,9 @@
             
             Fm.show_file_properties (files);
         }*/
+
+
+
+
+
+

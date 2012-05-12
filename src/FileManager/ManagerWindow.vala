@@ -69,7 +69,9 @@ namespace Manager {
             {"Location", null, null, "<Alt>d", null,                                _on_location},
             {"Location2", null, null, "<Ctrl>L", null,                              _on_location}
         };
-
+        
+        
+        /*** Add all these actions later...
         private const Gtk.ToggleActionEntry _main_win_toggle_actions[] = {
             {"ShowHidden", null, N_("Show _Hidden"), "<Ctrl>H", null,               _on_show_hidden, false}
         };
@@ -90,17 +92,26 @@ namespace Manager {
             {"ByName", null, N_("By _Name"), null, null,                            Fm.FileColumn.NAME},
             {"ByMTime", null, N_("By _Modification Time"), null, null,              Fm.FileColumn.MTIME}
         };
-
-        /*** Action entries for popup menus ***/
+        **/
+        
+        
+        
+        
+        /*** Single Directory Popup Actions
         private const Gtk.ActionEntry _folder_menu_actions[] = {
             {"NewWin", Gtk.Stock.NEW, N_("Open in New Window"), null, null,         _on_open_in_new_win},
             {"Search", Gtk.Stock.FIND, null, null, null, null}
         };
-
+        ***/
+        
+        
         private Fm.Path         _current_dir;
         
+        
         /***
+        
         private Fm.Folder       _folder;
+        
         ***/
 
         private Gtk.UIManager   _ui;
@@ -120,11 +131,15 @@ namespace Manager {
         private Desktop.Popup?  _desktop_popup_class;
         private Gtk.Menu        _default_popup;
         
-        /***
-        private Fm.NavHistory   _nav_history;
+        
+        /*** Add these later, rework the navigation history...
+        
         private Gtk.Widget      _history_menu;
-        private Fm.Bookmarks    _bookmarks;
+        private Fm.NavHistory   _nav_history;
+        
         private Gtk.Widget      _bookmarks_menu;
+        private Fm.Bookmarks    _bookmarks;
+        
         ***/
 
         public Window () {
@@ -140,18 +155,21 @@ namespace Manager {
         
         ~Window () {
             
-//            global_num_windows--;
+            //~ global_num_windows--;
 
             /***
             if (win->folder)
             {
                 g_signal_handlers_disconnect_by_func (win->folder, _on_folder_fs_info, win);
                 g_object_unref (win->folder);
-            }***/
+            }
+            ***/
 
             /***
+            
             if (n_wins == 0)
                 gtk_main_quit ();
+            
             ***/
             
         }
@@ -169,6 +187,7 @@ namespace Manager {
             this.set_default_size ((screen.get_width() / 4) * 3, (screen.get_height() / 4) * 3);
             this.set_position (Gtk.WindowPosition.CENTER);
 
+            
             // TODO_axl: save last directory on exit and reload it here... :-P
             _current_dir = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DESKTOP));
             
@@ -185,11 +204,14 @@ namespace Manager {
             _ui = new Gtk.UIManager ();
             Gtk.ActionGroup action_group = new Gtk.ActionGroup ("Main");
             action_group.add_actions (_main_win_actions, this);
+            
+            /*** Add these actions later
             action_group.add_toggle_actions (_main_win_toggle_actions, null);
             action_group.add_radio_actions  (_main_win_mode_actions, Fm.FolderViewMode.ICON_VIEW, _on_change_mode);
             action_group.add_radio_actions  (_main_win_sort_type_actions, Gtk.SortType.ASCENDING, _on_sort_type);
             action_group.add_radio_actions  (_main_win_sort_by_actions, 0, _on_sort_by);
-
+            ***/
+            
             Gtk.AccelGroup accel_group = _ui.get_accel_group ();
             this.add_accel_group (accel_group);
             
@@ -215,6 +237,7 @@ namespace Manager {
             toolitem.add (_path_entry);
             toolitem.set_expand (true);
             _toolbar.insert (toolitem, _toolbar.get_n_items () - 1);
+            //_toolbar.insert (toolitem, 1);
             
             // Add The HPaned Container...
             _hpaned = new Gtk.HPaned ();
@@ -229,7 +252,7 @@ namespace Manager {
             side_pane_vbox.pack_start (scrolled_window, true, true, 0);
             
             // Add The TreeView...
-            _tree_view = new Fm.DirTreeView();
+            _tree_view = new Fm.DirTreeView ();
             scrolled_window.add (_tree_view);
             
             // Fill The TreeView Model...
@@ -332,7 +355,6 @@ namespace Manager {
 
             
             
-            
             // TODO_axl: save last directory on exit and reload it here... :-P
             Fm.Path path;
             if (files[0] != "")
@@ -340,15 +362,18 @@ namespace Manager {
             else
                 path = Fm.Path.get_desktop ();
             
+            
+            
             this._change_directory (path);
             
             this.show_all ();
 
             global_num_windows++;
+            
             return true;
         }
         
-        private void _change_directory (Fm.Path path,
+        private void _change_directory (Fm.Path path, 
                                         DirChangeCaller caller = DirChangeCaller.NONE,
                                         bool save_history = false) {
 
@@ -383,9 +408,9 @@ namespace Manager {
                  * so we may ensures that the TreeView Location is graphically updated...
                  * 
                  ***/
-//~                 while (Gtk.events_pending ()) {
-//~                   Gtk.main_iteration ();
-//~                 }
+                //~ while (Gtk.events_pending ()) {
+                //~   Gtk.main_iteration ();
+                //~ }
             }
             
             if (caller != DirChangeCaller.FOLDER_VIEW)
@@ -456,10 +481,10 @@ namespace Manager {
             
             Gtk.TreeSelection sel = _tree_view.get_selection ();
             List<Gtk.TreePath>? sels = sel.get_selected_rows (null);
-            Gtk.TreeIter it;
             if (sels == null)
                 return true;
                 
+            Gtk.TreeIter it;
             if (global_dir_tree_model.get_iter (out it, sels.data))
             {
                 unowned Fm.FileInfo? fi;
@@ -673,27 +698,6 @@ namespace Manager {
          * 
          * 
          ********************************************************************************/
-        private void _on_open_in_new_win (Gtk.Action act) {
-
-            /*** From Popup Menu ***
-            Fm.PathList sels = _folder_view.get_selected_file_paths ();
-            GList l;
-            for ( l = fm_list_peek_head_link (sels); l; l=l->next )
-            {
-                Fm.Path path =  (Fm.Path)l->data;
-                
-                // *** Duplicated Code ***
-                win = new ();
-                gtk_window_set_default_size (GTK_WINDOW (win), 640, 480);
-                chdir (win, path);
-                gtk_window_present (GTK_WINDOW (win));
-                 
-                
-            }
-            fm_list_unref (sels);
-            ***/
-        }
-        
         private void _on_close_win (Gtk.Action act) {
 
             /*** gtk_widget_destroy (GTK_WIDGET (win)); ***/
@@ -706,43 +710,15 @@ namespace Manager {
         private void _on_go_up (Gtk.Action act) {
 
             Fm.Path parent = _folder_view.get_cwd ().get_parent ();
+            
             if (parent != null)
                 this._change_directory (parent);
-        }
-
-
-
-        /*********************************************************************************
-         * View Menu...
-         * 
-         * 
-         ********************************************************************************/
-        private void _on_sort_type (Gtk.Action act, Gtk.Action cur) {
-            /*
-            int val = cur.get_current_value ();
-            _folder_view.sort (val, -1);*/
-        }
-        
-        private void _on_sort_by (Gtk.Action act, Gtk.Action cur) {
-
-            /*int val = cur.get_current_value ();
-            _folder_view.sort (-1, val);*/
-        }
-
-        private void _on_change_mode (Gtk.Action act, Gtk.Action cur) {
-
-            /*int mode = cur.get_current_value ();
-            _folder_view.set_mode (mode);*/
-        }
-
-        private void _on_show_hidden (Gtk.Action act) {
             
-            /*bool active = cur.get_current_value ();
-            _folder_view.set_show_hidden (active);
-            this._update_statusbar ();*/
+            
         }
-        
-        
+
+
+
         /*********************************************************************************
          * Help Menu...
          * 
@@ -750,11 +726,14 @@ namespace Manager {
          ********************************************************************************/
         private void _on_about (Gtk.Action act) {
             
-            const string authors[] = {"Axel FILMORE <axel.filmore@gmail.com>", null};
+            //const string authors[] = {"Axel FILMORE <axel.filmore@gmail.com>", null};
             
             Gtk.AboutDialog about_dialog = new Gtk.AboutDialog ();
             about_dialog.set_program_name ("lxdesktop");
-            about_dialog.set_authors (authors);
+            
+            // Add all authors...
+            // about_dialog.set_authors (authors);
+            
             about_dialog.set_comments ("A Simple File Manager");
             about_dialog.set_website ("https://github.com/afilmore/lxdesktop");
             about_dialog.run ();
