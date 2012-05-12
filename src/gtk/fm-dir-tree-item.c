@@ -35,6 +35,7 @@
 #include "fm-dir-tree-item.h"
 #include "fm-icon-pixbuf.h"
 
+//#include "fm-utils.h"
 
 /*********************************************************************
  * Free Item List Functions...

@@ -32,6 +32,7 @@
 #include <glib/gi18n-lib.h>
 #include <string.h>
 
+#include "fm-utils.h"
 #include "fm-dir-tree-model.h"
 #include "fm-dir-tree-item.h"
 
