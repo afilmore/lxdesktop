@@ -1302,3 +1302,6 @@ void on_thumbnail_max_changed (FmConfig *cfg, gpointer user_data)
         model->thumbnail_requests = g_list_concat (model->thumbnail_requests, new_reqs);
     model->thumbnail_max = thumbnail_max_bytes;
 }
+
+
+

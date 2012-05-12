@@ -29,38 +29,7 @@ namespace Manager {
     private const string global_main_menu_xml = """
         <menubar>
           <menu action='FileMenu'>
-            <menuitem action='New'/>
             <menuitem action='Close'/>
-          </menu>
-          
-          <menu action='EditMenu'>
-            <menuitem action='Cut'/>
-            <menuitem action='Copy'/>
-            <menuitem action='Paste'/>
-            <menuitem action='Del'/>
-            <separator/>
-            <menuitem action='Rename'/>
-            <menuitem action='Link'/>
-            <menuitem action='MoveTo'/>
-            <menuitem action='CopyTo'/>
-            <separator/>
-            <menuitem action='SelAll'/>
-            <menuitem action='InvSel'/>
-            <separator/>
-            <menuitem action='Pref'/>
-          </menu>
-          
-          <menu action='GoMenu'>
-            <menuitem action='Prev'/>
-            <menuitem action='Next'/>
-            <menuitem action='Up'/>
-            <separator/>
-            <menuitem action='Home'/>
-            <menuitem action='Desktop'/>
-            <menuitem action='Computer'/>
-            <menuitem action='Trash'/>
-            <menuitem action='Network'/>
-            <menuitem action='Apps'/>
           </menu>
           
           <menu action='HelpMenu'>
@@ -69,91 +38,31 @@ namespace Manager {
         </menubar>
         
         <toolbar>
-            <toolitem action='New'/>
-            <toolitem action='Prev'/>
-            <toolitem action='Next'/>
             <toolitem action='Up'/>
-            <toolitem action='Home'/>
-            <toolitem action='Go'/>
         </toolbar>
         
         <accelerator action='Location'/>
         <accelerator action='Location2'/>
     """;
     
-    private const string global_folder_menu_xml = """
-        <popup>
-        
-          <placeholder name='ph1'>
-            
-            <menuitem action='NewWin'/>
-            
-          </placeholder>
-        
-        </popup>
-    """;
-
+    
     public class Window : Gtk.Window {
         
         private bool _debug_mode = false;
         
-        /*private const Gtk.ActionEntry _default_popup_actions[] = {
-            
-            {"CreateNew", null, N_("Create _New..."), "", null,                     null},
-            {"NewFolder", "folder", N_("Folder"), "<Ctrl><Shift>N", null,           null},
-            {"NewBlank", "text-x-generic", N_("Blank File"), null, null,            null},
-            {"Paste", Gtk.Stock.PASTE, null, null, null,                            null},
-            {"SelAll", Gtk.Stock.SELECT_ALL, null, null, null,                      null},
-            {"InvSel", null, N_("_Invert Selection"), "<Ctrl>I", null,              null},
-            {"Properties", Gtk.Stock.PROPERTIES, N_("Desktop Preferences"),
-                           "<Alt>Return", null,                                     null}
-        };*/
-
         private const Gtk.ActionEntry _main_win_actions[] = {
             
             {"FileMenu", null, N_("_File"), null, null, null},
-                {"New", Gtk.Stock.NEW, N_("_New Window"), "<Ctrl>N", null,          _on_new_win},
+
                 {"Close", Gtk.Stock.CLOSE, N_("_Close Window"), "<Ctrl>W", null,    _on_close_win},
             
-            {"EditMenu", null, N_("_Edit"), null, null, null},
-                {"Cut", Gtk.Stock.CUT, null, null, null,                            _on_cut},
-                {"Copy", Gtk.Stock.COPY, null, null, null,                          _on_copy},
-                {"Paste", Gtk.Stock.PASTE, null, null, null,                        _on_paste},
-                {"Del", Gtk.Stock.DELETE, null, null, null,                         _on_del},
-                {"Rename", null, N_("Rename"), "F2", null,                          _on_rename},
-                {"Link", null, N_("Create Symlink"), null, null, null},
-                {"MoveTo", null, N_("Move To..."), null, null,                      _on_move_to},
-                {"CopyTo", null, N_("Copy To..."), null, null,                      _on_copy_to},
-                {"SelAll", Gtk.Stock.SELECT_ALL, null, null, null,                  _on_select_all},
-                {"InvSel", null, N_("Invert Selection"), null, null,                _on_invert_select},
-                {"Pref", Gtk.Stock.PREFERENCES, null, null, null, null},
-            
             {"GoMenu", null, N_("_Go"), null, null, null},
-                {"Prev", Gtk.Stock.GO_BACK, N_("Previous Folder"), "<Alt>Left",
-                                            N_("Previous Folder"),                  _on_go_back},
-                {"Next", Gtk.Stock.GO_FORWARD, N_("Next Folder"), "<Alt>Right",
-                                            N_("Next Folder"),                      _on_go_forward},
+
                 {"Up", Gtk.Stock.GO_UP, N_("Parent Folder"), "<Alt>Up", 
                                         N_("Go to parent Folder"),                  _on_go_up},
-                {"Home", "user-home", N_("Home Folder"), "<Alt>Home",
-                                      N_("Home Folder"),                            _on_go_home},
-                {"Desktop", "user-desktop", N_("Desktop"), null,
-                                            N_("Desktop Folder"),                   _on_go_desktop},
-                {"Computer", "computer", N_("My Computer"), null, null,             _on_go_computer},
-                {"Trash", "user-trash", N_("Trash Can"), null, null,                _on_go_trash},
-                {"Network", Gtk.Stock.NETWORK, N_("Network Drives"), null, null,    _on_go_network},
-                {"Apps", "system-software-install", N_("Applications"), null, 
-                                                    N_("Installed Applications"),   _on_go_apps},
-                {"Go", Gtk.Stock.JUMP_TO, null, null, null,                         _on_go},
-            
-            {"BookmarksMenu", null, N_("_Bookmarks"), null, null, null},
-                {"AddBookmark", Gtk.Stock.ADD, N_("Add To Bookmarks"), null, 
-                                               N_("Add To Bookmarks"), null},
-            
-            {"ViewMenu", null, N_("_View"), null, null, null},
-                {"Sort", null, N_("_Sort Files"), null, null, null},
             
             {"HelpMenu", null, N_("_Help"), null, null, null},
+
                 {"About", Gtk.Stock.ABOUT, null, null, null,                        _on_about},
             
             /*** For accelerators ***/
@@ -538,12 +447,11 @@ namespace Manager {
             if (!_tree_view.get_path_at_pos ((int) event.x, (int) event.y, out path, null, null, null))
                 return true;
             
-//~              {
-//~                         select = gtk_tree_view_get_selection (GTK_TREE_VIEW (view));
-//~                         gtk_tree_selection_unselect_all (select);
-//~                         gtk_tree_selection_select_path (select, path);
-//~                         gtk_tree_path_free (path);
-//~                     }
+            
+            //~ select = gtk_tree_view_get_selection (GTK_TREE_VIEW (view));
+            //~ gtk_tree_selection_unselect_all (select);
+            //~ gtk_tree_selection_select_path (select, path);
+            //~ gtk_tree_path_free (path);
             
             
             Gtk.TreeSelection sel = _tree_view.get_selection ();
@@ -562,7 +470,7 @@ namespace Manager {
                     
                     _file_menu = new Fm.FileMenu.for_file (this, fi, _tree_view.get_cwd (), false);
 
-                    // Merge Specific Folder Menu Items...
+                    /** Merge Specific Folder Menu Items...
                     if (_file_menu.is_single_file_type () && fi.is_dir ()) {
                         Gtk.UIManager ui = _file_menu.get_ui ();
                         Gtk.ActionGroup action_group = _file_menu.get_action_group ();
@@ -571,7 +479,7 @@ namespace Manager {
                             ui.add_ui_from_string (global_folder_menu_xml, -1);
                         } catch (Error e) {
                         }
-                    }
+                    }**/
 
                     _files_popup = _file_menu.get_menu ();
                     _files_popup.popup (null, null, null, 3, Gtk.get_current_event_time ());
@@ -635,7 +543,7 @@ namespace Manager {
                         Fm.FileInfoList files = _folder_view.get_selected_files ();
                         _file_menu = new Fm.FileMenu.for_files (this, files, _folder_view.get_cwd (), false);
 
-                        // Merge Specific Folder Menu Items...
+                        /** Merge Specific Folder Menu Items...
                         if (_file_menu.is_single_file_type () && fi.is_dir ()) {
                             Gtk.UIManager ui = _file_menu.get_ui ();
                             Gtk.ActionGroup action_group = _file_menu.get_action_group ();
@@ -644,7 +552,7 @@ namespace Manager {
                                 ui.add_ui_from_string (global_folder_menu_xml, -1);
                             } catch (Error e) {
                             }
-                        }
+                        }**/
 
                         _files_popup = _file_menu.get_menu ();
                         _files_popup.popup (null, null, null, 3, Gtk.get_current_event_time ());
@@ -765,17 +673,6 @@ namespace Manager {
          * 
          * 
          ********************************************************************************/
-        private void _on_new_win (Gtk.Action act) {
-
-            /*** Duplicated Code with the function bellow... create a new function ***
-            
-            win = new ();
-            gtk_window_set_default_size (GTK_WINDOW (win), 640, 480);
-            chdir (win, fm_path_get_home ());
-            gtk_window_present (GTK_WINDOW (win));
-            ***/
-        }
-
         private void _on_open_in_new_win (Gtk.Action act) {
 
             /*** From Popup Menu ***
@@ -803,132 +700,8 @@ namespace Manager {
         }
 
 
-        /*********************************************************************************
-         * Edit Menu...
-         * 
-         * 
-         ********************************************************************************/
-        private void _on_cut (Gtk.Action act) {
-
-            /*** What's the purpose of this ??? ***
-            Gtk.Widget focus = this.get_focus ();
-            
-            if (GTK_IS_EDITABLE (focus)
-            && focus.get_selection_bounds (null, null)) {
-                focus.cut_clipboard ();
-            
-            } else {
-            ***/
-                
-                unowned Fm.PathList? files = _folder_view.get_selected_file_paths ();
-                if (files != null) {
-                    Fm.Clipboard.cut_files (this, files);
-                }
-                
-            /***
-            }
-            ***/
-        }
-
-        private void _on_copy (Gtk.Action act) {
-
-            /*** What's the purpose of this ??? ***
-            Gtk.Widget focus = this.get_focus ();
-            
-            if (GTK_IS_EDITABLE (focus)
-            && focus.get_selection_bounds (null, null)) {
-                focus.cut_clipboard ();
-            
-            } else {
-            ***/
-                
-                unowned Fm.PathList? files = _folder_view.get_selected_file_paths ();
-                if (files != null) {
-                    Fm.Clipboard.copy_files (this, files);
-                }
-                
-            /***
-            }
-            ***/
-        }
-
-        private void _on_paste (Gtk.Action act) {
-
-            /***
-            
-            Gtk.Widget focus = this.get_focus ();
-            if (GTK_IS_EDITABLE (focus)) {
-                focus.paste_clipboard ();
-            } else {
-            
-            ***/
-            
-                Fm.Path path = _folder_view.get_cwd ();
-                Fm.Clipboard.paste_files (_folder_view, path);
-            
-            /***
-            }
-            ***/
-        }
-
-        private void _on_del (Gtk.Action act) {
-
-            unowned Fm.PathList files = _folder_view.get_selected_file_paths ();
-            Fm.trash_or_delete_files (this, files);
-        }
-
-        private void _on_rename (Gtk.Action act) {
-
-            /*Fm.PathList files = _folder_view.get_selected_file_paths ();
-            if (!files.is_empty ()) {
-                
-                // Rename the first selected file...
-                Fm.rename_file (this, ((Queue) files).head);
-                
-            }*/
-        }
-        
-        private void _on_move_to (Gtk.Action act) {
-
-            unowned Fm.PathList? files = _folder_view.get_selected_file_paths ();
-            if (files != null) {
-                Fm.move_files_to (this, files);
-            }
-        }
-        
-        private void _on_copy_to (Gtk.Action act) {
-
-            unowned Fm.PathList? files = _folder_view.get_selected_file_paths ();
-            if (files != null) {
-                Fm.copy_files_to (this, files);
-            }
-        }
-
-        private void _on_select_all (Gtk.Action act) {
-
-            _folder_view.select_all ();
-        }
-
-        private void _on_invert_select (Gtk.Action act) {
-
-            _folder_view.select_invert ();
-        }
 
 
-        /*********************************************************************************
-         * Go Menu... Prev/Next/Up Toolbar buttons...
-         * 
-         * 
-         ********************************************************************************/
-        private void _on_go_back (Gtk.Action act) {
-
-            /*** Not Implemented ***/
-        }
-
-        private void _on_go_forward (Gtk.Action act) {
-
-            /*** Not Implemented ***/
-        }
 
         private void _on_go_up (Gtk.Action act) {
 
@@ -937,52 +710,6 @@ namespace Manager {
                 this._change_directory (parent);
         }
 
-        private void _on_go_home (Gtk.Action act) {
-
-            /***
-            chdir_by_name ( win, g_get_home_dir ());
-            ***/
-        }
-
-        private void _on_go_desktop (Gtk.Action act) {
-
-            /***
-            chdir_by_name ( win, g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP));
-            ***/
-        }
-
-        private void _on_go_computer (Gtk.Action act) {
-
-            /***
-            chdir_by_name ( win, "computer:///");
-            ***/
-        }
-        private void _on_go_trash (Gtk.Action act) {
-
-            /***
-            chdir_by_name ( win, "trash:///");
-            ***/
-        }
-
-        private void _on_go_network (Gtk.Action act) {
-
-            /***
-            chdir_by_name ( win, "network:///");
-            ***/
-        }
-
-        private void _on_go_apps (Gtk.Action act) {
-
-            /***
-            chdir (win, fm_path_get_apps_menu ());
-            ***/
-        }
-        private void _on_go (Gtk.Action act) {
-
-            /***
-            chdir_by_name ( win, gtk_entry_get_text (GTK_ENTRY (win->_path_entry)));
-            ***/
-        }
 
 
         /*********************************************************************************
@@ -1033,24 +760,6 @@ namespace Manager {
             about_dialog.run ();
             about_dialog.destroy ();
         }
-        
-        
-        /*********************************************************************************
-         * Popup Menu...
-         * 
-         * 
-         ********************************************************************************/
-        /*private void _on_properties (Gtk.Action action) {
-            
-            
-            Fm.FileInfo fi = _folder_view.model.dir.dir_fi;
-            
-            Fm.FileInfoList files = new Fm.FileInfoList ();
-            
-            files.push_tail (fi);
-            
-            Fm.show_file_properties (files);
-        }*/
     }
 }
 
