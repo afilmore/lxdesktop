@@ -21,11 +21,13 @@ namespace Manager {
         bool                        _debug_mode = false;
         
         private Gtk.WindowGroup?    _wingroup = null;
-        //private List<Manager.Window>? _window_list;
+        
+        //private List<Manager.Window>? _window_list; // use a list ???
 
         public Group (bool debug = false) {
             
             _debug_mode = debug;
+            
             //_window_list = new List<Manager.Window> ();
         }
         
@@ -38,6 +40,7 @@ namespace Manager {
             manager.create (files, "", _debug_mode);
             
             _wingroup.add_window (manager);
+            
             //_window_list.append (manager);
             
             return true;

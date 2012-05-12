@@ -28,34 +28,34 @@ namespace Desktop {
     public class Grid {
         
         // Application's Running Mode
-        private bool _debug_mode = false;
+        private bool                    _debug_mode = false;
         
         // Desktop Widget
-        private Desktop.Window  _desktop;
-        private Gdk.Window      _window;
-        uint _idle_layout       = 0;
+        private Desktop.Window          _desktop;
+        private Gdk.Window              _window;
+        uint                            _idle_layout = 0;
         
         // Desktop working area, this working area doesn't include docked panels
-        private Gdk.Rectangle       _working_area;
+        private Gdk.Rectangle           _working_area;
         
         // The list of Desktop items
-        private List<Desktop.Item>  _grid_items;
-        private string              _items_config_file;
+        private List<Desktop.Item>      _grid_items;
+        private string                  _items_config_file;
         
         // Geometry of one cell in the grid, total number of cells
-        private int         _cell_width = 50;
-        private int         _cell_height = 50;
-        private Gdk.Point   _num_cell;
+        private int                     _cell_width = 50;
+        private int                     _cell_height = 50;
+        private Gdk.Point               _num_cell;
         
-        private Desktop.Item?   _selected_item = null;
+        private Desktop.Item?           _selected_item = null;
         private Fm.CellRendererPixbuf   _icon_renderer; 
         
         // Text drawing...
-        private Pango.Layout _pango_layout;
-        uint _text_h = 0;
-        uint _text_w = 0;
-        uint _pango_text_h = 0;
-        uint _pango_text_w = 0;
+        private Pango.Layout            _pango_layout;
+        uint                            _text_h = 0;
+        uint                            _text_w = 0;
+        uint                            _pango_text_h = 0;
+        uint                            _pango_text_w = 0;
         
         
         public Grid (Desktop.Window desktop, string config_file, bool debug = false) {
@@ -196,6 +196,7 @@ namespace Desktop {
             // Text position...
             item.text_rect.x = item.pixel_pos.x    + (_cell_width - logical_rect.width - 4) / 2;
             item.text_rect.y = item.icon_rect.y + item.icon_rect.height + logical_rect.y;
+            
             
             /*** is it needed to cache this ? see draw_item () ...
             int text_x = (int) item.pixel_pos.x + (_cell_width - (int) _text_w) / 2 + 2;

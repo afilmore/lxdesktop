@@ -27,7 +27,6 @@
 #define __EXO_LXDE_H__
 
 #include "exo-icon-view.h"
-//#include "exo-string.h"
 #include "exo-marshal.h"
 #include "exo-private.h"
 

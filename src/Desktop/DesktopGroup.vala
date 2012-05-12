@@ -47,6 +47,7 @@ namespace Desktop {
             Fm.Path? path = Fm.Path.get_desktop();
             if (path == null)
                 return false;
+            
             Fm.Folder? folder = Fm.Folder.get (path);
             if (folder == null)
                 return false;

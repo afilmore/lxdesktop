@@ -1,51 +1,86 @@
 /***********************************************************************************************************************
- * This software is an experimental rewrite of PcManFm originally written
- * by Hong Jen Yee aka PCMan for LXDE project. (http://lxde.org/)
+ *      
+ *      This software is the very first Vala Desktop.
+ *      
+ *      It started as an experimental port of LXDE's Desktop Manager.
  * 
- * Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License Version 2.
- * http://www.gnu.org/licenses/gpl-2.0.txt
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
+ *
+ *
+ *      This program is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License Version 2.
+ *      http://www.gnu.org/licenses/gpl-2.0.txt
  * 
  * 
  **********************************************************************************************************************/
+    
     []  
     
     -   LibFmCore's Code Cleanup
     
-        *   Move dialog xml defs into each source file....
+        *   How to disable these warnings in LibFmCore:
+            base/fm-file-info-list.c:32:1: warning: initialization from incompatible pointer type [enabled by default]
+            base/fm-path-list.c:36:1: warning: initialization from incompatible pointer type [enabled by default]
+            
+            These are the only warnings in the lib, all over warnings have been corrected. :)
     
-        *   fm_file_info_new should be private...
-
-        *   Rename icon, type, and fi into fm_icon, mime_type and file_info...
         
-        *   How to organise the src tree a better way ?
+        *   FmFileInfo: Rename icon, type, and fi into fm_icon, mime_type and file_info...
+                        fm_file_info_new () should be private...
+                        create specific functions and make fm_file_info_new () private...
         
-        *   Merge base/utils and gtk/gtk-utils..... add _foreach function....
+        
+        *   Merge fm-monitor and fm-dummy-monitor ?
+        
+        
+        *   Add _g_list_foreach function to base utils...
+            Reverted, the desktop doesn't link to the library, undefined reference error...
+        
         
         *   Maybe merge base/fm-icon and gtk/fm-icon-pixbuf.....
+            Not sure, need to study the code...
+    
     
  ----------------------------------------------------------------------------------------------------------------------
+    
     []  
     
-    -   Handle Special Items Icons....
+    -   Desktop
+    
+        *   Remove all actions and menus that are not implemented to cleanup the interface a bit...
+        
+        *   Rework Popup Menus...
+            
+            ./Desktop/DesktopWindow.vala:1111:      _file_menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), false);
+            ./FileManager/ManagerWindow.vala:563:   _file_menu = new Fm.FileMenu.for_file (this, fi, _tree_view.get_cwd (), false);
+            ./FileManager/ManagerWindow.vala:636:   _file_menu = new Fm.FileMenu.for_files (this, files, _folder_view.get_cwd (), false);
+            
+            Create a class like the Desktop.Popup () ...
+            
+        *   Add Notebook Tabs...
+        
+        *   Integrate A Vala Terminal...
+    
+        *   Handle Special Items Icons....
     
         *   Analyse FmFileInfo usage, handle custom icons for special items...
     
-        *   
     
  ----------------------------------------------------------------------------------------------------------------------
+    
     []
     
     -   GTK3 Migration...
     
-        *   There's currently "ENABLE_GTK3", "GTK3_REMOVE" and "GTK3_TODO"
-            It will be ported when there's no more "GTK3_SOMETHING" in the code. :-P
+        *   Port and Test ExoIconView...
+    
+        *   See "GTK3" macros... It will be fully ported when there's no more "GTK3_SOMETHING" in the code. :-P
     
         *   ./gtk/fm-dnd-src.c:161:#if !ENABLE_GTK3
 
+
  ----------------------------------------------------------------------------------------------------------------------
+    
     []
     
     -   GSettings Parameters...
@@ -54,7 +89,20 @@
         
         *   Enable thumbnails...
         
+        
  ----------------------------------------------------------------------------------------------------------------------
+    
+    []
+    
+    -   Write The AUTHORS list with all original Authors... LXDE, XFCE... etc...
+    
+        * ...
+        
+        * ...
+        
+        
+ ----------------------------------------------------------------------------------------------------------------------
+    
     []
     
     -   ...
@@ -62,6 +110,7 @@
         * ...
         
         * ...
+        
         
  ----------------------------------------------------------------------------------------------------------------------
         

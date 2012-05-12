@@ -20,9 +20,9 @@ namespace Desktop {
 
     public class OptionParser {
         
-        public static bool desktop;
-        public static bool debug;
-        public static string[] remaining;
+        public static bool      desktop;
+        public static bool      debug;
+        public static string[]  remaining;
             
         private const OptionEntry[] _option_entries = {
             
@@ -47,9 +47,11 @@ namespace Desktop {
             string[] sa_args = {};
             
             foreach (string arg in args) {
+                
                 //print ("%s\n", arg);
                 sa_args += arg;
             }
+            
             OptionContext context = new OptionContext ("");
             context.add_main_entries (_option_entries, null);
 

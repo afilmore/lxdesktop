@@ -18,10 +18,15 @@ namespace Desktop {
     public class Popup {
         
         private const Gtk.ActionEntry _default_popup_actions[] = {
+            
             {"CreateNew", null, N_("Create _New..."), "", null,                     null},
+            
             {"NewFolder", "folder", N_("Folder"), "<Ctrl><Shift>N", null,           _on_action_new_folder},
+            
             {"NewBlank", "text-x-generic", N_("Blank File"), null, null,            _on_action_new_file},
+            
             {"Paste", Gtk.Stock.PASTE, null, null, null,                            _on_action_paste},
+            
             {"Properties", Gtk.Stock.PROPERTIES, N_("Desktop Preferences"),
                            "<Alt>Return", null,                                     _on_action_proterties}
         };
@@ -107,6 +112,7 @@ namespace Desktop {
                 ui.add_ui_from_string (xml_def, -1);
             } catch (Error e) {
             }
+            
             return ui.get_widget ("/popup") as Gtk.Menu;
         }
         

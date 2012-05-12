@@ -544,6 +544,8 @@ namespace Manager {
 //~                         gtk_tree_selection_select_path (select, path);
 //~                         gtk_tree_path_free (path);
 //~                     }
+            
+            
             Gtk.TreeSelection sel = _tree_view.get_selection ();
             List<Gtk.TreePath>? sels = sel.get_selected_rows (null);
             Gtk.TreeIter it;
@@ -555,7 +557,9 @@ namespace Manager {
                 unowned Fm.FileInfo? fi;
                 global_dir_tree_model.get (it, 2, out fi, -1);
                 if (fi != null) {
+                    
                     stdout.printf ("%s\n", fi.get_disp_name ());
+                    
                     _file_menu = new Fm.FileMenu.for_file (this, fi, _tree_view.get_cwd (), false);
 
                     // Merge Specific Folder Menu Items...
