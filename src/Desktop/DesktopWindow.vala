@@ -1109,7 +1109,7 @@ namespace Desktop {
             
             // Create The Popup Menu.
             _file_menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), false);
-            
+            _file_menu.set_folder_func ((Fm.LaunchFolderFunc) this.action_open_folder_func);
             Gtk.ActionGroup act_grp = _file_menu.get_action_group ();
             act_grp.set_translation_domain ("");
             
@@ -1128,6 +1128,43 @@ namespace Desktop {
          * 
          * 
          ******************************************************************************************/
+public bool action_open_folder_func (GLib.AppLaunchContext ctx, GLib.List<Fm.FileInfo>? folder_infos, void* user_data) {
+            
+            stdout.printf ("DesktopWindow.action_open_folder_func:\n");
+            stdout.printf ("\tAppLaunchContext = %#x \n", (uint) ctx);
+            stdout.printf ("\tGLib.List = %#x \n", (uint) folder_infos);
+            stdout.printf ("\tuser_data = %#x \n", (uint) user_data);
+            stdout.printf ("\tDesktopWindow = %#x \n", (uint) this);
+            
+            /*if (folder_infos != null) {
+                stdout.printf ("action_open_folder_func: BUG FIXED ????\n");
+                return true;
+            }*/
+            
+            
+            /* WARNING !!!
+             * There's a problem in the Vapi file definition for this function, folder_infos is given as the first
+             * parameter which is wrong of course...
+             * 
+             */
+            unowned List<Fm.FileInfo>? folder_list = (GLib.List<Fm.FileInfo>) ctx;
+            /* WARNING !!!
+             * There's a problem in the Vapi file definition for this function, folder_infos is given as the first
+             * parameter which is wrong of course...
+             * 
+             */
+            
+            
+            if (folder_list == null)
+                stdout.printf ("DesktopWindow.action_open_folder_func: GLib.List folder_infos = (null)\n");
+            
+            foreach (Fm.FileInfo fi in folder_list) {
+                
+                this._action_open_folder (fi);
+            }
+            return true;
+        }
+        
         private bool _action_open_file (Fm.FileInfo? fi) {
             
             if (fi == null)
