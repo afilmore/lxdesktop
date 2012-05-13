@@ -49,6 +49,8 @@
     
         *   Rework Popup Menus...
             
+            Add open folder function again :(
+            
             Rename LibFmCore's placeholders into something explicit
             
             ./Desktop/DesktopWindow.vala:1111:      _file_menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), false);

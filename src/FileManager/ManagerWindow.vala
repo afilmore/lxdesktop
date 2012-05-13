@@ -543,15 +543,16 @@ namespace Manager {
                     if (fi.is_dir ()) {
                         
                         this._change_directory (fi.get_path (), DirChangeCaller.NONE);
+                        //this._change_directory (fi.get_path (), DirChangeCaller.FOLDER_VIEW); // doesn't work strange..
                     
-                    /*** For Symlinks or Mount Points ???
-                         Doesn't work... conflics with opening regular files...
-                         
-                    } else if (target != "") {
-                    
-                        Fm.Path path = new Fm.Path.for_str (target);
-                        this._change_directory (path, DirChangeCaller.NONE);
-                    ***/
+                        /*** For Symlinks or Mount Points ???
+                             Doesn't work... conflics with opening regular files...
+                             
+                        } else if (target != "") {
+                        
+                            Fm.Path path = new Fm.Path.for_str (target);
+                            this._change_directory (path, DirChangeCaller.FOLDER_VIEW);
+                        ***/
                     
                     } else {
                         
