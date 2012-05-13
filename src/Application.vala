@@ -32,6 +32,7 @@ namespace Desktop {
 
     Application     global_app;
     Desktop.Config? global_config;
+    
     Desktop.Group?  global_desktop_group;
     Manager.Group?  global_manager_group;
     
@@ -128,6 +129,7 @@ namespace Desktop {
                     
                     if (global_desktop_group == null) {
                         global_desktop_group = new Desktop.Group (options.debug);
+                        
                         global_desktop_group.create_desktop ();
                         /***
                             icon_theme_changed = g_signal_connect (gtk_icon_theme_get_default(),
@@ -136,6 +138,9 @@ namespace Desktop {
                                                                    null);
                         ***/
 
+                        if (global_manager_group == null)
+                            global_manager_group = new Manager.Group (options.debug);
+                    
                         Gtk.main ();
                         
                         /***
@@ -143,6 +148,7 @@ namespace Desktop {
                             desktop_popup.destroy ();
                         ***/
                     }
+                    
                 // else create a manager window....
                 } else {
                     

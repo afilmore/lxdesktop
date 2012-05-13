@@ -1201,12 +1201,15 @@ public bool action_open_folder_func (GLib.AppLaunchContext ctx, GLib.List<Fm.Fil
             if (fi == null)
                 return false;
                 
-            if (global_manager_group == null)
+            if (global_manager_group == null) {
+                stdout.printf ("null\n");
                 global_manager_group = new Manager.Group (_debug_mode);
+            }
             
             string[] folders = {};
             folders[0] = fi.get_path ().to_str ();
             folders[1] = "";
+            
             global_manager_group.create_manager (folders);
             
             return true;
