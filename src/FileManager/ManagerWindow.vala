@@ -136,11 +136,11 @@ namespace Manager {
         
         
         // File Popup...
-        private Fm.FileMenu     _file_menu;
-        private Gtk.Menu?       _files_popup;
+//~         private Fm.FileMenu     _file_menu;
+//~         private Gtk.Menu?       _files_popup;
         
         
-        
+        private Desktop.FilePopup?     _file_popup;        
         
         
         /*** Add these later, rework the navigation history...
@@ -498,28 +498,49 @@ namespace Manager {
             Gtk.TreeIter it;
             if (global_dir_tree_model.get_iter (out it, sels.data))
             {
-                unowned Fm.FileInfo? fi;
-                global_dir_tree_model.get (it, 2, out fi, -1);
-                if (fi != null) {
+                unowned Fm.FileInfo? file_info;
+                global_dir_tree_model.get (it, 2, out file_info, -1);
+                if (file_info == null)
+                    return true;
                     
-                    stdout.printf ("%s\n", fi.get_disp_name ());
-                    
-                    _file_menu = new Fm.FileMenu.for_file (this, fi, _tree_view.get_cwd (), false);
+                /** stdout.printf ("%s\n", fi.get_disp_name ());
+                
+                _file_menu = new Fm.FileMenu.for_file (this, fi, _tree_view.get_cwd (), false);
 
-                    /** Merge Specific Folder Menu Items...
-                    if (_file_menu.is_single_file_type () && fi.is_dir ()) {
-                        Gtk.UIManager ui = _file_menu.get_ui ();
-                        Gtk.ActionGroup action_group = _file_menu.get_action_group ();
-                        action_group.add_actions (_folder_menu_actions, null);
-                        try {
-                            ui.add_ui_from_string (global_folder_menu_xml, -1);
-                        } catch (Error e) {
-                        }
-                    }**/
-
-                    _files_popup = _file_menu.get_menu ();
-                    _files_popup.popup (null, null, null, 3, Gtk.get_current_event_time ());
+                 Merge Specific Folder Menu Items...
+                if (_file_menu.is_single_file_type () && fi.is_dir ()) {
+                    Gtk.UIManager ui = _file_menu.get_ui ();
+                    Gtk.ActionGroup action_group = _file_menu.get_action_group ();
+                    action_group.add_actions (_folder_menu_actions, null);
+                    try {
+                        ui.add_ui_from_string (global_folder_menu_xml, -1);
+                    } catch (Error e) {
+                    }
                 }
+
+                _files_popup = _file_menu.get_menu ();
+                _files_popup.popup (null, null, null, 3, Gtk.get_current_event_time ());
+                
+                **/
+                
+                //return true;
+                
+                if (_file_popup == null)
+                    _file_popup = new Desktop.FilePopup ();
+                
+                Fm.FileInfoList<Fm.FileInfo> files = new Fm.FileInfoList<Fm.FileInfo> ();
+                
+                files.push_tail (file_info);
+                
+                Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _folder_view.get_cwd (), files, null);
+                
+                if (menu != null)
+                    menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
+    
+                
+                
+                
+                
             }
             return true;
         }
@@ -577,10 +598,10 @@ namespace Manager {
                     // File/Folder Contextual Menu...
                     if (fi != null) {
                         
-                        Fm.FileInfoList files = _folder_view.get_selected_files ();
+                        /**Fm.FileInfoList files = _folder_view.get_selected_files ();
                         _file_menu = new Fm.FileMenu.for_files (this, files, _folder_view.get_cwd (), false);
 
-                        /** Merge Specific Folder Menu Items...
+                         Merge Specific Folder Menu Items...
                         if (_file_menu.is_single_file_type () && fi.is_dir ()) {
                             Gtk.UIManager ui = _file_menu.get_ui ();
                             Gtk.ActionGroup action_group = _file_menu.get_action_group ();
@@ -589,10 +610,31 @@ namespace Manager {
                                 ui.add_ui_from_string (global_folder_menu_xml, -1);
                             } catch (Error e) {
                             }
-                        }**/
+                        }
 
                         _files_popup = _file_menu.get_menu ();
                         _files_popup.popup (null, null, null, 3, Gtk.get_current_event_time ());
+                        **/
+                    
+                    
+                    
+                        if (_file_popup == null)
+                            _file_popup = new Desktop.FilePopup ();
+                        
+                        Fm.FileInfoList<Fm.FileInfo>? files = _folder_view.get_selected_files ();
+                        if (files == null)
+                            return;
+                        
+                        Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _folder_view.get_cwd (), files, null);
+                        
+                        if (menu != null)
+                            menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
+            
+
+                    
+                    
+                    
+                    
                     
                     // Default Contextual Menu...
                     } else {
