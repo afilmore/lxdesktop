@@ -30,6 +30,7 @@ gtk_SOURCES = \
 
 lxdesktop_SOURCES = \
 	Common/DesktopConfig.vala \
+	Common/DesktopFilePopup.vala \
 	Common/DesktopPopup.vala \
 	Common/OptionsParser.vala \
 	Common/Utils.vala \

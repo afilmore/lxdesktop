@@ -80,14 +80,24 @@ namespace Desktop {
          *
          ********************************************************************************/
         
+        
+        
         // Desktop Popup...
         private Desktop.Popup?  _desktop_popup_class;
         private bool            _show_wm_menu = false;  /*** Show the window manager's menu ***/
         private Gtk.Menu?       _desktop_popup;
-        private Gtk.Menu?       _popup_menu;
         
         
-        private Fm.FileMenu     _file_menu;             // Doesn't work if not global........
+        
+        
+        // File Popup...
+//~         private Fm.FileMenu     _file_menu;             // Doesn't work if not global........
+//~         private Gtk.Menu?       _popup_menu;
+        private Desktop.FilePopup?     _file_popup;             // Doesn't work if not global........
+        //Gtk.Menu menu;
+        
+        
+        
         
         public Window () {
             
@@ -1102,7 +1112,7 @@ namespace Desktop {
             Gtk.UIManager ui = _file_menu.get_ui ();
             Fm.FileInfo? fi = files.peek_head ();
             ***/
-            
+/**            
             Fm.FileInfoList<Fm.FileInfo>? files = _grid.get_selected_files ();
             if (files == null)
                 return;
@@ -1114,9 +1124,19 @@ namespace Desktop {
             act_grp.set_translation_domain ("");
             
             _popup_menu = _file_menu.get_menu ();
+**/
+
+            if (_file_popup == null)
+                _file_popup = new Desktop.FilePopup ();
             
-            if (_popup_menu != null)
-                _popup_menu.popup (null, null, null, 3, evt.time);
+            Fm.FileInfoList<Fm.FileInfo>? files = _grid.get_selected_files ();
+            if (files == null)
+                return;
+            
+            Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, Fm.Path.get_desktop(), files, this.action_open_folder_func);
+            
+            if (menu != null)
+                menu.popup (null, null, null, 3, evt.time);
             
             return;
         }
@@ -1128,13 +1148,15 @@ namespace Desktop {
          * 
          * 
          ******************************************************************************************/
-public bool action_open_folder_func (GLib.AppLaunchContext ctx, GLib.List<Fm.FileInfo>? folder_infos, void* user_data) {
+        public bool action_open_folder_func (GLib.AppLaunchContext ctx, GLib.List<Fm.FileInfo>? folder_infos,
+                                             void *user_data) {
             
             stdout.printf ("DesktopWindow.action_open_folder_func:\n");
             stdout.printf ("\tAppLaunchContext = %#x \n", (uint) ctx);
             stdout.printf ("\tGLib.List = %#x \n", (uint) folder_infos);
             stdout.printf ("\tuser_data = %#x \n", (uint) user_data);
             stdout.printf ("\tDesktopWindow = %#x \n", (uint) this);
+            
             
             /*if (folder_infos != null) {
                 stdout.printf ("action_open_folder_func: BUG FIXED ????\n");
@@ -1147,7 +1169,7 @@ public bool action_open_folder_func (GLib.AppLaunchContext ctx, GLib.List<Fm.Fil
              * parameter which is wrong of course...
              * 
              */
-            unowned List<Fm.FileInfo>? folder_list = (GLib.List<Fm.FileInfo>) ctx;
+            unowned List<Fm.FileInfo>? folder_list = (GLib.List<Fm.FileInfo>) folder_infos;
             /* WARNING !!!
              * There's a problem in the Vapi file definition for this function, folder_infos is given as the first
              * parameter which is wrong of course...
@@ -1158,6 +1180,7 @@ public bool action_open_folder_func (GLib.AppLaunchContext ctx, GLib.List<Fm.Fil
             if (folder_list == null)
                 stdout.printf ("DesktopWindow.action_open_folder_func: GLib.List folder_infos = (null)\n");
             
+            //return false;
             foreach (Fm.FileInfo fi in folder_list) {
                 
                 this._action_open_folder (fi);
@@ -1198,6 +1221,7 @@ public bool action_open_folder_func (GLib.AppLaunchContext ctx, GLib.List<Fm.Fil
         
         private bool _action_open_folder (Fm.FileInfo? fi) {
             
+            
             if (fi == null)
                 return false;
                 
@@ -1206,11 +1230,16 @@ public bool action_open_folder_func (GLib.AppLaunchContext ctx, GLib.List<Fm.Fil
                 global_manager_group = new Manager.Group (_debug_mode);
             }
             
-            string[] folders = {};
+            
+            //string test = fi.get_path ().to_str ();
+            
+            string[] folders = new string[1];
             folders[0] = fi.get_path ().to_str ();
-            folders[1] = "";
+            //folders[0] = test;
+            //folders[1] = "";
             
             global_manager_group.create_manager (folders);
+            return false;
             
             return true;
         }

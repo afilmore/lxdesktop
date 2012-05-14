@@ -125,11 +125,22 @@ namespace Manager {
         private uint            _statusbar_ctx;
         private uint            _statusbar_ctx2;
         
+        
+        
+        
+        // Desktop Popup...
+        private Desktop.Popup?  _desktop_popup_class;
+        private Gtk.Menu        _default_popup;
+        
+        
+        
+        
+        // File Popup...
         private Fm.FileMenu     _file_menu;
         private Gtk.Menu?       _files_popup;
         
-        private Desktop.Popup?  _desktop_popup_class;
-        private Gtk.Menu        _default_popup;
+        
+        
         
         
         /*** Add these later, rework the navigation history...
