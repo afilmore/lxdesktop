@@ -465,16 +465,17 @@ void fm_folder_model_get_value (GtkTreeModel *tree_model,
     {
     
         case COL_FILE_GICON:
-            g_value_set_object (value, info->icon->gicon);
+            g_value_set_object (value, fm_file_info_get_fm_icon (info)->gicon);
             break;
         
         case COL_FILE_ICON:
         {
             if ( G_UNLIKELY (!folder_item->icon) )
             {
-                if ( !info->icon )
+                if (!fm_file_info_get_fm_icon (info))
                     return;
-                folder_item->icon = fm_icon_get_pixbuf (info->icon, model->icon_size);
+                
+                folder_item->icon = fm_icon_get_pixbuf (fm_file_info_get_fm_icon (info), model->icon_size);
             }
             g_value_set_object (value, folder_item->icon);
 

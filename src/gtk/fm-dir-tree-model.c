@@ -277,7 +277,7 @@ static void fm_dir_tree_model_get_value (GtkTreeModel *tree_model, GtkTreeIter *
     {
         case FM_DIR_TREE_MODEL_COL_ICON:
         {
-            if (dir_tree_item->fi && dir_tree_item->fi->icon)
+            if (dir_tree_item->fi && fm_file_info_get_fm_icon (dir_tree_item->fi))
             {
                 g_value_set_object (value, fm_dir_tree_item_get_pixbuf (dir_tree_item, model->icon_size));
             }

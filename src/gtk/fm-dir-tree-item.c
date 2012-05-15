@@ -146,7 +146,7 @@ GdkPixbuf *fm_dir_tree_item_get_pixbuf (FmDirTreeItem *dir_tree_item, int icon_s
     g_return_val_if_fail (dir_tree_item->fi, NULL);
     
     if (!dir_tree_item->icon)
-        dir_tree_item->icon = fm_icon_get_pixbuf (dir_tree_item->fi->icon, MAX (icon_size, 16));
+        dir_tree_item->icon = fm_icon_get_pixbuf (fm_file_info_get_fm_icon (dir_tree_item->fi), MAX (icon_size, 16));
     
     return dir_tree_item->icon;
 }
