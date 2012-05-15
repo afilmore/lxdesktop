@@ -1,5 +1,8 @@
-// An old copy of the manager Window, maybe useless now...
+// An old copy of the manager Window...
+// Created when merging the file manager:
+// https://github.com/afilmore/lxdesktop/tree/573edbb9b3e156a72e8656c1d16f0af4c0b8f59f
 
+// Maybe useless now...
 
 
 namespace Manager {
