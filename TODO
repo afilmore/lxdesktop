@@ -18,6 +18,8 @@
     
     -   LibFmCore's Code Cleanup
     
+        *   Do some cleanup in gtk/fm-file-menu gtk-dlg/fm-gtk-launcher
+        
         *   How to disable these warnings in LibFmCore:
             base/fm-file-info-list.c:32:1: warning: initialization from incompatible pointer type [enabled by default]
             base/fm-path-list.c:36:1: warning: initialization from incompatible pointer type [enabled by default]
@@ -47,9 +49,11 @@
     
     -   Desktop
     
+        *   Add Notebook Tabs...
+        
+        *   Integrate A Vala Terminal...
+    
         *   Rework Popup Menus...
-            
-            Add open folder function again :(
             
             Rename LibFmCore's placeholders into something explicit
             
@@ -59,34 +63,33 @@
             
             ./FileManager/ManagerWindow.vala:636:   _file_menu = new Fm.FileMenu.for_files (this, files, _folder_view.get_cwd (), false);
             
-            Create a class like the Desktop.Popup () ...
-            
             Add Restaure from Trash Can...
             Avoid the folder view to browser more than one level in the Trash Can...
             The Default Action must be "Restaure", Open must be disabled...
             
-        *   Remove all actions and menus that are not implemented to cleanup the interface a bit...
-        
-        *   Do some cleanup in src/TEMP
-        
-            Split old TEMP files into smallest ones and by cathegories, Manager, Desktop, Grid, GTK2... etc...
-        
-        *   Enable StatusBar Infos...
-        
-        *   Add Notebook Tabs...
-        
-        *   Integrate A Vala Terminal...
-    
         *   Handle Special Items Icons....
     
         *   Analyse FmFileInfo usage, handle custom icons for special items...
     
+        *   Enable StatusBar Infos...
+        
         *   Fix thumbnail bug...
 
         *   A bug in Vala bindings ?
             
             Desktop/DesktopWindow.vala:252.32-252.35: warning: Argument 3: Cannot pass null to non-null parameter type
     
+        
+        *   [DONE] Split old TEMP files into smallest ones and by cathegories, Manager, Desktop, Grid, GTK2... etc...
+        
+        *   [DONE] Create a class like the Desktop.Popup () ...
+            
+        *   [DONE] Add open folder function again :(
+            
+        *   [DONE] Remove all actions and menus that are not implemented to cleanup the interface a bit...
+        
+        *   [DONE] Do some cleanup in src/TEMP
+        
     
  ----------------------------------------------------------------------------------------------------------------------
     
@@ -122,6 +125,8 @@
         *   Add Archivers Popup...
         
         *   Enable thumbnails...
+        
+        *   Add more settings for the file manager, desktop window and so...
         
         
  ----------------------------------------------------------------------------------------------------------------------
