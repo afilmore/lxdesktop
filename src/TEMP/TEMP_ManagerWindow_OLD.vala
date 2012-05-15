@@ -1,19 +1,7 @@
-/***********************************************************************************************************************
- * ManagerWindow.vala
- * 
- * Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License Version 2.
- * http://www.gnu.org/licenses/gpl-2.0.txt
- * 
- * This software is a simple file manager originally based on LibFm Demo :
- * http://pcmanfm.git.sourceforge.net/git/gitweb.cgi?p=pcmanfm/libfm;a=blob;f=src/demo/main-win.c
- * 
- * Purpose: 
- * 
- * 
- **********************************************************************************************************************/
+// An old copy of the manager Window, maybe useless now...
+
+
+
 namespace Manager {
     
     

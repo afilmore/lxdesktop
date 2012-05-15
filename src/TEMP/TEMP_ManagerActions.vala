@@ -1,3 +1,6 @@
+// Manager Actions Moved Here, will be merged back progressivelly...
+
+
     private const string global_main_menu_xml = """
         <menubar>
           <menu action='FileMenu'>
