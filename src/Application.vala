@@ -30,11 +30,12 @@ uint global_num_windows = 0;
 
 namespace Desktop {
 
-    Application     global_app;
-    Desktop.Config? global_config;
+    Application             global_app;
+    Desktop.Config?         global_config;
     
-    Desktop.Group?  global_desktop_group;
-    Manager.Group?  global_manager_group;
+    Desktop.Group?          global_desktop_group;
+    Manager.Group?          global_manager_group;
+    Desktop.VolumeMonitor?  global_volume_monitor;
     
     public class Application : GLib.Application {
         
@@ -123,8 +124,11 @@ namespace Desktop {
             
                 Gtk.init (ref args);
                 Fm.init (global_config);
+                
                 /*** fm_volume_manager_init (); ***/
-
+                global_volume_monitor = new Desktop.VolumeMonitor ();
+                
+                
                 if (options.desktop) {
                     
                     if (global_desktop_group == null) {

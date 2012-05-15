@@ -32,6 +32,7 @@ lxdesktop_SOURCES = \
 	Common/DesktopConfig.vala \
 	Common/DesktopFilePopup.vala \
 	Common/DesktopPopup.vala \
+	Common/DesktopVolumeMonitor.vala \
 	Common/OptionsParser.vala \
 	Common/Utils.vala \
 	Common/xlib.c \

@@ -628,11 +628,45 @@ namespace Manager {
                         // FIXME_axl: doesn't work with DirChangeCaller.FOLDER_VIEW...
                         this._change_directory (fi.get_path (), DirChangeCaller.NONE);
                              
-                    } else if (target != null && target != "") {
-                    
-                        //stdout.printf ("target = %s\n", target);
-                        Fm.Path path = new Fm.Path.for_str (target);
-                        this._change_directory (path, DirChangeCaller.NONE);
+                    } else if (fi.is_mountable ()) {
+                        
+                        if (target == null) {
+                        
+                            stdout.printf ("mountable = null !!!!\n");
+                            
+                            /*
+                            GFile* gf;
+                            Mount mnt = Volume.get_mount (item->vol);
+                            if(!mnt)
+                            {
+                                GtkWindow* parent = GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(view)));
+                                if(!fm_mount_volume(parent, item->vol, TRUE))
+                                    return;
+                                mnt = g_volume_get_mount(item->vol);
+                                if(!mnt)
+                                {
+                                    g_debug("GMount is invalid after successful g_volume_mount().\nThis is quite possibly a gvfs bug.\nSee https://bugzilla.gnome.org/show_bug.cgi?id=552168");
+                                    return;
+                                }
+                            }
+                            gf = g_mount_get_root(mnt);
+                            g_object_unref(mnt);
+                            if(gf)
+                            {
+                                path = fm_path_new_for_gfile(gf);
+                                g_object_unref(gf);
+                            }
+                            else
+                                path = NULL;
+                            */
+
+                        } else {
+                        
+                            //stdout.printf ("target = %s\n", target);
+                            Fm.Path path = new Fm.Path.for_str (target);
+                            this._change_directory (path, DirChangeCaller.NONE);
+                        
+                        }
                     
                     } else {
                         

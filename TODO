@@ -49,6 +49,8 @@
     
     -   Desktop
     
+        *   Create a global volume monitor class, mount volumes on startup...
+    
         *   Fix thumbnail bug...
 
         *   A bug in Vala bindings ?
