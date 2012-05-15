@@ -115,11 +115,18 @@ namespace Manager {
         ***/
 
         private Gtk.UIManager   _ui;
+        
         private Gtk.Toolbar     _toolbar;
+        
         private Fm.PathEntry    _path_entry;
+        
         private Gtk.HPaned      _hpaned;
+        
         private Fm.DirTreeView  _tree_view;
-        private Fm.FolderView   _folder_view;
+        
+        private Gtk.Notebook    _notebook;
+        private Fm.FolderView   _current_folder_view;
+        
         private Gtk.Statusbar   _statusbar;
         private Gtk.Frame       _vol_status;
         private uint            _statusbar_ctx;
@@ -329,7 +336,21 @@ namespace Manager {
             _tree_view.directory_changed.connect (_tree_view_on_change_directory);
             _tree_view.button_release_event.connect (_tree_view_on_button_release);
             
-            // Create The Folder View...
+            
+            
+            _notebook = new Gtk.Notebook ();
+            /*var right_box = new HBox (false, 0);
+            right_box.show ();
+            notebook.set_action_widget (right_box, PackType.END);
+            */
+            _notebook.set_scrollable (true);
+            _notebook.can_focus = false;
+            _notebook.set_group_name ("file manager");
+            
+            
+            
+            
+            /* Create The Folder View...
             _folder_view = new Fm.FolderView (Fm.FolderViewMode.LIST_VIEW);
             
             _folder_view.set_show_hidden (true);
@@ -338,10 +359,18 @@ namespace Manager {
             
             _folder_view.clicked.connect        (_folder_view_on_file_clicked);
             _folder_view.loaded.connect         (_folder_view_on_view_loaded);
-            _folder_view.sel_changed.connect    (_folder_view_on_sel_changed);
+            _folder_view.sel_changed.connect    (_folder_view_on_sel_changed);*/
 
-            _hpaned.add2 (_folder_view);
+            
+            
+            _hpaned.add2 (_notebook);
 
+            this._new_tab ();
+            
+            
+            
+            
+            
             // Create The Statusbar...
             _statusbar = new Gtk.Statusbar ();
             
@@ -362,7 +391,7 @@ namespace Manager {
             // Add The Container To The Main Window...
             this.add (main_vbox);
             
-            _folder_view.grab_focus ();
+            _current_folder_view.grab_focus ();
 
             
             
@@ -384,6 +413,28 @@ namespace Manager {
             return true;
         }
         
+        private void _new_tab () {
+            
+            // Create The Folder View...
+            Fm.FolderView folder_view = new Fm.FolderView (Fm.FolderViewMode.LIST_VIEW);
+            
+            folder_view.set_show_hidden (true);
+            folder_view.sort (Gtk.SortType.ASCENDING, Fm.FileColumn.NAME);
+            folder_view.set_selection_mode (Gtk.SelectionMode.MULTIPLE);
+            
+            folder_view.clicked.connect        (_folder_view_on_file_clicked);
+            folder_view.loaded.connect         (_folder_view_on_view_loaded);
+            folder_view.sel_changed.connect    (_folder_view_on_sel_changed);
+            
+            int new_page = _notebook.get_current_page () + 1;
+            _notebook.append_page (folder_view);
+            _notebook.set_tab_reorderable (_notebook.get_nth_page (new_page), true);
+            _notebook.set_tab_detachable (_notebook.get_nth_page (new_page), true);
+            
+            _current_folder_view = folder_view;
+
+        }
+
         private void _change_directory (Fm.Path path, 
                                         DirChangeCaller caller = DirChangeCaller.NONE,
                                         bool save_history = false) {
@@ -425,7 +476,7 @@ namespace Manager {
             }
             
             if (caller != DirChangeCaller.FOLDER_VIEW)
-                _folder_view.chdir (path);
+                _current_folder_view.chdir (path);
             
             /***
             
@@ -532,7 +583,7 @@ namespace Manager {
                 
                 files.push_tail (file_info);
                 
-                Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _folder_view.get_cwd (), files, null);
+                Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _current_folder_view.get_cwd (), files, null);
                 
                 if (menu != null)
                     menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
@@ -621,11 +672,11 @@ namespace Manager {
                         if (_file_popup == null)
                             _file_popup = new Desktop.FilePopup ();
                         
-                        Fm.FileInfoList<Fm.FileInfo>? files = _folder_view.get_selected_files ();
+                        Fm.FileInfoList<Fm.FileInfo>? files = _current_folder_view.get_selected_files ();
                         if (files == null)
                             return;
                         
-                        Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _folder_view.get_cwd (), files, null);
+                        Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _current_folder_view.get_cwd (), files, null);
                         
                         if (menu != null)
                             menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
@@ -763,7 +814,7 @@ namespace Manager {
 
         private void _on_go_up (Gtk.Action act) {
 
-            Fm.Path parent = _folder_view.get_cwd ().get_parent ();
+            Fm.Path parent = _current_folder_view.get_cwd ().get_parent ();
             
             if (parent != null)
                 this._change_directory (parent);
