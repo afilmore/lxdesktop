@@ -41,13 +41,26 @@
         
         *   Maybe merge base/fm-icon and gtk/fm-icon-pixbuf.....
             Not sure, need to study the code...
-    
+        
     
  ----------------------------------------------------------------------------------------------------------------------
     
     []  
     
     -   Desktop
+    
+        *   Fix thumbnail bug...
+
+        *   A bug in Vala bindings ?
+            
+            Desktop/DesktopWindow.vala:252.32-252.35: warning: Argument 3: Cannot pass null to non-null parameter type
+    
+        
+ ----------------------------------------------------------------------------------------------------------------------
+    
+    []  
+    
+    -   File Manager
     
         *   Add Notebook Tabs...
         
@@ -64,8 +77,14 @@
             ./FileManager/ManagerWindow.vala:636:   _file_menu = new Fm.FileMenu.for_files (this, files, _folder_view.get_cwd (), false);
             
             Add Restaure from Trash Can...
-            Avoid the folder view to browser more than one level in the Trash Can...
             The Default Action must be "Restaure", Open must be disabled...
+            
+            Avoid the folder view to browser more than one level in the Trash Can...
+            
+            Show Rename only for single files...
+            
+            Create Properties Dialogs for virtual items, Trash Can, My Computer etc...
+        
             
         *   Handle Special Items Icons....
     
@@ -73,12 +92,7 @@
     
         *   Enable StatusBar Infos...
         
-        *   Fix thumbnail bug...
-
-        *   A bug in Vala bindings ?
-            
-            Desktop/DesktopWindow.vala:252.32-252.35: warning: Argument 3: Cannot pass null to non-null parameter type
-    
+        
         
         *   [DONE] Split old TEMP files into smallest ones and by cathegories, Manager, Desktop, Grid, GTK2... etc...
         
