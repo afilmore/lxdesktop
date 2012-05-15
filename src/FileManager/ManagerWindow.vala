@@ -617,25 +617,22 @@ namespace Manager {
                 // Double click on an item in the Folder View...
                 case Fm.FolderViewClickType.ACTIVATED: {
                     
-                    //string target = fi.get_target ();
-                    
                     if (fi == null)
                         return;
+                    
+                    string? target = fi.get_target ();
                     
                     // A directory...
                     if (fi.is_dir ()) {
                         
+                        // FIXME_axl: doesn't work with DirChangeCaller.FOLDER_VIEW...
                         this._change_directory (fi.get_path (), DirChangeCaller.NONE);
-                        //this._change_directory (fi.get_path (), DirChangeCaller.FOLDER_VIEW); // doesn't work strange..
-                    
-                        /*** For Symlinks or Mount Points ???
-                             Doesn't work... conflics with opening regular files...
                              
-                        } else if (target != "") {
-                        
-                            Fm.Path path = new Fm.Path.for_str (target);
-                            this._change_directory (path, DirChangeCaller.FOLDER_VIEW);
-                        ***/
+                    } else if (target != null && target != "") {
+                    
+                        //stdout.printf ("target = %s\n", target);
+                        Fm.Path path = new Fm.Path.for_str (target);
+                        this._change_directory (path, DirChangeCaller.NONE);
                     
                     } else {
                         
