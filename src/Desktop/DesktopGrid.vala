@@ -739,6 +739,37 @@ namespace Desktop {
             return;    
         }
         
+        public void on_row_changed (Gtk.TreePath tp, Gtk.TreeIter it) {
+            
+            // This callback loads Desktop thumbnails...
+            
+            
+            // Get the pixbuf and FileInfo...
+            Gdk.Pixbuf pixbuf;
+            Fm.FileInfo fi = null;
+            global_model.get (it, Fm.FileColumn.ICON, out pixbuf, Fm.FileColumn.INFO, out fi, -1);
+            
+            // Find the corresponding Desktop Item and set the thumbnail pixbuf...
+            foreach (Desktop.Item item in _grid_items) {
+                
+                Fm.FileInfo? item_fi = item.get_fileinfo ();
+                
+                if (item_fi != null && (fi.get_disp_name () == item_fi.get_disp_name ())) {
+                
+                    //stdout.printf ("found : %s\n", item_fi.get_disp_name ());
+                
+                    if (item.icon != null)
+                        item.icon = null;   // Is it needed to unref the old pixbuf ??? g_object_unref (item.icon);
+                        
+                    item.icon = pixbuf;
+                    
+                    item.invalidate_rect (_window);
+                }
+            }
+            
+            return;
+        }
+
         
         /*******************************************************************************************
          * Load/Save the position of Items.

@@ -1,20 +1,13 @@
-
-
 /***********************************************************************************************************************
  * Grid Model Functions....
  * 
  * 
  **********************************************************************************************************************/
 public void on_row_changed (Gtk.TreePath tp, Gtk.TreeIter it) {
+        
+    // the original crap use an iterator...
+    // this is used to set thumbnail images to the Desktop grid...
     
-    stdout.printf ("on_row_changed\n");
-    
-    return; // needs testing...
-
-    /********************************************
-     * We don't have the item's TreeIter... :(
-     * 
-     * 
     foreach (Desktop.Item item in _grid_items) {
         
         if (item.it.user_data == it.user_data) {
@@ -33,12 +26,10 @@ public void on_row_changed (Gtk.TreePath tp, Gtk.TreeIter it) {
             
             return;
         }
-        
-        
-    }*/
-    
-    return;
+    }
 }
+
+
 
 public void on_rows_reordered (Gtk.TreePath parent_tp, Gtk.TreeIter? parent_it, void* new_order) {
     

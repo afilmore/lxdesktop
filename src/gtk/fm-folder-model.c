@@ -880,6 +880,7 @@ void fm_folder_model_file_changed (FmFolderModel *model, FmFileInfo *file)
         return;
 
     items_it = g_sequence_get_begin_iter (model->items);
+    
     /* FIXME_pcm: write a  GCompareDataFunc for this */
     while ( !g_sequence_iter_is_end (items_it) )
     {

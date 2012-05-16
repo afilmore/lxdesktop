@@ -212,7 +212,9 @@ namespace Desktop {
             global_model.row_deleted.connect (this.get_grid ().on_row_deleted);
             
             // FIXME_axl: this is used for thumnails loading....
-            /*** global_model.row_changed.connect (this.get_grid ().on_row_changed);        ***/
+            /*** ***/
+            
+            global_model.row_changed.connect (this.get_grid ().on_row_changed);        
             
             /*** global_model.rows_reordered.connect (this.get_grid ().on_rows_reordered);  ***/
             
