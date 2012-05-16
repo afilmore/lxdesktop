@@ -18,6 +18,8 @@
     
     -   LibFmCore's Code Cleanup
     
+        *   Split fm-utils.c into fm_mount.c... etc...
+        
         *   Do some cleanup in fm-file-info-job.c
         
         *   Do some cleanup in gtk/fm-file-menu gtk-dlg/fm-gtk-launcher
