@@ -19,9 +19,9 @@
     
     -   General
     
-        *   Remove GTK2 from configure.ac...
-        
         *   Add some specific DEBUG messages defined in the configure.ac...
+        
+        *   Remove GTK2 from configure.ac...
         
         
  ----------------------------------------------------------------------------------------------------------------------
@@ -32,16 +32,11 @@
     
         *   Split fm-utils.c into fm_mount.c... etc...
         
-        *   Do some cleanup in fm-file-info-job.c
-        
         *   Do some cleanup in gtk/fm-file-menu gtk-dlg/fm-gtk-launcher
         
-        *   How to disable these warnings in LibFmCore:
-            base/fm-file-info-list.c:32:1: warning: initialization from incompatible pointer type [enabled by default]
-            base/fm-path-list.c:36:1: warning: initialization from incompatible pointer type [enabled by default]
-            
-            These are the only warnings in the lib, all over warnings have been corrected. :)
-    
+        
+        *   Do some cleanup in fm-file-info-job.c.. later, test new functions first...
+        
         
         *   FmFileInfo: [DONE] Rename icon, type, and fi into fm_icon, mime_type and file_info...
                         [DONE] fm_file_info_new () should be private...
@@ -51,6 +46,12 @@
         *   [DONE] Add fm_foreach function to base utils...
         
         
+        *   How to disable these warnings in LibFmCore:
+            base/fm-file-info-list.c:32:1: warning: initialization from incompatible pointer type [enabled by default]
+            base/fm-path-list.c:36:1: warning: initialization from incompatible pointer type [enabled by default]
+            
+            These are the only warnings in the lib, all over warnings have been corrected. :)
+    
         *   Maybe merge base/fm-icon and gtk/fm-icon-pixbuf.....
             Not sure, need to study the code...
         *   Merge fm-monitor and fm-dummy-monitor ? not sure, keep it like this...
