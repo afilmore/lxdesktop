@@ -37,7 +37,8 @@
 
 G_BEGIN_DECLS
 
-inline void _g_list_foreach_l (GList *list, GFunc func, gpointer user_data);
+// TODO_axl: test and remove...
+//~ inline void _g_list_foreach_l (GList *list, GFunc func, gpointer user_data);
 
 typedef struct _FmDirTreeItem FmDirTreeItem;
 struct _FmDirTreeItem

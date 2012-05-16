@@ -138,7 +138,9 @@ static void fm_dir_tree_model_finalize (GObject *object)
 
     model = FM_DIR_TREE_MODEL (object);
 
-    _g_list_foreach_l (model->roots, (GFunc)fm_dir_tree_item_free_l, NULL);
+    // TODO_axl: test and remove...
+    //_g_list_foreach_l (model->roots, (GFunc)fm_dir_tree_item_free_l, NULL);
+    fm_foreach (model->roots, (GFunc) fm_dir_tree_item_free_l, NULL);
     g_list_free (model->roots);
 
     // Check Subdirectories...

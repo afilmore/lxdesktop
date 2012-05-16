@@ -35,8 +35,10 @@
 #include "fm-dir-tree-item.h"
 #include "fm-icon-pixbuf.h"
 
-//#include "fm-utils.h"
+#include "fm-utils.h"
 
+
+// TODO_axl: test and remove...
 /*********************************************************************
  * Free Item List Functions...
  * _g_list_foreach_l is a variant of g_list_foreach which passes
@@ -45,15 +47,15 @@
  * 
  * 
  ********************************************************************/
-inline void _g_list_foreach_l (GList *list, GFunc func, gpointer user_data)
-{
-    while (list)
-    {
-        GList *next = list->next;
-        (*func) (list, user_data);
-        list = next;
-    }
-}
+//~ inline void _g_list_foreach_l (GList *list, GFunc func, gpointer user_data)
+//~ {
+    //~ while (list)
+    //~ {
+        //~ GList *next = list->next;
+        //~ (*func) (list, user_data);
+        //~ list = next;
+    //~ }
+//~ }
 
 
 // Forward declarations...
@@ -106,7 +108,9 @@ inline void fm_dir_tree_item_free (FmDirTreeItem *dir_tree_item)
 
     if (dir_tree_item->children)
     {
-        _g_list_foreach_l (dir_tree_item->children, (GFunc)fm_dir_tree_item_free_l, NULL);
+        // TODO_axl: test and remove...
+        //_g_list_foreach_l (dir_tree_item->children, (GFunc)fm_dir_tree_item_free_l, NULL);
+        fm_foreach (dir_tree_item->children, (GFunc) fm_dir_tree_item_free_l, NULL);
         g_list_free (dir_tree_item->children);
     }
     
