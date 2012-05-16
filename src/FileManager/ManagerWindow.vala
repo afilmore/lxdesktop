@@ -634,6 +634,8 @@ namespace Manager {
                         
                             stdout.printf ("mountable = null !!!!\n");
                             
+                            Desktop.global_volume_monitor.test (this, fi);
+                            
                             /*
                             GFile* gf;
                             Mount mnt = Volume.get_mount (item->vol);

@@ -18,6 +18,8 @@
     
     -   LibFmCore's Code Cleanup
     
+        *   Do some cleanup in fm-file-info-job.c
+        
         *   Do some cleanup in gtk/fm-file-menu gtk-dlg/fm-gtk-launcher
         
         *   How to disable these warnings in LibFmCore:
