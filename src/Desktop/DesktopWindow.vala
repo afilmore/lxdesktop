@@ -304,9 +304,18 @@ namespace Desktop {
             }
             
             //this.set_background ();
+            
+//~             Desktop.set_background (this,
+//~                                     global_config.wallpaper,
+//~                                     global_config.wallpaper_mode,
+//~                                     global_config.color_background);
+            
+            
+            string wall = "/home/hotnuma/Bureau/Wallpapers/at-the-beach-hd-wallpaper-1440x900.jpg";
+            
             Desktop.set_background (this,
-                                    global_config.wallpaper,
-                                    global_config.wallpaper_mode,
+                                    wall,
+                                    Fm.WallpaperMode.TILE,
                                     global_config.color_background);
             
         }
@@ -324,9 +333,16 @@ namespace Desktop {
                 && global_config.wallpaper_mode != Fm.WallpaperMode.TILE) {
                 
                 //this.set_background ();
+//~                 Desktop.set_background (this,
+//~                                         global_config.wallpaper,
+//~                                         global_config.wallpaper_mode,
+//~                                         global_config.color_background);
+                
+                string wall = "/home/hotnuma/Bureau/Wallpapers/at-the-beach-hd-wallpaper-1440x900.jpg";
+                
                 Desktop.set_background (this,
-                                        global_config.wallpaper,
-                                        global_config.wallpaper_mode,
+                                        wall,
+                                        Fm.WallpaperMode.TILE,
                                         global_config.color_background);
             }
 

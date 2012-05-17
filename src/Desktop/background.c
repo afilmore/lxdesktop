@@ -17,6 +17,10 @@
 #include <gdk/gdkx.h>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
+
+#include <cairo.h>
+#include <cairo-xlib.h>
+
 #include <math.h>
 
 #include <fm.h>
@@ -31,7 +35,7 @@ void desktop_set_background (GtkWidget *desktop, gchar *wallpaper, FmWallpaperMo
                              GdkColor *color_background)
 {
     
-    GdkPixbuf *pix;
+    GdkPixbuf *pixbuf;
 
     
     GdkWindow *root = gdk_screen_get_root_window (gtk_widget_get_screen (desktop));
@@ -40,7 +44,7 @@ void desktop_set_background (GtkWidget *desktop, gchar *wallpaper, FmWallpaperMo
     if (wallpaper_mode == FM_WP_COLOR
        || !wallpaper
        || !*wallpaper
-       || !(pix = gdk_pixbuf_new_from_file (wallpaper, NULL)))
+       || !(pixbuf = gdk_pixbuf_new_from_file (wallpaper, NULL)))
     {
         //GdkColor bg = color_background;
 
@@ -60,28 +64,23 @@ void desktop_set_background (GtkWidget *desktop, gchar *wallpaper, FmWallpaperMo
         return;
     }
 
-    #if 0
-    GdkPixbuf *scaled;
+//    #if 0
     
-    Pixmap pixmap_id;
-//    GdkPixmap *pixmap;
+    int src_w = gdk_pixbuf_get_width (pixbuf);
+    int src_h = gdk_pixbuf_get_height (pixbuf);
     
-    int src_w;
-    int src_h;
+    
+    cairo_surface_t *surface;
     int dest_w;
     int dest_h;
-    Display *xdisplay;
-    Pixmap xpixmap = 0;
-    Window xroot;
-    src_w = gdk_pixbuf_get_width (pix);
-    src_h = gdk_pixbuf_get_height (pix);
     
     if (wallpaper_mode == FM_WP_TILE)
     {
         dest_w = src_w;
         dest_h = src_h;
         
-        pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
+        //pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
+        surface = gdk_window_create_similar_surface (window, CAIRO_CONTENT_COLOR, dest_w, dest_h);
     
     }
     else
@@ -90,73 +89,101 @@ void desktop_set_background (GtkWidget *desktop, gchar *wallpaper, FmWallpaperMo
         dest_w = gdk_screen_get_width (screen);
         dest_h = gdk_screen_get_height (screen);
         
-        pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
+        //pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
+        surface = gdk_window_create_similar_surface (window, CAIRO_CONTENT_COLOR, dest_w, dest_h);
     }
 
-    if (gdk_pixbuf_get_has_alpha (pix)
-        || wallpaper_mode == FM_WP_CENTER
-        || wallpaper_mode == FM_WP_FIT)
-    {
-        gdk_gc_set_rgb_fg_color (desktop->gc, &color_background);
-        gdk_draw_rectangle (pixmap, desktop->gc, TRUE, 0, 0, dest_w, dest_h);
-    }
+    //~ if (gdk_pixbuf_get_has_alpha (pixbuf)
+        //~ || wallpaper_mode == FM_WP_CENTER
+        //~ || wallpaper_mode == FM_WP_FIT)
+    //~ {
+        //~ gdk_gc_set_rgb_fg_color (desktop->gc, &color_background);
+        //~ gdk_draw_rectangle (pixmap, desktop->gc, TRUE, 0, 0, dest_w, dest_h);
+    //~ }
+
+//    GdkPixbuf *scaled;
+
+    cairo_t *cr;
 
     switch (wallpaper_mode)
     {
+        case FM_WP_COLOR:
+        break;
+        
         case FM_WP_TILE:
-            gdk_draw_pixbuf (pixmap, desktop->gc, pix, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
+        
+            //gdk_draw_pixbuf (pixmap, desktop->gc, pixbuf, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
+            
+            cr = cairo_create (surface);
+            gdk_cairo_set_source_pixbuf (cr, pixbuf, 0, 0);
+            cairo_paint (cr);
+            cairo_destroy (cr);
+            
         break;
         
         case FM_WP_STRETCH:
-            if (dest_w == src_w && dest_h == src_h)
-                scaled = (GdkPixbuf*) g_object_ref (pix);
-            else
-                scaled = gdk_pixbuf_scale_simple (pix, dest_w, dest_h, GDK_INTERP_BILINEAR);
-            
-            gdk_draw_pixbuf (pixmap, desktop->gc, scaled, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
-            
-            g_object_unref (scaled);
+            //~ if (dest_w == src_w && dest_h == src_h)
+                //~ scaled = (GdkPixbuf*) g_object_ref (pixbuf);
+            //~ else
+                //~ scaled = gdk_pixbuf_scale_simple (pixbuf, dest_w, dest_h, GDK_INTERP_BILINEAR);
+            //~ 
+            //~ gdk_draw_pixbuf (pixmap, desktop->gc, scaled, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
+            //~ 
+            //~ g_object_unref (scaled);
         break;
         
         case FM_WP_FIT:
             
-            if (dest_w != src_w || dest_h != src_h)
-            {
-                gdouble w_ratio = (float) dest_w / src_w;
-                gdouble h_ratio = (float) dest_h / src_h;
-                gdouble ratio = MIN (w_ratio, h_ratio);
-                
-                if (ratio != 1.0)
-                {
-                    src_w *= ratio;
-                    src_h *= ratio;
-                    
-                    scaled = gdk_pixbuf_scale_simple (pix, src_w, src_h, GDK_INTERP_BILINEAR);
-                    
-                    g_object_unref (pix);
-                    pix = scaled;
-                }
-            }
+            //~ if (dest_w != src_w || dest_h != src_h)
+            //~ {
+                //~ gdouble w_ratio = (float) dest_w / src_w;
+                //~ gdouble h_ratio = (float) dest_h / src_h;
+                //~ gdouble ratio = MIN (w_ratio, h_ratio);
+                //~ 
+                //~ if (ratio != 1.0)
+                //~ {
+                    //~ src_w *= ratio;
+                    //~ src_h *= ratio;
+                    //~ 
+                    //~ scaled = gdk_pixbuf_scale_simple (pixbuf, src_w, src_h, GDK_INTERP_BILINEAR);
+                    //~ 
+                    //~ g_object_unref (pixbuf);
+                    //~ pixbuf = scaled;
+                //~ }
+            //~ }
         
         case FM_WP_CENTER:
         {
-            int x;
-            int y;
-            x = (dest_w - src_w) / 2;
-            y = (dest_h - src_h) / 2;
-            
-            gdk_draw_pixbuf (pixmap, desktop->gc, pix, 0, 0, x, y, -1, -1, GDK_RGB_DITHER_NORMAL, 0, 0);
+            //~ int x;
+            //~ int y;
+            //~ x = (dest_w - src_w) / 2;
+            //~ y = (dest_h - src_h) / 2;
+            //~ 
+            //~ gdk_draw_pixbuf (pixmap, desktop->gc, pixbuf, 0, 0, x, y, -1, -1, GDK_RGB_DITHER_NORMAL, 0, 0);
         }
         break;
     }
     
-    gdk_window_set_back_pixmap (root, pixmap, FALSE);
-    gdk_window_set_back_pixmap (window, NULL, TRUE);
+    
+    Display *xdisplay;
+    Pixmap xpixmap = 0;
+    Window xroot;
+    
+    cairo_pattern_t *pattern = cairo_pattern_create_for_surface (surface);
+    
+    //gdk_window_set_back_pixmap (root, pixmap, FALSE);
+	gdk_window_set_background_pattern (root, pattern);
 
-    pixmap_id = GDK_DRAWABLE_XID (pixmap);
+    //gdk_window_set_back_pixmap (window, NULL, TRUE);
+	gdk_window_set_background_pattern (window, pattern);
+
+    cairo_pattern_destroy (pattern);
+    
+    Pixmap pixmap_id = cairo_xlib_surface_get_drawable (surface);
+    
     XChangeProperty (GDK_WINDOW_XDISPLAY (root),
                      GDK_WINDOW_XID (root),
-                     XA_XROOTMAP_ID,
+                     gdk_x11_get_xatom_by_name ("_XROOTPMAP_ID"),   //XA_XROOTMAP_ID,
                      XA_PIXMAP,
                      32,
                      PropModeReplace, 
@@ -169,9 +196,9 @@ void desktop_set_background (GtkWidget *desktop, gchar *wallpaper, FmWallpaperMo
 
     XGrabServer (xdisplay);
 
-    if (pixmap)
+    if (surface)
     {
-        xpixmap = GDK_WINDOW_XWINDOW (pixmap);
+        xpixmap = cairo_xlib_surface_get_drawable (surface);
 
         XChangeProperty (xdisplay,
                          xroot,
@@ -194,16 +221,16 @@ void desktop_set_background (GtkWidget *desktop, gchar *wallpaper, FmWallpaperMo
     XUngrabServer (xdisplay);
     XFlush (xdisplay);
 
-    g_object_unref (pixmap);
+    cairo_surface_destroy (surface);
     
-    if (pix)
-        g_object_unref (pix);
+    if (pixbuf)
+        g_object_unref (pixbuf);
 
-    gdk_window_clear (root);
-    gdk_window_clear (window);
+//    gdk_window_clear (root);
+//    gdk_window_clear (window);
     
     gdk_window_invalidate_rect (window, NULL, TRUE);
-    #endif
+//    #endif
 }
 
 
