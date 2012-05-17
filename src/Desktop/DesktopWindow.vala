@@ -16,8 +16,6 @@
  **********************************************************************************************************************/
 namespace Desktop {
     
-    extern void set_background (Gtk.Widget desktop, string wallpaper, Fm.WallpaperMode wallpaper_mode,
-                                Gdk.Color color_background);
     
     /*********************************************************************************************************
      * Drag And Drop.
@@ -303,20 +301,7 @@ namespace Desktop {
                 this.set_skip_taskbar_hint (true);
             }
             
-            //this.set_background ();
-            
-//~             Desktop.set_background (this,
-//~                                     global_config.wallpaper,
-//~                                     global_config.wallpaper_mode,
-//~                                     global_config.color_background);
-            
-            
-            string wall = "/home/hotnuma/Bureau/Wallpapers/at-the-beach-hd-wallpaper-1440x900.jpg";
-            
-            Desktop.set_background (this,
-                                    wall,
-                                    Fm.WallpaperMode.TILE,
-                                    global_config.color_background);
+            global_config.set_background (this);
             
         }
 
@@ -332,18 +317,7 @@ namespace Desktop {
                 && global_config.wallpaper_mode != Fm.WallpaperMode.COLOR
                 && global_config.wallpaper_mode != Fm.WallpaperMode.TILE) {
                 
-                //this.set_background ();
-//~                 Desktop.set_background (this,
-//~                                         global_config.wallpaper,
-//~                                         global_config.wallpaper_mode,
-//~                                         global_config.color_background);
-                
-                string wall = "/home/hotnuma/Bureau/Wallpapers/at-the-beach-hd-wallpaper-1440x900.jpg";
-                
-                Desktop.set_background (this,
-                                        wall,
-                                        Fm.WallpaperMode.TILE,
-                                        global_config.color_background);
+                global_config.set_background (this);
             }
 
             base.size_allocate (allocation);

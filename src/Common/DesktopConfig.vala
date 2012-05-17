@@ -15,6 +15,9 @@
  **********************************************************************************************************************/
 namespace Desktop {
     
+    extern void set_background (Gtk.Widget desktop, string wallpaper, Fm.WallpaperMode wallpaper_mode,
+                                Gdk.Color color_background);
+    
     public class Config : Fm.Config {
         
         
@@ -84,6 +87,16 @@ namespace Desktop {
             // Overload LibFmcore's Default Config...
             base.show_thumbnail = true;
             base.confirm_delete = false;
+        }
+        
+        public void set_background (Gtk.Widget desktop) {
+            
+            string wall = "/home/hotnuma/Bureau/Wallpapers/at-the-beach-hd-wallpaper-1440x900.jpg";
+            
+            Desktop.set_background (desktop,
+                                    wall,
+                                    Fm.WallpaperMode.TILE,
+                                    global_config.color_background);
         }
     }
 }
