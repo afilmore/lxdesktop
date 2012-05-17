@@ -42,7 +42,11 @@ namespace Desktop {
     public class SettingsDialog {
         
         private Gtk.Dialog? _dialog = null;
+        private Gtk.Widget  _owner_widget;
         
+        public SettingsDialog (Gtk.Widget owner) {
+            _owner_widget = owner;
+        }
         
         public void run () {
             
@@ -54,7 +58,7 @@ namespace Desktop {
             Gtk.Builder builder = new Gtk.Builder ();
             
             builder.add_from_string (settings_dialog_xml, -1);
-            builder.connect_signals (null);
+            builder.connect_signals (this);
             
             _dialog = builder.get_object ("dlg") as Gtk.Dialog;
 
@@ -104,6 +108,22 @@ namespace Desktop {
             
         }
         
+        [CCode (instance_pos = -1)]
+        public void _on_wallpaper_set (Gtk.FileChooserButton button)
+        {
+
+            string filename = button.get_filename ();
+            global_config.wallpaper = filename;
+            global_config.set_background (_owner_widget);
+            //stdout.printf ("%s\n", filename);
+//~ 
+//~             g_free(app_config->wallpaper);
+//~ 
+//~             app_config->wallpaper = file;
+//~             
+//~             fm_config_emit_changed(fm_config, "wallpaper");
+        }
+
         #if 0
 
         g_signal_connect (item, "file-set",             G_CALLBACK(on_wallpaper_set), null);
@@ -114,14 +134,6 @@ namespace Desktop {
         g_signal_connect (desktop_pref_dlg, "destroy",  G_CALLBACK(pcmanfm_unref), null);
 
 
-
-        static void on_wallpaper_set(GtkFileChooserButton* btn, gpointer user_data)
-        {
-            char* file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(btn));
-            g_free(app_config->wallpaper);
-            app_config->wallpaper = file;
-            fm_config_emit_changed(fm_config, "wallpaper");
-        }
 
         static void on_update_img_preview( GtkFileChooser *chooser, GtkImage* img )
         {

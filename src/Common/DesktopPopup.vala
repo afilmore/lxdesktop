@@ -142,7 +142,7 @@ namespace Desktop {
         private void _on_action_proterties (Gtk.Action action) {
             
             if (global_settings_dialog == null)
-                global_settings_dialog = new Desktop.SettingsDialog ();
+                global_settings_dialog = new Desktop.SettingsDialog (_owner_widget);
             
             global_settings_dialog.run ();
         }

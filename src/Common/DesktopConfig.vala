@@ -80,6 +80,8 @@ namespace Desktop {
         
         public Config () {
             
+            wallpaper = "/home/hotnuma/Bureau/Wallpapers/at-the-beach-hd-wallpaper-1440x900.jpg";
+            
             // Set a default background color.
             Gdk.Color.parse ("#3C6DA5", out color_background);
             Gdk.Color.parse ("#FFFFFF", out color_text);
@@ -92,10 +94,10 @@ namespace Desktop {
         
         public void set_background (Gtk.Widget desktop) {
             
-            string wall = "/home/hotnuma/Bureau/Wallpapers/at-the-beach-hd-wallpaper-1440x900.jpg";
+            //string wall = "/home/hotnuma/Bureau/Wallpapers/at-the-beach-hd-wallpaper-1440x900.jpg";
             
             Desktop.set_background (desktop,
-                                    wall,
+                                    wallpaper,
                                     Fm.WallpaperMode.TILE,
                                     global_config.color_background);
         }
