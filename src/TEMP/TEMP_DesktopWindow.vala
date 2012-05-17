@@ -1,148 +1,4 @@
-
-
-
-        /***
-        char*                 desktop_font;
-        private PangoFontDescription* font_desc = null;
-            if (desktop_font)
-                font_desc = pango_font_description_from_string (desktop_font);
-            
-        wallpaper_changed = g_signal_connect (global_config,
-                                              "changed::wallpaper",
-                                              G_CALLBACK(on_wallpaper_changed),
-                                              NULL);
-        desktop_text_changed = g_signal_connect (global_config,
-                                                 "changed::desktop_text",
-                                                 G_CALLBACK(on_desktop_text_changed),
-                                                 NULL);
-        desktop_font_changed = g_signal_connect (global_config,
-                                                 "changed::desktop_font",
-                                                 G_CALLBACK(on_desktop_font_changed),
-                                                 NULL);
-        big_icon_size_changed = g_signal_connect (global_config,
-                                                  "changed::big_icon_size",
-                                                  G_CALLBACK(on_big_icon_size_changed),
-                                                  NULL);
-                                                  
-        global_config.wallpaper_changed.disconnect ();
-        global_config.big_icon_size_changed.disconnect ();
-        global_config.desktop_text_changed.disconnect ();
-        global_config.desktop_font_changed.disconnect ();
-        private uint big_icon_size_changed = 0;
-        private uint desktop_text_changed = 0;
-        private uint desktop_font_changed = 0;
-        ***/
-        
-        
-        /*******************************************************************************************
-        private void _on_action_new_folder (Gtk.Action action) {
-            
-            Utils.filemanager_new_document (Fm.Path.get_desktop(), Utils.NewFileNameType.FOLDER);
-        }
-
-        private void _on_action_new_file (Gtk.Action action) {
-            
-            Utils.filemanager_new_document (Fm.Path.get_desktop(), Utils.NewFileNameType.FILE);
-        }
-
-        private void _on_action_paste (Gtk.Action action) {
-            
-            Fm.Path path = Fm.Path.get_desktop ();
-            Fm.Clipboard.paste_files (this, path);
-        }
-
-        private void _on_action_desktop_settings (Gtk.Action action) {
-            return;
-        }***/
-
-
-        /***************************************************************************************************************
-         * Desktop Configuration handlers.
-         *
-         **************************************************************************************************************/
-        private void _on_wallpaper_changed () {
-            
-            /***********************************************************************************************************
-             * The user changed the wallpaper in the desktop configuration dialog.
-             * 
-             * 
-            
-            for (int i=0; i < _n_screens; ++i)
-                desktops[i].update_background ();
-            
-            */
-        }
-        
-        private void _on_big_icon_size_changed () {
-            
-            /***********************************************************************************************************
-             * The user changed the icon size in the desktop configuration dialog.
-             * 
-             * 
-            
-            global_model.set_icon_size (global_config.big_icon_size);
-            
-            this._reload_icons();
-            */
-            
-            
-        }
-
-        private void _on_desktop_text_changed () {
-
-            /***********************************************************************************************************
-             * Handle text changes...
-             * FIXME_pcm: we only need to redraw text lables
-            
-            for (int i=0; i < _n_screens; ++i)
-                desktops[i].queue_draw ();
-            
-            */
-        }
-        
-        private void _on_desktop_font_changed () {
-            
-            /***********************************************************************************************************
-             * Handle font change...
-             * 
-             * 
-            font_desc = null;
-            // FIXME_pcm: this is a little bit dirty
-            if (font_desc)
-                pango_font_description_free (font_desc);
-
-            if (desktop_font) {
-                
-                font_desc = new Pango.FontDescription.from_string (desktop_font);
-                
-                if (font_desc) {
-                    int i;
-                    for (i=0; i < _n_screens; ++i) {
-                        FmDesktop* desktop = desktops[i];
-                        
-                        Pango.Context pc = this.get_pango_context ();
-                        pc.set_font_description (font_desc);
-                        this.grid._pango_layout.context_changed ();
-                        
-                        this.queue_resize ();
-                        // layout_items(desktop);
-                        // this.queue_draw(desktops[i]);
-                    }
-                }
-                
-            } else {
-                font_desc = null;
-            }
-            */
-            
-            return;
-        }
-
-
-
-
-
-/***
+/*** from pcmanfm ***
 
 public string profile;
 public bool daemon_mode = false;
@@ -205,6 +61,223 @@ public const OptionEntry[] opt_entries = {
 // { "find-files", 'f', 0, OptionArg.NONE, ref find_files, N_("Open Find Files utility"), null},
 
 private const string[] valid_wallpaper_modes = {"color", "stretch", "fit", "center", "tile"}; ***/
+
+
+
+// grid selecttions...
+
+    /***
+private void _on_action_select_all (Gtk.Action action) {
+    
+    int i;
+    for(i=0; i < n_screens; ++i)
+    {
+        FmDesktop* desktop = desktops[i];
+        select_all(desktop);
+    }
+}
+    ***/
+
+    /***
+private void _on_action_invert_select (Gtk.Action action) {
+    
+    int i;
+    for(i=0; i < n_screens; ++i)
+    {
+        FmDesktop* desktop = desktops[i];
+        GList* l;
+        for(l=desktop->items;l;l=l->next)
+        {
+            FmDesktopItem* item = (FmDesktopItem*)l->data;
+            item->is_selected = !item->is_selected;
+            invalidate_rect(desktop, item);
+        }
+}
+    }***/
+
+
+// old code...
+private void _create_popup_menu (Gdk.EventButton evt) {
+    
+    /*** merge some specific menu items for folders
+    if (_file_menu.is_single_file_type () && fi.is_dir ()) {
+        act_grp.add_actions (folder_menu_actions, _file_menu);
+        ui.add_ui_from_string (folder_menu_xml, -1);
+    }
+    act_grp.add_actions (desktop_icon_actions, this);
+    Gtk.UIManager ui = _file_menu.get_ui ();
+    Fm.FileInfo? fi = files.peek_head ();
+    ***/
+/**            
+    Fm.FileInfoList<Fm.FileInfo>? files = _grid.get_selected_files ();
+    if (files == null)
+        return;
+    
+    // Create The Popup Menu.
+    _file_menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), false);
+    _file_menu.set_folder_func ((Fm.LaunchFolderFunc) this.action_open_folder_func);
+    Gtk.ActionGroup act_grp = _file_menu.get_action_group ();
+    act_grp.set_translation_domain ("");
+    
+    _popup_menu = _file_menu.get_menu ();
+**/
+
+    if (_file_popup == null)
+        _file_popup = new Desktop.FilePopup ();
+    
+    Fm.FileInfoList<Fm.FileInfo>? files = _grid.get_selected_files ();
+    if (files == null)
+        return;
+    
+    Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, Fm.Path.get_desktop(), files, this.action_open_folder_func);
+    
+    if (menu != null)
+        menu.popup (null, null, null, 3, evt.time);
+    
+    return;
+}
+
+
+/***
+char*                 desktop_font;
+private PangoFontDescription* font_desc = null;
+    if (desktop_font)
+        font_desc = pango_font_description_from_string (desktop_font);
+    
+wallpaper_changed = g_signal_connect (global_config,
+                                      "changed::wallpaper",
+                                      G_CALLBACK(on_wallpaper_changed),
+                                      NULL);
+desktop_text_changed = g_signal_connect (global_config,
+                                         "changed::desktop_text",
+                                         G_CALLBACK(on_desktop_text_changed),
+                                         NULL);
+desktop_font_changed = g_signal_connect (global_config,
+                                         "changed::desktop_font",
+                                         G_CALLBACK(on_desktop_font_changed),
+                                         NULL);
+big_icon_size_changed = g_signal_connect (global_config,
+                                          "changed::big_icon_size",
+                                          G_CALLBACK(on_big_icon_size_changed),
+                                          NULL);
+                                          
+global_config.wallpaper_changed.disconnect ();
+global_config.big_icon_size_changed.disconnect ();
+global_config.desktop_text_changed.disconnect ();
+global_config.desktop_font_changed.disconnect ();
+private uint big_icon_size_changed = 0;
+private uint desktop_text_changed = 0;
+private uint desktop_font_changed = 0;
+***/
+        
+        
+/*******************************************************************************************
+private void _on_action_new_folder (Gtk.Action action) {
+    
+    Utils.filemanager_new_document (Fm.Path.get_desktop(), Utils.NewFileNameType.FOLDER);
+}
+
+private void _on_action_new_file (Gtk.Action action) {
+    
+    Utils.filemanager_new_document (Fm.Path.get_desktop(), Utils.NewFileNameType.FILE);
+}
+
+private void _on_action_paste (Gtk.Action action) {
+    
+    Fm.Path path = Fm.Path.get_desktop ();
+    Fm.Clipboard.paste_files (this, path);
+}
+
+private void _on_action_desktop_settings (Gtk.Action action) {
+    return;
+}***/
+
+
+/***************************************************************************************************************
+ * Desktop Configuration handlers.
+ *
+ **************************************************************************************************************/
+private void _on_wallpaper_changed () {
+    
+    /***********************************************************************************************************
+     * The user changed the wallpaper in the desktop configuration dialog.
+     * 
+     * 
+    
+    for (int i=0; i < _n_screens; ++i)
+        desktops[i].update_background ();
+    
+    */
+}
+
+private void _on_big_icon_size_changed () {
+    
+    /***********************************************************************************************************
+     * The user changed the icon size in the desktop configuration dialog.
+     * 
+     * 
+    
+    global_model.set_icon_size (global_config.big_icon_size);
+    
+    this._reload_icons();
+    */
+    
+    
+}
+
+private void _on_desktop_text_changed () {
+
+    /***********************************************************************************************************
+     * Handle text changes...
+     * FIXME_pcm: we only need to redraw text lables
+    
+    for (int i=0; i < _n_screens; ++i)
+        desktops[i].queue_draw ();
+    
+    */
+}
+
+private void _on_desktop_font_changed () {
+    
+    /***********************************************************************************************************
+     * Handle font change...
+     * 
+     * 
+    font_desc = null;
+    // FIXME_pcm: this is a little bit dirty
+    if (font_desc)
+        pango_font_description_free (font_desc);
+
+    if (desktop_font) {
+        
+        font_desc = new Pango.FontDescription.from_string (desktop_font);
+        
+        if (font_desc) {
+            int i;
+            for (i=0; i < _n_screens; ++i) {
+                FmDesktop* desktop = desktops[i];
+                
+                Pango.Context pc = this.get_pango_context ();
+                pc.set_font_description (font_desc);
+                this.grid._pango_layout.context_changed ();
+                
+                this.queue_resize ();
+                // layout_items(desktop);
+                // this.queue_draw(desktops[i]);
+            }
+        }
+        
+    } else {
+        font_desc = null;
+    }
+    */
+    
+    return;
+}
+
+
+
+
 
 /***
 private void _append_item (Desktop.Item item) {

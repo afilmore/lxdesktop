@@ -36,6 +36,7 @@ lxdesktop_SOURCES = \
 	Common/OptionsParser.vala \
 	Common/Utils.vala \
 	Common/xlib.c \
+	Desktop/background.c \
 	Desktop/DesktopGroup.vala \
 	Desktop/DesktopWindow.vala \
 	Desktop/DesktopGrid.vala \

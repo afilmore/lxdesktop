@@ -1056,7 +1056,9 @@ namespace Desktop {
             if (wallpaper_mode != Fm.WallpaperMode.COLOR) {
                 
                 try {
+                    
                     pix = new Gdk.Pixbuf.from_file (global_config.wallpaper);
+                
                 } catch (Error e) {
                 }
 
@@ -1208,29 +1210,6 @@ namespace Desktop {
          ******************************************************************************************/
         private void _create_popup_menu (Gdk.EventButton evt) {
             
-            /*** merge some specific menu items for folders
-            if (_file_menu.is_single_file_type () && fi.is_dir ()) {
-                act_grp.add_actions (folder_menu_actions, _file_menu);
-                ui.add_ui_from_string (folder_menu_xml, -1);
-            }
-            act_grp.add_actions (desktop_icon_actions, this);
-            Gtk.UIManager ui = _file_menu.get_ui ();
-            Fm.FileInfo? fi = files.peek_head ();
-            ***/
-/**            
-            Fm.FileInfoList<Fm.FileInfo>? files = _grid.get_selected_files ();
-            if (files == null)
-                return;
-            
-            // Create The Popup Menu.
-            _file_menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), false);
-            _file_menu.set_folder_func ((Fm.LaunchFolderFunc) this.action_open_folder_func);
-            Gtk.ActionGroup act_grp = _file_menu.get_action_group ();
-            act_grp.set_translation_domain ("");
-            
-            _popup_menu = _file_menu.get_menu ();
-**/
-
             if (_file_popup == null)
                 _file_popup = new Desktop.FilePopup ();
             
@@ -1256,36 +1235,8 @@ namespace Desktop {
         public bool action_open_folder_func (GLib.AppLaunchContext ctx, GLib.List<Fm.FileInfo>? folder_infos,
                                              void *user_data) {
             
-            stdout.printf ("DesktopWindow.action_open_folder_func:\n");
-            stdout.printf ("\tAppLaunchContext = %#x \n", (uint) ctx);
-            stdout.printf ("\tGLib.List = %#x \n", (uint) folder_infos);
-            stdout.printf ("\tuser_data = %#x \n", (uint) user_data);
-            stdout.printf ("\tDesktopWindow = %#x \n", (uint) this);
-            
-            
-            /*if (folder_infos != null) {
-                stdout.printf ("action_open_folder_func: BUG FIXED ????\n");
-                return true;
-            }*/
-            
-            
-            /* WARNING !!!
-             * There's a problem in the Vapi file definition for this function, folder_infos is given as the first
-             * parameter which is wrong of course...
-             * 
-             */
             unowned List<Fm.FileInfo>? folder_list = (GLib.List<Fm.FileInfo>) folder_infos;
-            /* WARNING !!!
-             * There's a problem in the Vapi file definition for this function, folder_infos is given as the first
-             * parameter which is wrong of course...
-             * 
-             */
             
-            
-            if (folder_list == null)
-                stdout.printf ("DesktopWindow.action_open_folder_func: GLib.List folder_infos = (null)\n");
-            
-            //return false;
             foreach (Fm.FileInfo fi in folder_list) {
                 
                 this._action_open_folder (fi);
@@ -1335,48 +1286,13 @@ namespace Desktop {
                 global_manager_group = new Manager.Group (_debug_mode);
             }
             
-            
-            //string test = fi.get_path ().to_str ();
-            
-            string[] folders = new string[1];
+            string[] folders = new string [1];
             folders[0] = fi.get_path ().to_str ();
-            //folders[0] = test;
-            //folders[1] = "";
             
             global_manager_group.create_manager (folders);
-            return false;
             
             return true;
         }
-        
-            /***
-        private void _on_action_select_all (Gtk.Action action) {
-            
-            int i;
-            for(i=0; i < n_screens; ++i)
-            {
-                FmDesktop* desktop = desktops[i];
-                select_all(desktop);
-            }
-        }
-            ***/
-
-            /***
-        private void _on_action_invert_select (Gtk.Action action) {
-            
-            int i;
-            for(i=0; i < n_screens; ++i)
-            {
-                FmDesktop* desktop = desktops[i];
-                GList* l;
-                for(l=desktop->items;l;l=l->next)
-                {
-                    FmDesktopItem* item = (FmDesktopItem*)l->data;
-                    item->is_selected = !item->is_selected;
-                    invalidate_rect(desktop, item);
-                }
-        }
-            }***/
     }
 }
 
