@@ -1,0 +1,8 @@
+NOTE:
+
+These Files are not installed but included directly in the code as a string
+and added with gtk_builder_add_from_string ()
+
+See DesktopSettingsDialog.vala for an example...
+
+
