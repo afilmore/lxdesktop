@@ -64,6 +64,9 @@ private const string[] valid_wallpaper_modes = {"color", "stretch", "fit", "cent
 
 
 
+
+
+
 // grid selecttions...
 
     /***
@@ -94,6 +97,173 @@ private void _on_action_invert_select (Gtk.Action action) {
         }
 }
     }***/
+
+
+
+// old code...
+/*******************************************************************************************
+ * Desktop background...
+ * 
+ * 
+ ***************************************************************************************
+public void set_background (bool set_root = false) {
+    
+    Gdk.Window window = this.get_window ();
+    
+    Fm.WallpaperMode wallpaper_mode = global_config.wallpaper_mode;
+    
+    Gdk.Pixbuf? pix = null;
+    
+    // Set A Wallpaper (Not Implemented Yet...)
+    if (wallpaper_mode != Fm.WallpaperMode.COLOR) {
+        
+        try {
+            
+            pix = new Gdk.Pixbuf.from_file (global_config.wallpaper);
+        
+        } catch (Error e) {
+        }
+
+        this._set_wallpaper (pix);
+
+    // Set A Solid Color...
+    } else {
+
+        // The solid color for the desktop background
+        Gdk.Color bg = global_config.color_background;
+        
+        // GTK3_TODO
+        
+        //Gdk.rgb_find_color (this.get_colormap (), ref bg);
+        
+        //window.set_back_pixmap (null, false);
+        
+        // DEPRECATED Use gdk_window_set_background_rgba() instead
+        window.set_background (bg);
+        
+        if (set_root) {
+            Gdk.Window root = this.get_screen ().get_root_window ();
+            
+            //root.set_back_pixmap (null, false);
+            
+            // DEPRECATED Use gdk_window_set_background_rgba() instead
+            root.set_background (bg);
+            //root.clear ();
+        }
+        
+        //window.clear ();
+        window.invalidate_rect (null, true);
+        return;
+    }
+    
+    return;
+}***/
+
+/***
+ private void _set_wallpaper (Gdk.Pixbuf? pix) {
+
+     Set the wallpaper (not implemented yet...)
+
+    int dest_w;
+    int dest_h;
+    
+    int src_w = pix.get_width ();
+    int src_h = pix.get_height ();
+    
+    Gdk.Window window = this.get_window ();
+//            Gdk.Pixmap pixmap;
+
+    if (wallpaper_mode == FM_WP_TILE) {
+        dest_w = src_w;
+        dest_h = src_h;
+    
+//                pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
+    
+    } else {
+        
+        Gdk.Screen screen = widget.get_screen ();
+        dest_w = gdk_screen_get_width (screen);
+        dest_h = gdk_screen_get_height (screen);
+        
+//                pixmap = gdk_pixmap_new (window, dest_w, dest_h, -1);
+    }
+
+    if (gdk_pixbuf_get_has_alpha(pix)
+        || wallpaper_mode == FM_WP_CENTER
+        || wallpaper_mode == FM_WP_FIT) {
+        
+        gdk_gc_set_rgb_fg_color (desktop->gc, &desktop_bg);
+        
+        gdk_draw_rectangle (pixmap, desktop->gc, true, 0, 0, dest_w, dest_h);
+    
+    }
+
+    GdkPixbuf *scaled;
+    
+    switch (wallpaper_mode) {
+        
+        case FM_WP_TILE:
+        
+            gdk_draw_pixbuf (pixmap, desktop->gc, pix, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
+        
+        break;
+        
+        case FM_WP_STRETCH:
+            
+            if (dest_w == src_w && dest_h == src_h)
+                scaled = (GdkPixbuf*)g_object_ref (pix);
+            else
+                scaled = gdk_pixbuf_scale_simple (pix, dest_w, dest_h, GDK_INTERP_BILINEAR);
+            
+            gdk_draw_pixbuf (pixmap, desktop->gc, scaled, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
+        
+            g_object_unref (scaled);
+        
+        break;
+        
+        case FM_WP_FIT:
+        
+            if (dest_w != src_w || dest_h != src_h) {
+                
+                double w_ratio = (float) dest_w / src_w;
+                double h_ratio = (float) dest_h / src_h;
+                double ratio = MIN (w_ratio, h_ratio);
+                
+                if (ratio != 1.0) {
+                    src_w *= ratio;
+                    src_h *= ratio;
+                    
+                    scaled = gdk_pixbuf_scale_simple (pix, src_w, src_h, GDK_INTERP_BILINEAR);
+                    
+                    g_object_unref (pix);
+                    
+                    pix = scaled;
+                }
+            }
+        
+        // continue to execute code in case FM_WP_CENTER
+        case FM_WP_CENTER: {
+            
+            int x;
+            int y;
+            
+            x = (dest_w - src_w) / 2;
+            y = (dest_h - src_h) / 2;
+            
+            gdk_draw_pixbuf (pixmap, desktop->gc, pix, 0, 0, x, y, -1, -1, GDK_RGB_DITHER_NORMAL, 0, 0);
+        }
+        break;
+    }
+    
+    gdk_window_set_back_pixmap (root, pixmap, false);
+    gdk_window_set_back_pixmap (window, null, true);
+    
+    if (pix)
+        g_object_unref (pix);
+    
+    XLib.set_pixmap (GtkWidget* widget, GdkPixmap* pixmap);
+    
+}***/
 
 
 // old code...
@@ -138,6 +308,10 @@ private void _create_popup_menu (Gdk.EventButton evt) {
 }
 
 
+
+
+
+
 /***
 char*                 desktop_font;
 private PangoFontDescription* font_desc = null;
@@ -171,6 +345,13 @@ private uint desktop_font_changed = 0;
 ***/
         
         
+        
+        
+        
+        
+        
+        
+        
 /*******************************************************************************************
 private void _on_action_new_folder (Gtk.Action action) {
     
@@ -193,6 +374,11 @@ private void _on_action_desktop_settings (Gtk.Action action) {
 }***/
 
 
+
+
+
+
+
 /***************************************************************************************************************
  * Desktop Configuration handlers.
  *
@@ -209,6 +395,10 @@ private void _on_wallpaper_changed () {
     
     */
 }
+
+
+
+
 
 private void _on_big_icon_size_changed () {
     

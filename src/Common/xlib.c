@@ -216,8 +216,8 @@ void xlib_forward_event_to_rootwin (GdkScreen *gscreen, GdkEvent *event) {
     return;
 }
 
-// GTK3_TODO
-#if !ENABLE_GTK3
+// old code.... moved to src/Desktop/background.c
+#if 0
 void xlib_set_pixmap (GtkWidget *widget, GdkPixmap *pixmap) {
     
     GdkWindow *window = gtk_widget_get_window (widget);
@@ -274,4 +274,6 @@ void xlib_set_pixmap (GtkWidget *widget, GdkPixmap *pixmap) {
     return;
 }
 #endif
+
+
 

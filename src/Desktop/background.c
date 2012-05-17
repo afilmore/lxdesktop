@@ -27,55 +27,56 @@
  * 
  * 
  ****************************************************************************************/
-#if 0
-void desktop_set_background ()
+void desktop_set_background (GtkWidget *desktop, gchar *wallpaper, FmWallpaperMode wallpaper_mode,
+                             GdkColor *color_background)
 {
-    GtkWidget *widget = (GtkWidget*) desktop;
+    
     GdkPixbuf *pix;
-    GdkPixbuf *scaled;
-    
-    Pixmap pixmap_id;
-    GdkPixmap *pixmap;
-    
-    int src_w;
-    int src_h;
-    int dest_w;
-    int dest_h;
-    
-    GdkWindow *root = gdk_screen_get_root_window (gtk_widget_get_screen (widget));
-    GdkWindow *window = gtk_widget_get_window (widget);
 
-    Display *xdisplay;
-    Pixmap xpixmap = 0;
-    Window xroot;
+    
+    GdkWindow *root = gdk_screen_get_root_window (gtk_widget_get_screen (desktop));
+    GdkWindow *window = gtk_widget_get_window (desktop);
 
-    if (app_config->wallpaper_mode == FM_WP_COLOR
-       || !app_config->wallpaper
-       || !*app_config->wallpaper
-       || !(pix = gdk_pixbuf_new_from_file (app_config->wallpaper, NULL)))
+    if (wallpaper_mode == FM_WP_COLOR
+       || !wallpaper
+       || !*wallpaper
+       || !(pix = gdk_pixbuf_new_from_file (wallpaper, NULL)))
     {
-        GdkColor bg = app_config->desktop_bg;
+        //GdkColor bg = color_background;
 
-        gdk_rgb_find_color (gdk_drawable_get_colormap (window), &bg);
+        //gdk_rgb_find_color (gdk_drawable_get_colormap (window), &bg);
         
-        gdk_window_set_back_pixmap (window, NULL, FALSE);
-        gdk_window_set_background (window, &bg);
+        //gdk_window_set_back_pixmap (window, NULL, FALSE);
+        gdk_window_set_background (window, color_background);
         
-        gdk_window_set_back_pixmap (root, NULL, FALSE);
-        gdk_window_set_background (root, &bg);
+        //gdk_window_set_back_pixmap (root, NULL, FALSE);
+        gdk_window_set_background (root, color_background);
         
-        gdk_window_clear (root);
-        gdk_window_clear (window);
+        //gdk_window_clear (root);
+        //gdk_window_clear (window);
         
         gdk_window_invalidate_rect (window, NULL, TRUE);
         
         return;
     }
 
+    #if 0
+    GdkPixbuf *scaled;
+    
+    Pixmap pixmap_id;
+//    GdkPixmap *pixmap;
+    
+    int src_w;
+    int src_h;
+    int dest_w;
+    int dest_h;
+    Display *xdisplay;
+    Pixmap xpixmap = 0;
+    Window xroot;
     src_w = gdk_pixbuf_get_width (pix);
     src_h = gdk_pixbuf_get_height (pix);
     
-    if (app_config->wallpaper_mode == FM_WP_TILE)
+    if (wallpaper_mode == FM_WP_TILE)
     {
         dest_w = src_w;
         dest_h = src_h;
@@ -85,7 +86,7 @@ void desktop_set_background ()
     }
     else
     {
-        GdkScreen *screen = gtk_widget_get_screen (widget);
+        GdkScreen *screen = gtk_widget_get_screen (desktop);
         dest_w = gdk_screen_get_width (screen);
         dest_h = gdk_screen_get_height (screen);
         
@@ -93,14 +94,14 @@ void desktop_set_background ()
     }
 
     if (gdk_pixbuf_get_has_alpha (pix)
-        || app_config->wallpaper_mode == FM_WP_CENTER
-        || app_config->wallpaper_mode == FM_WP_FIT)
+        || wallpaper_mode == FM_WP_CENTER
+        || wallpaper_mode == FM_WP_FIT)
     {
-        gdk_gc_set_rgb_fg_color (desktop->gc, &app_config->desktop_bg);
+        gdk_gc_set_rgb_fg_color (desktop->gc, &color_background);
         gdk_draw_rectangle (pixmap, desktop->gc, TRUE, 0, 0, dest_w, dest_h);
     }
 
-    switch (app_config->wallpaper_mode)
+    switch (wallpaper_mode)
     {
         case FM_WP_TILE:
             gdk_draw_pixbuf (pixmap, desktop->gc, pix, 0, 0, 0, 0, dest_w, dest_h, GDK_RGB_DITHER_NORMAL, 0, 0);
@@ -202,7 +203,8 @@ void desktop_set_background ()
     gdk_window_clear (window);
     
     gdk_window_invalidate_rect (window, NULL, TRUE);
+    #endif
 }
 
-#endif
+
 
