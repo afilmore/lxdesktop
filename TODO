@@ -88,12 +88,11 @@
     
         *   Rework Popup Menus...
             
-            Rename LibFmCore's placeholders into something explicit
+            [DONE] Rename LibFmCore's placeholders into something explicit
             
+            Use the new Popup Menu Class here:
             ./Desktop/DesktopWindow.vala:1111:      _file_menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), false);
-            
             ./FileManager/ManagerWindow.vala:563:   _file_menu = new Fm.FileMenu.for_file (this, fi, _tree_view.get_cwd (), false);
-            
             ./FileManager/ManagerWindow.vala:636:   _file_menu = new Fm.FileMenu.for_files (this, files, _folder_view.get_cwd (), false);
             
             Add Restaure from Trash Can...

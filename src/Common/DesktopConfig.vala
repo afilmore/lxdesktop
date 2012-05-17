@@ -69,6 +69,7 @@ namespace Desktop {
         
         // Folder Model Sorting
         public Gtk.SortType     sort_type = Gtk.SortType.ASCENDING;
+        
         // Generates a compile error in Vala....
         // public Fm.FileColumn    sort_by = Fm.FileColumn.NAME;
         

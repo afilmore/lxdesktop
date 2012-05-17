@@ -38,6 +38,7 @@ lxdesktop_SOURCES = \
 	Common/xlib.c \
 	Desktop/background.c \
 	Desktop/DesktopGroup.vala \
+	Desktop/DesktopSettingsDialog.vala \
 	Desktop/DesktopWindow.vala \
 	Desktop/DesktopGrid.vala \
 	Desktop/DesktopItem.vala \

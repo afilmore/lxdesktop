@@ -740,51 +740,6 @@ private bool _on_single_click_timeout_temp () {
 #define INIT_ENTRY(b, st, name, changed_notify)  init_entry(b, #name, G_STRUCT_OFFSET(st, name), changed_notify)
 */
 
-private void _on_action_desktop_settings_temp (Gtk.Action action) {
-    
-    /*
-    if(!desktop_pref_dlg)
-    {
-        GtkBuilder* builder = gtk_builder_new();
-        GtkWidget* item, *img_preview;
-        gtk_builder_add_from_file(builder, PACKAGE_UI_DIR "/desktop-pref.ui", null);
-        desktop_pref_dlg = gtk_builder_get_object(builder, "dlg");
-
-        item = gtk_builder_get_object(builder, "wallpaper");
-        g_signal_connect(item, "file-set", G_CALLBACK(on_wallpaper_set), null);
-        img_preview = gtk_image_new();
-        gtk_misc_set_alignment(GTK_MISC(img_preview), 0.5, 0.0);
-        gtk_widget_set_size_request( img_preview, 128, 128 );
-        gtk_file_chooser_set_preview_widget( (GtkFileChooser*)item, img_preview );
-        g_signal_connect( item, "update-preview", G_CALLBACK(on_update_img_preview), img_preview );
-        if(app_config->wallpaper)
-            gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(item), app_config->wallpaper);
-
-        INIT_COMBO(builder, FmAppConfig, wallpaper_mode, "wallpaper");
-        INIT_COLOR(builder, FmAppConfig, desktop_bg, "wallpaper");
-
-        INIT_COLOR(builder, FmAppConfig, desktop_fg, "desktop_text");
-        INIT_COLOR(builder, FmAppConfig, desktop_shadow, "desktop_text");
-
-        INIT_BOOL(builder, FmAppConfig, show_wm_menu, null);
-
-        item = gtk_builder_get_object(builder, "desktop_font");
-        if(app_config->desktop_font)
-            gtk_font_button_set_font_name(GTK_FONT_BUTTON(item), app_config->desktop_font);
-        g_signal_connect(item, "font-set", G_CALLBACK(on_desktop_font_set), null);
-
-        g_signal_connect(desktop_pref_dlg, "response", G_CALLBACK(on_response), &desktop_pref_dlg);
-        g_object_unref(builder);
-
-        pcmanfm_ref();
-        g_signal_connect(desktop_pref_dlg, "destroy", G_CALLBACK(pcmanfm_unref), null);
-    }
-    
-    gtk_window_present(GTK_WINDOW(desktop_pref_dlg));
-    */
-    
-}
-
 
 /* *********************************************************************************************************************
  * *** DOESN'T BUILD ***

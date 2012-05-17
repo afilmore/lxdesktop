@@ -140,7 +140,11 @@ namespace Desktop {
         }
 
         private void _on_action_proterties (Gtk.Action action) {
+            
+            Desktop.SettingsDialog dialog = new Desktop.SettingsDialog ();
+            dialog.run ();
         }
+
     }
 }
 
