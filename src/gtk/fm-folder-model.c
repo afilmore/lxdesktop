@@ -33,6 +33,7 @@
 #include <string.h>
 #include <gio/gio.h>
 
+
 /* #define ENABLE_DEBUG */
 #ifdef ENABLE_DEBUG
 #define DEBUG(...) g_debug(__VA_ARGS__)
@@ -48,19 +49,19 @@ enum {
 typedef struct _FmFolderItem FmFolderItem;
 struct _FmFolderItem
 {
-    FmFileInfo *inf;
-    GdkPixbuf *icon;
+    FmFileInfo  *inf;
+    GdkPixbuf   *icon;
     
-    gboolean is_thumbnail : 1;
-    gboolean thumbnail_loading : 1;
-    gboolean thumbnail_failed : 1;
+    gboolean    is_thumbnail : 1;
+    gboolean    thumbnail_loading : 1;
+    gboolean    thumbnail_failed : 1;
 };
 
 enum ReloadFlags
 {
-    RELOAD_ICONS = 1 << 0,
+    RELOAD_ICONS =      1 << 0,
     RELOAD_THUMBNAILS = 1 << 1,
-    RELOAD_BOTH =  (RELOAD_ICONS | RELOAD_THUMBNAILS)
+    RELOAD_BOTH =       (RELOAD_ICONS | RELOAD_THUMBNAILS)
 };
 
 static void fm_folder_model_tree_model_init (GtkTreeModelIface *iface);
@@ -69,58 +70,38 @@ static void fm_folder_model_drag_source_init (GtkTreeDragSourceIface *iface);
 static void fm_folder_model_drag_dest_init (GtkTreeDragDestIface *iface);
 
 static void fm_folder_model_finalize (GObject *object);
-G_DEFINE_TYPE_WITH_CODE ( FmFolderModel, fm_folder_model, G_TYPE_OBJECT,
-                        G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, fm_folder_model_tree_model_init)
-                        G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_SORTABLE, fm_folder_model_tree_sortable_init)
-                        G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_DRAG_SOURCE, fm_folder_model_drag_source_init)
-                        G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_DRAG_DEST, fm_folder_model_drag_dest_init) )
+
+G_DEFINE_TYPE_WITH_CODE (FmFolderModel, fm_folder_model, G_TYPE_OBJECT,
+                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL,        fm_folder_model_tree_model_init)
+                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_SORTABLE,     fm_folder_model_tree_sortable_init)
+                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_DRAG_SOURCE,  fm_folder_model_drag_source_init)
+                         G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_DRAG_DEST,    fm_folder_model_drag_dest_init))
 
 static GtkTreeModelFlags fm_folder_model_get_flags (GtkTreeModel *tree_model);
 static gint fm_folder_model_get_n_columns (GtkTreeModel *tree_model);
-static GType fm_folder_model_get_column_type (GtkTreeModel *tree_model,
-                                             gint index);
-static gboolean fm_folder_model_get_iter (GtkTreeModel *tree_model,
-                                         GtkTreeIter *iter,
-                                         GtkTreePath *path);
-static GtkTreePath *fm_folder_model_get_path (GtkTreeModel *tree_model,
-                                             GtkTreeIter *iter);
-static void fm_folder_model_get_value (GtkTreeModel *tree_model,
-                                      GtkTreeIter *iter,
-                                      gint column,
-                                      GValue *value);
-static gboolean fm_folder_model_iter_next (GtkTreeModel *tree_model,
-                                          GtkTreeIter *iter);
-static gboolean fm_folder_model_iter_children (GtkTreeModel *tree_model,
-                                              GtkTreeIter *iter,
-                                              GtkTreeIter *parent);
-static gboolean fm_folder_model_iter_has_child (GtkTreeModel *tree_model,
-                                               GtkTreeIter *iter);
-static gint fm_folder_model_iter_n_children (GtkTreeModel *tree_model,
-                                            GtkTreeIter *iter);
-static gboolean fm_folder_model_iter_nth_child (GtkTreeModel *tree_model,
-                                               GtkTreeIter *iter,
-                                               GtkTreeIter *parent,
-                                               gint n);
-static gboolean fm_folder_model_iter_parent (GtkTreeModel *tree_model,
-                                            GtkTreeIter *iter,
-                                            GtkTreeIter *child);
-static gboolean fm_folder_model_get_sort_column_id (GtkTreeSortable *sortable,
-                                                   gint *sort_column_id,
-                                                   GtkSortType *order);
-static void fm_folder_model_set_sort_column_id (GtkTreeSortable *sortable,
-                                               gint sort_column_id,
-                                               GtkSortType order);
+static GType fm_folder_model_get_column_type (GtkTreeModel *tree_model, gint index);
+static gboolean fm_folder_model_get_iter (GtkTreeModel *tree_model, GtkTreeIter *iter, GtkTreePath *path);
+static GtkTreePath *fm_folder_model_get_path (GtkTreeModel *tree_model, GtkTreeIter *iter);
+static void fm_folder_model_get_value (GtkTreeModel *tree_model, GtkTreeIter *iter, gint column, GValue *value);
+static gboolean fm_folder_model_iter_next (GtkTreeModel *tree_model, GtkTreeIter *iter);
+static gboolean fm_folder_model_iter_children (GtkTreeModel *tree_model, GtkTreeIter *iter, GtkTreeIter *parent);
+static gboolean fm_folder_model_iter_has_child (GtkTreeModel *tree_model, GtkTreeIter *iter);
+static gint fm_folder_model_iter_n_children (GtkTreeModel *tree_model, GtkTreeIter *iter);
+static gboolean fm_folder_model_iter_nth_child (GtkTreeModel *tree_model, GtkTreeIter *iter, GtkTreeIter *parent,
+                                                gint n);
+static gboolean fm_folder_model_iter_parent (GtkTreeModel *tree_model, GtkTreeIter *iter, GtkTreeIter *child);
+static gboolean fm_folder_model_get_sort_column_id (GtkTreeSortable *sortable, gint *sort_column_id,
+                                                    GtkSortType *order);
+static void fm_folder_model_set_sort_column_id (GtkTreeSortable *sortable, gint sort_column_id, GtkSortType order);
+
 #if !ENABLE_GTK3
-static void fm_folder_model_set_sort_func (GtkTreeSortable *sortable,
-                                          gint sort_column_id,
-                                          GtkTreeIterCompareFunc sort_func,
-                                          gpointer user_data,
-                                          GtkDestroyNotify destroy);
-static void fm_folder_model_set_default_sort_func (GtkTreeSortable *sortable,
-                                                  GtkTreeIterCompareFunc sort_func,
-                                                  gpointer user_data,
-                                                  GtkDestroyNotify destroy);
+static void fm_folder_model_set_sort_func (GtkTreeSortable *sortable, gint sort_column_id,
+                                           GtkTreeIterCompareFunc sort_func, gpointer user_data,
+                                           GtkDestroyNotify destroy);
+static void fm_folder_model_set_default_sort_func (GtkTreeSortable *sortable, GtkTreeIterCompareFunc sort_func,
+                                                   gpointer user_data, GtkDestroyNotify destroy);
 #endif
+
 static void fm_folder_model_sort (FmFolderModel *model);
 
 /* signal handlers */
@@ -139,22 +120,25 @@ static void on_thumbnail_max_changed (FmConfig *cfg, gpointer user_data);
 static void reload_icons (FmFolderModel *model, enum ReloadFlags flags);
 
 static GType column_types[ N_FOLDER_MODEL_COLS ];
+
 static guint signals[N_SIGNALS];
 
 void fm_folder_model_init (FmFolderModel *model)
 {
     model->sort_order = -1;
     model->sort_col = GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID;
+
     /* Random int to check whether an iter belongs to our model */
     model->stamp = g_random_int ();
 
     model->theme_change_handler = g_signal_connect (gtk_icon_theme_get_default (), "changed",
-                                                   G_CALLBACK (on_icon_theme_changed), model);
+                                                    G_CALLBACK (on_icon_theme_changed), model);
 #if 0
-    g_signal_connect (fm_config, "changed::show_thumbnail", G_CALLBACK (on_show_thumbnail_changed), model);
-    g_signal_connect (fm_config, "changed::thumbnail_local", G_CALLBACK (on_thumbnail_local_changed), model);
-    g_signal_connect (fm_config, "changed::thumbnail_max", G_CALLBACK (on_thumbnail_max_changed), model);
+    g_signal_connect (fm_config, "changed::show_thumbnail",     G_CALLBACK (on_show_thumbnail_changed),     model);
+    g_signal_connect (fm_config, "changed::thumbnail_local",    G_CALLBACK (on_thumbnail_local_changed),    model);
+    g_signal_connect (fm_config, "changed::thumbnail_max",      G_CALLBACK (on_thumbnail_max_changed),      model);
 #endif
+
     model->thumbnail_max = fm_config->thumbnail_max << 10;
 }
 
@@ -162,58 +146,60 @@ void fm_folder_model_class_init (FmFolderModelClass *klass)
 {
     GObjectClass  *object_class;
 
-    fm_folder_model_parent_class =  ( GObjectClass* )g_type_class_peek_parent (klass);
-    object_class =  ( GObjectClass* )klass;
+    fm_folder_model_parent_class = (GObjectClass*) g_type_class_peek_parent (klass);
+    object_class = (GObjectClass*) klass;
 
     object_class->finalize = fm_folder_model_finalize;
 
-    signals[LOADED]=
-        g_signal_new ("loaded",
-                     G_TYPE_FROM_CLASS (klass),
-                     G_SIGNAL_RUN_FIRST,
-                     G_STRUCT_OFFSET (FmFolderModelClass, loaded),
-                     NULL, NULL,
-                     g_cclosure_marshal_VOID__VOID,
-                     G_TYPE_NONE, 0);
+    signals[LOADED] = g_signal_new ("loaded",
+                                    G_TYPE_FROM_CLASS (klass),
+                                    G_SIGNAL_RUN_FIRST,
+                                    G_STRUCT_OFFSET (FmFolderModelClass, loaded),
+                                    NULL, NULL,
+                                    g_cclosure_marshal_VOID__VOID,
+                                    G_TYPE_NONE, 0);
 }
 
 void fm_folder_model_tree_model_init (GtkTreeModelIface *iface)
 {
-    iface->get_flags = fm_folder_model_get_flags;
-    iface->get_n_columns = fm_folder_model_get_n_columns;
-    iface->get_column_type = fm_folder_model_get_column_type;
-    iface->get_iter = fm_folder_model_get_iter;
-    iface->get_path = fm_folder_model_get_path;
-    iface->get_value = fm_folder_model_get_value;
-    iface->iter_next = fm_folder_model_iter_next;
-    iface->iter_children = fm_folder_model_iter_children;
-    iface->iter_has_child = fm_folder_model_iter_has_child;
-    iface->iter_n_children = fm_folder_model_iter_n_children;
-    iface->iter_nth_child = fm_folder_model_iter_nth_child;
-    iface->iter_parent = fm_folder_model_iter_parent;
+    iface->get_flags =          fm_folder_model_get_flags;
+    iface->get_n_columns =      fm_folder_model_get_n_columns;
+    iface->get_column_type =    fm_folder_model_get_column_type;
+    iface->get_iter =           fm_folder_model_get_iter;
+    iface->get_path =           fm_folder_model_get_path;
+    iface->get_value =          fm_folder_model_get_value;
+    iface->iter_next =          fm_folder_model_iter_next;
+    iface->iter_children =      fm_folder_model_iter_children;
+    iface->iter_has_child =     fm_folder_model_iter_has_child;
+    iface->iter_n_children =    fm_folder_model_iter_n_children;
+    iface->iter_nth_child =     fm_folder_model_iter_nth_child;
+    iface->iter_parent =        fm_folder_model_iter_parent;
 
-    column_types [ COL_FILE_ICON ] = GDK_TYPE_PIXBUF;
-    column_types [ COL_FILE_NAME ] = G_TYPE_STRING;
-    column_types [ COL_FILE_DESC ] = G_TYPE_STRING;
-    column_types [ COL_FILE_SIZE ] = G_TYPE_STRING;
-    column_types [ COL_FILE_DESC ] = G_TYPE_STRING;
-    column_types [ COL_FILE_PERM ] = G_TYPE_STRING;
-    column_types [ COL_FILE_OWNER ] = G_TYPE_STRING;
-    column_types [ COL_FILE_MTIME ] = G_TYPE_STRING;
-    column_types [ COL_FILE_INFO ] = G_TYPE_POINTER;
-    column_types [ COL_FILE_GICON ] = G_TYPE_ICON;
+    column_types [COL_FILE_ICON] =  GDK_TYPE_PIXBUF;
+    column_types [COL_FILE_NAME] =  G_TYPE_STRING;
+    column_types [COL_FILE_DESC] =  G_TYPE_STRING;
+    column_types [COL_FILE_SIZE] =  G_TYPE_STRING;
+    column_types [COL_FILE_DESC] =  G_TYPE_STRING;
+    column_types [COL_FILE_PERM] =  G_TYPE_STRING;
+    column_types [COL_FILE_OWNER] = G_TYPE_STRING;
+    column_types [COL_FILE_MTIME] = G_TYPE_STRING;
+    column_types [COL_FILE_INFO] =  G_TYPE_POINTER;
+    column_types [COL_FILE_GICON] = G_TYPE_ICON;
 }
 
 void fm_folder_model_tree_sortable_init (GtkTreeSortableIface *iface)
 {
     /* iface->sort_column_changed = fm_folder_model_sort_column_changed; */
+    
     iface->get_sort_column_id = fm_folder_model_get_sort_column_id;
     iface->set_sort_column_id = fm_folder_model_set_sort_column_id;
-#if !ENABLE_GTK3
+
+    #if !ENABLE_GTK3
     iface->set_sort_func = fm_folder_model_set_sort_func;
     iface->set_default_sort_func = fm_folder_model_set_default_sort_func;
-#endif
-    iface->has_default_sort_func =  ( gboolean  (*) (GtkTreeSortable *) )gtk_false;
+    #endif
+
+    iface->has_default_sort_func = (gboolean (*) (GtkTreeSortable *))gtk_false;
 }
 
 void fm_folder_model_drag_source_init (GtkTreeDragSourceIface *iface)
@@ -228,81 +214,93 @@ void fm_folder_model_drag_dest_init (GtkTreeDragDestIface *iface)
 
 void fm_folder_model_finalize (GObject *object)
 {
-    FmFolderModel *model =  ( FmFolderModel *)object;
+    FmFolderModel *model = (FmFolderModel *)object;
     int i;
+    
     /*
     char* str = fm_path_to_str (model->dir->dir_path);
     g_debug ("FINALIZE FOLDER MODEL (%p): %s", model, str);
     g_free (str);
     */
+    
     fm_folder_model_set_folder (model, NULL);
-    g_signal_handler_disconnect (gtk_icon_theme_get_default (),
-                                model->theme_change_handler);
-#if 0
-    g_signal_handlers_disconnect_by_func (fm_config, on_show_thumbnail_changed, model);
-    g_signal_handlers_disconnect_by_func (fm_config, on_thumbnail_local_changed, model);
-    g_signal_handlers_disconnect_by_func (fm_config, on_thumbnail_max_changed, model);
-#endif
-    g_list_foreach (model->thumbnail_requests,  (GFunc)fm_thumbnail_request_cancel, NULL);
+    g_signal_handler_disconnect (gtk_icon_theme_get_default (), model->theme_change_handler);
+    
+    #if 0
+    g_signal_handlers_disconnect_by_func (fm_config, on_show_thumbnail_changed,     model);
+    g_signal_handlers_disconnect_by_func (fm_config, on_thumbnail_local_changed,    model);
+    g_signal_handlers_disconnect_by_func (fm_config, on_thumbnail_max_changed,      model);
+    #endif
+    
+    g_list_foreach (model->thumbnail_requests, (GFunc)fm_thumbnail_request_cancel, NULL);
     g_list_free (model->thumbnail_requests);
 
     /* must chain up - finalize parent */
-     (*G_OBJECT_CLASS (fm_folder_model_parent_class)->finalize) (object);
+    (*G_OBJECT_CLASS (fm_folder_model_parent_class)->finalize) (object);
 }
 
 FmFolderModel *fm_folder_model_new (FmFolder *dir, gboolean show_hidden)
 {
-    FmFolderModel *model;
-    model =  ( FmFolderModel* )g_object_new (FM_TYPE_FOLDER_MODEL, NULL);
+    FmFolderModel *model = (FmFolderModel*) g_object_new (FM_TYPE_FOLDER_MODEL, NULL);
+    
     model->items = NULL;
     model->hidden = NULL;
+    
     model->show_hidden = show_hidden;
+    
     fm_folder_model_set_folder (model, dir);
+    
     return model;
 }
 
 static inline FmFolderItem *fm_folder_item_new (FmFileInfo *inf)
 {
     FmFolderItem *folder_item = g_slice_new0 (FmFolderItem);
+    
     folder_item->inf = fm_file_info_ref (inf);
+    
     return folder_item;
 }
 
 static inline void fm_folder_item_free (FmFolderItem *folder_item)
 {
-    if ( folder_item->icon )
+    if (folder_item->icon)
         g_object_unref (folder_item->icon);
+    
     fm_file_info_unref (folder_item->inf);
+    
     g_slice_free (FmFolderItem, folder_item);
 }
 
-static void _fm_folder_model_insert_item (FmFolder *dir,
-                                         FmFolderItem *new_item,
-                                         FmFolderModel *model);
+static void _fm_folder_model_insert_item (FmFolder *dir, FmFolderItem *new_item, FmFolderModel *model);
 
-static void _fm_folder_model_files_changed (FmFolder *dir, GSList *files,
-                                           FmFolderModel *model)
+static void _fm_folder_model_files_changed (FmFolder *dir, GSList *files, FmFolderModel *model)
 {
     GSList *l;
-    for ( l = files; l; l=l->next )
+    
+    for (l = files; l; l=l->next)
+    {
         fm_folder_model_file_changed (model, l->data);
+    }
 }
 
 static void _fm_folder_model_add_file (FmFolderModel *model, FmFileInfo *file)
 {
-    if ( !model->show_hidden && fm_file_info_is_hidden (file) )
-        g_sequence_append ( model->hidden, fm_folder_item_new (file) );
+    if (!model->show_hidden && fm_file_info_is_hidden (file))
+        g_sequence_append (model->hidden, fm_folder_item_new (file));
     else
         fm_folder_model_file_created (model, file);
 }
 
-static void _fm_folder_model_files_added (FmFolder *dir, GSList *files,
-                                         FmFolderModel *model)
+static void _fm_folder_model_files_added (FmFolder *dir, GSList *files, FmFolderModel *model)
 {
     GSList *l;
     FmFileInfo *file;
-    for ( l = files; l; l=l->next )
-        _fm_folder_model_add_file (model,  (FmFileInfo*)l->data);
+    
+    for (l = files; l; l=l->next)
+    {
+        _fm_folder_model_add_file (model, (FmFileInfo*) l->data);
+    }   
 }
 
 
@@ -310,58 +308,66 @@ static void _fm_folder_model_files_removed (FmFolder *dir, GSList *files,
                                            FmFolderModel *model)
 {
     GSList *l;
-    for ( l = files; l; l=l->next )
-        fm_folder_model_file_deleted (model,  (FmFileInfo*)l->data);
+    for (l = files; l; l=l->next)
+    {
+        fm_folder_model_file_deleted (model, (FmFileInfo*)l->data);
+    }
 }
 
 void fm_folder_model_set_folder (FmFolderModel *model, FmFolder *dir)
 {
     GSequenceIter *it;
-    if ( model->dir == dir )
+    
+    if (model->dir == dir)
         return;
-    if ( model->dir )
+    
+    if (model->dir)
     {
-        g_signal_handlers_disconnect_by_func (model->dir,
-                                             _fm_folder_model_files_added, model);
-        g_signal_handlers_disconnect_by_func (model->dir,
-                                             _fm_folder_model_files_removed, model);
-        g_signal_handlers_disconnect_by_func (model->dir,
-                                             _fm_folder_model_files_changed, model);
-        g_signal_handlers_disconnect_by_func (model->dir,
-                                             on_folder_loaded, model);
+        g_signal_handlers_disconnect_by_func (model->dir, _fm_folder_model_files_added,     model);
+        g_signal_handlers_disconnect_by_func (model->dir, _fm_folder_model_files_removed,   model);
+        g_signal_handlers_disconnect_by_func (model->dir, _fm_folder_model_files_changed,   model);
+        g_signal_handlers_disconnect_by_func (model->dir, on_folder_loaded,                 model);
 
         g_sequence_free (model->items);
         g_sequence_free (model->hidden);
         g_object_unref (model->dir);
     }
+    
     model->dir = dir;
-    model->items = g_sequence_new ( (GDestroyNotify)fm_folder_item_free);
-    model->hidden = g_sequence_new ( (GDestroyNotify)fm_folder_item_free);
-    if ( !dir )
+    model->items = g_sequence_new ((GDestroyNotify)fm_folder_item_free);
+    model->hidden = g_sequence_new ((GDestroyNotify)fm_folder_item_free);
+    
+    if (!dir)
         return;
 
-    model->dir =  (FmFolder*)g_object_ref (model->dir);
+    model->dir = (FmFolder*) g_object_ref (model->dir);
 
     g_signal_connect (model->dir, "files-added",
-                     G_CALLBACK (_fm_folder_model_files_added),
-                     model);
+                      G_CALLBACK (_fm_folder_model_files_added),
+                      model);
+    
     g_signal_connect (model->dir, "files-removed",
-                     G_CALLBACK (_fm_folder_model_files_removed),
-                     model);
+                      G_CALLBACK (_fm_folder_model_files_removed),
+                      model);
+    
     g_signal_connect (model->dir, "files-changed",
-                     G_CALLBACK (_fm_folder_model_files_changed),
-                     model);
+                      G_CALLBACK (_fm_folder_model_files_changed),
+                      model);
+    
     g_signal_connect (model->dir, "loaded",
-                     G_CALLBACK (on_folder_loaded), model);
+                      G_CALLBACK (on_folder_loaded),
+                      model);
 
-    if ( !fm_list_is_empty (dir->files) )
+    if (!fm_list_is_empty (dir->files))
     {
         GList *l;
-        for ( l = fm_list_peek_head_link (dir->files); l; l = l->next )
-            _fm_folder_model_add_file (model,  (FmFileInfo*)l->data);
+        for (l = fm_list_peek_head_link (dir->files); l; l = l->next)
+        {
+            _fm_folder_model_add_file (model, (FmFileInfo*)l->data);
+        }
     }
 
-    if ( fm_folder_get_is_loaded (model->dir) ) /* if it's already loaded */
+    if (fm_folder_get_is_loaded (model->dir)) /* if it's already loaded */
         on_folder_loaded (model->dir, model);  /* emit 'loaded' signal */
 }
 
@@ -372,8 +378,9 @@ gboolean fm_folder_model_get_is_loaded (FmFolderModel *model)
 
 GtkTreeModelFlags fm_folder_model_get_flags (GtkTreeModel *tree_model)
 {
-    g_return_val_if_fail (FM_IS_FOLDER_MODEL (tree_model),  ( GtkTreeModelFlags )0);
-    return  (GTK_TREE_MODEL_LIST_ONLY | GTK_TREE_MODEL_ITERS_PERSIST);
+    g_return_val_if_fail (FM_IS_FOLDER_MODEL (tree_model), (GtkTreeModelFlags)0);
+    
+    return (GTK_TREE_MODEL_LIST_ONLY | GTK_TREE_MODEL_ITERS_PERSIST);
 }
 
 gint fm_folder_model_get_n_columns (GtkTreeModel *tree_model)
@@ -386,7 +393,8 @@ GType fm_folder_model_get_column_type (GtkTreeModel *tree_model,
 {
     g_return_val_if_fail (FM_IS_FOLDER_MODEL (tree_model), G_TYPE_INVALID);
     g_return_val_if_fail (index < G_N_ELEMENTS (column_types) && index >= 0, G_TYPE_INVALID);
-    return column_types[ index ];
+    
+    return column_types [index];
 }
 
 gboolean fm_folder_model_get_iter (GtkTreeModel *tree_model,
@@ -394,11 +402,14 @@ gboolean fm_folder_model_get_iter (GtkTreeModel *tree_model,
                                   GtkTreePath *path)
 {
     FmFolderModel *model;
-    gint *indices, n, depth;
+    gint *indices;
+    gint n;
+    gint depth;
+    
     GSequenceIter *items_it;
 
-    g_assert ( FM_IS_FOLDER_MODEL (tree_model) );
-    g_assert (path!=NULL);
+    g_assert (FM_IS_FOLDER_MODEL (tree_model));
+    g_assert (path != NULL);
 
     model = FM_FOLDER_MODEL (tree_model);
 
@@ -410,22 +421,21 @@ gboolean fm_folder_model_get_iter (GtkTreeModel *tree_model,
 
     n = indices[0]; /* the n-th top level row */
 
-    if ( n >= g_sequence_get_length (model->items) || n < 0 )
+    if (n >= g_sequence_get_length (model->items) || n < 0)
         return FALSE;
 
     items_it = g_sequence_get_iter_at_pos (model->items, n);
 
-    g_assert ( items_it  != g_sequence_get_end_iter (model->items) );
+    g_assert (items_it  != g_sequence_get_end_iter (model->items));
 
     /* We simply store a pointer in the iter */
     iter->stamp = model->stamp;
-    iter->user_data  = items_it;
+    iter->user_data = items_it;
 
     return TRUE;
 }
 
-GtkTreePath *fm_folder_model_get_path (GtkTreeModel *tree_model,
-                                      GtkTreeIter *iter)
+GtkTreePath *fm_folder_model_get_path (GtkTreeModel *tree_model, GtkTreeIter *iter)
 {
     GtkTreePath *path;
     GSequenceIter *items_it;
@@ -436,9 +446,9 @@ GtkTreePath *fm_folder_model_get_path (GtkTreeModel *tree_model,
     g_return_val_if_fail (iter != NULL, NULL);
     g_return_val_if_fail (iter->user_data != NULL, NULL);
 
-    items_it =  (GSequenceIter*)iter->user_data;
+    items_it = (GSequenceIter*)iter->user_data;
     path = gtk_tree_path_new ();
-    gtk_tree_path_append_index ( path, g_sequence_iter_get_position (items_it) );
+    gtk_tree_path_append_index (path, g_sequence_iter_get_position (items_it));
     return path;
 }
 
@@ -451,17 +461,17 @@ void fm_folder_model_get_value (GtkTreeModel *tree_model,
     FmFolderModel *model = FM_FOLDER_MODEL (tree_model);
 
     g_return_if_fail (iter != NULL);
-    g_return_if_fail ( column < G_N_ELEMENTS (column_types) );
+    g_return_if_fail (column < G_N_ELEMENTS (column_types));
 
     g_value_init (value, column_types[column]);
 
-    item_it =  (GSequenceIter*)iter->user_data;
+    item_it = (GSequenceIter*)iter->user_data;
     g_return_if_fail (item_it != NULL);
 
-    FmFolderItem *folder_item =  (FmFolderItem*)g_sequence_get (item_it);
+    FmFolderItem *folder_item = (FmFolderItem*)g_sequence_get (item_it);
     FmFileInfo *info = folder_item->inf;
 
-    switch ( column )
+    switch (column)
     {
     
         case COL_FILE_GICON:
@@ -470,7 +480,7 @@ void fm_folder_model_get_value (GtkTreeModel *tree_model,
         
         case COL_FILE_ICON:
         {
-            if ( G_UNLIKELY (!folder_item->icon) )
+            if (G_UNLIKELY (!folder_item->icon))
             {
                 if (!fm_file_info_get_fm_icon (info))
                     return;
@@ -482,13 +492,13 @@ void fm_folder_model_get_value (GtkTreeModel *tree_model,
             /* if we want to show a thumbnail */
             /* if we're on local filesystem or thumbnailing for remote files is allowed */
             
-            if (fm_config->show_thumbnail &&  (fm_path_is_local (folder_item->inf->path) || !fm_config->thumbnail_local))
+            if (fm_config->show_thumbnail && (fm_path_is_local (folder_item->inf->path) || !fm_config->thumbnail_local))
             {
                 if (!folder_item->is_thumbnail && !folder_item->thumbnail_failed && !folder_item->thumbnail_loading)
                 {
                     if (fm_file_info_can_thumbnail (folder_item->inf))
                     {
-                        if (folder_item->inf->size > 0 && folder_item->inf->size <=  (fm_config->thumbnail_max << 10))
+                        if (folder_item->inf->size > 0 && folder_item->inf->size <= (fm_config->thumbnail_max << 10))
                         {
                             FmThumbnailRequest *req = fm_thumbnail_request (folder_item->inf, model->icon_size, on_thumbnail_loaded, model);
                             model->thumbnail_requests = g_list_prepend (model->thumbnail_requests, req);
@@ -541,16 +551,16 @@ gboolean fm_folder_model_iter_next (GtkTreeModel *tree_model, GtkTreeIter *iter)
 
     g_return_val_if_fail (FM_IS_FOLDER_MODEL (tree_model), FALSE);
 
-    if ( iter == NULL || iter->user_data == NULL )
+    if (iter == NULL || iter->user_data == NULL)
         return FALSE;
 
     model = FM_FOLDER_MODEL (tree_model);
-    item_it =  (GSequenceIter *)iter->user_data;
+    item_it = (GSequenceIter *)iter->user_data;
 
     /* Is this the last iter in the list? */
     next_item_it = g_sequence_iter_next (item_it);
 
-    if ( g_sequence_iter_is_end (next_item_it) )
+    if (g_sequence_iter_is_end (next_item_it))
         return FALSE;
 
     iter->stamp = model->stamp;
@@ -568,7 +578,7 @@ gboolean fm_folder_model_iter_children (GtkTreeModel *tree_model,
     g_return_val_if_fail (parent == NULL || parent->user_data != NULL, FALSE);
 
     /* this is a list, nodes have no children */
-    if ( parent )
+    if (parent)
         return FALSE;
 
     /* parent == NULL is a special case; we need to return the first top-level row */
@@ -576,7 +586,7 @@ gboolean fm_folder_model_iter_children (GtkTreeModel *tree_model,
     model = FM_FOLDER_MODEL (tree_model);
 
     /* No rows => no first row */
-//    if  ( model->dir->n_items == 0 )
+//    if (model->dir->n_items == 0)
 //        return FALSE;
 
     /* Set iter to first item in list */
@@ -600,7 +610,7 @@ gint fm_folder_model_iter_n_children (GtkTreeModel *tree_model,
     g_return_val_if_fail (iter == NULL || iter->user_data != NULL, FALSE);
     model = FM_FOLDER_MODEL (tree_model);
     /* special case: if iter == NULL, return number of top-level rows */
-    if ( !iter )
+    if (!iter)
         return g_sequence_get_length (model->items);
     return 0; /* otherwise, this is easy again for a list */
 }
@@ -617,15 +627,15 @@ gboolean fm_folder_model_iter_nth_child (GtkTreeModel *tree_model,
     model = FM_FOLDER_MODEL (tree_model);
 
     /* a list has only top-level rows */
-    if ( parent )
+    if (parent)
         return FALSE;
 
     /* special case: if parent == NULL, set iter to n-th top-level row */
-    if ( n >= g_sequence_get_length (model->items) || n < 0 )
+    if (n >= g_sequence_get_length (model->items) || n < 0)
         return FALSE;
 
     items_it = g_sequence_get_iter_at_pos (model->items, n);
-    g_assert ( items_it  != g_sequence_get_end_iter (model->items) );
+    g_assert (items_it  != g_sequence_get_end_iter (model->items));
 
     iter->stamp = model->stamp;
     iter->user_data  = items_it;
@@ -644,10 +654,10 @@ gboolean fm_folder_model_get_sort_column_id (GtkTreeSortable *sortable,
                                             gint *sort_column_id,
                                             GtkSortType *order)
 {
-    FmFolderModel *model =  (FmFolderModel*)sortable;
-    if ( sort_column_id )
+    FmFolderModel *model = (FmFolderModel*)sortable;
+    if (sort_column_id)
         *sort_column_id = model->sort_col;
-    if ( order )
+    if (order)
         *order = model->sort_order;
     return TRUE;
 }
@@ -656,8 +666,8 @@ void fm_folder_model_set_sort_column_id (GtkTreeSortable *sortable,
                                         gint sort_column_id,
                                         GtkSortType order)
 {
-    FmFolderModel *model =  (FmFolderModel*)sortable;
-    if ( model->sort_col == sort_column_id && model->sort_order == order )
+    FmFolderModel *model = (FmFolderModel*)sortable;
+    if (model->sort_col == sort_column_id && model->sort_order == order)
         return;
     model->sort_col = sort_column_id;
     model->sort_order = order;
@@ -696,10 +706,10 @@ static gint fm_folder_model_compare (FmFolderItem *item1,
 
     /* put folders before files */
     ret = fm_file_info_is_dir (file2) - fm_file_info_is_dir (file1);
-    if ( ret )
+    if (ret)
         return ret;
 
-    switch ( model->sort_col )
+    switch (model->sort_col)
     {
     case COL_FILE_NAME:
     {
@@ -708,7 +718,7 @@ _sort_by_name:
         key2 = fm_file_info_get_collate_key (file2);
         /*
         collate keys are already passed to g_utf8_casefold, no need to
-        use strcasecmp here  (and g_utf8_collate_key returns a string of
+        use strcasecmp here (and g_utf8_collate_key returns a string of
         which case cannot be ignored)
         */
         ret = g_strcmp0 (key1, key2);
@@ -749,16 +759,16 @@ void fm_folder_model_sort (FmFolderModel *model)
     GtkTreePath *path;
 
     /* if there is only one item */
-    if ( model->items == NULL || g_sequence_get_length (model->items) <= 1 )
+    if (model->items == NULL || g_sequence_get_length (model->items) <= 1)
         return;
 
     old_order = g_hash_table_new (g_direct_hash, g_direct_equal);
     /* save old order */
     items_it = g_sequence_get_begin_iter (model->items);
-    while ( !g_sequence_iter_is_end (items_it) )
+    while (!g_sequence_iter_is_end (items_it))
     {
         int i = g_sequence_iter_get_position (items_it);
-        g_hash_table_insert ( old_order, items_it, GINT_TO_POINTER (i) );
+        g_hash_table_insert (old_order, items_it, GINT_TO_POINTER (i));
         items_it = g_sequence_iter_next (items_it);
     }
 
@@ -766,12 +776,12 @@ void fm_folder_model_sort (FmFolderModel *model)
     g_sequence_sort (model->items, (GCompareDataFunc) fm_folder_model_compare, model);
 
     /* save new order */
-    new_order = g_new ( int, g_sequence_get_length (model->items) );
+    new_order = g_new (int, g_sequence_get_length (model->items));
     items_it = g_sequence_get_begin_iter (model->items);
-    while ( !g_sequence_iter_is_end (items_it) )
+    while (!g_sequence_iter_is_end (items_it))
     {
         int i = g_sequence_iter_get_position (items_it);
-        new_order[i] =  (guint)g_hash_table_lookup (old_order, items_it);
+        new_order[i] = (guint)g_hash_table_lookup (old_order, items_it);
         items_it = g_sequence_iter_next (items_it);
     }
         g_hash_table_destroy (old_order);
@@ -816,32 +826,32 @@ void fm_folder_model_file_deleted (FmFolderModel *model, FmFileInfo *file)
     gboolean update_view;
 #if 0
     /* If there is no file info, that means the dir itself was deleted. */
-    if ( G_UNLIKELY (!file) )
+    if (G_UNLIKELY (!file))
     {
         /* Clear the whole list */
         GSequenceIter *items_it = g_sequence_get_begin_iter (model->items);
         path = gtk_tree_path_new_from_indices (0, -1);
-        while ( !g_sequence_iter_is_end (items_it) )
+        while (!g_sequence_iter_is_end (items_it))
         {
             gtk_tree_model_row_deleted (GTK_TREE_MODEL (model), path);
-            file  =  (VFSFileInfo*)g_sequence_get (items_it);
+            file  = (VFSFileInfo*)g_sequence_get (items_it);
             items_it = g_sequence_iter_next (it);
             vfs_file_info_unref (file);
         }
-        for ( l = model->items; l; l = model->items )
+        for (l = model->items; l; l = model->items)
         {
             gtk_tree_model_row_deleted (GTK_TREE_MODEL (model), path);
-            file =  (VFSFileInfo*)l->data;
+            file = (VFSFileInfo*)l->data;
             model->items = g_list_delete_link (model->items, l);
             vfs_file_info_unref (file);
         }
-        g_sequence_remove_range ( g_sequence_get_begin_iter (model->items), g_sequence_get_end_iter (model->items) );
+        g_sequence_remove_range (g_sequence_get_begin_iter (model->items), g_sequence_get_end_iter (model->items));
         gtk_tree_path_free (path);
         return;
     }
 #endif
 
-    if ( !model->show_hidden && fm_file_info_is_hidden (file) ) /* if this is a hidden file */
+    if (!model->show_hidden && fm_file_info_is_hidden (file)) /* if this is a hidden file */
     {
         update_view = FALSE;
         seq_it = g_sequence_get_begin_iter (model->hidden);
@@ -852,15 +862,15 @@ void fm_folder_model_file_deleted (FmFolderModel *model, FmFileInfo *file)
         seq_it = g_sequence_get_begin_iter (model->items);
     }
 
-    while ( !g_sequence_iter_is_end (seq_it) )
+    while (!g_sequence_iter_is_end (seq_it))
     {
-        FmFolderItem *folder_item =  (FmFolderItem*)g_sequence_get (seq_it);
-        if ( folder_item->inf == file )
+        FmFolderItem *folder_item = (FmFolderItem*)g_sequence_get (seq_it);
+        if (folder_item->inf == file)
             break;
         seq_it = g_sequence_iter_next (seq_it);
     }
 
-    if ( update_view )
+    if (update_view)
     {
         GtkTreePath *path = gtk_tree_path_new_from_indices (g_sequence_iter_get_position (seq_it), -1);
         gtk_tree_model_row_deleted (GTK_TREE_MODEL (model), path);
@@ -876,25 +886,25 @@ void fm_folder_model_file_changed (FmFolderModel *model, FmFileInfo *file)
     GtkTreeIter it;
     GtkTreePath *path;
 
-    if ( !model->show_hidden && fm_file_info_is_hidden (file) )
+    if (!model->show_hidden && fm_file_info_is_hidden (file))
         return;
 
     items_it = g_sequence_get_begin_iter (model->items);
     
     /* FIXME_pcm: write a  GCompareDataFunc for this */
-    while ( !g_sequence_iter_is_end (items_it) )
+    while (!g_sequence_iter_is_end (items_it))
     {
-        folder_item =  (FmFolderItem*)g_sequence_get (items_it);
-        if ( folder_item->inf == file )
+        folder_item = (FmFolderItem*)g_sequence_get (items_it);
+        if (folder_item->inf == file)
             break;
         items_it = g_sequence_iter_next (items_it);
     }
 
-    if ( items_it == g_sequence_get_end_iter (model->items) )
+    if (items_it == g_sequence_get_end_iter (model->items))
         return;
 
     /* update the icon */
-    if ( folder_item->icon )
+    if (folder_item->icon)
     {
         g_object_unref (folder_item->icon);
         folder_item->icon = NULL;
@@ -918,21 +928,21 @@ void fm_folder_model_set_show_hidden (FmFolderModel *model, gboolean show_hidden
     GList *l, *next;
     GSequenceIter *items_it;
     g_return_if_fail (model != NULL);
-    if ( model->show_hidden == show_hidden )
+    if (model->show_hidden == show_hidden)
         return;
 
     model->show_hidden = show_hidden;
-    if ( show_hidden ) /* add previously hidden items back to the list */
+    if (show_hidden) /* add previously hidden items back to the list */
     {
         GSequenceIter *hidden_it = g_sequence_get_begin_iter (model->hidden);
-        while ( !g_sequence_iter_is_end (hidden_it) )
+        while (!g_sequence_iter_is_end (hidden_it))
         {
             GtkTreeIter it;
             GSequenceIter *next_hidden_it;
             GSequenceIter *insert_item_it = g_sequence_search (model->items, g_sequence_get (hidden_it),
-                                                              (GCompareDataFunc) fm_folder_model_compare, model);
+                                                             (GCompareDataFunc) fm_folder_model_compare, model);
             next_hidden_it = g_sequence_iter_next (hidden_it);
-            folder_item =  (FmFolderItem*)g_sequence_get (hidden_it);
+            folder_item = (FmFolderItem*)g_sequence_get (hidden_it);
             it.stamp = model->stamp;
             it.user_data  = hidden_it;
             g_sequence_move (hidden_it, insert_item_it);
@@ -945,15 +955,15 @@ void fm_folder_model_set_show_hidden (FmFolderModel *model, gboolean show_hidden
     else /* move invisible items to hidden list */
     {
         GSequenceIter *items_it = g_sequence_get_begin_iter (model->items);
-        while ( !g_sequence_iter_is_end (items_it) )
+        while (!g_sequence_iter_is_end (items_it))
         {
             GtkTreePath *tp;
             GSequenceIter *next_item_it = g_sequence_iter_next (items_it);
-            folder_item =  (FmFolderItem*)g_sequence_get (items_it);
-            if ( fm_file_info_is_hidden (folder_item->inf) )
+            folder_item = (FmFolderItem*)g_sequence_get (items_it);
+            if (fm_file_info_is_hidden (folder_item->inf))
             {
                 gint delete_pos = g_sequence_iter_get_position (items_it);
-                g_sequence_move ( items_it, g_sequence_get_begin_iter (model->hidden) );
+                g_sequence_move (items_it, g_sequence_get_begin_iter (model->hidden));
                 tp = gtk_tree_path_new_from_indices (delete_pos, -1);
                 /* tell everybody that we removed an item */
                 gtk_tree_model_row_deleted (GTK_TREE_MODEL (model), tp);
@@ -977,19 +987,19 @@ void reload_icons (FmFolderModel *model, enum ReloadFlags flags)
 
     if (model->thumbnail_requests)
     {
-        g_list_foreach (model->thumbnail_requests,  (GFunc)fm_thumbnail_request_cancel, NULL);
+        g_list_foreach (model->thumbnail_requests, (GFunc)fm_thumbnail_request_cancel, NULL);
         g_list_free (model->thumbnail_requests);
         model->thumbnail_requests = NULL;
     }
 
-    for ( ; !g_sequence_iter_is_end (it); it = g_sequence_iter_next (it) )
+    for ( ; !g_sequence_iter_is_end (it); it = g_sequence_iter_next (it))
     {
-        FmFolderItem *folder_item =  (FmFolderItem*)g_sequence_get (it);
+        FmFolderItem *folder_item = (FmFolderItem*)g_sequence_get (it);
         if (folder_item->icon)
         {
             GtkTreeIter tree_it = {0};
-            if ( (flags & RELOAD_ICONS && !folder_item->is_thumbnail) ||
-                (flags & RELOAD_THUMBNAILS && folder_item->is_thumbnail))
+            if ((flags & RELOAD_ICONS && !folder_item->is_thumbnail) ||
+               (flags & RELOAD_THUMBNAILS && folder_item->is_thumbnail))
             {
                 g_object_unref (folder_item->icon);
                 folder_item->icon = NULL;
@@ -1005,9 +1015,9 @@ void reload_icons (FmFolderModel *model, enum ReloadFlags flags)
     gtk_tree_path_free (tp);
 
     it = g_sequence_get_begin_iter (model->hidden);
-    for ( ; !g_sequence_iter_is_end (it); it = g_sequence_iter_next (it) )
+    for ( ; !g_sequence_iter_is_end (it); it = g_sequence_iter_next (it))
     {
-        FmFolderItem *folder_item =  (FmFolderItem*)g_sequence_get (it);
+        FmFolderItem *folder_item = (FmFolderItem*)g_sequence_get (it);
         if (folder_item->icon)
         {
             g_object_unref (folder_item->icon);
@@ -1025,7 +1035,7 @@ void on_icon_theme_changed (GtkIconTheme *theme, FmFolderModel *model)
 
 void fm_folder_model_get_common_suffix_for_prefix (FmFolderModel *model,
                                                   const gchar *prefix,
-                                                  gboolean  (*file_info_predicate) (FmFileInfo*),
+                                                  gboolean (*file_info_predicate) (FmFileInfo*),
                                                   gchar *common_suffix)
 {
     GSequenceIter *item_it;
@@ -1034,30 +1044,30 @@ void fm_folder_model_get_common_suffix_for_prefix (FmFolderModel *model,
 
     g_return_if_fail (common_suffix != NULL);
 
-    if ( !model )
+    if (!model)
         return;
 
     prefix_len = strlen (prefix);
     common_suffix[0] = 0;
 
-    for ( item_it = g_sequence_get_begin_iter (model->items);
+    for (item_it = g_sequence_get_begin_iter (model->items);
         !g_sequence_iter_is_end (item_it);
-        item_it = g_sequence_iter_next (item_it) )
+        item_it = g_sequence_iter_next (item_it))
     {
-        FmFolderItem *folder_item =  (FmFolderItem*)g_sequence_get (item_it);
-        gboolean predicate_ok =  (file_info_predicate == NULL) || file_info_predicate (folder_item->inf);
+        FmFolderItem *folder_item = (FmFolderItem*)g_sequence_get (item_it);
+        gboolean predicate_ok = (file_info_predicate == NULL) || file_info_predicate (folder_item->inf);
         gint i = 0;
-        if ( predicate_ok && g_str_has_prefix (folder_item->inf->disp_name, prefix) )
+        if (predicate_ok && g_str_has_prefix (folder_item->inf->disp_name, prefix))
         {
             /* first match -> init */
-            if ( !common_suffix_initialized )
+            if (!common_suffix_initialized)
             {
                 strcpy (common_suffix,  folder_item->inf->disp_name + prefix_len);
                 common_suffix_initialized = TRUE;
             }
             else
             {
-                while ( common_suffix[i] == folder_item->inf->disp_name[prefix_len + i] )
+                while (common_suffix[i] == folder_item->inf->disp_name[prefix_len + i])
                     i++;
                 common_suffix[i] = 0;
             }
@@ -1069,10 +1079,10 @@ void fm_folder_model_get_common_suffix_for_prefix (FmFolderModel *model,
 gboolean fm_folder_model_find_iter_by_filename (FmFolderModel *model, GtkTreeIter *it, const char *name)
 {
     GSequenceIter *item_it = g_sequence_get_begin_iter (model->items);
-    for ( ; !g_sequence_iter_is_end (item_it); item_it = g_sequence_iter_next (item_it) )
+    for ( ; !g_sequence_iter_is_end (item_it); item_it = g_sequence_iter_next (item_it))
     {
-        FmFolderItem *folder_item =  (FmFolderItem*)g_sequence_get (item_it);
-        if ( g_strcmp0 (folder_item->inf->path->name, name) == 0 )
+        FmFolderItem *folder_item = (FmFolderItem*)g_sequence_get (item_it);
+        if (g_strcmp0 (folder_item->inf->path->name, name) == 0)
         {
             it->stamp = model->stamp;
             it->user_data  = item_it;
@@ -1085,10 +1095,10 @@ gboolean fm_folder_model_find_iter_by_filename (FmFolderModel *model, GtkTreeIte
 static gboolean fm_folder_model_find_iter_by_fileinfo (FmFolderModel *model, GtkTreeIter *it, FmFileInfo *fi)
 {
     GSequenceIter *item_it = g_sequence_get_begin_iter (model->items);
-    for ( ; !g_sequence_iter_is_end (item_it); item_it = g_sequence_iter_next (item_it) )
+    for ( ; !g_sequence_iter_is_end (item_it); item_it = g_sequence_iter_next (item_it))
     {
-        FmFolderItem *folder_item =  (FmFolderItem*)g_sequence_get (item_it);
-        if  (folder_item->inf == fi)
+        FmFolderItem *folder_item = (FmFolderItem*)g_sequence_get (item_it);
+        if (folder_item->inf == fi)
         {
             it->stamp = model->stamp;
             it->user_data  = item_it;
@@ -1100,7 +1110,7 @@ static gboolean fm_folder_model_find_iter_by_fileinfo (FmFolderModel *model, Gtk
 
 void on_thumbnail_loaded (FmThumbnailRequest *req, gpointer user_data)
 {
-    FmFolderModel *model =  (FmFolderModel*)user_data;
+    FmFolderModel *model = (FmFolderModel*)user_data;
     FmFileInfo *fi = fm_thumbnail_request_get_file_info (req);
     GdkPixbuf *pix = fm_thumbnail_request_get_pixbuf (req);
     GtkTreeIter it;
@@ -1112,11 +1122,11 @@ void on_thumbnail_loaded (FmThumbnailRequest *req, gpointer user_data)
     /* remove the request from list */
     model->thumbnail_requests = g_list_remove (model->thumbnail_requests, req);
 
-    if  (fm_folder_model_find_iter_by_fileinfo (model, &it, fi))
+    if (fm_folder_model_find_iter_by_fileinfo (model, &it, fi))
     {
         FmFolderItem *folder_item;
-        seq_it =  (GSequenceIter*)it.user_data;
-        folder_item =  (FmFolderItem*)g_sequence_get (seq_it);
+        seq_it = (GSequenceIter*)it.user_data;
+        folder_item = (FmFolderItem*)g_sequence_get (seq_it);
         if (pix)
         {
             GtkTreePath *tp = fm_folder_model_get_path (GTK_TREE_MODEL (model), &it);
@@ -1150,7 +1160,7 @@ guint fm_folder_model_get_icon_size (FmFolderModel *model)
 
 void on_show_thumbnail_changed (FmConfig *cfg, gpointer user_data)
 {
-    FmFolderModel *model =  (FmFolderModel*)user_data;
+    FmFolderModel *model = (FmFolderModel*)user_data;
     reload_icons (model, RELOAD_THUMBNAILS);
 }
 
@@ -1159,7 +1169,7 @@ static GList *find_in_pending_thumbnail_requests (FmFolderModel *model, FmFileIn
     GList *reqs = model->thumbnail_requests, *l;
     for (l=reqs;l;l=l->next)
     {
-        FmThumbnailRequest *req =  (FmThumbnailRequest*)l->data;
+        FmThumbnailRequest *req = (FmThumbnailRequest*)l->data;
         FmFileInfo *fi2 = fm_thumbnail_request_get_file_info (req);
         if (0 == g_strcmp0 (fi->path->name, fi2->path->name))
             return l;
@@ -1186,7 +1196,7 @@ static void reload_thumbnail (FmFolderModel *model, GSequenceIter *seq_it, FmFol
 /* FIXME_pcm: how about hidden files? */
 void on_thumbnail_local_changed (FmConfig *cfg, gpointer user_data)
 {
-    FmFolderModel *model =  (FmFolderModel*)user_data;
+    FmFolderModel *model = (FmFolderModel*)user_data;
     FmThumbnailRequest *req;
     GList *new_reqs = NULL;
     GSequenceIter *seq_it;
@@ -1195,10 +1205,10 @@ void on_thumbnail_local_changed (FmConfig *cfg, gpointer user_data)
     if (cfg->thumbnail_local)
     {
         GList *l; /* remove non-local files from thumbnail requests */
-        for (l = model->thumbnail_requests; l; )
+        for (l = model->thumbnail_requests; l;)
         {
             GList *next = l->next;
-            req =  (FmThumbnailRequest*)l->data;
+            req = (FmThumbnailRequest*)l->data;
             fi = fm_thumbnail_request_get_file_info (req);
             if (!fm_path_is_local (fi->path))
             {
@@ -1210,9 +1220,9 @@ void on_thumbnail_local_changed (FmConfig *cfg, gpointer user_data)
         }
     }
     seq_it = g_sequence_get_begin_iter (model->items);
-    while ( !g_sequence_iter_is_end (seq_it) )
+    while (!g_sequence_iter_is_end (seq_it))
     {
-        FmFolderItem *folder_item =  (FmFolderItem*)g_sequence_get (seq_it);
+        FmFolderItem *folder_item = (FmFolderItem*)g_sequence_get (seq_it);
         fi = folder_item->inf;
         if (cfg->thumbnail_local)
         {
@@ -1238,7 +1248,7 @@ void on_thumbnail_local_changed (FmConfig *cfg, gpointer user_data)
 /* FIXME_pcm: how about hidden files? */
 void on_thumbnail_max_changed (FmConfig *cfg, gpointer user_data)
 {
-    FmFolderModel *model =  (FmFolderModel*)user_data;
+    FmFolderModel *model = (FmFolderModel*)user_data;
     FmThumbnailRequest *req;
     GList *new_reqs = NULL, *l;
     GSequenceIter *seq_it;
@@ -1251,9 +1261,9 @@ void on_thumbnail_max_changed (FmConfig *cfg, gpointer user_data)
         for (l = model->thumbnail_requests; l; )
         {
             GList *next = l->next;
-            req =  (FmThumbnailRequest*)l->data;
+            req = (FmThumbnailRequest*)l->data;
             fi = fm_thumbnail_request_get_file_info (req);
-            if (fi->size >  (cfg->thumbnail_max << 10))
+            if (fi->size > (cfg->thumbnail_max << 10))
             {
                 fm_thumbnail_request_cancel (req);
                 model->thumbnail_requests = g_list_delete_link (model->thumbnail_requests, l);
@@ -1262,15 +1272,15 @@ void on_thumbnail_max_changed (FmConfig *cfg, gpointer user_data)
         }
     }
     seq_it = g_sequence_get_begin_iter (model->items);
-    while ( !g_sequence_iter_is_end (seq_it) )
+    while (!g_sequence_iter_is_end (seq_it))
     {
-        FmFolderItem *folder_item =  (FmFolderItem*)g_sequence_get (seq_it);
+        FmFolderItem *folder_item = (FmFolderItem*)g_sequence_get (seq_it);
         fi = folder_item->inf;
         if (cfg->thumbnail_max)
         {
             if (thumbnail_max_bytes > model->thumbnail_max)
             {
-                if (fi->size < thumbnail_max_bytes && fi->size > model->thumbnail_max )
+                if (fi->size < thumbnail_max_bytes && fi->size > model->thumbnail_max)
                 {
                     if (!folder_item->thumbnail_failed && fm_file_info_can_thumbnail (fi))
                     {
