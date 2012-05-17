@@ -36,7 +36,8 @@ namespace Desktop {
     Desktop.Group?          global_desktop_group;
     Manager.Group?          global_manager_group;
     Desktop.VolumeMonitor?  global_volume_monitor;
-    
+    Desktop.SettingsDialog? global_settings_dialog;
+
     public class Application : GLib.Application {
         
         bool _debug_mode = false;

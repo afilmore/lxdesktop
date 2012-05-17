@@ -443,6 +443,7 @@
                               <object class="GtkCheckButton" id="show_my_doc">
                                 <property name="label" translatable="yes">Show "My Documents" icon on desktop</property>
                                 <property name="use_action_appearance">False</property>
+                                <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
                                 <property name="use_action_appearance">False</property>
@@ -459,6 +460,7 @@
                               <object class="GtkCheckButton" id="show_my_computer">
                                 <property name="label" translatable="yes">Show "My Computer" icon on desktop</property>
                                 <property name="use_action_appearance">False</property>
+                                <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
                                 <property name="use_action_appearance">False</property>
@@ -475,6 +477,7 @@
                               <object class="GtkCheckButton" id="show_trash">
                                 <property name="label" translatable="yes">Show "Trash Bin" icon on desktop</property>
                                 <property name="use_action_appearance">False</property>
+                                <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
                                 <property name="use_action_appearance">False</property>
@@ -491,6 +494,7 @@
                               <object class="GtkCheckButton" id="show_volumes">
                                 <property name="label" translatable="yes">Show icons of volumes on desktop</property>
                                 <property name="use_action_appearance">False</property>
+                                <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
                                 <property name="use_action_appearance">False</property>
