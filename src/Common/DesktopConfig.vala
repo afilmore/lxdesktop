@@ -83,9 +83,9 @@ namespace Desktop {
         public Config () {
             
             // Set a default background color.
-            Gdk.Color.parse ("#3C6DA5", out color_background);
-            Gdk.Color.parse ("#FFFFFF", out color_text);
-            Gdk.Color.parse ("#000000", out color_shadow);
+//~             Gdk.Color.parse ("#3C6DA5", out color_background);
+//~             Gdk.Color.parse ("#FFFFFF", out color_text);
+//~             Gdk.Color.parse ("#000000", out color_shadow);
             
             // Overload LibFmcore's Default Config...
             base.show_thumbnail = true;
@@ -93,6 +93,10 @@ namespace Desktop {
             
             Settings settings = new Settings ("desktop.noname.settings");
             
+            this.pane_icon_size =                           settings.get_int        ("pane-icon-size");
+            this.small_icon_size =                          settings.get_int        ("small-icon-size");
+            this.big_icon_size =                            settings.get_int        ("big-icon-size");
+
             string color =                                  settings.get_string     ("color-background");
             Gdk.Color.parse (color, out color_background);
             
@@ -107,6 +111,7 @@ namespace Desktop {
             this.show_trashcan =                            settings.get_boolean    ("show-trashcan");
             this.show_mount =                               settings.get_boolean    ("show-mount");
             
+            this.wallpaper_mode =   (Fm.WallpaperMode)      settings.get_enum       ("wallpaper-mode");
         }
         
         public void set_background (Gtk.Widget desktop) {
@@ -114,11 +119,10 @@ namespace Desktop {
             Settings settings = new Settings ("desktop.noname.settings");
             
             this.wallpaper =                                settings.get_string     ("wallpaper");
-            this.wallpaper_mode =   (Fm.WallpaperMode)      settings.get_enum       ("wallpaper-mode");
             
             Desktop.set_background (desktop,
                                     wallpaper,
-                                    Fm.WallpaperMode.TILE,
+                                    this.wallpaper_mode,
                                     global_config.color_background);
         }
     }
