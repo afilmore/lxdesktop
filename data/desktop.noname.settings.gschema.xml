@@ -78,11 +78,28 @@
             <description>Description</description>
         </key>
 
-        <!--
-            uint            pane-icon-size          = 16;
-            uint            small-icon-size         = 16;
-            uint            big-icon-size           = 36;
+        <key type="i" name="pane-icon-size">
+            <range min="16" max="42"/>
+            <default>16</default>
+            <summary>Summary</summary>
+            <description>Description</description>
+        </key>
 
+        <key type="i" name="small-icon-size">
+            <range min="16" max="42"/>
+            <default>16</default>
+            <summary>Summary</summary>
+            <description>Description</description>
+        </key>
+
+        <key type="i" name="big-icon-size">
+            <range min="16" max="42"/>
+            <default>36</default>
+            <summary>Summary</summary>
+            <description>Description</description>
+        </key>
+
+        <!--
             Gtk.SortType    sort-type = Gtk.SortType.ASCENDING;
             Fm.FileColumn   sort-by = Fm.FileColumn.NAME;
 
