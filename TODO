@@ -32,6 +32,8 @@
     
     -   LibFmCore's Code Cleanup
     
+        *   Move WallpaperMode to the desktop...
+        
         *   Split fm-utils.c into fm_mount.c... etc...
         
         *   Do some cleanup in gtk/fm-file-menu gtk-dlg/fm-gtk-launcher

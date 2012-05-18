@@ -4,16 +4,92 @@
 
 <schemalist gettext-domain="gsettings-desktop-schemas">
   
-  <schema path="/desktop/noname/settings/" id="desktop.noname.settings">
-    
-    <key type="s" name="wallpaper">
-      <default>'/usr/share/lubuntu/wallpapers/lubuntu-default-wallpaper.png'</default>
-      <summary>Summary</summary>
-      <description>Description</description>
-    </key>
-  
-  </schema>
-  
+    <enum id="WallpaperMode">
+        <value nick="COLOR"     value="0"/>
+        <value nick="STRETCH"   value="1"/>
+        <value nick="FIT"       value="2"/>
+        <value nick="CENTER"    value="3"/>
+        <value nick="TILE"      value="4"/>
+    </enum>
+
+    <schema path="/desktop/noname/settings/" id="desktop.noname.settings">
+
+        <key type="s" name="wallpaper">
+            <default>'/usr/share/lubuntu/wallpapers/lubuntu-default-wallpaper.png'</default>
+            <summary>Summary</summary>
+            <description>Description</description>
+        </key>
+
+        <key name='wallpaper-mode' enum='WallpaperMode'>
+            <default>'COLOR'</default>
+        </key>
+
+        <key type="s" name="color-background">
+            <default>'#3C6DA5'</default>
+            <summary>Summary</summary>
+            <description>Description</description>
+        </key>
+
+        <key type="s" name="color-text">
+            <default>'#FFFFFF'</default>
+            <summary>Summary</summary>
+            <description>Description</description>
+        </key>
+
+        <key type="s" name="color-shadow">
+            <default>'#000000'</default>
+            <summary>Summary</summary>
+            <description>Description</description>
+        </key>
+
+        <key type="b" name="show-mycomputer">
+            <default>true</default>
+            <summary>Summary</summary>
+            <description>Description</description>
+        </key>
+
+        <key type="b" name="show-trashcan">
+            <default>true</default>
+            <summary>Summary</summary>
+            <description>Description</description>
+        </key>
+
+        <key type="b" name="show-mydocuments">
+            <default>true</default>
+            <summary>Summary</summary>
+            <description>Description</description>
+        </key>
+
+        <key type="b" name="show-mount">
+            <default>false</default>
+            <summary>Summary</summary>
+            <description>Description</description>
+        </key>
+
+        <key type="b" name="show-internalvolumes">
+            <default>false</default>
+            <summary>Summary</summary>
+            <description>Description</description>
+        </key>
+
+        <key type="b" name="single-click">
+            <default>false</default>
+            <summary>Summary</summary>
+            <description>Description</description>
+        </key>
+
+        <!--
+            uint            pane-icon-size          = 16;
+            uint            small-icon-size         = 16;
+            uint            big-icon-size           = 36;
+
+            Gtk.SortType    sort-type = Gtk.SortType.ASCENDING;
+            Fm.FileColumn   sort-by = Fm.FileColumn.NAME;
+
+            public uint     wallpaper-changed = 0;
+        -->
+
+    </schema>
 
 </schemalist>
 
