@@ -83,6 +83,10 @@ struct _FmFolderView
 
     gboolean show_hidden;
 
+    uint big_icon_size;
+    uint small_icon_size;
+    gboolean single_click;
+    
     GtkWidget* view;
     FmFolder* folder;
     GtkTreeModel* model;

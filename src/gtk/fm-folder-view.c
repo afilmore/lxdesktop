@@ -213,6 +213,12 @@ GtkWidget* fm_folder_view_new (FmFolderViewMode mode)
 {
     FmFolderView* fv =  (FmFolderView*)g_object_new (FM_FOLDER_VIEW_TYPE, NULL);
     fm_folder_view_set_mode (fv, mode);
+    
+    // TODO_axl: pass settings as arguments...
+    fv->small_icon_size = 16;
+    fv->big_icon_size   = 36;
+    fv->single_click = FALSE;
+    
     return  (GtkWidget*)fv;
 }
 
@@ -733,16 +739,16 @@ static void on_folder_loaded (FmFolder* folder, FmFolderView* fv)
     case FM_FV_LIST_VIEW:
         cancel_pending_row_activated (fv);
         gtk_tree_view_set_model (GTK_TREE_VIEW (fv->view), (GtkTreeModel*) model);
-        icon_size = fm_config->small_icon_size;
+        icon_size = fv->small_icon_size;
         fm_folder_model_set_icon_size (model, icon_size);
         break;
     case FM_FV_ICON_VIEW:
-        icon_size = fm_config->big_icon_size;
+        icon_size = fv->big_icon_size;
         fm_folder_model_set_icon_size (model, icon_size);
         exo_icon_view_set_model (EXO_ICON_VIEW (fv->view), (GtkTreeModel*) model);
         break;
     case FM_FV_COMPACT_VIEW:
-        icon_size = fm_config->small_icon_size;
+        icon_size = fv->small_icon_size;
         fm_folder_model_set_icon_size (model, icon_size);
         exo_icon_view_set_model (EXO_ICON_VIEW (fv->view), (GtkTreeModel*) model);
         break;
@@ -875,7 +881,7 @@ static void set_icon_size (FmFolderView* fv, guint icon_size)
 
 static void on_big_icon_size_changed (FmConfig* cfg, FmFolderView* fv)
 {
-    set_icon_size (fv, cfg->big_icon_size);
+    set_icon_size (fv, fv->big_icon_size);
 }
 
 #if 0
@@ -1031,7 +1037,7 @@ static inline void create_icon_view (FmFolderView* fv, GList* sels)
     if (fv->mode == FM_FV_COMPACT_VIEW) /* compact view */
     {
 //        fv->icon_size_changed_handler = g_signal_connect (fm_config, "changed::small_icon_size", G_CALLBACK (on_small_icon_size_changed), fv);
-        icon_size = fm_config->small_icon_size;
+        icon_size = fv->small_icon_size;
         fm_cell_renderer_pixbuf_set_fixed_size (FM_CELL_RENDERER_PIXBUF (fv->renderer_pixbuf), icon_size, icon_size);
         if (model)
             fm_folder_model_set_icon_size (model, icon_size);
@@ -1049,7 +1055,7 @@ static inline void create_icon_view (FmFolderView* fv, GList* sels)
         if (fv->mode == FM_FV_ICON_VIEW)
         {
             fv->icon_size_changed_handler = g_signal_connect (fm_config, "changed::big_icon_size", G_CALLBACK (on_big_icon_size_changed), fv);
-            icon_size = fm_config->big_icon_size;
+            icon_size = fv->big_icon_size;
             fm_cell_renderer_pixbuf_set_fixed_size (FM_CELL_RENDERER_PIXBUF (fv->renderer_pixbuf), icon_size, icon_size);
             if (model)
                 fm_folder_model_set_icon_size (model, icon_size);
@@ -1096,7 +1102,7 @@ static inline void create_icon_view (FmFolderView* fv, GList* sels)
     g_signal_connect (fv->view, "selection-changed", G_CALLBACK (on_sel_changed), fv);
     exo_icon_view_set_model ((ExoIconView*)fv->view, fv->model);
     exo_icon_view_set_selection_mode ((ExoIconView*)fv->view, fv->sel_mode);
-    exo_icon_view_set_single_click ((ExoIconView*)fv->view, fm_config->single_click);
+    exo_icon_view_set_single_click ((ExoIconView*)fv->view, fv->single_click);
     exo_icon_view_set_single_click_timeout ((ExoIconView*)fv->view, SINGLE_CLICK_TIMEOUT);
 
     for (l = sels;l;l=l->next)
@@ -1116,7 +1122,7 @@ static inline void create_list_view (FmFolderView* fv, GList* sels)
     render = fm_cell_renderer_pixbuf_new ();
     fv->renderer_pixbuf = render;
 //    fv->icon_size_changed_handler = g_signal_connect (fm_config, "changed::small_icon_size", G_CALLBACK (on_small_icon_size_changed), fv);
-    icon_size = fm_config->small_icon_size;
+    icon_size = fv->small_icon_size;
     fm_cell_renderer_pixbuf_set_fixed_size (FM_CELL_RENDERER_PIXBUF (fv->renderer_pixbuf), icon_size, icon_size);
     if (model)
         fm_folder_model_set_icon_size (model, icon_size);
@@ -1163,7 +1169,7 @@ static inline void create_list_view (FmFolderView* fv, GList* sels)
     gtk_tree_view_set_search_column ((GtkTreeView*)fv->view, COL_FILE_NAME);
 
     gtk_tree_view_set_rubber_banding ((GtkTreeView*)fv->view, TRUE);
-    exo_tree_view_set_single_click ((ExoTreeView*)fv->view, fm_config->single_click);
+    exo_tree_view_set_single_click ((ExoTreeView*)fv->view, fv->single_click);
     exo_tree_view_set_single_click_timeout ((ExoTreeView*)fv->view, SINGLE_CLICK_TIMEOUT);
 
     ts = gtk_tree_view_get_selection ((GtkTreeView*)fv->view);
@@ -1236,12 +1242,12 @@ void on_single_click_changed (FmConfig* cfg, FmFolderView* fv)
     switch (fv->mode)
     {
     case FM_FV_LIST_VIEW:
-        exo_tree_view_set_single_click ((ExoTreeView*)fv->view, cfg->single_click);
+        exo_tree_view_set_single_click ((ExoTreeView*)fv->view, fv->single_click);
         break;
     case FM_FV_ICON_VIEW:
     case FM_FV_COMPACT_VIEW:
     case FM_FV_THUMBNAIL_VIEW:
-        exo_icon_view_set_single_click ((ExoIconView*)fv->view, cfg->single_click);
+        exo_icon_view_set_single_click ((ExoIconView*)fv->view, fv->single_click);
         break;
     }
 }
