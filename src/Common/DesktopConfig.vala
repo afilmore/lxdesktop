@@ -96,6 +96,11 @@ namespace Desktop {
             
             //string wall = "/home/hotnuma/Bureau/Wallpapers/at-the-beach-hd-wallpaper-1440x900.jpg";
             
+            Settings settings;
+            
+            settings = new Settings ("desktop.noname.settings");
+            this.wallpaper = settings.get_string ("wallpaper");
+            
             Desktop.set_background (desktop,
                                     wallpaper,
                                     Fm.WallpaperMode.TILE,
