@@ -60,28 +60,27 @@ namespace Desktop {
         // Single Click...
         public bool single_click            = false;    // single click to open file
 
-        public string           wallpaper;
-        public Fm.WallpaperMode wallpaper_mode = Fm.WallpaperMode.COLOR;
-        public uint             wallpaper_changed = 0;
+        public string               wallpaper;
+        public Fm.WallpaperMode     wallpaper_mode =    Fm.WallpaperMode.COLOR;
+        public uint                 wallpaper_changed = 0;
         
-        public Gdk.Color        color_background;
-        public Gdk.Color        color_text;
-        public Gdk.Color        color_shadow;
+        public Gdk.Color            color_background;
+        public Gdk.Color            color_text;
+        public Gdk.Color            color_shadow;
         
         // Folder Model Sorting
-        public Gtk.SortType     sort_type = Gtk.SortType.ASCENDING;
+        public Gtk.SortType         sort_type =         Gtk.SortType.ASCENDING;
         
         // Generates a compile error in Vala....
         // public Fm.FileColumn    sort_by = Fm.FileColumn.NAME;
         
-        public bool             show_mycomputer = false;
-        public bool             show_mydocuments = false;
-        public bool             show_trashcan = true;
-        public bool             show_mount = false;
+        public bool                 show_mycomputer =   false;
+        public bool                 show_mydocuments =  false;
+        public bool                 show_trashcan =     true;
+        public bool                 show_mount =        false;
+        
         
         public Config () {
-            
-            wallpaper = "/home/hotnuma/Bureau/Wallpapers/at-the-beach-hd-wallpaper-1440x900.jpg";
             
             // Set a default background color.
             Gdk.Color.parse ("#3C6DA5", out color_background);
@@ -91,16 +90,31 @@ namespace Desktop {
             // Overload LibFmcore's Default Config...
             base.show_thumbnail = true;
             base.confirm_delete = false;
+            
+            Settings settings = new Settings ("desktop.noname.settings");
+            
+            string color =                                  settings.get_string     ("color-background");
+            Gdk.Color.parse (color, out color_background);
+            
+            color =                                         settings.get_string     ("color-text");
+            Gdk.Color.parse (color, out color_text);
+            
+            color =                                         settings.get_string     ("color-shadow");
+            Gdk.Color.parse (color, out color_shadow);
+            
+            this.show_mycomputer =                          settings.get_boolean    ("show-mycomputer");
+            this.show_mydocuments =                         settings.get_boolean    ("show-mydocuments");
+            this.show_trashcan =                            settings.get_boolean    ("show-trashcan");
+            this.show_mount =                               settings.get_boolean    ("show-mount");
+            
         }
         
         public void set_background (Gtk.Widget desktop) {
             
-            //string wall = "/home/hotnuma/Bureau/Wallpapers/at-the-beach-hd-wallpaper-1440x900.jpg";
+            Settings settings = new Settings ("desktop.noname.settings");
             
-            Settings settings;
-            
-            settings = new Settings ("desktop.noname.settings");
-            this.wallpaper = settings.get_string ("wallpaper");
+            this.wallpaper =                                settings.get_string     ("wallpaper");
+            this.wallpaper_mode =   (Fm.WallpaperMode)      settings.get_enum       ("wallpaper-mode");
             
             Desktop.set_background (desktop,
                                     wallpaper,
