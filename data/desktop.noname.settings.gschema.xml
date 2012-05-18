@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- compile with "sudo glib-compile-schemas /usr/share/glib-2.0/schemas" -->
+
+<schemalist gettext-domain="gsettings-desktop-schemas">
+  
+  <schema path="/desktop/noname/" id="desktop.noname">
+    <key type="s" name="default">
+      <default>'noname'</default>
+      <summary>Default Desktop</summary>
+      <description>Default Desktop</description>
+    </key>
+    <key type="s" name="current">
+      <default>'noname'</default>
+      <summary>Default Desktop</summary>
+      <description>Default Desktop</description>
+    </key>
+    <child schema="desktop.noname.applications" name="applications"/>
+  </schema>
+  
+  <schema path="/desktop/noname/applications/" id="desktop.noname.applications">
+    <child schema="desktop.noname.applications.terminal" name="terminal"/>
+  </schema>
+  
+
+</schemalist>
+
+
