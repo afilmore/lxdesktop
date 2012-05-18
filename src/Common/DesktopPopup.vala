@@ -69,9 +69,9 @@ namespace Desktop {
             try {
                 ui.add_ui_from_string (_desktop_menu_xml, -1);
 
-            /***Gtk.AccelGroup accel_group = ui.get_accel_group ();
-            this.add_accel_group (accel_group);
-            ***/
+                /***Gtk.AccelGroup accel_group = ui.get_accel_group ();
+                this.add_accel_group (accel_group);
+                ***/
             
                 string xml_def =    "<popup>\n";
                 xml_def +=              "<menu action='CreateNew'>\n";
