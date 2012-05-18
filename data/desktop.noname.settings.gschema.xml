@@ -4,22 +4,14 @@
 
 <schemalist gettext-domain="gsettings-desktop-schemas">
   
-  <schema path="/desktop/noname/" id="desktop.noname">
-    <key type="s" name="default">
-      <default>'noname'</default>
-      <summary>Default Desktop</summary>
-      <description>Default Desktop</description>
+  <schema path="/desktop/noname/settings/" id="desktop.noname.settings">
+    
+    <key type="s" name="wallpaper">
+      <default>'/usr/share/lubuntu/wallpapers/lubuntu-default-wallpaper.png'</default>
+      <summary>Summary</summary>
+      <description>Description</description>
     </key>
-    <key type="s" name="current">
-      <default>'noname'</default>
-      <summary>Default Desktop</summary>
-      <description>Default Desktop</description>
-    </key>
-    <child schema="desktop.noname.applications" name="applications"/>
-  </schema>
   
-  <schema path="/desktop/noname/applications/" id="desktop.noname.applications">
-    <child schema="desktop.noname.applications.terminal" name="terminal"/>
   </schema>
   
 

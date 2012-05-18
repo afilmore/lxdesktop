@@ -1,6 +1,6 @@
 NULL=
 
-SUBDIRS=src
+SUBDIRS=data src
 
 EXTRA_DIST = \
 	$(NULL)
