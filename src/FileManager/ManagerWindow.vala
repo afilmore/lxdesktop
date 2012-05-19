@@ -1,16 +1,19 @@
 /***********************************************************************************************************************
- * ManagerWindow.vala
  * 
- * Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
+ *      ManagerWindow.vala
+ *
+ *      Adapted from LibFm Demo from LXDE (http://lxde.org/)
+ *      Copyright 2009 PCMan <pcman.tw@gmail.com>
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
+ *      
+ *      This program is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License Version 2.
+ *      This program is distributed without any warranty,
+ *      See the GNU General Public License for more details.
+ *      http://www.gnu.org/licenses/gpl-2.0.txt
  * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License Version 2.
- * http://www.gnu.org/licenses/gpl-2.0.txt
- * 
- * This software is a simple file manager originally based on LibFm Demo :
- * http://pcmanfm.git.sourceforge.net/git/gitweb.cgi?p=pcmanfm/libfm;a=blob;f=src/demo/main-win.c
- * 
- * Purpose: 
+ *
+ *      Purpose: 
  * 
  * 
  **********************************************************************************************************************/
@@ -71,101 +74,47 @@ namespace Manager {
         };
         
         
-        /*** Add all these actions later...
-        private const Gtk.ToggleActionEntry _main_win_toggle_actions[] = {
-            {"ShowHidden", null, N_("Show _Hidden"), "<Ctrl>H", null,               _on_show_hidden, false}
-        };
-
-        private const Gtk.RadioActionEntry _main_win_mode_actions[] = {
-            {"IconView", null, N_("_Icon View"), null, null,                        Fm.FolderViewMode.ICON_VIEW},
-            {"CompactView", null, N_("_Compact View"), null, null,                  Fm.FolderViewMode.COMPACT_VIEW},
-            {"ThumbnailView", null, N_("Thumbnail View"), null, null,               Fm.FolderViewMode.THUMBNAIL_VIEW},
-            {"ListView", null, N_("Detailed _List View"), null, null,               Fm.FolderViewMode.LIST_VIEW}
-        };
-
-        private const Gtk.RadioActionEntry _main_win_sort_type_actions[] = {
-            {"Asc", Gtk.Stock.SORT_ASCENDING, null, null, null,                     Gtk.SortType.ASCENDING},
-            {"Desc", Gtk.Stock.SORT_DESCENDING, null, null, null,                   Gtk.SortType.DESCENDING}
-        };
-
-        private const Gtk.RadioActionEntry _main_win_sort_by_actions[] = {
-            {"ByName", null, N_("By _Name"), null, null,                            Fm.FileColumn.NAME},
-            {"ByMTime", null, N_("By _Modification Time"), null, null,              Fm.FileColumn.MTIME}
-        };
-        **/
-        
-        
-        
-        
-        /*** Single Directory Popup Actions
-        private const Gtk.ActionEntry _folder_menu_actions[] = {
-            {"NewWin", Gtk.Stock.NEW, N_("Open in New Window"), null, null,         _on_open_in_new_win},
-            {"Search", Gtk.Stock.FIND, null, null, null, null}
-        };
-        ***/
-        
-        
-        private Fm.Path         _current_dir;
-        
-        
+        private Fm.Path             _current_dir;
         /***
-        
-        private Fm.Folder       _folder;
-        
+        private Fm.Folder           _folder;
         ***/
 
-        private Gtk.UIManager   _ui;
-        
-        private Gtk.Toolbar     _toolbar;
-        
-        private Fm.PathEntry    _path_entry;
-        
-        private Gtk.HPaned      _hpaned;
-        
-        private Fm.DirTreeView  _tree_view;
-        
-        private Gtk.Notebook    _notebook;
-        private Fm.FolderView   _current_folder_view;
-        
-        private Gtk.Statusbar   _statusbar;
-        private Gtk.Frame       _vol_status;
-        private uint            _statusbar_ctx;
-        private uint            _statusbar_ctx2;
-        
-        
-        
-        
-        // Desktop Popup...
-        private Desktop.Popup?  _desktop_popup_class;
-        private Gtk.Menu        _default_popup;
-        
-        
-        
+        private Gtk.UIManager       _ui;
+        private Gtk.Toolbar         _toolbar;
+        private Fm.PathEntry        _path_entry;
+        private Gtk.HPaned          _hpaned;
+        private Fm.DirTreeView      _tree_view;
+        private Gtk.Notebook        _notebook;
+        private Fm.FolderView?      _current_folder_view;
+        private Gtk.Statusbar       _statusbar;
+        private Gtk.Frame           _vol_status;
+        private uint                _statusbar_ctx;
+        private uint                _statusbar_ctx2;
         
         // File Popup...
-//~         private Fm.FileMenu     _file_menu;
-//~         private Gtk.Menu?       _files_popup;
+        private Desktop.FilePopup?  _file_popup;        
         
-        
-        private Desktop.FilePopup?     _file_popup;        
+        // Global Popup...
+        private Desktop.Popup?      _desktop_popup_class;
+        private Gtk.Menu            _default_popup;
         
         
         /*** Add these later, rework the navigation history...
-        
         private Gtk.Widget      _history_menu;
         private Fm.NavHistory   _nav_history;
         
         private Gtk.Widget      _bookmarks_menu;
         private Fm.Bookmarks    _bookmarks;
-        
         ***/
 
         public Window () {
             
             this.destroy.connect ( () => {
+                
                 global_num_windows--;
                 if (global_num_windows < 1)
                     Gtk.main_quit ();
+            
             });
             
 
@@ -325,9 +274,6 @@ namespace Manager {
                         expand = false;
                     }
                     
-                    
-                    
-                    
                     global_dir_tree_model.add_root (fi, null, expand);
                 }
             }
@@ -335,6 +281,7 @@ namespace Manager {
             _tree_view.set_model (global_dir_tree_model);
             _tree_view.directory_changed.connect (_tree_view_on_change_directory);
             _tree_view.button_release_event.connect (_tree_view_on_button_release);
+            
             
             
             
@@ -348,25 +295,16 @@ namespace Manager {
             _notebook.set_group_name ("file manager");
             
             
-            
-            
-            /* Create The Folder View...
-            _folder_view = new Fm.FolderView (Fm.FolderViewMode.LIST_VIEW);
-            
-            _folder_view.set_show_hidden (true);
-            _folder_view.sort (Gtk.SortType.ASCENDING, Fm.FileColumn.NAME);
-            _folder_view.set_selection_mode (Gtk.SelectionMode.MULTIPLE);
-            
-            _folder_view.clicked.connect        (_folder_view_on_file_clicked);
-            _folder_view.loaded.connect         (_folder_view_on_view_loaded);
-            _folder_view.sel_changed.connect    (_folder_view_on_sel_changed);*/
-
-            
-            
             _hpaned.add2 (_notebook);
 
-            this._new_tab ();
             
+            
+            
+            
+            
+            
+            // Create The Folder View...
+            this._new_tab ();
             
             
             
