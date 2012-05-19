@@ -21,6 +21,7 @@
 #include <config.h>
 #endif
 
+// AXL_CHANGES:
 #include "exo-lxde.h"
 
 /**
@@ -53,6 +54,7 @@ enum
 
 
 
+// LXDE_CHANGES:
 static void     exo_tree_view_class_init                    (ExoTreeViewClass *klass);
 static void     exo_tree_view_init                          (ExoTreeView      *tree_view);
 static void     exo_tree_view_finalize                      (GObject          *object);
@@ -102,13 +104,13 @@ struct _ExoTreeViewPrivate
   /* the path below the pointer or NULL */
   GtkTreePath *hover_path;
 
-  /* the column which is the only activable */
+  /* LXDE_CHANGES: the column which is the only activable */
   GtkTreeViewColumn* activable_column;
 };
 
 
 
-// LXDE_CHANGES ?
+// LXDE_CHANGES:
 static GObjectClass *exo_tree_view_parent_class;
 
 
@@ -142,7 +144,7 @@ exo_tree_view_class_init (ExoTreeViewClass *klass)
   /* add our private data to the class */
   g_type_class_add_private (klass, sizeof (ExoTreeViewPrivate));
 
-  /* determine our parent type class */
+  /* LXDE_CHANGES: determine our parent type class */
   exo_tree_view_parent_class = g_type_class_peek_parent (klass);
 
   gobject_class = G_OBJECT_CLASS (klass);
@@ -160,8 +162,9 @@ exo_tree_view_class_init (ExoTreeViewClass *klass)
   gtktree_view_class = GTK_TREE_VIEW_CLASS (klass);
   gtktree_view_class->move_cursor = exo_tree_view_move_cursor;
 
-  /* initialize the library's i18n support */
-  /* LXDE_CHANGES ? _exo_i18n_init (); */
+  /*** LXDE_CHANGES: initialize the library's i18n support
+  _exo_i18n_init ();
+  ***/
 
   /**
    * ExoTreeView:single-click:
@@ -290,6 +293,7 @@ exo_tree_view_button_press_event (GtkWidget      *widget,
   GList            *selected_paths = NULL;
   GList            *lp;
   gpointer          drag_data;
+  // LXDE_CHANGES:
   GtkTreeViewColumn* col;
   gboolean treat_as_blank = FALSE;
   
@@ -306,11 +310,11 @@ exo_tree_view_button_press_event (GtkWidget      *widget,
   /* check if the button press was on the internal tree view window */
   if (G_LIKELY (event->window == gtk_tree_view_get_bin_window (GTK_TREE_VIEW (tree_view))))
     {
-      /* determine the path at the event coordinates */
+      /* LXDE_CHANGES: determine the path at the event coordinates */
       if (!gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (tree_view), event->x, event->y, &path, &col, NULL, NULL))
         path = NULL;
 
-      // LXDE_CHANGES ?
+      // LXDE_CHANGES:
       if( tree_view->priv->activable_column && col != tree_view->priv->activable_column )
         {
           treat_as_blank = TRUE;
@@ -397,7 +401,7 @@ exo_tree_view_button_press_event (GtkWidget      *widget,
   /* call the parent's button press handler */
   result = (*GTK_WIDGET_CLASS (exo_tree_view_parent_class)->button_press_event) (widget, event);
 
-  // LXDE_CHANGES ?
+  // LXDE_CHANGES:
   if( treat_as_blank )
     gtk_tree_selection_unselect_all( selection );
 
@@ -460,7 +464,7 @@ exo_tree_view_button_release_event (GtkWidget      *widget,
           /* determine the path to the row that should be activated */
           if (gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (tree_view), event->x, event->y, &path, &column, NULL, NULL))
             {
-              /* emit row-activated for the determined row */
+              /* LXDE_CHANGES: emit row-activated for the determined row */
               if( ! tree_view->priv->activable_column || tree_view->priv->activable_column == column )
                 gtk_tree_view_row_activated (GTK_TREE_VIEW (tree_view), path, column);
 
@@ -526,6 +530,7 @@ exo_tree_view_motion_notify_event (GtkWidget      *widget,
   ExoTreeView *tree_view = EXO_TREE_VIEW (widget);
   GtkTreePath *path;
   GdkCursor   *cursor;
+  // LXDE_CHANGES:
   GtkTreeViewColumn *column;
 
   /* check if the event occurred on the tree view internal window and we are in single-click mode */
@@ -542,11 +547,11 @@ exo_tree_view_motion_notify_event (GtkWidget      *widget,
         }
       else
         {
-          /* determine the path at the event coordinates */
+          /* LXDE_CHANGES: determine the path at the event coordinates */
           if (!gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (tree_view), event->x, event->y, &path, &column, NULL, NULL))
             path = NULL;
 
-          /* LXDE_CHANGES ? determine if the column is activable */
+          /* LXDE_CHANGES: determine if the column is activable */
           if( tree_view->priv->activable_column && column != tree_view->priv->activable_column )
            {
              if(path)
@@ -926,7 +931,7 @@ exo_tree_view_set_single_click_timeout (ExoTreeView *tree_view,
     }
 }
 
-/* 2008.07.16 added by Hong Jen Yee for PCManFM.
+/* LXDE_CHANGES: 2008.07.16 added by Hong Jen Yee for PCManFM.
  * If activable column is set, only the specified column can be activated.
  * Other columns are viewed as blank area and won't receive mouse clicks.
  */
