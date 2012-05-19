@@ -1,26 +1,26 @@
 /***********************************************************************************************************************
  * 
- * fm-dir-tree-item.c
+ *      fm-dir-tree-item.c
  * 
- * Copyright 2010 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
- * Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
+ *      Copyright 2010 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ *      This program is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License as published by
+ *      the Free Software Foundation; either version 2 of the License, or
+ *       (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *      This program is distributed in the hope that it will be useful,
+ *      but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *      GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
+ *      You should have received a copy of the GNU General Public License
+ *      along with this program; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ *      MA 02110-1301, USA.
  * 
- * Purpose: 
+ *      Purpose: 
  * 
  * 
  * 
@@ -36,26 +36,6 @@
 #include "fm-icon-pixbuf.h"
 
 #include "fm-utils.h"
-
-
-// TODO_axl: test and remove...
-/*********************************************************************
- * Free Item List Functions...
- * _g_list_foreach_l is a variant of g_list_foreach which passes
- * GList *element as the first parameter to the given function
- * instead of the element data.
- * 
- * 
- ********************************************************************/
-//~ inline void _g_list_foreach_l (GList *list, GFunc func, gpointer user_data)
-//~ {
-    //~ while (list)
-    //~ {
-        //~ GList *next = list->next;
-        //~ (*func) (list, user_data);
-        //~ list = next;
-    //~ }
-//~ }
 
 
 // Forward declarations...
@@ -108,8 +88,6 @@ inline void fm_dir_tree_item_free (FmDirTreeItem *dir_tree_item)
 
     if (dir_tree_item->children)
     {
-        // TODO_axl: test and remove...
-        //_g_list_foreach_l (dir_tree_item->children, (GFunc)fm_dir_tree_item_free_l, NULL);
         fm_foreach (dir_tree_item->children, (GFunc) fm_dir_tree_item_free_l, NULL);
         g_list_free (dir_tree_item->children);
     }
@@ -236,7 +214,7 @@ static void on_folder_files_added (FmFolder *folder, GSList *files, GList *item_
         FmFileInfo *fi = FM_FILE_INFO (l->data);
         
         /***
-         * Should FmFolder generate "files-added" signal on its first-time loading?
+         * Should FmFolder generate "files-added" signal on its first-time loading ?
          * Isn't "loaded" signal enough ?
          ***/
         

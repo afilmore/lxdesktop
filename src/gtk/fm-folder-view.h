@@ -98,8 +98,8 @@ struct _FmFolderView
     uint                big_icon_size;
     gboolean            single_click;
     
-    // Wordarounds to fix a gtk+ bug introduced in gtk+ 2.20:
-    // https://bugzilla.gnome.org/show_bug.cgi?id=612802
+    /*** Wordarounds a gtk+ bug introduced in gtk+ 2.20:
+         https://bugzilla.gnome.org/show_bug.cgi?id=612802 ***/
     GtkTreeRowReference *activated_row_ref;
     guint               row_activated_idle;
 };
@@ -122,43 +122,58 @@ struct _FmFolderViewClass
  * fm_folder_view_new () calls the set_mode function to create a view widget.
  * 
  **************************************************************************************************/
-GtkWidget *fm_folder_view_new                       (FmFolderViewMode mode);
-GType fm_folder_view_get_type                       ();
+GtkWidget *         fm_folder_view_new              (FmFolderViewMode mode);
+GType               fm_folder_view_get_type         ();
 
-void fm_folder_view_set_mode                        (FmFolderView *folder_view, FmFolderViewMode mode);
-FmFolderViewMode fm_folder_view_get_mode            (FmFolderView *folder_view);
+void                fm_folder_view_set_mode         (FmFolderView *folder_view, FmFolderViewMode mode);
+FmFolderViewMode    fm_folder_view_get_mode         (FmFolderView *folder_view);
+
+FmFolderModel *     fm_folder_view_get_model        (FmFolderView *folder_view);
+
+void                fm_folder_view_set_show_hidden  (FmFolderView *folder_view, gboolean show);
+gboolean            fm_folder_view_get_show_hidden  (FmFolderView *folder_view);
 
 
-
-
-
-void fm_folder_view_set_selection_mode              (FmFolderView *folder_view, GtkSelectionMode mode);
-GtkSelectionMode fm_folder_view_get_selection_mode  (FmFolderView *folder_view);
-
-void fm_folder_view_sort                            (FmFolderView *folder_view, GtkSortType type, int by);
-GtkSortType fm_folder_view_get_sort_type            (FmFolderView *folder_view);
-int fm_folder_view_get_sort_by                      (FmFolderView *folder_view);
-
-void fm_folder_view_set_show_hidden                 (FmFolderView *folder_view, gboolean show);
-gboolean fm_folder_view_get_show_hidden             (FmFolderView *folder_view);
-
+/***************************************************************************************************
+ * 
+ * 
+ * 
+ **************************************************************************************************/
+FmFolder *fm_folder_view_get_folder                 (FmFolderView *folder_view);
+gboolean fm_folder_view_get_is_loaded               (FmFolderView *folder_view);
 gboolean fm_folder_view_chdir                       (FmFolderView *folder_view, FmPath *path);
 gboolean fm_folder_view_chdir_by_name               (FmFolderView *folder_view, const char *path_str);
 FmPath *fm_folder_view_get_cwd                      (FmFolderView *folder_view);
 FmFileInfo *fm_folder_view_get_cwd_info             (FmFolderView *folder_view);
 
-gboolean fm_folder_view_get_is_loaded               (FmFolderView *folder_view);
+
+/***************************************************************************************************
+ * View Selection...
+ * 
+ * 
+ **************************************************************************************************/
+void fm_folder_view_set_selection_mode              (FmFolderView *folder_view, GtkSelectionMode mode);
+GtkSelectionMode fm_folder_view_get_selection_mode  (FmFolderView *folder_view);
+
+void fm_folder_view_select_all                      (FmFolderView *folder_view);
+void fm_folder_view_select_invert                   (FmFolderView *folder_view);
+
+void fm_folder_view_select_file_path                (FmFolderView *folder_view, FmPath *path);
+void fm_folder_view_select_file_paths               (FmFolderView *folder_view, FmPathList *paths);
 
 FmFileInfoList *fm_folder_view_get_selected_files   (FmFolderView *folder_view);
 FmPathList *fm_folder_view_get_selected_file_paths  (FmFolderView *folder_view);
 
-FmFolderModel *fm_folder_view_get_model             (FmFolderView *folder_view);
-FmFolder *fm_folder_view_get_folder                 (FmFolderView *folder_view);
 
-void fm_folder_view_select_all                      (FmFolderView *folder_view);
-void fm_folder_view_select_invert                   (FmFolderView *folder_view);
-void fm_folder_view_select_file_path                (FmFolderView *folder_view, FmPath *path);
-void fm_folder_view_select_file_paths               (FmFolderView *folder_view, FmPathList *paths);
+/***************************************************************************************************
+ * View Sorting...
+ * 
+ * 
+ **************************************************************************************************/
+void                fm_folder_view_sort             (FmFolderView *folder_view, GtkSortType type, int by);
+GtkSortType         fm_folder_view_get_sort_type    (FmFolderView *folder_view);
+int                 fm_folder_view_get_sort_by      (FmFolderView *folder_view);
+
 
 // select files by custom func, not yet implemented
 void fm_folder_view_custom_select                   (FmFolderView *folder_view, GFunc filter, gpointer user_data);
