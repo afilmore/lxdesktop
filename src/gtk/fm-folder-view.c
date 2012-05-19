@@ -20,6 +20,8 @@
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
  * 
+ *      Purpose: The folder view is a ScrolledWindow, it creates an ExoIconView or an ExoTreeView according
+ *               to the selected mode.
  * 
  * 
  **********************************************************************************************************************/
@@ -58,12 +60,12 @@ enum {
 
 static guint signals[N_SIGNALS];
 
+// TODO_axl: Add this to Dconf...
 #define SINGLE_CLICK_TIMEOUT    600
 
 
 // Forward declarations...
 static void fm_folder_view_finalize     (GObject *object);
-
 
 static inline void create_icon_view     (FmFolderView *folder_view, GList *sels);
 static inline void create_list_view     (FmFolderView *folder_view, GList *sels);
@@ -241,6 +243,7 @@ static void fm_folder_view_init (FmFolderView *self)
 GtkWidget *fm_folder_view_new (FmFolderViewMode mode)
 {
     FmFolderView *folder_view =  (FmFolderView*) g_object_new (FM_FOLDER_VIEW_TYPE, NULL);
+    
     fm_folder_view_set_mode (folder_view, mode);
     
     // TODO_axl: pass settings as arguments and add accessor functions...
@@ -377,134 +380,179 @@ void fm_folder_view_set_mode (FmFolderView *folder_view, FmFolderViewMode mode)
 
 }
 
+FmFolderViewMode fm_folder_view_get_mode (FmFolderView *folder_view)
+{
+    return folder_view->mode;
+}
+
 static inline void create_icon_view (FmFolderView *folder_view, GList *sels)
 {
-//    GtkTreeViewColumn *col;
-//    GtkTreeSelection *ts;
-    
-    GList *l;
-    GtkCellRenderer *render;
-    FmFolderModel *model =  (FmFolderModel*)folder_view->model;
+    FmFolderModel *model = (FmFolderModel*) folder_view->model;
     int icon_size = 0;
 
     folder_view->current_view = exo_icon_view_new ();
 
-    render = fm_cell_renderer_pixbuf_new ();
+    GtkCellRenderer *render = fm_cell_renderer_pixbuf_new ();
     folder_view->renderer_pixbuf = render;
 
-    g_object_set ((GObject*)render, "follow-state", TRUE, NULL);
-    gtk_cell_layout_pack_start ((GtkCellLayout*)folder_view->current_view, render, TRUE);
-    gtk_cell_layout_add_attribute ((GtkCellLayout*)folder_view->current_view, render, "pixbuf", COL_FILE_ICON);
-    gtk_cell_layout_add_attribute ((GtkCellLayout*)folder_view->current_view, render, "info", COL_FILE_INFO);
+    g_object_set ((GObject*) render, "follow-state", TRUE, NULL);
+    
+    gtk_cell_layout_pack_start ((GtkCellLayout*)    folder_view->current_view, render, TRUE);
+    gtk_cell_layout_add_attribute ((GtkCellLayout*) folder_view->current_view, render, "pixbuf",    COL_FILE_ICON);
+    gtk_cell_layout_add_attribute ((GtkCellLayout*) folder_view->current_view, render, "info",      COL_FILE_INFO);
 
-    if (folder_view->mode == FM_FV_COMPACT_VIEW) // compact view
+    // Compact View...
+    if (folder_view->mode == FM_FV_COMPACT_VIEW)
     {
-//        folder_view->icon_size_changed_handler = g_signal_connect (fm_config, "changed::small_icon_size", G_CALLBACK (on_small_icon_size_changed), folder_view);
+        /*** folder_view->icon_size_changed_handler = g_signal_connect (fm_config,
+                                                                        "changed::small_icon_size",
+                                                                        G_CALLBACK (on_small_icon_size_changed),
+                                                                        folder_view); ***/
+        
         icon_size = folder_view->small_icon_size;
-        fm_cell_renderer_pixbuf_set_fixed_size (FM_CELL_RENDERER_PIXBUF (folder_view->renderer_pixbuf), icon_size, icon_size);
+        
+        fm_cell_renderer_pixbuf_set_fixed_size (FM_CELL_RENDERER_PIXBUF (folder_view->renderer_pixbuf),
+                                                icon_size,
+                                                icon_size);
+        
         if (model)
             fm_folder_model_set_icon_size (model, icon_size);
 
         render = fm_cell_renderer_text_new ();
-        g_object_set ((GObject*)render,
-                     "xalign", 1.0, // FIXME_pcm: why this needs to be 1.0?
-                     "yalign", 0.5,
-                     NULL);
-        exo_icon_view_set_layout_mode ( (ExoIconView*)folder_view->current_view, EXO_ICON_VIEW_LAYOUT_COLS);
-        exo_icon_view_set_orientation ( (ExoIconView*)folder_view->current_view, GTK_ORIENTATION_HORIZONTAL);
+        
+        g_object_set ((GObject*) render,
+                      "xalign", 1.0,
+                      "yalign", 0.5,
+                      NULL);
+        
+        exo_icon_view_set_layout_mode ((ExoIconView*) folder_view->current_view, EXO_ICON_VIEW_LAYOUT_COLS);
+        exo_icon_view_set_orientation ((ExoIconView*) folder_view->current_view, GTK_ORIENTATION_HORIZONTAL);
     }
-    else // big icon view or thumbnail view
+    
+    // Big Icon View or Thumbnail View...
+    else
     {
         if (folder_view->mode == FM_FV_ICON_VIEW)
         {
-            folder_view->icon_size_changed_handler = g_signal_connect (fm_config, "changed::big_icon_size", G_CALLBACK (on_big_icon_size_changed), folder_view);
+            folder_view->icon_size_changed_handler = g_signal_connect (fm_config,
+                                                                       "changed::big_icon_size",
+                                                                       G_CALLBACK (on_big_icon_size_changed),
+                                                                       folder_view);
             
             icon_size = folder_view->big_icon_size;
-            fm_cell_renderer_pixbuf_set_fixed_size (FM_CELL_RENDERER_PIXBUF (folder_view->renderer_pixbuf), icon_size, icon_size);
+            fm_cell_renderer_pixbuf_set_fixed_size (FM_CELL_RENDERER_PIXBUF (folder_view->renderer_pixbuf),
+                                                    icon_size,
+                                                    icon_size);
             
             if (model)
                 fm_folder_model_set_icon_size (model, icon_size);
 
             render = fm_cell_renderer_text_new ();
             
-            // FIXME_pcm: set the sizes of cells according to iconsize
+            // TODO_axl: Set the sizes of cells according to iconsize...
             g_object_set ((GObject*)render,
-                         "wrap-mode", PANGO_WRAP_WORD_CHAR,
-                         "wrap-width", 90,
-                         "alignment", PANGO_ALIGN_CENTER,
-                         "xalign", 0.5,
-                         "yalign", 0.0,
-                         NULL);
+                          "wrap-mode", PANGO_WRAP_WORD_CHAR,
+                          "wrap-width", 90,
+                          "alignment", PANGO_ALIGN_CENTER,
+                          "xalign", 0.5,
+                          "yalign", 0.0,
+                          NULL);
             
             exo_icon_view_set_column_spacing ( (ExoIconView*)folder_view->current_view, 4);
             exo_icon_view_set_item_width  ( (ExoIconView*)folder_view->current_view, 110);
         }
+        
+        // Tumbnail View...
         else
         {
-            folder_view->icon_size_changed_handler = g_signal_connect (fm_config, "changed::thumbnail_size", G_CALLBACK (on_thumbnail_size_changed), folder_view);
+            folder_view->icon_size_changed_handler = g_signal_connect (fm_config,
+                                                                       "changed::thumbnail_size",
+                                                                       G_CALLBACK (on_thumbnail_size_changed),
+                                                                       folder_view);
+            
             icon_size = fm_config->thumbnail_size;
-            fm_cell_renderer_pixbuf_set_fixed_size (FM_CELL_RENDERER_PIXBUF (folder_view->renderer_pixbuf), icon_size, icon_size);
+            
+            fm_cell_renderer_pixbuf_set_fixed_size (FM_CELL_RENDERER_PIXBUF (folder_view->renderer_pixbuf),
+                                                    icon_size,
+                                                    icon_size);
+            
             if (model)
                 fm_folder_model_set_icon_size (model, icon_size);
 
             render = fm_cell_renderer_text_new ();
-            // FIXME_pcm: set the sizes of cells according to iconsize
-            g_object_set ((GObject*)render,
-                         "wrap-mode", PANGO_WRAP_WORD_CHAR,
-                         "wrap-width", 180,
-                         "alignment", PANGO_ALIGN_CENTER,
-                         "xalign", 0.5,
-                         "yalign", 0.0,
-                         NULL);
             
-            exo_icon_view_set_column_spacing ( (ExoIconView*)folder_view->current_view, 8);
-            exo_icon_view_set_item_width  ( (ExoIconView*)folder_view->current_view, 200);
+            // TODO_axl: Set the sizes of cells according to iconsize...
+            g_object_set ((GObject*)render,
+                          "wrap-mode", PANGO_WRAP_WORD_CHAR,
+                          "wrap-width", 180,
+                          "alignment", PANGO_ALIGN_CENTER,
+                          "xalign", 0.5,
+                          "yalign", 0.0,
+                          NULL);
+            
+            exo_icon_view_set_column_spacing    ((ExoIconView*) folder_view->current_view, 8);
+            exo_icon_view_set_item_width        ((ExoIconView*) folder_view->current_view, 200);
         }
     }
-    gtk_cell_layout_pack_start ((GtkCellLayout*)folder_view->current_view, render, TRUE);
-    gtk_cell_layout_add_attribute ((GtkCellLayout*)folder_view->current_view, render,
-                                "text", COL_FILE_NAME);
     
-    exo_icon_view_set_item_width ((ExoIconView*)folder_view->current_view, 96);
-    exo_icon_view_set_search_column ((ExoIconView*)folder_view->current_view, COL_FILE_NAME);
-    g_signal_connect (folder_view->current_view, "item-activated", G_CALLBACK (on_icon_view_item_activated), folder_view);
-    g_signal_connect (folder_view->current_view, "selection-changed", G_CALLBACK (on_sel_changed), folder_view);
-    exo_icon_view_set_model ((ExoIconView*)folder_view->current_view, folder_view->model);
-    exo_icon_view_set_selection_mode ((ExoIconView*)folder_view->current_view, folder_view->sel_mode);
-    exo_icon_view_set_single_click ((ExoIconView*)folder_view->current_view, folder_view->single_click);
-    exo_icon_view_set_single_click_timeout ((ExoIconView*)folder_view->current_view, SINGLE_CLICK_TIMEOUT);
+    gtk_cell_layout_pack_start ((GtkCellLayout*) folder_view->current_view, render, TRUE);
+    gtk_cell_layout_add_attribute ((GtkCellLayout*) folder_view->current_view,
+                                   render,
+                                   "text", COL_FILE_NAME);
+    
+    exo_icon_view_set_item_width ((ExoIconView*) folder_view->current_view, 96);
+    exo_icon_view_set_search_column ((ExoIconView*) folder_view->current_view, COL_FILE_NAME);
+    
+    g_signal_connect (folder_view->current_view, "item-activated",      G_CALLBACK (on_icon_view_item_activated),
+                      folder_view);
+    g_signal_connect (folder_view->current_view, "selection-changed",   G_CALLBACK (on_sel_changed), folder_view);
+    
+    exo_icon_view_set_model ((ExoIconView*) folder_view->current_view, folder_view->model);
+    exo_icon_view_set_selection_mode ((ExoIconView*) folder_view->current_view, folder_view->sel_mode);
+    exo_icon_view_set_single_click ((ExoIconView*) folder_view->current_view, folder_view->single_click);
+    exo_icon_view_set_single_click_timeout ((ExoIconView*) folder_view->current_view, SINGLE_CLICK_TIMEOUT);
 
-    for (l = sels;l;l=l->next)
-        exo_icon_view_select_path ((ExoIconView*)folder_view->current_view,  (GtkTreePath*)l->data);
+    GList *l;
+    for (l = sels; l; l=l->next)
+        exo_icon_view_select_path ((ExoIconView*) folder_view->current_view, (GtkTreePath*) l->data);
 }
 
 static inline void create_list_view (FmFolderView *folder_view, GList *sels)
 {
-    GtkTreeViewColumn *col;
-    GtkTreeSelection *ts;
-    GList *l;
-    GtkCellRenderer *render;
-    FmFolderModel *model =  (FmFolderModel*)folder_view->model;
+    GtkTreeSelection    *ts;
+    FmFolderModel       *model = (FmFolderModel*) folder_view->model;
+    
     int icon_size = 0;
+    
     folder_view->current_view = exo_tree_view_new ();
 
-    render = fm_cell_renderer_pixbuf_new ();
+    GtkCellRenderer *render = fm_cell_renderer_pixbuf_new ();
     folder_view->renderer_pixbuf = render;
     
-    // folder_view->icon_size_changed_handler = g_signal_connect (fm_config, "changed::small_icon_size", G_CALLBACK (on_small_icon_size_changed), folder_view);
+    /*** folder_view->icon_size_changed_handler = g_signal_connect (fm_config,
+                                                                    "changed::small_icon_size",
+                                                                    G_CALLBACK (on_small_icon_size_changed),
+                                                                    folder_view); ***/
     
     icon_size = folder_view->small_icon_size;
-    fm_cell_renderer_pixbuf_set_fixed_size (FM_CELL_RENDERER_PIXBUF (folder_view->renderer_pixbuf), icon_size, icon_size);
+    
+    fm_cell_renderer_pixbuf_set_fixed_size (FM_CELL_RENDERER_PIXBUF (folder_view->renderer_pixbuf),
+                                            icon_size,
+                                            icon_size);
+    
     if (model)
         fm_folder_model_set_icon_size (model, icon_size);
 
     gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (folder_view->current_view), TRUE);
-    col = gtk_tree_view_column_new ();
-    gtk_tree_view_column_set_title (col, _ ("Name"));
+    
+    GtkTreeViewColumn *col = gtk_tree_view_column_new ();
+    
+    gtk_tree_view_column_set_title (col, _("Name"));
     gtk_tree_view_column_pack_start (col, render, FALSE);
     gtk_tree_view_column_set_attributes (col, render,
-                                        "pixbuf", COL_FILE_ICON,
-                                        "info", COL_FILE_INFO, NULL);
+                                         "pixbuf",   COL_FILE_ICON,
+                                         "info",     COL_FILE_INFO,
+                                         NULL);
     
     render = gtk_cell_renderer_text_new ();
     g_object_set (render, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
@@ -516,46 +564,49 @@ static inline void create_list_view (FmFolderView *folder_view, GList *sels)
     gtk_tree_view_column_set_resizable (col, TRUE);
     gtk_tree_view_column_set_sizing (col, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_fixed_width (col, 200);
-    gtk_tree_view_append_column ((GtkTreeView*)folder_view->current_view, col);
     
-    // only this column is activable
-    exo_tree_view_set_activable_column ((ExoTreeView*)folder_view->current_view, col);
+    gtk_tree_view_append_column ((GtkTreeView*) folder_view->current_view, col);
+    
+    // Only this column is activable...
+    exo_tree_view_set_activable_column ((ExoTreeView*) folder_view->current_view, col);
 
     render = gtk_cell_renderer_text_new ();
-    col = gtk_tree_view_column_new_with_attributes (_ ("Description"), render, "text", COL_FILE_DESC, NULL);
+    col = gtk_tree_view_column_new_with_attributes (_("Description"), render, "text", COL_FILE_DESC, NULL);
     gtk_tree_view_column_set_resizable (col, TRUE);
     gtk_tree_view_column_set_sort_column_id (col, COL_FILE_DESC);
-    gtk_tree_view_append_column ((GtkTreeView*)folder_view->current_view, col);
+    gtk_tree_view_append_column ((GtkTreeView*) folder_view->current_view, col);
 
     render = gtk_cell_renderer_text_new ();
     g_object_set (render, "xalign", 1.0, NULL);
-    col = gtk_tree_view_column_new_with_attributes (_ ("Size"), render, "text", COL_FILE_SIZE, NULL);
+    col = gtk_tree_view_column_new_with_attributes (_("Size"), render, "text", COL_FILE_SIZE, NULL);
     gtk_tree_view_column_set_sort_column_id (col, COL_FILE_SIZE);
     gtk_tree_view_column_set_resizable (col, TRUE);
-    gtk_tree_view_append_column ((GtkTreeView*)folder_view->current_view, col);
+    gtk_tree_view_append_column ((GtkTreeView*) folder_view->current_view, col);
 
     render = gtk_cell_renderer_text_new ();
-    col = gtk_tree_view_column_new_with_attributes (_ ("Modified"), render, "text", COL_FILE_MTIME, NULL);
+    col = gtk_tree_view_column_new_with_attributes (_("Modified"), render, "text", COL_FILE_MTIME, NULL);
     gtk_tree_view_column_set_resizable (col, TRUE);
     gtk_tree_view_column_set_sort_column_id (col, COL_FILE_MTIME);
-    gtk_tree_view_append_column ((GtkTreeView*)folder_view->current_view, col);
+    gtk_tree_view_append_column ((GtkTreeView*) folder_view->current_view, col);
 
-    gtk_tree_view_set_search_column ((GtkTreeView*)folder_view->current_view, COL_FILE_NAME);
+    gtk_tree_view_set_search_column ((GtkTreeView*) folder_view->current_view, COL_FILE_NAME);
 
-    gtk_tree_view_set_rubber_banding ((GtkTreeView*)folder_view->current_view, TRUE);
-    exo_tree_view_set_single_click ((ExoTreeView*)folder_view->current_view, folder_view->single_click);
-    exo_tree_view_set_single_click_timeout ((ExoTreeView*)folder_view->current_view, SINGLE_CLICK_TIMEOUT);
+    gtk_tree_view_set_rubber_banding ((GtkTreeView*) folder_view->current_view, TRUE);
+    exo_tree_view_set_single_click ((ExoTreeView*) folder_view->current_view, folder_view->single_click);
+    exo_tree_view_set_single_click_timeout ((ExoTreeView*) folder_view->current_view, SINGLE_CLICK_TIMEOUT);
 
-    ts = gtk_tree_view_get_selection ((GtkTreeView*)folder_view->current_view);
+    ts = gtk_tree_view_get_selection ((GtkTreeView*) folder_view->current_view);
     g_signal_connect (folder_view->current_view, "row-activated", G_CALLBACK (on_tree_view_row_activated), folder_view);
     g_signal_connect (ts, "changed", G_CALLBACK (on_sel_changed), folder_view);
     
-    /*cancel_pending_row_activated (folder_view);*/ // FIXME_pcm: is this needed?
+    /*** cancel_pending_row_activated (folder_view); // Is this needed ? ***/
     
-    gtk_tree_view_set_model ((GtkTreeView*)folder_view->current_view, folder_view->model);
+    gtk_tree_view_set_model ((GtkTreeView*) folder_view->current_view, folder_view->model);
     gtk_tree_selection_set_mode (ts, folder_view->sel_mode);
-    for (l = sels;l;l=l->next)
-        gtk_tree_selection_select_path (ts,  (GtkTreePath*)l->data);
+
+    GList *l;
+    for (l = sels; l; l=l->next)
+        gtk_tree_selection_select_path (ts, (GtkTreePath*) l->data);
 }
 
 
@@ -563,11 +614,6 @@ static inline void create_list_view (FmFolderView *folder_view, GList *sels)
 
 
 
-
-FmFolderViewMode fm_folder_view_get_mode (FmFolderView *folder_view)
-{
-    return folder_view->mode;
-}
 
 void fm_folder_view_set_selection_mode (FmFolderView *folder_view, GtkSelectionMode mode)
 {

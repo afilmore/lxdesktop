@@ -19,6 +19,8 @@
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
  * 
+ *      Purpose: The folder view is a ScrolledWindow, it creates an ExoIconView or an ExoTreeView according
+ *               to the selected mode.
  * 
  * 
  **********************************************************************************************************************/
@@ -115,11 +117,20 @@ struct _FmFolderViewClass
 };
 
 
+/***************************************************************************************************
+ * The set_mode function creates the ExoIconView or ExoTreeView according to the given mode...
+ * fm_folder_view_new () calls the set_mode function to create a view widget.
+ * 
+ **************************************************************************************************/
 GtkWidget *fm_folder_view_new                       (FmFolderViewMode mode);
 GType fm_folder_view_get_type                       ();
 
 void fm_folder_view_set_mode                        (FmFolderView *folder_view, FmFolderViewMode mode);
 FmFolderViewMode fm_folder_view_get_mode            (FmFolderView *folder_view);
+
+
+
+
 
 void fm_folder_view_set_selection_mode              (FmFolderView *folder_view, GtkSelectionMode mode);
 GtkSelectionMode fm_folder_view_get_selection_mode  (FmFolderView *folder_view);
