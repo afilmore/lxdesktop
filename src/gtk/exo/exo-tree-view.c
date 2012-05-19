@@ -21,46 +21,25 @@
 #include <config.h>
 #endif
 
-#include <glib/gi18n-lib.h>
-#include "exo-tree-view.h"
-//#include "exo-string.h"
-#include "exo-marshal.h"
-#include "exo-private.h"
+#include "exo-lxde.h"
+
+/**
+ * SECTION: exo-tree-view
+ * @title: ExoTreeView
+ * @short_description: An improved version of #GtkTreeView
+ * @include: exo/exo.h
+ *
+ * The #ExoTreeView class derives from #GtkTreeView and extends it with
+ * the ability to activate rows using single button clicks instead of
+ * the default double button clicks. It also works around a few shortcomings
+ * of #GtkTreeView, i.e. #ExoTreeView allows the user to drag around multiple
+ * selected rows.
+ **/
 
 
-#define             I_(string)  g_intern_static_string(string)
 
-#if defined(G_PARAM_STATIC_NAME) && defined(G_PARAM_STATIC_NICK) && defined(G_PARAM_STATIC_BLURB)
-#define EXO_PARAM_READABLE  (G_PARAM_READABLE \
-                           | G_PARAM_STATIC_NAME \
-                           | G_PARAM_STATIC_NICK \
-                           | G_PARAM_STATIC_BLURB)
-#define EXO_PARAM_WRITABLE  (G_PARAM_WRITABLE \
-                           | G_PARAM_STATIC_NAME \
-                           | G_PARAM_STATIC_NICK \
-                           | G_PARAM_STATIC_BLURB)
-#define EXO_PARAM_READWRITE (G_PARAM_READWRITE \
-                           | G_PARAM_STATIC_NAME \
-                           | G_PARAM_STATIC_NICK \
-                           | G_PARAM_STATIC_BLURB)
-#else
-#define EXO_PARAM_READABLE  (G_PARAM_READABLE)
-#define EXO_PARAM_WRITABLE  (G_PARAM_WRITABLE)
-#define EXO_PARAM_READWRITE (G_PARAM_READWRITE)
-#endif
-
-#define exo_noop_false    gtk_false
-
-/*
-#include <exo/exo-config.h>
-#include <exo/exo-private.h>
-#include <exo/exo-string.h>
-#include <exo/exo-tree-view.h>
-#include <exo/exo-utils.h>
-#include <exo/exo-alias.h>
-*/
-
-#define EXO_TREE_VIEW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), EXO_TYPE_TREE_VIEW, ExoTreeViewPrivate))
+#define EXO_TREE_VIEW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), \
+    EXO_TYPE_TREE_VIEW, ExoTreeViewPrivate))
 
 
 
@@ -129,8 +108,8 @@ struct _ExoTreeViewPrivate
 
 
 
+// LXDE_CHANGES ?
 static GObjectClass *exo_tree_view_parent_class;
-
 
 
 GType
@@ -182,7 +161,7 @@ exo_tree_view_class_init (ExoTreeViewClass *klass)
   gtktree_view_class->move_cursor = exo_tree_view_move_cursor;
 
   /* initialize the library's i18n support */
-  /* _exo_i18n_init (); */
+  /* LXDE_CHANGES ? _exo_i18n_init (); */
 
   /**
    * ExoTreeView:single-click:
@@ -310,9 +289,10 @@ exo_tree_view_button_press_event (GtkWidget      *widget,
   gboolean          result;
   GList            *selected_paths = NULL;
   GList            *lp;
+  gpointer          drag_data;
   GtkTreeViewColumn* col;
   gboolean treat_as_blank = FALSE;
-
+  
   /* by default we won't emit "row-activated" on button-release-events */
   tree_view->priv->button_release_activates = FALSE;
 
@@ -330,6 +310,7 @@ exo_tree_view_button_press_event (GtkWidget      *widget,
       if (!gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (tree_view), event->x, event->y, &path, &col, NULL, NULL))
         path = NULL;
 
+      // LXDE_CHANGES ?
       if( tree_view->priv->activable_column && col != tree_view->priv->activable_column )
         {
           treat_as_blank = TRUE;
@@ -378,7 +359,6 @@ exo_tree_view_button_press_event (GtkWidget      *widget,
         selected_paths = gtk_tree_selection_get_selected_rows (selection, NULL);
     }
 
-#if GTK_CHECK_VERSION(2,9,0)
   /* Rubberbanding in GtkTreeView 2.9.0 and above is rather buggy, unfortunately, and
    * doesn't interact properly with GTKs own DnD mechanism. So we need to block all
    * dragging here when pressing the mouse button on a not yet selected row if
@@ -392,7 +372,7 @@ exo_tree_view_button_press_event (GtkWidget      *widget,
       if (G_LIKELY (path == NULL || !gtk_tree_selection_path_is_selected (selection, path)))
         {
           /* need to disable drag and drop because we're rubberbanding now */
-          gpointer drag_data = g_object_get_data (G_OBJECT (tree_view), I_("gtk-site-data"));
+          drag_data = g_object_get_data (G_OBJECT (tree_view), I_("gtk-site-data"));
           if (G_LIKELY (drag_data != NULL))
             {
               g_signal_handlers_block_matched (G_OBJECT (tree_view),
@@ -413,11 +393,11 @@ exo_tree_view_button_press_event (GtkWidget      *widget,
           tree_view->priv->button_release_enables_rubber_banding = TRUE;
         }
     }
-#endif
 
   /* call the parent's button press handler */
   result = (*GTK_WIDGET_CLASS (exo_tree_view_parent_class)->button_press_event) (widget, event);
 
+  // LXDE_CHANGES ?
   if( treat_as_blank )
     gtk_tree_selection_unselect_all( selection );
 
@@ -426,6 +406,7 @@ exo_tree_view_button_press_event (GtkWidget      *widget,
       && path != NULL && gtk_tree_selection_path_is_selected (selection, path))
     {
       /* check if we have to restore paths */
+      // FIXME_axl: strange...
       if (G_LIKELY (gtk_tree_selection_get_select_function (selection) == (GtkTreeSelectionFunc) exo_noop_false))
         {
           /* just reset the select function (previously set to exo_noop_false),
@@ -441,6 +422,8 @@ exo_tree_view_button_press_event (GtkWidget      *widget,
         }
     }
 
+  // http://git.xfce.org/xfce/exo/commit/?id=cd80ae7747aa87ab6d72f08386b0fd4bea7f05b3
+  
   /* release the path (if any) */
   if (G_LIKELY (path != NULL))
     gtk_tree_path_free (path);
@@ -462,7 +445,8 @@ exo_tree_view_button_release_event (GtkWidget      *widget,
   GtkTreeSelection  *selection;
   GtkTreePath       *path;
   ExoTreeView       *tree_view = EXO_TREE_VIEW (widget);
-
+  gpointer           drag_data;
+  
   /* verify that the release event is for the internal tree view window */
   if (G_LIKELY (event->window == gtk_tree_view_get_bin_window (GTK_TREE_VIEW (tree_view))))
     {
@@ -507,11 +491,10 @@ exo_tree_view_button_release_event (GtkWidget      *widget,
         }
     }
 
-#if GTK_CHECK_VERSION(2,9,0)
   /* check if we need to re-enable drag and drop */
   if (G_LIKELY (tree_view->priv->button_release_unblocks_dnd))
     {
-      gpointer drag_data = g_object_get_data (G_OBJECT (tree_view), I_("gtk-site-data"));
+      drag_data = g_object_get_data (G_OBJECT (tree_view), I_("gtk-site-data"));
       if (G_LIKELY (drag_data != NULL))
         {
           g_signal_handlers_unblock_matched (G_OBJECT (tree_view),
@@ -528,7 +511,6 @@ exo_tree_view_button_release_event (GtkWidget      *widget,
       gtk_tree_view_set_rubber_banding (GTK_TREE_VIEW (tree_view), TRUE);
       tree_view->priv->button_release_enables_rubber_banding = FALSE;
     }
-#endif
 
   /* call the parent's button release handler */
   return (*GTK_WIDGET_CLASS (exo_tree_view_parent_class)->button_release_event) (widget, event);
@@ -548,7 +530,6 @@ exo_tree_view_motion_notify_event (GtkWidget      *widget,
   /* check if the event occurred on the tree view internal window and we are in single-click mode */
   if (event->window == gtk_tree_view_get_bin_window (GTK_TREE_VIEW (tree_view)) && tree_view->priv->single_click)
     {
-#if GTK_CHECK_VERSION(2,9,0)
       /* check if we're doing a rubberband selection right now (which means DnD is blocked) */
       if (G_UNLIKELY (tree_view->priv->button_release_unblocks_dnd))
         {
@@ -559,13 +540,12 @@ exo_tree_view_motion_notify_event (GtkWidget      *widget,
           gdk_window_set_cursor (event->window, NULL);
         }
       else
-#endif
         {
           /* determine the path at the event coordinates */
           if (!gtk_tree_view_get_path_at_pos (GTK_TREE_VIEW (tree_view), event->x, event->y, &path, &column, NULL, NULL))
             path = NULL;
 
-          /* determine if the column is activable */
+          /* LXDE_CHANGES ? determine if the column is activable */
           if( tree_view->priv->activable_column && column != tree_view->priv->activable_column )
            {
              if(path)
@@ -961,7 +941,7 @@ void               exo_tree_view_set_activable_column( ExoTreeView *tree_view,
 }
 
 
-/*
+/*** LXDE_CHANGES:
 #define __EXO_TREE_VIEW_C__
 #include <exo/exo-aliasdef.c>
-*/
+***/

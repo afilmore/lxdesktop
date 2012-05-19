@@ -31,7 +31,7 @@
 #include <gtk/gtk.h>
 #include <glib/gi18n-lib.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 /* support macros for debugging */
 #ifndef NDEBUG
@@ -101,6 +101,6 @@ void  _exo_g_type_add_interface_simple  (GType              instance_type,
                                          GType              interface_type,
                                          GInterfaceInitFunc interface_init_func) G_GNUC_INTERNAL;
 
-G_END_DECLS;
+G_END_DECLS
 
 #endif /* !__EXO_PRIVATE_H__ */

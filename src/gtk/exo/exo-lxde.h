@@ -26,7 +26,10 @@
 #ifndef __EXO_LXDE_H__
 #define __EXO_LXDE_H__
 
+#include <glib/gi18n-lib.h>
+
 #include "exo-icon-view.h"
+#include "exo-tree-view.h"
 #include "exo-marshal.h"
 #include "exo-private.h"
 
@@ -53,6 +56,8 @@ G_BEGIN_DECLS;
 #endif
 
 #define             I_(string)  g_intern_static_string(string)
+
+#define exo_noop_false    gtk_false
 
 // From exo/exo-enum-types.h
 GType
