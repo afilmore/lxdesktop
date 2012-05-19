@@ -150,6 +150,11 @@ static gboolean on_idle_tree_view_row_activated (FmFolderView *folder_view);
 
 
 
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 static void fm_folder_view_class_init (FmFolderViewClass *klass)
 {
     GObjectClass        *g_object_class;
@@ -615,34 +620,13 @@ static inline void create_list_view (FmFolderView *folder_view, GList *sels)
 
 
 
-void fm_folder_view_set_selection_mode (FmFolderView *folder_view, GtkSelectionMode mode)
-{
-    if (folder_view->sel_mode == mode)
-        return;
-        
-    folder_view->sel_mode = mode;
-    switch (folder_view->mode)
-    {
-        case FM_FV_LIST_VIEW:
-        {
-            GtkTreeSelection *sel = gtk_tree_view_get_selection ((GtkTreeView*)folder_view->current_view);
-            gtk_tree_selection_set_mode (sel, mode);
-        }
-        break;
-        
-        case FM_FV_ICON_VIEW:
-        case FM_FV_COMPACT_VIEW:
-        case FM_FV_THUMBNAIL_VIEW:
-            exo_icon_view_set_selection_mode ((ExoIconView*)folder_view->current_view, mode);
-        break;
-    }
-}
 
-GtkSelectionMode fm_folder_view_get_selection_mode (FmFolderView *folder_view)
-{
-    return folder_view->sel_mode;
-}
-
+// View Sorting...
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 void fm_folder_view_sort (FmFolderView *folder_view, GtkSortType type, int by)
 {
     //  (int) is needed here since enum seems to be treated as unsigned int so -1 becomes > 0
@@ -667,6 +651,11 @@ int fm_folder_view_get_sort_by (FmFolderView *folder_view)
     return folder_view->sort_by;
 }
 
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 void fm_folder_view_set_show_hidden (FmFolderView *folder_view, gboolean show)
 {
     if (show != folder_view->show_hidden)
@@ -682,6 +671,14 @@ gboolean fm_folder_view_get_show_hidden (FmFolderView *folder_view)
     return folder_view->show_hidden;
 }
 
+
+
+
+/*****************************************************************************************
+ * Current Working Directory...
+ * 
+ * 
+ ****************************************************************************************/
 gboolean fm_folder_view_chdir_by_name (FmFolderView *folder_view, const char *path_str)
 {
     gboolean ret;
@@ -777,6 +774,45 @@ gboolean fm_folder_view_chdir (FmFolderView *folder_view, FmPath *path)
 FmPath *fm_folder_view_get_cwd (FmFolderView *folder_view)
 {
     return folder_view->cwd;
+}
+
+FmFileInfo *fm_folder_view_get_cwd_info (FmFolderView *folder_view)
+{
+    return FM_FOLDER_MODEL (folder_view->model)->dir->dir_fi;
+}
+
+
+/*****************************************************************************************
+ * View Selections...
+ * 
+ * 
+ ****************************************************************************************/
+void fm_folder_view_set_selection_mode (FmFolderView *folder_view, GtkSelectionMode mode)
+{
+    if (folder_view->sel_mode == mode)
+        return;
+        
+    folder_view->sel_mode = mode;
+    switch (folder_view->mode)
+    {
+        case FM_FV_LIST_VIEW:
+        {
+            GtkTreeSelection *sel = gtk_tree_view_get_selection ((GtkTreeView*)folder_view->current_view);
+            gtk_tree_selection_set_mode (sel, mode);
+        }
+        break;
+        
+        case FM_FV_ICON_VIEW:
+        case FM_FV_COMPACT_VIEW:
+        case FM_FV_THUMBNAIL_VIEW:
+            exo_icon_view_set_selection_mode ((ExoIconView*)folder_view->current_view, mode);
+        break;
+    }
+}
+
+GtkSelectionMode fm_folder_view_get_selection_mode (FmFolderView *folder_view)
+{
+    return folder_view->sel_mode;
 }
 
 GList *fm_folder_view_get_selected_tree_paths (FmFolderView *folder_view)
@@ -953,11 +989,11 @@ void fm_folder_view_custom_select (FmFolderView *folder_view, GFunc filter, gpoi
 
 }
 
-FmFileInfo *fm_folder_view_get_cwd_info (FmFolderView *folder_view)
-{
-    return FM_FOLDER_MODEL (folder_view->model)->dir->dir_fi;
-}
-
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 gboolean fm_folder_view_get_is_loaded (FmFolderView *folder_view)
 {
     return folder_view->folder && fm_folder_get_is_loaded (folder_view->folder);
@@ -1138,16 +1174,6 @@ gboolean on_btn_pressed (GtkWidget *current_view, GdkEventButton *evt, FmFolderV
     return FALSE;
 }
 
-void on_dnd_src_data_get (FmDndSrc *ds, FmFolderView *folder_view)
-{
-    FmFileInfoList *files = fm_folder_view_get_selected_files (folder_view);
-    if (files)
-    {
-        fm_dnd_src_set_files (ds, files);
-        fm_list_unref (files);
-    }
-}
-
 static void cancel_pending_row_activated (FmFolderView *folder_view)
 {
     if (folder_view->row_activated_idle)
@@ -1159,6 +1185,12 @@ static void cancel_pending_row_activated (FmFolderView *folder_view)
     }
 }
 
+// Icon / Thumbnail Size
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 static void set_icon_size (FmFolderView *folder_view, guint icon_size)
 {
     FmCellRendererPixbuf *render =  (FmCellRendererPixbuf*)folder_view->renderer_pixbuf;
@@ -1196,6 +1228,12 @@ static void on_thumbnail_size_changed (FmConfig *cfg, FmFolderView *folder_view)
     set_icon_size (folder_view, cfg->thumbnail_size);
 }
 
+// Drag And Drop...
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 static void on_drag_data_received (GtkWidget *dest_widget,
                                     GdkDragContext *drag_context,
                                     gint x,
@@ -1320,6 +1358,23 @@ static void on_drag_leave (GtkWidget *dest_widget,
     fm_dnd_dest_drag_leave (folder_view->dnd_dest, drag_context, time);
 }
 
+void on_dnd_src_data_get (FmDndSrc *ds, FmFolderView *folder_view)
+{
+    FmFileInfoList *files = fm_folder_view_get_selected_files (folder_view);
+    if (files)
+    {
+        fm_dnd_src_set_files (ds, files);
+        fm_list_unref (files);
+    }
+}
+
+
+// Callbacks...
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 gboolean on_folder_view_focus_in (GtkWidget *widget, GdkEventFocus *evt)
 {
     FmFolderView *folder_view =  (FmFolderView*)widget;
