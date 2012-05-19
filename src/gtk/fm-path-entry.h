@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      fm-path-entry.h
  *
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
@@ -18,48 +19,59 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
-
+ * 
+ *      Purpose: 
+ * 
+ * 
+ * 
+ **********************************************************************************************************************/
 #ifndef __FM_PATH_ENTRY_H__
 #define __FM_PATH_ENTRY_H__
 
 #include <gtk/gtk.h>
 #include <gio/gio.h>
 
-/* required for completion */
+
+// Required for completion...
 #include "fm-folder-model.h"
+
 
 G_BEGIN_DECLS
 
-#define FM_TYPE_PATH_ENTRY (fm_path_entry_get_type())
-#define FM_PATH_ENTRY(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), FM_TYPE_PATH_ENTRY, FmPathEntry))
-#define FM_PATH_ENTRY_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST((klass), FM_TYPE_PATH_ENTRY, FmPathEntryClass))
-#define IS_FM_TYPE_PATH_ENTRY(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), FM_TYPE_PATH_ENTRY))
-#define IS_FM_TYPE_PATH_ENTRY_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), FM_TYPE_PATH_ENTRY), FmPathEntry)
+#define FM_TYPE_PATH_ENTRY                  (fm_path_entry_get_type())
+#define FM_PATH_ENTRY(obj)                  (G_TYPE_CHECK_INSTANCE_CAST((obj),  FM_TYPE_PATH_ENTRY, FmPathEntry))
+#define FM_PATH_ENTRY_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST((klass),   FM_TYPE_PATH_ENTRY, FmPathEntryClass))
+#define IS_FM_TYPE_PATH_ENTRY(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), FM_TYPE_PATH_ENTRY))
+#define IS_FM_TYPE_PATH_ENTRY_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass),  FM_TYPE_PATH_ENTRY), FmPathEntry)
+
 
 typedef struct _FmPathEntry FmPathEntry;
 typedef struct _FmPathEntryClass FmPathEntryClass;
 
+
 struct _FmPathEntry
 {
-  GtkEntry parent_instance;
+    GtkEntry parent_instance;
 };
 
 struct _FmPathEntryClass
 {
-  GtkEntryClass parent_class;
+    GtkEntryClass parent_class;
 };
 
-GType fm_path_entry_get_type(void);
-GtkWidget* fm_path_entry_new();
-void fm_path_entry_set_path(FmPathEntry *entry, FmPath* path);
-void fm_path_entry_activate(GtkEntry *entry, gpointer user_data);
+GtkWidget   *fm_path_entry_new      ();
+GType       fm_path_entry_get_type  ();
 
-/* The function does not increase ref count. The caller is responsible for calling
- * fm_path_ref if it wants to keep the path. */
-FmPath* fm_path_entry_get_path(FmPathEntry *entry);
+void        fm_path_entry_set_path  (FmPathEntry *entry, FmPath *path);
+void        fm_path_entry_activate  (GtkEntry *entry, gpointer user_data);
+
+
+/*** The function does not increase ref count. The caller is responsible for calling
+ * fm_path_ref if it wants to keep the path. ***/
+FmPath      *fm_path_entry_get_path (FmPathEntry *entry);
+
 
 G_END_DECLS
+#endif
 
-#endif /* __FM_PATH_ENTRY_H__ */
+
