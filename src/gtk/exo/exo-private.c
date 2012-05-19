@@ -1,4 +1,3 @@
-/* $Id: exo-private.c 22884 2006-08-26 12:40:43Z benny $ */
 /*-
  * Copyright (c) 2004-2006 os-cillation e.K.
  *
@@ -32,11 +31,13 @@
 #endif
 
 #include "exo-private.h"
-//#include "exo-string.h"
+// AXL_CHANGES: #include "exo-string.h"
 
+// LXDE_CHANGES:
 #define             I_(string)  g_intern_static_string(string)
 
-/*
+/*** LXDE_CHANGES:
+
 void
 _exo_i18n_init (void)
 {
@@ -52,7 +53,10 @@ _exo_i18n_init (void)
 #endif
     }
 }
-*/
+
+LXDE_CHANGES:
+
+***/
 
 
 void

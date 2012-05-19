@@ -1,4 +1,3 @@
-/* $Id: exo-tree-view.h 20828 2006-04-09 17:16:48Z benny $ */
 /*-
  * Copyright (c) 2004-2006 Benedikt Meurer <benny@xfce.org>
  *
@@ -12,16 +11,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Library General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
-/* Modified by Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
- * on 2008.07.13 for use in PCManFM */
-
-/*
+/* LXDE_CHANGES:
 #if !defined (EXO_INSIDE_EXO_H) && !defined (EXO_COMPILATION)
 #error "Only <exo/exo.h> can be included directly, this file may disappear or change contents."
 #endif
@@ -32,7 +28,7 @@
 
 #include <gtk/gtk.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct _ExoTreeViewPrivate ExoTreeViewPrivate;
 typedef struct _ExoTreeViewClass   ExoTreeViewClass;
@@ -51,7 +47,7 @@ struct _ExoTreeViewClass
   GtkTreeViewClass __parent__;
 
   /*< private >*/
-/*
+/*** LXDE_CHANGES:
   void (*reserved1) (void);
   void (*reserved2) (void);
   void (*reserved3) (void);
@@ -60,9 +56,15 @@ struct _ExoTreeViewClass
   void (*reserved6) (void);
   void (*reserved7) (void);
   void (*reserved8) (void);
-*/
+***/
 };
 
+/**
+ * ExoTreeView:
+ *
+ * The #ExoIconView struct contains only private fields and should
+ * not be directly accessed.
+ **/
 struct _ExoTreeView
 {
   /*< private >*/
@@ -84,14 +86,10 @@ guint      exo_tree_view_get_single_click_timeout (const ExoTreeView *tree_view)
 void       exo_tree_view_set_single_click_timeout (ExoTreeView       *tree_view,
                                                    guint              single_click_timeout);
 
-/* 2008.07.16 added by Hong Jen Yee for PCManFM.
- * If activable column is set, only the specified column can be activated.
- * Other columns are viewed as blank area and won't receive mouse clicks.
- */
-GtkTreeViewColumn* exo_tree_view_get_activable_column( ExoTreeView *tree_view );
-void               exo_tree_view_set_activable_column( ExoTreeView *tree_view,
-                                                       GtkTreeViewColumn* column );
+// LXDE_CHANGES:
+void               exo_tree_view_set_activable_column (ExoTreeView *tree_view, GtkTreeViewColumn *column);
+GtkTreeViewColumn* exo_tree_view_get_activable_column (ExoTreeView *tree_view);
 
-G_END_DECLS;
+G_END_DECLS
 
 #endif /* !__EXO_TREE_VIEW_H__ */

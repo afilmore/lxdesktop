@@ -1,4 +1,3 @@
-/* $Id: exo-tree-view.c 22991 2006-09-02 11:41:18Z benny $ */
 /*-
  * Copyright (c) 2004-2006 Benedikt Meurer <benny@xfce.org>
  *
@@ -12,10 +11,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Library General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
 #ifdef HAVE_CONFIG_H
@@ -830,7 +829,7 @@ exo_tree_view_single_click_timeout_destroy (gpointer user_data)
  *
  * Allocates a new #ExoTreeView instance.
  *
- * Return value: the newly allocated #ExoTreeView.
+ * Returns: the newly allocated #ExoTreeView.
  *
  * Since: 0.3.1.3
  **/
@@ -848,7 +847,7 @@ exo_tree_view_new (void)
  *
  * Returns %TRUE if @tree_view is in single-click mode, else %FALSE.
  *
- * Return value: whether @tree_view is in single-click mode.
+ * Returns: whether @tree_view is in single-click mode.
  *
  * Since: 0.3.1.3
  **/
@@ -895,7 +894,7 @@ exo_tree_view_set_single_click (ExoTreeView *tree_view,
  * in single click mode. A value of %0 means that the behavior
  * is disabled and the user must alter the selection manually.
  *
- * Return value: the single click autoselect timeout or %0 if
+ * Returns: the single click autoselect timeout or %0 if
  *               the behavior is disabled.
  *
  * Since: 0.3.1.5

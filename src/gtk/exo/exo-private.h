@@ -1,4 +1,3 @@
-/* $Id: exo-private.h 22884 2006-08-26 12:40:43Z benny $ */
 /*-
  * Copyright (c) 2004-2006 os-cillation e.K.
  *
@@ -14,17 +13,17 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Library General Public License for more details.
  *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
-/*
+/*** LXDE_CHANGES:
 #if !defined (EXO_COMPILATION)
 #error "Only <exo/exo.h> can be included directly, this file is not part of the public API."
 #endif
-*/
+***/
 
 #ifndef __EXO_PRIVATE_H__
 #define __EXO_PRIVATE_H__
