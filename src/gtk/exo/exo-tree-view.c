@@ -406,15 +406,7 @@ exo_tree_view_button_press_event (GtkWidget      *widget,
       && path != NULL && gtk_tree_selection_path_is_selected (selection, path))
     {
       /* check if we have to restore paths */
-      // FIXME_axl: strange...
-      if (G_LIKELY (gtk_tree_selection_get_select_function (selection) == (GtkTreeSelectionFunc) exo_noop_false))
-        {
-          /* just reset the select function (previously set to exo_noop_false),
-           * there's no clean way to do this, so what the heck.
-           */
-          gtk_tree_selection_set_select_function (selection, (GtkTreeSelectionFunc) NULL, NULL, NULL);
-        }
-      else
+      if (G_LIKELY (gtk_tree_selection_get_select_function (selection) != (GtkTreeSelectionFunc) exo_noop_false))
         {
           /* select all previously selected paths */
           for (lp = selected_paths; lp != NULL; lp = lp->next)
@@ -422,7 +414,16 @@ exo_tree_view_button_press_event (GtkWidget      *widget,
         }
     }
 
-  // http://git.xfce.org/xfce/exo/commit/?id=cd80ae7747aa87ab6d72f08386b0fd4bea7f05b3
+  // NOTE_axl: http://git.xfce.org/xfce/exo/commit/?id=cd80ae7747aa87ab6d72f08386b0fd4bea7f05b3
+  /* see bug http://bugzilla.xfce.org/show_bug.cgi?id=6230 for more information */
+  if (G_LIKELY (gtk_tree_selection_get_select_function (selection) == (GtkTreeSelectionFunc) exo_noop_false))
+    {
+      /* just reset the select function (previously set to exo_noop_false),
+       * there's no clean way to do this, so what the heck.
+       */
+      gtk_tree_selection_set_select_function (selection, (GtkTreeSelectionFunc) NULL, NULL, NULL);
+    }
+
   
   /* release the path (if any) */
   if (G_LIKELY (path != NULL))
