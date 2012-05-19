@@ -77,7 +77,7 @@ struct _FmFolderView
     GtkScrolledWindow   parent;
 
     GtkTreeModel        *model;
-    GtkWidget           *view;
+    GtkWidget           *current_view;
     FmPath              *cwd;
     FmFolder            *folder;
     GtkCellRenderer     *renderer_pixbuf;
