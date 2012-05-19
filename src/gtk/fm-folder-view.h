@@ -1,4 +1,5 @@
-/*
+/***********************************************************************************************************************
+ * 
  *      folder-view.h
  *
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
@@ -17,31 +18,32 @@
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *      MA 02110-1301, USA.
- */
-
-
+ * 
+ * 
+ * 
+ **********************************************************************************************************************/
 #ifndef __FOLDER_VIEW_H__
 #define __FOLDER_VIEW_H__
 
 #include <gtk/gtk.h>
-#include "fm-file-info.h"
-#include "fm-path.h"
-#include "fm-dnd-src.h"
-#include "fm-dnd-dest.h"
+
 #include "fm-folder.h"
 #include "fm-folder-model.h"
 
+#include "fm-file-info.h"
+#include "fm-path.h"
+
+#include "fm-dnd-src.h"
+#include "fm-dnd-dest.h"
+
+
 G_BEGIN_DECLS
 
-#define FM_FOLDER_VIEW_TYPE              (fm_folder_view_get_type ())
-#define FM_FOLDER_VIEW(obj)              (G_TYPE_CHECK_INSTANCE_CAST ((obj),\
-            FM_FOLDER_VIEW_TYPE, FmFolderView))
-#define FM_FOLDER_VIEW_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST ((klass),\
-            FM_FOLDER_VIEW_TYPE, FmFolderViewClass))
-#define IS_FM_FOLDER_VIEW(obj)           (G_TYPE_CHECK_INSTANCE_TYPE ((obj),\
-            FM_FOLDER_VIEW_TYPE))
-#define IS_FM_FOLDER_VIEW_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass),\
-            FM_FOLDER_VIEW_TYPE))
+#define FM_FOLDER_VIEW_TYPE             (fm_folder_view_get_type ())
+#define FM_FOLDER_VIEW(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), FM_FOLDER_VIEW_TYPE, FmFolderView))
+#define FM_FOLDER_VIEW_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass),  FM_FOLDER_VIEW_TYPE, FmFolderViewClass))
+#define IS_FM_FOLDER_VIEW(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), FM_FOLDER_VIEW_TYPE))
+#define IS_FM_FOLDER_VIEW_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass),  FM_FOLDER_VIEW_TYPE))
 
 enum _FmFolderViewMode
 {
@@ -58,9 +60,7 @@ typedef enum _FmFolderViewMode FmFolderViewMode;
 enum _FmFolderViewClickType
 {
     FM_FV_CLICK_NONE,
-    FM_FV_ACTIVATED, /* this can be triggered by both
-                        left single or double click depending on
-                        whether single-click activation is used or not. */
+    FM_FV_ACTIVATED,
     FM_FV_MIDDLE_CLICK,
     FM_FV_CONTEXT_MENU
 };
@@ -69,86 +69,88 @@ typedef enum _FmFolderViewClickType FmFolderViewClickType;
 
 #define FM_FOLDER_VIEW_CLICK_TYPE_IS_VALID(type) (type > FM_FV_CLICK_NONE && type <= FM_FV_CONTEXT_MENU)
 
-typedef struct _FmFolderView            FmFolderView;
-typedef struct _FmFolderViewClass       FmFolderViewClass;
+typedef struct _FmFolderView        FmFolderView;
+typedef struct _FmFolderViewClass   FmFolderViewClass;
 
 struct _FmFolderView
 {
-    GtkScrolledWindow parent;
+    GtkScrolledWindow   parent;
 
-    FmFolderViewMode mode;
-    GtkSelectionMode sel_mode;
-    GtkSortType sort_type;
-    int sort_by;
+    GtkTreeModel        *model;
+    GtkWidget           *view;
+    FmPath              *cwd;
+    FmFolder            *folder;
+    GtkCellRenderer     *renderer_pixbuf;
+    guint               icon_size_changed_handler;
 
-    gboolean show_hidden;
+    FmDndSrc            *dnd_src;
+    FmDndDest           *dnd_dest;
 
-    uint big_icon_size;
-    uint small_icon_size;
-    gboolean single_click;
+    FmFolderViewMode    mode;
+    GtkSelectionMode    sel_mode;
+    GtkSortType         sort_type;
+    int                 sort_by;
+    gboolean            show_hidden;
+
+    uint                small_icon_size;
+    uint                big_icon_size;
+    gboolean            single_click;
     
-    GtkWidget *view;
-    FmFolder *folder;
-    GtkTreeModel *model;
-    GtkCellRenderer *renderer_pixbuf;
-    guint icon_size_changed_handler;
-
-    FmPath *cwd;
-    FmDndSrc *dnd_src; // dnd source manager
-    FmDndDest *dnd_dest; // dnd dest manager
-
-    // wordarounds to fix new gtk+ bug introduced in gtk+ 2.20: #612802
-    GtkTreeRowReference *activated_row_ref; // for row-activated handler
-    guint row_activated_idle;
+    // Wordarounds to fix a gtk+ bug introduced in gtk+ 2.20:
+    // https://bugzilla.gnome.org/show_bug.cgi?id=612802
+    GtkTreeRowReference *activated_row_ref;
+    guint               row_activated_idle;
 };
 
 struct _FmFolderViewClass
 {
-    GtkScrolledWindowClass parent_class;
-    void  (*directory_changed) (FmFolderView *fv, FmPath *dir_path);
-    void  (*loaded) (FmFolderView *fv, FmPath *dir_path);
-    void  (*status) (FmFolderView *fv, const char *msg);
-    void  (*clicked) (FmFolderView *fv, FmFolderViewClickType type, FmFileInfo *file);
-    void  (*sel_changed) (FmFolderView *fv, FmFileInfoList *sels);
-    void  (*sort_changed) (FmFolderView *fv);
+    GtkScrolledWindowClass      parent_class;
+    
+    void (*directory_changed)   (FmFolderView *folder_view, FmPath *dir_path);
+    void (*loaded)              (FmFolderView *folder_view, FmPath *dir_path);
+    void (*status)              (FmFolderView *folder_view, const char *msg);
+    void (*clicked)             (FmFolderView *folder_view, FmFolderViewClickType type, FmFileInfo *file);
+    void (*sel_changed)         (FmFolderView *folder_view, FmFileInfoList *sels);
+    void (*sort_changed)        (FmFolderView *folder_view);
 };
 
-GType       fm_folder_view_get_type      (void);
-GtkWidget * fm_folder_view_new           (FmFolderViewMode mode);
 
-void fm_folder_view_set_mode (FmFolderView *fv, FmFolderViewMode mode);
-FmFolderViewMode fm_folder_view_get_mode (FmFolderView *fv);
+GtkWidget *fm_folder_view_new                       (FmFolderViewMode mode);
+GType fm_folder_view_get_type                       ();
 
-void fm_folder_view_set_selection_mode (FmFolderView *fv, GtkSelectionMode mode);
-GtkSelectionMode fm_folder_view_get_selection_mode (FmFolderView *fv);
+void fm_folder_view_set_mode                        (FmFolderView *folder_view, FmFolderViewMode mode);
+FmFolderViewMode fm_folder_view_get_mode            (FmFolderView *folder_view);
 
-void fm_folder_view_sort (FmFolderView *fv, GtkSortType type, int by);
-GtkSortType fm_folder_view_get_sort_type (FmFolderView *fv);
-int fm_folder_view_get_sort_by (FmFolderView *fv);
+void fm_folder_view_set_selection_mode              (FmFolderView *folder_view, GtkSelectionMode mode);
+GtkSelectionMode fm_folder_view_get_selection_mode  (FmFolderView *folder_view);
 
-void fm_folder_view_set_show_hidden (FmFolderView *fv, gboolean show);
-gboolean fm_folder_view_get_show_hidden (FmFolderView *fv);
+void fm_folder_view_sort                            (FmFolderView *folder_view, GtkSortType type, int by);
+GtkSortType fm_folder_view_get_sort_type            (FmFolderView *folder_view);
+int fm_folder_view_get_sort_by                      (FmFolderView *folder_view);
 
-gboolean fm_folder_view_chdir (FmFolderView *fv, FmPath *path);
-gboolean fm_folder_view_chdir_by_name (FmFolderView *fv, const char *path_str);
-FmPath *fm_folder_view_get_cwd (FmFolderView *fv);
-FmFileInfo *fm_folder_view_get_cwd_info (FmFolderView *fv);
+void fm_folder_view_set_show_hidden                 (FmFolderView *folder_view, gboolean show);
+gboolean fm_folder_view_get_show_hidden             (FmFolderView *folder_view);
 
-gboolean fm_folder_view_get_is_loaded (FmFolderView *fv);
+gboolean fm_folder_view_chdir                       (FmFolderView *folder_view, FmPath *path);
+gboolean fm_folder_view_chdir_by_name               (FmFolderView *folder_view, const char *path_str);
+FmPath *fm_folder_view_get_cwd                      (FmFolderView *folder_view);
+FmFileInfo *fm_folder_view_get_cwd_info             (FmFolderView *folder_view);
 
-FmFileInfoList *fm_folder_view_get_selected_files (FmFolderView *fv);
-FmPathList *fm_folder_view_get_selected_file_paths (FmFolderView *fv);
+gboolean fm_folder_view_get_is_loaded               (FmFolderView *folder_view);
 
-FmFolderModel *fm_folder_view_get_model (FmFolderView *fv);
-FmFolder *fm_folder_view_get_folder (FmFolderView *fv);
+FmFileInfoList *fm_folder_view_get_selected_files   (FmFolderView *folder_view);
+FmPathList *fm_folder_view_get_selected_file_paths  (FmFolderView *folder_view);
 
-void fm_folder_view_select_all (FmFolderView *fv);
-void fm_folder_view_select_invert (FmFolderView *fv);
-void fm_folder_view_select_file_path (FmFolderView *fv, FmPath *path);
-void fm_folder_view_select_file_paths (FmFolderView *fv, FmPathList *paths);
+FmFolderModel *fm_folder_view_get_model             (FmFolderView *folder_view);
+FmFolder *fm_folder_view_get_folder                 (FmFolderView *folder_view);
+
+void fm_folder_view_select_all                      (FmFolderView *folder_view);
+void fm_folder_view_select_invert                   (FmFolderView *folder_view);
+void fm_folder_view_select_file_path                (FmFolderView *folder_view, FmPath *path);
+void fm_folder_view_select_file_paths               (FmFolderView *folder_view, FmPathList *paths);
 
 // select files by custom func, not yet implemented
-void fm_folder_view_custom_select (FmFolderView *fv, GFunc filter, gpointer user_data);
+void fm_folder_view_custom_select                   (FmFolderView *folder_view, GFunc filter, gpointer user_data);
 
 
 G_END_DECLS
