@@ -29,23 +29,24 @@ gtk_SOURCES = \
 	$(NULL)
 
 lxdesktop_SOURCES = \
+	Application.vala \
 	Common/DesktopConfig.vala \
-	Common/DesktopFilePopup.vala \
 	Common/DesktopPopup.vala \
+	Common/DesktopFilePopup.vala \
 	Common/DesktopVolumeMonitor.vala \
 	Common/OptionsParser.vala \
 	Common/Utils.vala \
 	Common/xlib.c \
 	Desktop/background.c \
 	Desktop/DesktopGroup.vala \
-	Desktop/DesktopSettingsDialog.vala \
-	Desktop/DesktopSettingsXML.vala \
 	Desktop/DesktopWindow.vala \
 	Desktop/DesktopGrid.vala \
 	Desktop/DesktopItem.vala \
-	FileManager/ManagerWindow.vala \
+	Desktop/DesktopSettingsDialog.vala \
+	Desktop/DesktopSettingsXML.vala \
 	FileManager/ManagerGroup.vala \
-	Application.vala \
+	FileManager/ManagerWindow.vala \
+	FileManager/View/ViewContainer.vala \
 	$(exo_SOURCES) \
 	$(gtk_SOURCES) \
 	$(NULL)

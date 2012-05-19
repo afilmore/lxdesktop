@@ -74,29 +74,29 @@ namespace Manager {
         };
         
         
-        private Fm.Path             _current_dir;
+        private Fm.Path                 _current_dir;
         /***
-        private Fm.Folder           _folder;
+        private Fm.Folder               _folder;
         ***/
 
-        private Gtk.UIManager       _ui;
-        private Gtk.Toolbar         _toolbar;
-        private Fm.PathEntry        _path_entry;
-        private Gtk.HPaned          _hpaned;
-        private Fm.DirTreeView      _tree_view;
-        private Gtk.Notebook        _notebook;
-        private Fm.FolderView?      _current_folder_view;
-        private Gtk.Statusbar       _statusbar;
-        private Gtk.Frame           _vol_status;
-        private uint                _statusbar_ctx;
-        private uint                _statusbar_ctx2;
+        private Gtk.UIManager           _ui;
+        private Gtk.Toolbar             _toolbar;
+        private Fm.PathEntry            _path_entry;
+        private Gtk.HPaned              _hpaned;
+        private Fm.DirTreeView          _tree_view;
+        private Manager.ViewContainer   _main_view;
+        private Fm.FolderView?          _current_folder_view;
+        private Gtk.Statusbar           _statusbar;
+        private Gtk.Frame               _vol_status;
+        private uint                    _statusbar_ctx;
+        private uint                    _statusbar_ctx2;
         
         // File Popup...
-        private Desktop.FilePopup?  _file_popup;        
+        private Desktop.FilePopup?      _file_popup;        
         
         // Global Popup...
-        private Desktop.Popup?      _desktop_popup_class;
-        private Gtk.Menu            _default_popup;
+        private Desktop.Popup?          _desktop_popup_class;
+        private Gtk.Menu                _default_popup;
         
         
         /*** Add these later, rework the navigation history...
@@ -285,17 +285,17 @@ namespace Manager {
             
             
             
-            _notebook = new Gtk.Notebook ();
+            _main_view = new Manager.ViewContainer ();
             /*var right_box = new HBox (false, 0);
             right_box.show ();
             notebook.set_action_widget (right_box, PackType.END);
             */
-            _notebook.set_scrollable (true);
-            _notebook.can_focus = false;
-            _notebook.set_group_name ("file manager");
+            _main_view.set_scrollable (true);
+            _main_view.can_focus = false;
+            _main_view.set_group_name ("file manager");
             
             
-            _hpaned.add2 (_notebook);
+            _hpaned.add2 (_main_view);
 
             
             
@@ -364,10 +364,10 @@ namespace Manager {
             folder_view.loaded.connect         (_folder_view_on_view_loaded);
             folder_view.sel_changed.connect    (_folder_view_on_sel_changed);
             
-            int new_page = _notebook.get_current_page () + 1;
-            _notebook.append_page (folder_view);
-            _notebook.set_tab_reorderable (_notebook.get_nth_page (new_page), true);
-            _notebook.set_tab_detachable (_notebook.get_nth_page (new_page), true);
+            int new_page = _main_view.get_current_page () + 1;
+            _main_view.append_page (folder_view);
+            _main_view.set_tab_reorderable (_main_view.get_nth_page (new_page), true);
+            _main_view.set_tab_detachable (_main_view.get_nth_page (new_page), true);
             
             _current_folder_view = folder_view;
 
