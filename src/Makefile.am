@@ -50,7 +50,7 @@ lxdesktop_SOURCES = \
 	FileManager/View/BaseView.vala \
 	FileManager/View/ViewTab.vala \
 	FileManager/View/ViewTerminal.vala \
-	FileManager/View/ForegroundProcessDialog.vala \
+	FileManager/View/TerminalCloseDialog.vala \
 	$(exo_SOURCES) \
 	$(gtk_SOURCES) \
 	$(NULL)
