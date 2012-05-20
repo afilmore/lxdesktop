@@ -308,6 +308,7 @@ namespace Manager {
             
             
             
+            
             // Create The Folder View...
             _current_folder_view = _main_view.new_tab (ViewType.FOLDER);
             
@@ -320,7 +321,15 @@ namespace Manager {
             _current_folder_view.clicked.connect        (_folder_view_on_file_clicked);
             
             
-            _main_view.new_tab (ViewType.TERMINAL);
+            
+            
+            
+//            _main_view.new_tab (ViewType.TERMINAL);
+            
+            
+            
+            
+            
             
             
             // Create The Statusbar...
