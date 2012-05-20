@@ -19,7 +19,7 @@ namespace Manager {
 
     public class ViewContainer : Gtk.Notebook {
 
-        Manager.TerminalWidget test_terminal;
+        Terminal.TerminalWidget test_terminal;
         
         public ViewContainer () {
             
@@ -57,7 +57,7 @@ namespace Manager {
             
             } else if (type == Manager.ViewType.TERMINAL) {
                 
-                test_terminal = new Manager.TerminalWidget ();
+                test_terminal = new Terminal.TerminalWidget ();
                 
                 test_terminal.scrollback_lines = -1;
                 
@@ -98,12 +98,12 @@ namespace Manager {
                     
                     /* It was doing something */
                     if (test_terminal.has_foreground_process ()) {
-                        var d = new Manager.ForegroundProcessDialog ();
-                        if (d.run () == 1) {
+                        Terminal.CloseDialog close_dialog = new Terminal.CloseDialog ();
+                        if (close_dialog.run () == 1) {
                             this.remove (grid_container);
 //~                             terminals.remove (test_terminal);
                         }
-                        d.destroy ();
+                        close_dialog.destroy ();
                     }
                     else {
                         this.remove (grid_container);

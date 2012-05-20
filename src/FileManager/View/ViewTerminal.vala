@@ -18,9 +18,7 @@
   END LICENSE
 ***/
 
-using Vte;
-
-namespace Manager {
+namespace Terminal {
 
     public class TerminalWidget : Vte.Terminal {
 
@@ -28,7 +26,7 @@ namespace Manager {
 
 //~         private PantheonTerminalWindow window;
         
-        public ViewTab tab;
+        public Manager.ViewTab tab;
 
         public TerminalWidget (/***Gtk.ActionGroup main_actions, Gtk.UIManager ui
                                , PantheonTerminalWindow parent_window***/) {
@@ -39,15 +37,35 @@ namespace Manager {
             /* Create a pop menu */
 //~             var menu = ui.get_widget ("ui/AppMenu") as Gtk.Menu;
 //~             menu.show_all ();
-//~ 
+
 //~             button_press_event.connect ((event) => {
+//~                 
 //~                 if (event.button == 3) {
 //~                     menu.select_first (true);
 //~                     menu.popup (null, null, null, event.button, event.time);
 //~                 }
 //~                 return false;
+//~             
 //~             });
 
+
+
+            key_press_event.connect ((event) => {
+                
+
+                int modifier = (event.state & (Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK | Gdk.ModifierType.MOD1_MASK));
+                
+                switch (Gdk.keyval_name(event.keyval)) {
+                    
+                    case "V":
+                        if (modifier == (Gdk.ModifierType.SHIFT_MASK | Gdk.ModifierType.CONTROL_MASK))
+                            this.paste_clipboard ();
+                    break;
+                }
+                return false;
+            
+            });
+//~ 
 //~             window_title_changed.connect ((event) => {
 //~                 if (this == window.current_terminal)
 //~                     window.title = window_title;
