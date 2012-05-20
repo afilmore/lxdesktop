@@ -20,7 +20,7 @@
 
 using Vte;
 
-namespace PantheonTerminal {
+namespace Manager {
 
     public class ForegroundProcessDialog : Gtk.MessageDialog {
 

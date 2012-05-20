@@ -30,8 +30,8 @@ namespace Manager {
         
         public ViewTab tab;
 
-        public TerminalWidget (Gtk.ActionGroup main_actions, Gtk.UIManager ui
-                               /***, PantheonTerminalWindow parent_window***/) {
+        public TerminalWidget (/***Gtk.ActionGroup main_actions, Gtk.UIManager ui
+                               , PantheonTerminalWindow parent_window***/) {
             
             /* Set up the parents */
 //~             this.window = parent_window;
