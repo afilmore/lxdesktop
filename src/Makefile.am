@@ -48,13 +48,13 @@ lxdesktop_SOURCES = \
 	FileManager/ManagerWindow.vala \
 	FileManager/View/ViewContainer.vala \
 	FileManager/View/BaseView.vala \
+	FileManager/View/ViewTab.vala \
+	FileManager/View/ViewTerminal.vala \
+	FileManager/View/ForegroundProcessDialog.vala \
 	$(exo_SOURCES) \
 	$(gtk_SOURCES) \
 	$(NULL)
 	
-	##~ FileManager/View/ViewTab.vala \
-	##~ FileManager/View/ViewTerminal.vala \
-	##~ FileManager/View/ForegroundProcessDialog.vala \
 
 lxdesktop_VALAFLAGS = \
 	--vapidir=$(top_srcdir)/vapi \
@@ -62,10 +62,10 @@ lxdesktop_VALAFLAGS = \
 	--pkg $(GTK_PKG) \
 	--pkg libfmcore \
 	--pkg fm-gtk \
+	--pkg posix \
+	--pkg vte-2.90 \
 	$(NULL)
 
-	##~ --pkg posix \
-	##~ --pkg vte-2.90 \
 
 
 lxdesktop_CFLAGS = \
