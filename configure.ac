@@ -65,46 +65,29 @@ fi
 # Check for vala
 AM_PROG_VALAC([0.16.0])
 
-# Checks for libraries.
 
+# Checks for libraries.
 PKG_CHECK_MODULES(XLIB, "x11")
 AC_SUBST(XLIB_CFLAGS)
 AC_SUBST(XLIB_LIBS)
 
-##########################################################################################
-# Configure With Gtk2 > 2.24.0 or Gtk3 > 3.0.8
-#
-##########################################################################################
-#~ AC_ARG_ENABLE([gtk3],
- #~ [AS_HELP_STRING([--enable-gtk3], [Build With GTK3])],
- #~ [use_gtk3=$enableval], [use_gtk3=no])
-#~ 
-GTK_PKG=""
-#~ if test $use_gtk3 == yes ; then
-    pkg_modules="gtk+-3.0 >= 3.0.8"
-    CPPFLAGS="$CPPFLAGS -DENABLE_GTK3"
-    VALAFLAGS="$VALAFLAGS -D ENABLE_GTK3"
-    GTK_PKG="gtk+-3.0"
-    AC_DEFINE(ENABLE_GTK3, 1, [Enable GTK3])
-    fm_modules="libfmcore-3.0 >= 0.1.99"
-#~ else
-    #~ pkg_modules="gtk+-2.0 >= 2.24.0"
-    #~ GTK_PKG="gtk+-2.0"
-    #~ #AC_DEFINE_UNQUOTED(GTK_PKG, "gtk+-2.0", [Enable GTK3])
-    #~ fm_modules="libfmcore-2.0 >= 0.1.99"
-#~ fi
+pkg_modules="gtk+-3.0 >= 3.0.8"
+GTK_PKG="gtk+-3.0"
+CPPFLAGS="$CPPFLAGS -DENABLE_GTK3"
+VALAFLAGS="$VALAFLAGS -D ENABLE_GTK3"
+AC_DEFINE(ENABLE_GTK3, 1, [Enable GTK3])
 AC_SUBST(VALAFLAGS)
 AC_SUBST(ENABLE_GTK3)
 AC_SUBST(GTK_PKG)
 
-
-PKG_CHECK_MODULES(FM, [$fm_modules])
-AC_SUBST(FM_CFLAGS)
-AC_SUBST(FM_LIBS)
-
 PKG_CHECK_MODULES(GTK, [$pkg_modules])
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
+
+fm_modules="libfmcore-3.0 >= 0.1.99"
+PKG_CHECK_MODULES(FM, [$fm_modules])
+AC_SUBST(FM_CFLAGS)
+AC_SUBST(FM_LIBS)
 
 pango_modules="pango >= 1.20.0"
 PKG_CHECK_MODULES(PANGO, [$pango_modules])
@@ -130,6 +113,11 @@ menu_modules="libmenu-cache >= 0.3.2"
 PKG_CHECK_MODULES(MENU_CACHE, [$menu_modules])
 AC_SUBST(MENU_CACHE_CFLAGS)
 AC_SUBST(MENU_CACHE_LIBS)
+
+#~ vte_modules="vte-2.90"
+#~ PKG_CHECK_MODULES(VTE, [$vte_modules])
+#~ AC_SUBST(VTE_CFLAGS)
+#~ AC_SUBST(VTE_LIBS)
 
 GETTEXT_PACKAGE=lxdesktop
 AC_SUBST(GETTEXT_PACKAGE)

@@ -47,9 +47,14 @@ lxdesktop_SOURCES = \
 	FileManager/ManagerGroup.vala \
 	FileManager/ManagerWindow.vala \
 	FileManager/View/ViewContainer.vala \
+	FileManager/View/BaseView.vala \
 	$(exo_SOURCES) \
 	$(gtk_SOURCES) \
 	$(NULL)
+	
+	##~ FileManager/View/ViewTab.vala \
+	##~ FileManager/View/ViewTerminal.vala \
+	##~ FileManager/View/ForegroundProcessDialog.vala \
 
 lxdesktop_VALAFLAGS = \
 	--vapidir=$(top_srcdir)/vapi \
@@ -58,6 +63,10 @@ lxdesktop_VALAFLAGS = \
 	--pkg libfmcore \
 	--pkg fm-gtk \
 	$(NULL)
+
+	##~ --pkg posix \
+	##~ --pkg vte-2.90 \
+
 
 lxdesktop_CFLAGS = \
 	$(XLIB_CFLAGS) \
@@ -68,6 +77,7 @@ lxdesktop_CFLAGS = \
 	$(GMODULE_CFLAGS) \
 	$(FM_CFLAGS) \
 	$(MENU_CACHE_CFLAGS) \
+	$(VTE_CFLAGS) \
 	$(G_CAST_CHECKS) \
 	-Wall \
 	-Werror-implicit-function-declaration \
@@ -82,6 +92,7 @@ lxdesktop_LDADD = \
 	$(GMODULE_LIBS) \
 	$(FM_LIBS) \
 	$(MENU_CACHE_LIBS) \
+	$(VTE_LIBS) \
 	$(NULL)
 
 CLEANFILES = $(patsubst %.vala,%.c,$(filter %.vala, $(SOURCES))) lxdesktop.stamp
