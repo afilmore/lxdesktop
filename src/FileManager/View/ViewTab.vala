@@ -27,67 +27,38 @@ namespace Manager {
 
     public class ViewTab : Gtk.Box {
 
-        private Gtk.Button  button;
-        
-        public Gtk.Label    label;
-        public string       text;
-
-        public bool         reorderable = true;
-        public bool         detachable = true;
-
-        //public TerminalWidget terminal;
-        
-        public int index;
+        private Gtk.Label   _label;
+        private Gtk.Button  _button;
 
         public ViewTab (string text) {
             
-            // Set up the GUI...
-            this.text = text;
-            Gtk.HBox hbox = new Gtk.HBox (false, 0);
+            this.border_width = 0;
+            this.set_spacing (0);
+            
+            // Add the label...
+            _label = new Gtk.Label (text);
+            this.pack_start (_label, false, true, 0);
 
             // Add the button...
-            button = new Gtk.Button ();
-            button.set_image (new Gtk.Image.from_stock (Gtk.Stock.CLOSE, Gtk.IconSize.MENU));
-            button.show ();
-            button.set_relief (Gtk.ReliefStyle.NONE);
-            button.clicked.connect (() => { clicked (); });
-            button.tooltip_text = "Close the tab";
-
-            // Add the label...
-            label = new Gtk.Label (text);
-            label.show ();
-
-            // Pack all the elements */
-            hbox.pack_start (button, false, true, 0);
-            hbox.pack_end (label, true, true, 0);
-
-            add (hbox);
+            _button = new Gtk.Button ();
             
-            button_press_event.connect (on_button_press_event);
+            _button.set_image (new Gtk.Image.from_stock (Gtk.Stock.CLOSE, Gtk.IconSize.MENU));
+            _button.set_relief (Gtk.ReliefStyle.NONE);
+            _button.clicked.connect (() => { clicked (); });
+            _button.tooltip_text = "Close the tab";
+            this.pack_start (_button, false, true, 0);
 
             show_all ();
         }
 
         public void set_text (string text) {
             
-            this.text = text;
-            label.set_text (text);
+            _label.set_text (text);
         }
 
-        bool on_button_press_event (Gdk.EventButton event) {
-            
-            if (event.button == 2) { 
-                clicked ();
-                return true;
-            }
-            return false;
-        }
-        
         public signal void clicked ();
     }
 }
-
-
 
 
 

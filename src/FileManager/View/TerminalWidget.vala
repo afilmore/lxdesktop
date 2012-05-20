@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  * 
- *      ViewTerminal.vala
+ *      TerminalWidget.vala
  *
  *      Adapted From Pantheon Terminal From Elementary OS (https://launchpad.net/pantheon-terminal)
  * 
@@ -26,7 +26,7 @@
  **********************************************************************************************************************/
 namespace Terminal {
 
-    public class TerminalWidget : Vte.Terminal {
+    public class Widget : Vte.Terminal {
 
         GLib.Pid child_pid;
 
@@ -34,7 +34,7 @@ namespace Terminal {
         
         public Manager.ViewTab tab;
 
-        public TerminalWidget (/***Gtk.ActionGroup main_actions, Gtk.UIManager ui
+        public Widget (/***Gtk.ActionGroup main_actions, Gtk.UIManager ui
                                , PantheonTerminalWindow parent_window***/) {
             
             /* Set up the parents */
@@ -108,7 +108,8 @@ namespace Terminal {
             return (int) (this.get_char_height()) * row_count;
         }
 
-        void drag_data_received (Gdk.DragContext context, int x, int y, Gtk.SelectionData selection_data, uint info, uint time_) {
+        public override void drag_data_received (Gdk.DragContext context, int x, int y,
+                                                 Gtk.SelectionData selection_data, uint info, uint time) {
           print ("[DEBUG] Drag data received.\n");
         }
 

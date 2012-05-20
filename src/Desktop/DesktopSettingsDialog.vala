@@ -34,14 +34,17 @@ namespace Desktop {
             }
             ***/
             
-            Gtk.Builder builder = new Gtk.Builder ();
+            try {
+                Gtk.Builder builder = new Gtk.Builder ();
             
-            builder.add_from_string (settings_dialog_xml, -1);
-            builder.connect_signals (this);
-            
-            _dialog = builder.get_object ("dlg") as Gtk.Dialog;
+                builder.add_from_string (settings_dialog_xml, -1);
+                builder.connect_signals (this);
+                
+                _dialog = builder.get_object ("dlg") as Gtk.Dialog;
 
-            _dialog.present ();
+                _dialog.present ();
+            } catch (Error e) {
+            }
             
         }
         
