@@ -1,55 +1,77 @@
-#                                               -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
-
+#***************************************************************************************************
+#   
+#   make clean;make distclean;./autogen.sh && ./configure --enable-debug=yes --prefix=/usr && make
+#
+#
+#
+#***************************************************************************************************
 AC_PREREQ([2.63])
+
 AC_INIT([lxdesktop], [0.9.10], [https://github.com/afilmore/lxdesktop])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AC_CONFIG_HEADERS([config.h])
+
 
 # Checks for programs.
 AC_ISC_POSIX
 AC_PROG_CC
 AM_PROG_LIBTOOL
 AM_PROG_CC_STDC
-AC_HEADER_STDC
+
 
 # Checks for header files.
 AC_HEADER_STDC
 
-# Checks for typedefs, structures, and compiler characteristics.
 
-# Checks for library functions.
-
-# Large file support
+#*****************************************************************************************
+#   Large file support
+#
+#
+#*****************************************************************************************
 AC_ARG_ENABLE([largefile],
-    AS_HELP_STRING([--enable-largefile],
-        [enable Large file support (default: yes)]),
-    largefile=$enableval, largefile="yes")
+              AS_HELP_STRING([--enable-largefile],
+              [Enable Large file support (default: yes)]),
+              largefile=$enableval,
+              largefile="yes")
 
 if test x"$largefile" = x"yes"; then
-  CPPFLAGS="$CPPFLAGS -D_LARGEFILE_SOURCE -D_REENTRANT -D_FILE_OFFSET_BITS=64"
-  AC_DEFINE(_LARGEFILE64_SOURCE, 1, [Whether to enable large file support])
-  AC_DEFINE(_FILE_OFFSET_BITS, 64, [File offset bits])
+    CPPFLAGS="$CPPFLAGS -D_LARGEFILE_SOURCE -D_REENTRANT -D_FILE_OFFSET_BITS=64"
+    AC_DEFINE(_LARGEFILE64_SOURCE, 1, [Whether to enable large file support])
+    AC_DEFINE(_FILE_OFFSET_BITS, 64, [File offset bits])
 fi
 
-AC_ARG_ENABLE(
-    [cast-checks],
-    AS_HELP_STRING([--enable-cast-checks],
-                   [enable Glib casting checks (default: disable)]),
-    cast_checks=$enableval, cast_checks="no")
+
+#*****************************************************************************************
+#   Glib Cast Checks...
+#
+#
+#*****************************************************************************************
+AC_ARG_ENABLE([cast-checks],
+              AS_HELP_STRING([--enable-cast-checks],
+              [Enable Glib Cast Checks (default: disable)]),
+              cast_checks=$enableval,
+              cast_checks="no")
+
 G_CAST_CHECKS=""
-if test x"$cast_checks" = "xno"; then
+if test x"$cast_checks" = x"no"; then
     G_CAST_CHECKS="-DG_DISABLE_CAST_CHECKS"
 fi
 AC_SUBST(G_CAST_CHECKS)
 
+
+#*****************************************************************************************
+#   Debug Support...
+#
+#
+#*****************************************************************************************
 AC_ARG_ENABLE(debug,
-    [AC_HELP_STRING([--enable-debug],
-        [build lxdesktop with debug support @<:@default=no@:>@])],
-    [enable_debug="${enableval}"],
-    [enable_debug=no]
-)
+              [AC_HELP_STRING([--enable-debug],
+              [build lxdesktop with debug support (default: no)])],
+              enable_debug=$enableval,
+              enable_debug="no")
+
+
 if test "$enable_debug" = "yes"; then
     # turn on debug and disable optimization
     CPPFLAGS="$CPPFLAGS -DG_ENABLE_DEBUG -O0 -g"
@@ -59,19 +81,30 @@ else
     CPPFLAGS="$CPPFLAGS -DG_DISABLE_ASSERT -DG_DISABLE_CHECKS"
 fi
 
-# intltool
+
+#*****************************************************************************************
+#   Intltool...
+#
+#
+#*****************************************************************************************
 #IT_PROG_INTLTOOL([0.40.0])
 
-# Check for vala
+
+#*****************************************************************************************
+#   Vala...
+#
+#
+#*****************************************************************************************
 AM_PROG_VALAC([0.16.0])
 
 
-# Checks for libraries.
-PKG_CHECK_MODULES(XLIB, "x11")
-AC_SUBST(XLIB_CFLAGS)
-AC_SUBST(XLIB_LIBS)
-
-pkg_modules="gtk+-3.0 >= 3.0.8"
+#*****************************************************************************************
+#   Checks For Libraries...
+#
+#   pkg-config --cflags --libs LIB_NAME
+#
+#*****************************************************************************************
+pkg_modules="gtk+-3.0 >= 3.0.0"
 GTK_PKG="gtk+-3.0"
 CPPFLAGS="$CPPFLAGS -DENABLE_GTK3"
 VALAFLAGS="$VALAFLAGS -D ENABLE_GTK3"
@@ -89,21 +122,6 @@ PKG_CHECK_MODULES(FM, [$fm_modules])
 AC_SUBST(FM_CFLAGS)
 AC_SUBST(FM_LIBS)
 
-pango_modules="pango >= 1.20.0"
-PKG_CHECK_MODULES(PANGO, [$pango_modules])
-AC_SUBST(PANGO_CFLAGS)
-AC_SUBST(PANGO_LIBS)
-
-glib_modules="glib-2.0 >= 2.16.0"
-PKG_CHECK_MODULES(GLIB, [$glib_modules])
-AC_SUBST(GLIB_CFLAGS)
-AC_SUBST(GLIB_LIBS)
-
-gio_modules="gthread-2.0 gio-unix-2.0 >= 2.18.0"
-PKG_CHECK_MODULES(GIO, [$gio_modules])
-AC_SUBST(GIO_CFLAGS)
-AC_SUBST(GIO_LIBS)
-
 gmodule_modules="gmodule-2.0"
 PKG_CHECK_MODULES(GMODULE, [$gmodule_modules])
 AC_SUBST(GMODULE_CFLAGS)
@@ -114,13 +132,21 @@ PKG_CHECK_MODULES(MENU_CACHE, [$menu_modules])
 AC_SUBST(MENU_CACHE_CFLAGS)
 AC_SUBST(MENU_CACHE_LIBS)
 
-#~ vte_modules="vte-2.90"
-#~ PKG_CHECK_MODULES(VTE, [$vte_modules])
-#~ AC_SUBST(VTE_CFLAGS)
-#~ AC_SUBST(VTE_LIBS)
+vte_modules="vte-2.90"
+PKG_CHECK_MODULES(VTE, [$vte_modules])
+AC_SUBST(VTE_CFLAGS)
+AC_SUBST(VTE_LIBS)
 
+
+#*****************************************************************************************
+#   
+#
+#   
+#
+#*****************************************************************************************
 GETTEXT_PACKAGE=lxdesktop
 AC_SUBST(GETTEXT_PACKAGE)
+
 
 # Generate po/LINGUAS on the fly rather than relying on translators
 # to maintain it manually. This also overcome the problem that Transifex
@@ -135,6 +161,13 @@ AC_SUBST(GETTEXT_PACKAGE)
 AM_GLIB_GNU_GETTEXT
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package.])
 
+
+#*****************************************************************************************
+#   
+#
+#   
+#
+#*****************************************************************************************
 AC_CONFIG_FILES([
     Makefile
     data/Makefile
@@ -142,4 +175,6 @@ AC_CONFIG_FILES([
 ])
 
 AC_OUTPUT
+
+
 
