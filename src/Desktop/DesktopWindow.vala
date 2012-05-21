@@ -1082,10 +1082,11 @@ namespace Desktop {
 
 
 
-//~             Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, Fm.Path.get_desktop(), files, this.action_open_folder_func);
+            Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, Fm.Path.get_desktop(),
+                                                  files, this.action_open_folder_func);
             
-//~             if (menu != null)
-//~                 menu.popup (null, null, null, 3, evt.time);
+            if (menu != null)
+                menu.popup (null, null, null, 3, evt.time);
             
             return;
         }

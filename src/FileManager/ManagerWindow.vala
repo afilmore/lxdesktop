@@ -57,30 +57,30 @@ namespace Manager {
         <accelerator action='Location2'/>
     """;
     
-    private const string global_folder_menu_xml = """
-        <popup>
-        
-          <placeholder name='SPECIAL_ACTIONS'>
-            
-            <menuitem action='TerminalHere'/>
-            
-          </placeholder>
-        
-        </popup>
-    """;
-
+//~     private const string global_folder_menu_xml = """
+//~         <popup>
+//~         
+//~           <placeholder name='SPECIAL_ACTIONS'>
+//~             
+//~             <menuitem action='TerminalHere'/>
+//~             
+//~           </placeholder>
+//~         
+//~         </popup>
+//~     """;
+//~ 
     
     public class Window : Gtk.Window {
         
         private bool _debug_mode = false;
         
         // Single Directory Popup Actions
-        private const Gtk.ActionEntry _folder_menu_actions[] = {
-            
-            // Popup Actions...
-            {"TerminalHere", "utilities-terminal", "Terminal Here...", null, null,               _action_terminal_tab}
-            
-        };
+//~         private const Gtk.ActionEntry _folder_menu_actions[] = {
+//~             
+//~             // Popup Actions...
+//~             {"TerminalHere", "utilities-terminal", "Terminal Here...", null, null,               _action_terminal_tab}
+//~             
+//~         };
         
         private const Gtk.ActionEntry _main_win_actions[] = {
             
@@ -527,12 +527,12 @@ namespace Manager {
             
             
             
-            unowned Fm.FileMenu fm_menu = _file_popup.create ((Gtk.Widget) this,
-                                                              _container_view.get_cwd (),
-                                                              files,
-                                                              null,
-                                                              _folder_menu_actions,
-                                                              global_folder_menu_xml);
+//~             unowned Fm.FileMenu fm_menu = _file_popup.create ((Gtk.Widget) this,
+//~                                                               _container_view.get_cwd (),
+//~                                                               files,
+//~                                                               null,
+//~                                                               _folder_menu_actions,
+//~                                                               global_folder_menu_xml);
             
             // Add Terminal Here... Action...
 //~             if (file_info.is_dir ()) {
@@ -546,11 +546,11 @@ namespace Manager {
 //~                 }
 //~             }
 
-            Gtk.Menu menu = _file_popup.get_gtk_menu ();
+//~             Gtk.Menu menu = _file_popup.get_gtk_menu ();
 //~             Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _container_view.get_cwd (), files, null);
             
-            if (menu != null)
-                menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
+//~             if (menu != null)
+//~                 menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
             
             return true;
         }
@@ -647,12 +647,12 @@ namespace Manager {
                         stdout.printf ("folder view click\n");
                         
                         // FIXME_axl: can't use folder view as owner, signal problems....
-                        unowned Fm.FileMenu fm_menu = _file_popup.create ((Gtk.Widget) this,
-                                                                            folder_view.get_cwd (),
-                                                                            files,
-                                                                            null,
-                                                                          _folder_menu_actions,
-                                                                          global_folder_menu_xml);
+//~                         unowned Fm.FileMenu fm_menu = _file_popup.create ((Gtk.Widget) this,
+//~                                                                             folder_view.get_cwd (),
+//~                                                                             files,
+//~                                                                             null,
+//~                                                                           _folder_menu_actions,
+//~                                                                           global_folder_menu_xml);
                         
                         // Add Terminal Here... Action...
 //~                         if (file_info.is_dir ()) {
@@ -666,11 +666,11 @@ namespace Manager {
 //~                             }
 //~                         }
 //~ 
-                        Gtk.Menu menu = _file_popup.get_gtk_menu ();
+//~                         Gtk.Menu menu = _file_popup.get_gtk_menu ();
 //~                         Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, folder_view.get_cwd (), files, null);
                         
-                        if (menu != null)
-                            menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
+//~                         if (menu != null)
+//~                             menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
             
                     // Default Contextual Menu...
                     } else {
