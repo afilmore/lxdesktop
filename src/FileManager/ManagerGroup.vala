@@ -19,6 +19,15 @@
  **********************************************************************************************************************/
 namespace Manager {
 
+    
+    public enum ViewType {
+        NONE,
+        FOLDER,
+        TERMINAL,
+        SEARCH_RESULT
+    }
+    
+    
     public class Group {
         
         bool                        _debug_mode = false;
@@ -32,10 +41,11 @@ namespace Manager {
             _wingroup = new Gtk.WindowGroup ();
         }
         
-        public bool new_manager_window (string[] folders) {
+        public bool new_manager_window (Manager.ViewType view_type, string[] folders) {
             
             Manager.Window manager = new Manager.Window (_debug_mode);
-            manager.create (folders, Manager.ViewType.FOLDER);
+            
+            manager.create (folders, view_type);
             
             _wingroup.add_window (manager);
             

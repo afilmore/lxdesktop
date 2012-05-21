@@ -23,7 +23,7 @@ namespace Desktop {
         private const Gtk.ActionEntry _folders_actions [] = {
             
             // Popup Actions...
-            {"TerminalHere", Gtk.Stock.NEW, "Terminal Here...", null, null, _action_terminal_tab}
+            {"TerminalHere", "utilities-terminal", "Terminal Here...", null, null, _action_terminal_tab}
             
         };
         
@@ -89,9 +89,7 @@ namespace Desktop {
             string[] folders = new string [1];
             folders[0] = _open_terminal_dir;
             
-            global_app.new_manager_window (folders);
-            
-            //_container_view.new_tab (ViewType.TERMINAL, _dest_directory);
+            global_app.new_terminal_window (folders);
         }
     }
 }

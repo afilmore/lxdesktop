@@ -21,15 +21,8 @@
 namespace Manager {
     
 
-    public enum ViewType {
-        NONE,
-        FOLDER,
-        TERMINAL,
-        SEARCH_RESULT
-    }
-    
-    
     private Fm.DirTreeModel? global_dir_tree_model = null;
+    
     
     private enum DirChangeCaller {
         NONE,
@@ -38,50 +31,29 @@ namespace Manager {
         FOLDER_VIEW
     }
     
-    private const string global_main_menu_xml = """
-        <menubar>
-          <menu action='FileMenu'>
-            <menuitem action='Close'/>
-          </menu>
-          
-          <menu action='HelpMenu'>
-            <menuitem action='About'/>
-          </menu>
-        </menubar>
-        
-        <toolbar>
-            <toolitem action='Up'/>
-        </toolbar>
-        
-        <accelerator action='Location'/>
-        <accelerator action='Location2'/>
-    """;
-    
-//~     private const string global_folder_menu_xml = """
-//~         <popup>
-//~         
-//~           <placeholder name='SPECIAL_ACTIONS'>
-//~             
-//~             <menuitem action='TerminalHere'/>
-//~             
-//~           </placeholder>
-//~         
-//~         </popup>
-//~     """;
-//~ 
-    
     public class Window : Gtk.Window {
         
         private bool _debug_mode = false;
         
-        // Single Directory Popup Actions
-//~         private const Gtk.ActionEntry _folder_menu_actions[] = {
-//~             
-//~             // Popup Actions...
-//~             {"TerminalHere", "utilities-terminal", "Terminal Here...", null, null,               _action_terminal_tab}
-//~             
-//~         };
-        
+        private const string global_main_menu_xml = """
+            <menubar>
+              <menu action='FileMenu'>
+                <menuitem action='Close'/>
+              </menu>
+              
+              <menu action='HelpMenu'>
+                <menuitem action='About'/>
+              </menu>
+            </menubar>
+            
+            <toolbar>
+                <toolitem action='Up'/>
+            </toolbar>
+            
+            <accelerator action='Location'/>
+            <accelerator action='Location2'/>
+        """;
+    
         private const Gtk.ActionEntry _main_win_actions[] = {
             
             // Application Menu...
@@ -121,10 +93,13 @@ namespace Manager {
         private uint                    _statusbar_ctx;
         private uint                    _statusbar_ctx2;
         
+        
         // File Popup...
+        // TODO_axl: do this a better way...
         private Desktop.FilePopup?      _file_popup;        
         
         // Global Popup...
+        // TODO_axl: do this a better way...
         private Desktop.Popup?          _desktop_popup_class;
         private Gtk.Menu                _default_popup;
         
@@ -518,6 +493,7 @@ namespace Manager {
             if (file_info == null)
                 return true;
                 
+            // TODO_axl: do this a better way...
             if (_file_popup == null)
                 _file_popup = new Desktop.FilePopup ();
             
@@ -525,32 +501,11 @@ namespace Manager {
             Fm.FileInfoList<Fm.FileInfo> files = new Fm.FileInfoList<Fm.FileInfo> ();
             files.push_tail (file_info);
             
+            Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _container_view.get_cwd (), files,
+                                                  null);
             
-            
-//~             unowned Fm.FileMenu fm_menu = _file_popup.create ((Gtk.Widget) this,
-//~                                                               _container_view.get_cwd (),
-//~                                                               files,
-//~                                                               null,
-//~                                                               _folder_menu_actions,
-//~                                                               global_folder_menu_xml);
-            
-            // Add Terminal Here... Action...
-//~             if (file_info.is_dir ()) {
-//~                 
-//~                 Gtk.UIManager ui = fm_menu.get_ui ();
-//~                 Gtk.ActionGroup action_group = fm_menu.get_action_group ();
-//~                 action_group.add_actions (_folder_menu_actions, this);
-//~                 try {
-//~                     ui.add_ui_from_string (global_folder_menu_xml, -1);
-//~                 } catch (Error e) {
-//~                 }
-//~             }
-
-//~             Gtk.Menu menu = _file_popup.get_gtk_menu ();
-//~             Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _container_view.get_cwd (), files, null);
-            
-//~             if (menu != null)
-//~                 menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
+            if (menu != null)
+                menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
             
             return true;
         }
@@ -631,6 +586,7 @@ namespace Manager {
                     // File/Folder Contextual Menu...
                     if (fi != null) {
                         
+                        // TODO_axl: do this a better way...
                         if (_file_popup == null)
                             _file_popup = new Desktop.FilePopup ();
                         
@@ -643,34 +599,12 @@ namespace Manager {
                         Fm.FileInfoList<Fm.FileInfo>? files = folder_view.get_selected_files ();
                         if (files == null)
                             return;
+            
+                        Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, folder_view.get_cwd (), files,
+                                                              null);
                         
-                        stdout.printf ("folder view click\n");
-                        
-                        // FIXME_axl: can't use folder view as owner, signal problems....
-//~                         unowned Fm.FileMenu fm_menu = _file_popup.create ((Gtk.Widget) this,
-//~                                                                             folder_view.get_cwd (),
-//~                                                                             files,
-//~                                                                             null,
-//~                                                                           _folder_menu_actions,
-//~                                                                           global_folder_menu_xml);
-                        
-                        // Add Terminal Here... Action...
-//~                         if (file_info.is_dir ()) {
-//~                             
-//~                             Gtk.UIManager ui = fm_menu.get_ui ();
-//~                             Gtk.ActionGroup action_group = fm_menu.get_action_group ();
-//~                             action_group.add_actions (_folder_menu_actions, this);
-//~                             try {
-//~                                 ui.add_ui_from_string (global_folder_menu_xml, -1);
-//~                             } catch (Error e) {
-//~                             }
-//~                         }
-//~ 
-//~                         Gtk.Menu menu = _file_popup.get_gtk_menu ();
-//~                         Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, folder_view.get_cwd (), files, null);
-                        
-//~                         if (menu != null)
-//~                             menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
+                        if (menu != null)
+                            menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
             
                     // Default Contextual Menu...
                     } else {
@@ -737,18 +671,6 @@ namespace Manager {
             about_dialog.set_website ("https://github.com/afilmore/lxdesktop");
             about_dialog.run ();
             about_dialog.destroy ();
-        }
-
-        private void _action_terminal_tab (Gtk.Action act) {
-            Fm.Path current = _tree_view.get_cwd ();
-            //return;
-            
-            stdout.printf ("sux \n");
-            
-            if (current == null)
-                return;
-            
-            _container_view.new_tab (ViewType.TERMINAL, current.to_str ());
         }
     }
 }

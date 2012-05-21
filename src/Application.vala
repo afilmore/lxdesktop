@@ -183,7 +183,28 @@ namespace Desktop {
         
         public bool new_manager_window (string[] folders) {
             
-            _manager_group.new_manager_window (folders);
+            _manager_group.new_manager_window (Manager.ViewType.FOLDER, folders);
+
+            return true;
+        }
+        
+        public bool new_manager_tab (string[] folders) {
+            
+            //_manager_group.new_manager_window (folders);
+
+            return true;
+        }
+        
+        public bool new_terminal_window (string[] folders) {
+            
+            _manager_group.new_manager_window (Manager.ViewType.TERMINAL, folders);
+
+            return true;
+        }
+        
+        public bool new_terminal_tab (string[] folders) {
+            
+            //_manager_group.new_manager_window (folders);
 
             return true;
         }

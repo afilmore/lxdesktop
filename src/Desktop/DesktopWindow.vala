@@ -79,6 +79,7 @@ namespace Desktop {
         private Fm.DndSrc       _fm_dnd_src;
         private Fm.DndDest      _fm_dnd_dest;
         
+        
         /*********************************************************************************
          * Single click...
          * 
@@ -89,22 +90,15 @@ namespace Desktop {
          ********************************************************************************/
         
         
+        // File Popup...
+        // TODO_axl: do this a better way...
+        private Desktop.FilePopup?  _file_popup;
         
         // Desktop Popup...
-        private Desktop.Popup?  _desktop_popup_class;
-        private bool            _show_wm_menu = false;  /*** Show the window manager's menu ***/
-        private Gtk.Menu?       _desktop_popup;
-        
-        
-        
-        
-        // File Popup...
-//~         private Fm.FileMenu     _file_menu;             // Doesn't work if not global........
-//~         private Gtk.Menu?       _popup_menu;
-        private Desktop.FilePopup?     _file_popup;             // Doesn't work if not global........
-        //Gtk.Menu menu;
-        
-        
+        // TODO_axl: do this a better way...
+        private bool                _show_wm_menu = false;          /*** Show the window manager's menu ***/
+        private Desktop.Popup?      _desktop_popup_class;
+        private Gtk.Menu?           _desktop_popup;
         
         
         public Window () {
@@ -1055,6 +1049,7 @@ namespace Desktop {
          ******************************************************************************************/
         private void _create_popup_menu (Gdk.EventButton evt) {
             
+            // TODO_axl: do this a better way...
             if (_file_popup == null)
                 _file_popup = new Desktop.FilePopup ();
             
@@ -1062,28 +1057,8 @@ namespace Desktop {
             if (files == null)
                 return;
             
-//~    >>         unowned Fm.FileMenu fm_menu = _file_popup.create ((Gtk.Widget) this, Fm.Path.get_desktop(), files, null);
-            // Add Terminal Here... Action...
-//~             if (file_info.is_dir ()) {
-//~                 
-//~                 Gtk.UIManager ui = fm_menu.get_ui ();
-//~                 Gtk.ActionGroup action_group = fm_menu.get_action_group ();
-//~                 action_group.add_actions (_folder_menu_actions, this);
-//~                 try {
-//~                     ui.add_ui_from_string (global_folder_menu_xml, -1);
-//~                 } catch (Error e) {
-//~                 }
-//~             }
-//~ 
-
-
-
-// >>            Gtk.Menu menu = _file_popup.get_gtk_menu ();
-
-
-
-            Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, Fm.Path.get_desktop(),
-                                                  files, this.action_open_folder_func);
+            Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, Fm.Path.get_desktop(), files,
+                                                  this.action_open_folder_func);
             
             if (menu != null)
                 menu.popup (null, null, null, 3, evt.time);
