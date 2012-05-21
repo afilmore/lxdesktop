@@ -143,10 +143,10 @@ namespace Desktop {
             
             // FIXME_axl: passing the widget here won't work... needs to set this parameter in dconf...
             
-            if (global_settings_dialog == null)
-                global_settings_dialog = new Desktop.SettingsDialog (_owner_widget);
+            if (global_app.global_settings_dialog == null)
+                global_app.global_settings_dialog = new Desktop.SettingsDialog (_owner_widget);
             
-            global_settings_dialog.run ();
+            global_app.global_settings_dialog.run ();
         }
 
     }

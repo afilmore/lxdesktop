@@ -1,16 +1,23 @@
 /***********************************************************************************************************************
- * DesktopWindow.vala
  * 
- * Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
+ *      DesktopWindow.vala
  * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License Version 2.
- * http://www.gnu.org/licenses/gpl-2.0.txt
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  * 
- * This software is an experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
+ *      This program is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License Version 2.
+ *      http://www.gnu.org/licenses/gpl-2.0.txt
  * 
- * Purpose: The Desktop Widget. It's simply a derived Gtk.Window, it can be created in a debug mode,
- *          in that mode, it's not full screen but 3/4 of the screen in a regular window.
+ *      An experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
+ * 
+ *      Purpose: The Desktop Widget.
+ * 
+ *      It's simply a derived Gtk.Window, it contains a Grid that manages desktop items.
+ *      The Grid is not a widget, just an object that contains a list of items and manages the layout and drawing.
+ *      Each Desktop Item contains a FileInfo object representing the real file/folder on the system
+ *      and manages the item layout, the size and position of the Item's icon and text.
+ *      The Desktop can be created in a debug mode, in that mode, it's not full screen but 3/4 of the screen
+ *      in a regular window.
  * 
  * 
  **********************************************************************************************************************/
@@ -1138,15 +1145,15 @@ namespace Desktop {
             if (fi == null)
                 return false;
                 
-            if (global_manager_group == null) {
+            if (global_app.global_manager_group == null) {
                 stdout.printf ("null\n");
-                global_manager_group = new Manager.Group (_debug_mode);
+                global_app.global_manager_group = new Manager.Group (_debug_mode);
             }
             
             string[] folders = new string [1];
             folders[0] = fi.get_path ().to_str ();
             
-            global_manager_group.create_manager (folders);
+            global_app.global_manager_group.create_manager (folders);
             
             return true;
         }

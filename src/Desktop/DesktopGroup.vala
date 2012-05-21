@@ -1,23 +1,31 @@
 /***********************************************************************************************************************
- * DesktopGroup.vala
  * 
- * Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
+ *      DesktopGroup.vala
  * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License Version 2.
- * http://www.gnu.org/licenses/gpl-2.0.txt
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  * 
- * This software is an experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
+ *      This program is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License Version 2.
+ *      http://www.gnu.org/licenses/gpl-2.0.txt
  * 
- * Purpose: 
+ *      An experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
  * 
+ *      Purpose: The Desktop Window Group.
+ * 
+ *      The application creates a FolderModel and sets the desktop path to that model.
+ *      The Model manages files that exists in the desktop folder, then a Desktop window is created for
+ *      every screen.
  * 
  * 
  **********************************************************************************************************************/
 namespace Desktop {
 
-    Fm.FolderModel? global_model = null;    
     
+    // A Global Model to handle Files/Folder on the desktop...
+    Fm.FolderModel?     global_model = null;    
+    
+    
+    // TODO_axl: Try to derivate a window group instead...
     public class Group {
         
         bool                        _debug_mode = false;

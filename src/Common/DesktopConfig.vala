@@ -123,7 +123,7 @@ namespace Desktop {
             Desktop.set_background (desktop,
                                     wallpaper,
                                     this.wallpaper_mode,
-                                    global_config.color_background);
+                                    this.color_background);
         }
     }
 }
