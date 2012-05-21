@@ -2,6 +2,8 @@
  * 
  *      ManagerWindow.vala
  *
+ *      An experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
+ *
  *      Adapted from LibFm Demo from LXDE (http://lxde.org/)
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
  *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
@@ -12,7 +14,6 @@
  *      See the GNU General Public License for more details.
  *      http://www.gnu.org/licenses/gpl-2.0.txt
  * 
- *
  *      Purpose: 
  * 
  * 

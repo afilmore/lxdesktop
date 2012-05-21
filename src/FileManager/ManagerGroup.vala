@@ -2,6 +2,8 @@
  * 
  *      ManagerGroup.vala
  *
+ *      An experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
+ *      
  *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  *      
  *      This program is free software; you can redistribute it and/or modify
@@ -10,7 +12,7 @@
  *      See the GNU General Public License for more details.
  *      http://www.gnu.org/licenses/gpl-2.0.txt
  * 
- *
+ * 
  *      Purpose: 
  * 
  * 

@@ -2,6 +2,8 @@
  * 
  *      ViewContainer.vala
  *
+ *      An experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
+ *
  *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  *      
  *      This program is free software; you can redistribute it and/or modify
@@ -10,7 +12,6 @@
  *      See the GNU General Public License for more details.
  *      http://www.gnu.org/licenses/gpl-2.0.txt
  * 
- *
  *      Purpose: 
  * 
  * 
@@ -132,6 +133,8 @@ namespace Manager {
                 
 //~                 terminal_widget.set_font (system_font);
                 set_size_request (terminal_widget.calculate_width (30), terminal_widget.calculate_height (8));
+                
+                // ???
                 tab.grab_focus ();
                 
                 terminal_grid.show_all ();

@@ -2,13 +2,14 @@
  * 
  *      DesktopWindow.vala
  * 
+ *      An experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
+ *
+ *      Copyright 2009 PCMan <pcman.tw@gmail.com>
  *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  * 
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License Version 2.
  *      http://www.gnu.org/licenses/gpl-2.0.txt
- * 
- *      An experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
  * 
  *      Purpose: The Desktop Widget.
  * 

@@ -1,19 +1,21 @@
 /***********************************************************************************************************************
- * DesktopFilePopup.vala
  * 
- * Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
+ *      DesktopFilePopup.vala
  * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License Version 2.
- * http://www.gnu.org/licenses/gpl-2.0.txt
+ *      An experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
+ *
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  * 
- * This software is an experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
+ *      This program is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License Version 2.
+ *      http://www.gnu.org/licenses/gpl-2.0.txt
  * 
- * Purpose: 
+ *      Purpose: 
  * 
  * 
  **********************************************************************************************************************/
 namespace Desktop {
+    
     
     public class FilePopup {
         
