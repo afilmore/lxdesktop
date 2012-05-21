@@ -32,8 +32,8 @@ namespace Manager {
         
         public bool new_manager_window (string[] folders) {
             
-            Manager.Window manager = new Manager.Window ();
-            manager.create (folders, "", _debug_mode);
+            Manager.Window manager = new Manager.Window (_debug_mode);
+            manager.create (folders, Manager.ViewType.FOLDER);
             
             _wingroup.add_window (manager);
             

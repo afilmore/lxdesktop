@@ -136,7 +136,9 @@ namespace Manager {
         private Fm.Bookmarks    _bookmarks;
         ***/
 
-        public Window () {
+        public Window (bool debug = false) {
+            
+            _debug_mode = debug;
             
             this.destroy.connect ( () => {
                 
@@ -145,8 +147,6 @@ namespace Manager {
                     Gtk.main_quit ();
             
             });
-            
-
         }
         
         ~Window () {
@@ -176,9 +176,7 @@ namespace Manager {
          * 
          * 
          ********************************************************************************/
-        public bool create (string[] files, string config_file, bool debug = false) {
-            
-            _debug_mode = debug;
+        public bool create (string[] files, Manager.ViewType view_type) {
             
             this.set_default_size ((screen.get_width() / 4) * 3, (screen.get_height() / 4) * 3);
             this.set_position (Gtk.WindowPosition.CENTER);
@@ -189,7 +187,7 @@ namespace Manager {
             
             
             /*****************************************************************************
-             * Create Main Window UI
+             * Create The Main Window...
              * 
              * 
              ****************************************************************************/
@@ -232,15 +230,20 @@ namespace Manager {
             Gtk.ToolItem toolitem = new Gtk.ToolItem ();
             toolitem.add (_path_entry);
             toolitem.set_expand (true);
-            _toolbar.insert (toolitem, _toolbar.get_n_items () - 1);
-            //_toolbar.insert (toolitem, 1);
+            //_toolbar.insert (toolitem, _toolbar.get_n_items () - 1);
+            _toolbar.insert (toolitem, 1);
             
             // Add The HPaned Container...
             _hpaned = new Gtk.HPaned ();
             _hpaned.set_position (200);
             main_vbox.pack_start (_hpaned, true, true, 0);
             
-            // Add The Left Side Pane...
+            
+            /*****************************************************************************
+             * Create The Left Side View....
+             * 
+             * 
+             ****************************************************************************/
             Gtk.VBox side_pane_vbox = new Gtk.VBox (false, 0);
             _hpaned.add1 (side_pane_vbox);
             Gtk.ScrolledWindow scrolled_window = new Gtk.ScrolledWindow (null, null);
@@ -264,8 +267,9 @@ namespace Manager {
                 
                 unowned List<Fm.FileInfo>? l;
                 
+                
                 /*************************************************************************
-                 * Create TreeView Root Items....
+                 * Add TreeView Root Items....
                  * 
                  * 
                  ************************************************************************/
@@ -316,50 +320,49 @@ namespace Manager {
             _tree_view.directory_changed.connect (_tree_view_on_change_directory);
             _tree_view.button_release_event.connect (_tree_view_on_button_release);
             
+            
+            /*****************************************************************************
+             * Create The Right Side View....
+             * 
+             * 
+             ****************************************************************************/
             _container_view = new Manager.ViewContainer ();
             
-
-
             // Notebook signals...
+            /***
+            _container_view.switch_page.connect (on_switch_page);
 
 
-//~             _container_view.switch_page.connect (on_switch_page);
-
-
-//~             _container_view.page_removed.connect (() => {
-//~                 if (_container_view.get_n_pages () == 0)
-//~                     this.destroy ();
-//~             });
-            
-
-
+            _container_view.page_removed.connect (() => {
+                if (_container_view.get_n_pages () == 0)
+                    this.destroy ();
+            });
+            ***/
             _hpaned.add2 (_container_view);
-
             
             
+            /*****************************************************************************
+             * Create Folder/Terminal View....
+             * 
+             * 
+             ****************************************************************************/
+            Gtk.Widget view = null;
+            if (view_type == Manager.ViewType.FOLDER) {
             
+                // Create The Folder View...
+                view = _container_view.new_tab (ViewType.FOLDER);
+                Fm.FolderView? folder_view = (Fm.FolderView) view;
+                folder_view.clicked.connect (_folder_view_on_file_clicked);
+                
+                //folder_view.loaded.connect         (_folder_view_on_view_loaded);
+                //folder_view.sel_changed.connect    (_folder_view_on_sel_changed);
+                
+            } else if (view_type == Manager.ViewType.TERMINAL) {
             
-            // Create The Folder View...
-            Fm.FolderView? folder_view = _container_view.new_tab (ViewType.FOLDER);
-            folder_view.clicked.connect (_folder_view_on_file_clicked);
+                // Create A Terminal View...
+                view = _container_view.new_tab (ViewType.TERMINAL);
             
-            //folder_view.loaded.connect         (_folder_view_on_view_loaded);
-            //folder_view.sel_changed.connect    (_folder_view_on_sel_changed);
-            
-            
-            
-            
-            
-            
-            
-            
-            
-//            _container_view.new_tab (ViewType.TERMINAL);
-            
-            
-            
-            
-            
+            }
             
             
             // Create The Statusbar...
@@ -382,7 +385,7 @@ namespace Manager {
             // Add The Container To The Main Window...
             this.add (main_vbox);
             
-            folder_view.grab_focus ();
+            view.grab_focus ();
             
             // TODO_axl: save last directory on exit and reload it here... :-P
             Fm.Path path;

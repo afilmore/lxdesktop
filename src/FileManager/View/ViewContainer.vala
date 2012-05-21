@@ -17,6 +17,7 @@
  **********************************************************************************************************************/
 namespace Manager {
 
+    
     public class ViewContainer : Gtk.Notebook {
 
         public ViewContainer () {
@@ -26,7 +27,7 @@ namespace Manager {
             this.set_group_name ("File Manager");
         }
         
-        public Fm.FolderView? new_tab (Manager.ViewType type, string dir = GLib.Environment.get_current_dir ()) {
+        public Gtk.Widget? new_tab (Manager.ViewType type, string dir = GLib.Environment.get_current_dir ()) {
             
             if (type == Manager.ViewType.FOLDER) {
             
@@ -47,17 +48,19 @@ namespace Manager {
             
                 return folder_view;
             
+            
             } else if (type == Manager.ViewType.TERMINAL) {
                 
-                Terminal.Widget terminal_widget = new Terminal.Widget ();
+                // The Container Widget...
+                Gtk.Grid terminal_grid = new Gtk.Grid ();
                 
+                Terminal.Widget terminal_widget = new Terminal.Widget ();
                 terminal_widget.scrollback_lines = -1;
                 
-                Gtk.Grid grid_container = new Gtk.Grid ();
                 
                 Gtk.Scrollbar scrollbar = new Gtk.Scrollbar (Gtk.Orientation.VERTICAL, terminal_widget.vadjustment);
-                grid_container.attach (terminal_widget,   0, 0, 1, 1);
-                grid_container.attach (scrollbar,       1, 0, 1, 1);
+                terminal_grid.attach (terminal_widget,   0, 0, 1, 1);
+                terminal_grid.attach (scrollbar,       1, 0, 1, 1);
 
                 // Make the terminal occupy the whole GUI
                 terminal_widget.vexpand = true;
@@ -78,7 +81,7 @@ namespace Manager {
                 
                 int new_page = this.get_current_page () + 1;
                 
-                this.insert_page (grid_container, tab, new_page);
+                this.insert_page (terminal_grid, tab, new_page);
                 this.set_tab_reorderable (this.get_nth_page (new_page), true);
 
                 // Bind signals to the new tab
@@ -90,12 +93,12 @@ namespace Manager {
                         Terminal.CloseDialog close_dialog = new Terminal.CloseDialog ();
                         
                         if (close_dialog.run () == 1)
-                            this.remove (grid_container);
+                            this.remove (terminal_grid);
                         
                         close_dialog.destroy ();
                     
                     } else {
-                        this.remove (grid_container);
+                        this.remove (terminal_grid);
                     }
                     
                 });
@@ -120,7 +123,7 @@ namespace Manager {
                 });
                 
                 terminal_widget.child_exited.connect (() => {
-                    this.remove (grid_container);
+                    this.remove (terminal_grid);
                 });
                 
                 terminal_widget.selection_changed.connect (() => {
@@ -131,10 +134,11 @@ namespace Manager {
                 set_size_request (terminal_widget.calculate_width (30), terminal_widget.calculate_height (8));
                 tab.grab_focus ();
                 
-                grid_container.show_all ();
+                terminal_grid.show_all ();
                 
                 this.page = new_page;
                 
+                return terminal_grid;
             }
             
             return null;

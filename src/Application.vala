@@ -83,7 +83,7 @@ namespace Desktop {
             
             Object (application_id:app_id, flags:(ApplicationFlags.HANDLES_COMMAND_LINE));
             
-            // NOTE: Members can be accessed from here, before calling Object () it would segfault.
+            // NOTE: Members can only be set after alling Object () otherwise it would segfault.
             _debug_mode = options.debug;
             _args = args;
             _options = options;
@@ -152,7 +152,7 @@ namespace Desktop {
             // Or A Manager Window....
             } else {
                 
-                _manager_group.new_manager_window (_options.remaining);
+                this.new_manager_window (_options.remaining);
                 
                 Gtk.main ();
             }
