@@ -16,17 +16,6 @@
 namespace Fm {
 	
     
-    /***
-    typedef enum
-    {
-        FM_WP_COLOR,
-        FM_WP_STRETCH,
-        FM_WP_FIT,
-        FM_WP_CENTER,
-        FM_WP_TILE
-    } FmWallpaperMode;
-    ***/
-    
     [CCode (cheader_filename = "Desktop/background.h", cprefix = "FM_WP_")]
     public enum WallpaperMode {
         COLOR,
@@ -37,7 +26,6 @@ namespace Fm {
     }
     
     
-    
     /*************************************************************************************
      * Pixbuf Renderer...
      * 
@@ -45,9 +33,6 @@ namespace Fm {
      ************************************************************************************/
 	[CCode (cheader_filename = "gtk/fm-cell-renderer-pixbuf.h")]
 	public class CellRendererPixbuf : Gtk.CellRendererPixbuf {
-//~ 		public weak Fm.FileInfo fi;
-//~ 		public int fixed_h;
-//~ 		public int fixed_w;
 		
         [CCode (has_construct_function = false, type = "GtkCellRenderer*")]
 		public CellRendererPixbuf ();
@@ -55,7 +40,7 @@ namespace Fm {
         public void set_fixed_size (int w, int h);
 		
         [NoAccessorMethod]
-		public void* info { get; set; }
+		public void *info { get; set; }
 	}
 
 

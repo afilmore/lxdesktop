@@ -9,7 +9,12 @@
  * 
  * This software is an experimental fork of PcManFm originally written by Hong Jen Yee aka PCMan for LXDE project.
  * 
- * Purpose: The Main Application Class and program's entry point. The application creates a FolderModel and sets
+ * Purpose: The Main Application Class and program's entry point.
+ * 
+ * 
+ * The following is outdated :) That concerns only the Desktop Window.
+ * 
+ * The application creates a FolderModel and sets
  * the desktop path to that model. The Model manages files that exists in the desktop folder, then a Desktop window
  * is created for every screen. The desktop window is a Gtk.Window, it contains a Grid that manages desktop items.
  * The Grid is not a widget, just an object that contains a list of items and manages the layout and drawing.
@@ -19,39 +24,54 @@
  * 
  * 
  **********************************************************************************************************************/
+/*****************************************************************************************
+ * XLib specific funtions written in C (Common/xlib.c)
+ * 
+ * 
+ ****************************************************************************************/
 namespace XLib {
-    /*** These are XLib specifics written in C (misc.c) ***/
-    //extern void set_wallpaper (Gdk.Pixbuf pix, Fm.WallpaperMode wallpaper_mode);
     extern void get_working_area (Gdk.Screen screen, out Gdk.Rectangle rect);
     extern void forward_event_to_rootwin (Gdk.Screen screen, Gdk.Event event);
 }
 
+
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 uint global_num_windows = 0;
 
+
+/*****************************************************************************************
+ * 
+ * 
+ * 
+ ****************************************************************************************/
 namespace Desktop {
 
-    Application             global_app;
-    Desktop.Config?         global_config;
+    Application                 global_app;
+    Desktop.Config?             global_config;
     
-    Desktop.Group?          global_desktop_group;
-    Manager.Group?          global_manager_group;
-    Desktop.VolumeMonitor?  global_volume_monitor;
-    Desktop.SettingsDialog? global_settings_dialog;
+    Desktop.Group?              global_desktop_group;
+    Manager.Group?              global_manager_group;
+    Desktop.VolumeMonitor?      global_volume_monitor;
+    Desktop.SettingsDialog?     global_settings_dialog;
 
+    
+    /*************************************************************************************
+     * 
+     * 
+     * 
+     ************************************************************************************/
     public class Application : GLib.Application {
         
         bool _debug_mode = false;
         
-        /*********************************************************************
-         * See where to use all these variables when needed...
-         * 
-         *********************************************************************
-           private uint icon_theme_changed = 0;
-           typedef bool (*DeleteEvtHandler) (GtkWidget*, GdkEvent*);
-        *********************************************************************/
-
+        
         public Application (bool debug = false) {
             
+            // Set An Application ID For Normal And Debug Mode...
             string app_id = "org.noname.lxdesktop";
             
             if (debug)
@@ -62,62 +82,49 @@ namespace Desktop {
             _debug_mode = debug;
         }
         
-        private void _on_startup () {
-            
-            stdout.printf ("on_startup\n");
-        }
-        
-        private void _on_activated () {
-
-            stdout.printf ("on_activated\n");
-        }
-        
-        private int _on_command_line (ApplicationCommandLine command_line) {
-            
-            /*** We handle only remote command lines here... ***/
-            if (!command_line.get_is_remote ())
-                return 0;
-            
-            string[] args = command_line.get_arguments ();
-            Desktop.OptionParser options = new Desktop.OptionParser (args);
-            
-            if (!options.desktop) {
-                
-                //stdout.printf ("create file manager window !!!\n");
-                if (global_manager_group == null)
-                    global_manager_group = new Manager.Group (options.debug);
-                
-                global_manager_group.create_manager (options.remaining);
-            }
-
-            return 0;
-        }
-        
        
-        /***************************************************************************************************************
+        /*********************************************************************************
          * Application's entry point.
          *
          * 
          * 
-         **************************************************************************************************************/
+         ********************************************************************************/
         private static int main (string[] args) {
             
             Desktop.OptionParser options = new Desktop.OptionParser (args);
             
             global_app = new Desktop.Application (options.debug);
             
-            global_app.startup.connect (global_app._on_startup);
-            global_app.activate.connect (global_app._on_activated);
+            
+            
+            
+            
+            // Create a local_run () function...
+            
+            
+            
+            
+            
+            
+            
             global_app.command_line.connect (global_app._on_command_line);
             
             try {
+            
                 global_app.register (null);
+            
             } catch (Error e) {
+            
                 print ("Application Error: %s\n", e.message);
                 return -1;
             }
             
-            /*** Primary Instance... Create The Desktop Window ***/
+            
+            /*****************************************************************************
+             * Primary Instance... Create A Desktop Window Or A FileManager...
+             * 
+             * 
+             ****************************************************************************/
             if (!global_app.get_is_remote ()) {
                 
                 // Create the Desktop configuration, this object derivates of Fm.Config.
@@ -179,6 +186,27 @@ namespace Desktop {
                 return global_app.run (args);
             }
             
+            return 0;
+        }
+        
+        private int _on_command_line (ApplicationCommandLine command_line) {
+            
+            /*** We handle only remote command lines here... ***/
+            if (!command_line.get_is_remote ())
+                return 0;
+            
+            string[] args = command_line.get_arguments ();
+            Desktop.OptionParser options = new Desktop.OptionParser (args);
+            
+            if (!options.desktop) {
+                
+                //stdout.printf ("create file manager window !!!\n");
+                if (global_manager_group == null)
+                    global_manager_group = new Manager.Group (options.debug);
+                
+                global_manager_group.create_manager (options.remaining);
+            }
+
             return 0;
         }
     }

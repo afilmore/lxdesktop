@@ -166,7 +166,7 @@ namespace Manager {
             if (current == null)
                 return new Fm.Path.for_str ("");
                 
-            stdout.printf ("object type: %s\n", current.get_type ().name ());
+            //stdout.printf ("object type: %s\n", current.get_type ().name ());
             
             
             

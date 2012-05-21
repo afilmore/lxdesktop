@@ -19,6 +19,7 @@
  **********************************************************************************************************************/
 namespace Manager {
     
+
     public enum ViewType {
         NONE,
         FOLDER,
@@ -76,7 +77,7 @@ namespace Manager {
         private const Gtk.ActionEntry _folder_menu_actions[] = {
             
             // Popup Actions...
-            {"TerminalHere", Gtk.Stock.NEW, "Terminal Here...", null, null,               _action_terminal_tab}
+            {"TerminalHere", "utilities-terminal", "Terminal Here...", null, null,               _action_terminal_tab}
             
         };
         
@@ -520,19 +521,26 @@ namespace Manager {
             Fm.FileInfoList<Fm.FileInfo> files = new Fm.FileInfoList<Fm.FileInfo> ();
             files.push_tail (file_info);
             
-            unowned Fm.FileMenu fm_menu = _file_popup.create ((Gtk.Widget) this, _container_view.get_cwd (), files, null);
+            
+            
+            unowned Fm.FileMenu fm_menu = _file_popup.create ((Gtk.Widget) this,
+                                                              _container_view.get_cwd (),
+                                                              files,
+                                                              null,
+                                                              _folder_menu_actions,
+                                                              global_folder_menu_xml);
             
             // Add Terminal Here... Action...
-            if (file_info.is_dir ()) {
-                
-                Gtk.UIManager ui = fm_menu.get_ui ();
-                Gtk.ActionGroup action_group = fm_menu.get_action_group ();
-                action_group.add_actions (_folder_menu_actions, this);
-                try {
-                    ui.add_ui_from_string (global_folder_menu_xml, -1);
-                } catch (Error e) {
-                }
-            }
+//~             if (file_info.is_dir ()) {
+//~                 
+//~                 Gtk.UIManager ui = fm_menu.get_ui ();
+//~                 Gtk.ActionGroup action_group = fm_menu.get_action_group ();
+//~                 action_group.add_actions (_folder_menu_actions, this);
+//~                 try {
+//~                     ui.add_ui_from_string (global_folder_menu_xml, -1);
+//~                 } catch (Error e) {
+//~                 }
+//~             }
 
             Gtk.Menu menu = _file_popup.get_gtk_menu ();
 //~             Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _container_view.get_cwd (), files, null);
@@ -632,7 +640,30 @@ namespace Manager {
                         if (files == null)
                             return;
                         
-                        Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, folder_view.get_cwd (), files, null);
+                        stdout.printf ("folder view click\n");
+                        
+                        // FIXME_axl: can't use folder view as owner, signal problems....
+                        unowned Fm.FileMenu fm_menu = _file_popup.create ((Gtk.Widget) this,
+                                                                            folder_view.get_cwd (),
+                                                                            files,
+                                                                            null,
+                                                                          _folder_menu_actions,
+                                                                          global_folder_menu_xml);
+                        
+                        // Add Terminal Here... Action...
+//~                         if (file_info.is_dir ()) {
+//~                             
+//~                             Gtk.UIManager ui = fm_menu.get_ui ();
+//~                             Gtk.ActionGroup action_group = fm_menu.get_action_group ();
+//~                             action_group.add_actions (_folder_menu_actions, this);
+//~                             try {
+//~                                 ui.add_ui_from_string (global_folder_menu_xml, -1);
+//~                             } catch (Error e) {
+//~                             }
+//~                         }
+//~ 
+                        Gtk.Menu menu = _file_popup.get_gtk_menu ();
+//~                         Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, folder_view.get_cwd (), files, null);
                         
                         if (menu != null)
                             menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
@@ -706,6 +737,7 @@ namespace Manager {
 
         private void _action_terminal_tab (Gtk.Action act) {
             Fm.Path current = _tree_view.get_cwd ();
+            //return;
             
             stdout.printf ("sux \n");
             

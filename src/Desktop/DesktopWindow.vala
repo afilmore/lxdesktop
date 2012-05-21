@@ -1054,10 +1054,30 @@ namespace Desktop {
             if (files == null)
                 return;
             
-            Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, Fm.Path.get_desktop(), files, this.action_open_folder_func);
+//~    >>         unowned Fm.FileMenu fm_menu = _file_popup.create ((Gtk.Widget) this, Fm.Path.get_desktop(), files, null);
+            // Add Terminal Here... Action...
+//~             if (file_info.is_dir ()) {
+//~                 
+//~                 Gtk.UIManager ui = fm_menu.get_ui ();
+//~                 Gtk.ActionGroup action_group = fm_menu.get_action_group ();
+//~                 action_group.add_actions (_folder_menu_actions, this);
+//~                 try {
+//~                     ui.add_ui_from_string (global_folder_menu_xml, -1);
+//~                 } catch (Error e) {
+//~                 }
+//~             }
+//~ 
+
+
+
+// >>            Gtk.Menu menu = _file_popup.get_gtk_menu ();
+
+
+
+//~             Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, Fm.Path.get_desktop(), files, this.action_open_folder_func);
             
-            if (menu != null)
-                menu.popup (null, null, null, 3, evt.time);
+//~             if (menu != null)
+//~                 menu.popup (null, null, null, 3, evt.time);
             
             return;
         }

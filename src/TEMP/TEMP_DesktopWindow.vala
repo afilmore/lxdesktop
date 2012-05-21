@@ -1,3 +1,18 @@
+/*** from the application class... ***/
+
+/*********************************************************************
+ * See where to use all these variables when needed...
+ * 
+ *********************************************************************
+   private uint icon_theme_changed = 0;
+   typedef bool (*DeleteEvtHandler) (GtkWidget*, GdkEvent*);
+*********************************************************************/
+
+
+
+
+
+
 /*** from pcmanfm ***
 
 public string profile;
