@@ -45,7 +45,7 @@ namespace Manager {
             
             Manager.Window manager = new Manager.Window (_debug_mode);
             
-            manager.create (folders, view_type);
+            manager.create (view_type, folders);
             
             _wingroup.add_window (manager);
             

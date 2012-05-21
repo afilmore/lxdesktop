@@ -152,7 +152,7 @@ namespace Manager {
          * 
          * 
          ********************************************************************************/
-        public bool create (string[] files, Manager.ViewType view_type) {
+        public bool create (Manager.ViewType view_type, string[] files) {
             
             this.set_default_size ((screen.get_width() / 4) * 3, (screen.get_height() / 4) * 3);
             this.set_position (Gtk.WindowPosition.CENTER);
@@ -336,7 +336,7 @@ namespace Manager {
             } else if (view_type == Manager.ViewType.TERMINAL) {
             
                 // Create A Terminal View...
-                view = _container_view.new_tab (ViewType.TERMINAL);
+                view = _container_view.new_tab (ViewType.TERMINAL, files[0]);
             
             }
             
