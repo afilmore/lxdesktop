@@ -27,17 +27,25 @@ namespace Manager {
             
             _debug_mode = debug;
         
+            _wingroup = new Gtk.WindowGroup ();
         }
         
-        public bool create_manager (string[] files) {
-            
-            if (_wingroup == null)
-                _wingroup = new Gtk.WindowGroup ();
+        public bool new_manager_window (string[] folders) {
             
             Manager.Window manager = new Manager.Window ();
-            manager.create (files, "", _debug_mode);
+            manager.create (folders, "", _debug_mode);
             
             _wingroup.add_window (manager);
+            
+            return true;
+        }
+        
+        public bool new_manager_terminal (string[] folders) {
+            
+//~             Manager.Window manager = new Manager.Window ();
+//~             manager.create (folders, "", _debug_mode);
+//~             
+//~             _wingroup.add_window (manager);
             
             return true;
         }

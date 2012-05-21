@@ -1145,15 +1145,10 @@ namespace Desktop {
             if (fi == null)
                 return false;
                 
-            if (global_app.global_manager_group == null) {
-                stdout.printf ("null\n");
-                global_app.global_manager_group = new Manager.Group (_debug_mode);
-            }
-            
             string[] folders = new string [1];
             folders[0] = fi.get_path ().to_str ();
             
-            global_app.global_manager_group.create_manager (folders);
+            global_app.new_manager_window (folders);
             
             return true;
         }

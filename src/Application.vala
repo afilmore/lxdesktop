@@ -53,16 +53,19 @@ namespace Desktop {
     public class Application : GLib.Application {
         
         
-        bool _debug_mode = false;
+        bool                            _debug_mode = false;
         
         unowned string[]                _args;
         Desktop.OptionParser            _options;
         
         
-        // TODO_axl: make these private and add accessor functions...
-        public Desktop.Group?           global_desktop_group;
-        public Manager.Group?           global_manager_group;
-        public Desktop.VolumeMonitor?   global_volume_monitor;
+        private Desktop.Group?          _desktop_group;
+        private Manager.Group?          _manager_group;
+        
+        private Desktop.VolumeMonitor?  _volume_monitor;
+        
+        
+        // TODO_axl: make the dialog private and add accessor functions...
         public Desktop.SettingsDialog?  global_settings_dialog;
 
         
@@ -120,17 +123,17 @@ namespace Desktop {
             
             
             /*** fm_volume_manager_init (); ***/
-            global_volume_monitor = new Desktop.VolumeMonitor ();
+            _volume_monitor = new Desktop.VolumeMonitor ();
             
             
-            global_desktop_group = new Desktop.Group (_options.debug);
-            global_manager_group = new Manager.Group (_options.debug);
+            _desktop_group = new Desktop.Group (_options.debug);
+            _manager_group = new Manager.Group (_options.debug);
             
             
             // Create The Desktop...
             if (_options.desktop) {
                 
-                global_desktop_group.create_desktop ();
+                _desktop_group.create_desktop ();
                 
                 /***
                     icon_theme_changed = g_signal_connect (gtk_icon_theme_get_default(),
@@ -149,7 +152,7 @@ namespace Desktop {
             // Or A Manager Window....
             } else {
                 
-                global_manager_group.create_manager (_options.remaining);
+                _manager_group.new_manager_window (_options.remaining);
                 
                 Gtk.main ();
             }
@@ -173,9 +176,15 @@ namespace Desktop {
             if (options.desktop)
                 return 0;
                 
-            global_manager_group.create_manager (options.remaining);
 
             return 0;
+        }
+        
+        public bool new_manager_window (string[] folders) {
+            
+            _manager_group.new_manager_window (folders);
+
+            return true;
         }
         
         
