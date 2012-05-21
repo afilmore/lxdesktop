@@ -102,20 +102,6 @@ private const string global_main_menu_xml = """
     <accelerator action='Location2'/>
 """;
 
-private const string global_folder_menu_xml = """
-    <popup>
-    
-      <placeholder name='ph1'>
-        
-        /* <menuitem action='NewTab'/> */
-        <menuitem action='NewWin'/>
-        /* <menuitem action='Search'/> */
-        
-      </placeholder>
-    
-    </popup>
-""";
-
 
        
 /*** Add all these actions later...

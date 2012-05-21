@@ -55,29 +55,50 @@ namespace Manager {
         <accelerator action='Location2'/>
     """;
     
+    private const string global_folder_menu_xml = """
+        <popup>
+        
+          <placeholder name='SPECIAL_ACTIONS'>
+            
+            <menuitem action='TerminalHere'/>
+            
+          </placeholder>
+        
+        </popup>
+    """;
+
     
     public class Window : Gtk.Window {
         
         private bool _debug_mode = false;
         
+        // Single Directory Popup Actions
+        private const Gtk.ActionEntry _folder_menu_actions[] = {
+            
+            // Popup Actions...
+            {"TerminalHere", Gtk.Stock.NEW, "Terminal Here...", null, null,               _action_terminal_tab}
+            
+        };
+        
         private const Gtk.ActionEntry _main_win_actions[] = {
             
+            // Application Menu...
             {"FileMenu", null, N_("_File"), null, null, null},
 
-                {"Close", Gtk.Stock.CLOSE, N_("_Close Window"), "<Ctrl>W", null,    _on_close_win},
+            {"Close", Gtk.Stock.CLOSE, N_("_Close Window"), "<Ctrl>W", null,    _on_close_win},
             
             {"GoMenu", null, N_("_Go"), null, null, null},
 
-                {"Up", Gtk.Stock.GO_UP, N_("Parent Folder"), "<Alt>Up", 
-                                        N_("Go to parent Folder"),                  _on_go_up},
+            {"Up", Gtk.Stock.GO_UP, N_("Parent Folder"), "<Alt>Up", 
+                                        N_("Go to parent Folder"),              _on_go_up},
             
             {"HelpMenu", null, N_("_Help"), null, null, null},
 
-                {"About", Gtk.Stock.ABOUT, null, null, null,                        _on_about},
+            {"About", Gtk.Stock.ABOUT, null, null, null,                        _on_about},
             
-            /*** For accelerators ***/
-            {"Location", null, null, "<Alt>d", null,                                _on_location},
-            {"Location2", null, null, "<Ctrl>L", null,                              _on_location}
+            // Location Bar Accelerators...
+            {"Location", null, null, "<Alt>d", null,                            _on_location},
+            {"Location2", null, null, "<Ctrl>L", null,                          _on_location}
         };
         
         
@@ -332,7 +353,7 @@ namespace Manager {
             
             
             
-            _container_view.new_tab (ViewType.TERMINAL);
+//            _container_view.new_tab (ViewType.TERMINAL);
             
             
             
@@ -416,6 +437,7 @@ namespace Manager {
                 if (folder_view != null)
                     folder_view.chdir (path);
             }
+            
             /***
             
             win->folder = _folder_view.get_folder (_folder_view);
@@ -468,16 +490,13 @@ namespace Manager {
             
             Gtk.TreePath path;
             
-            
             if (!_tree_view.get_path_at_pos ((int) event.x, (int) event.y, out path, null, null, null))
                 return true;
-            
             
             //~ select = gtk_tree_view_get_selection (GTK_TREE_VIEW (view));
             //~ gtk_tree_selection_unselect_all (select);
             //~ gtk_tree_selection_select_path (select, path);
             //~ gtk_tree_path_free (path);
-            
             
             Gtk.TreeSelection sel = _tree_view.get_selection ();
             List<Gtk.TreePath>? sels = sel.get_selected_rows (null);
@@ -488,6 +507,7 @@ namespace Manager {
             if (!global_dir_tree_model.get_iter (out it, sels.data))
                 return true;
             
+            // Get The Selected File...
             unowned Fm.FileInfo? file_info;
             global_dir_tree_model.get (it, 2, out file_info, -1);
             if (file_info == null)
@@ -496,11 +516,26 @@ namespace Manager {
             if (_file_popup == null)
                 _file_popup = new Desktop.FilePopup ();
             
+            // Create A FileInfoList Containing The Selected File...
             Fm.FileInfoList<Fm.FileInfo> files = new Fm.FileInfoList<Fm.FileInfo> ();
-            
             files.push_tail (file_info);
             
-            Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _container_view.get_cwd (), files, null);
+            unowned Fm.FileMenu fm_menu = _file_popup.create ((Gtk.Widget) this, _container_view.get_cwd (), files, null);
+            
+            // Add Terminal Here... Action...
+            if (file_info.is_dir ()) {
+                
+                Gtk.UIManager ui = fm_menu.get_ui ();
+                Gtk.ActionGroup action_group = fm_menu.get_action_group ();
+                action_group.add_actions (_folder_menu_actions, this);
+                try {
+                    ui.add_ui_from_string (global_folder_menu_xml, -1);
+                } catch (Error e) {
+                }
+            }
+
+            Gtk.Menu menu = _file_popup.get_gtk_menu ();
+//~             Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _container_view.get_cwd (), files, null);
             
             if (menu != null)
                 menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
@@ -667,6 +702,17 @@ namespace Manager {
             about_dialog.set_website ("https://github.com/afilmore/lxdesktop");
             about_dialog.run ();
             about_dialog.destroy ();
+        }
+
+        private void _action_terminal_tab (Gtk.Action act) {
+            Fm.Path current = _tree_view.get_cwd ();
+            
+            stdout.printf ("sux \n");
+            
+            if (current == null)
+                return;
+            
+            _container_view.new_tab (ViewType.TERMINAL, current.to_str ());
         }
     }
 }

@@ -17,29 +17,63 @@ namespace Desktop {
     
     public class FilePopup {
         
-        private Gtk.Widget  _owner_widget;
-        private Fm.Path     _dest_directory;
+        private Gtk.Widget      _owner_widget;
+        private Fm.Path         _dest_directory;
         
-        private Fm.FileMenu _file_menu;
-        //private Gtk.Menu?   _popup_menu;
+        private Fm.FileMenu     _fm_file_menu;
 
-        public Gtk.Menu get_menu (Gtk.Widget owner,
+        public FilePopup () {
+        }
+        
+        public unowned Fm.FileMenu create (Gtk.Widget owner,
                                   Fm.Path destination,
-                                  Fm.FileInfoList<Fm.FileInfo>? files,
-                                  Fm.LaunchFolderFunc? func) {
+                                  Fm.FileInfoList<Fm.FileInfo>? file_info_list,
+                                  Fm.LaunchFolderFunc? folder_func) {
             
             _owner_widget = owner;
             _dest_directory = destination;
             
             // Create The Popup Menu.
-            _file_menu = new Fm.FileMenu.for_files ((Gtk.Window) _owner_widget, files, _dest_directory, false);
-            _file_menu.set_folder_func (func);
+            _fm_file_menu = new Fm.FileMenu.for_files ((Gtk.Window) _owner_widget,
+                                                       file_info_list,
+                                                       _dest_directory, false);
+            _fm_file_menu.set_folder_func (folder_func);
             
-            Gtk.ActionGroup act_grp = _file_menu.get_action_group ();
+            Gtk.ActionGroup act_grp = _fm_file_menu.get_action_group ();
             act_grp.set_translation_domain ("");
             
-            return _file_menu.get_menu ();
+            return _fm_file_menu;
         }
+        
+        public Gtk.Menu get_menu (Gtk.Widget owner,
+                                  Fm.Path destination,
+                                  Fm.FileInfoList<Fm.FileInfo>? file_info_list,
+                                  Fm.LaunchFolderFunc? folder_func) {
+            
+            _owner_widget = owner;
+            _dest_directory = destination;
+            
+            // Create The Popup Menu.
+            _fm_file_menu = new Fm.FileMenu.for_files ((Gtk.Window) _owner_widget,
+                                                       file_info_list,
+                                                       _dest_directory, false);
+            _fm_file_menu.set_folder_func (folder_func);
+            
+            Gtk.ActionGroup act_grp = _fm_file_menu.get_action_group ();
+            act_grp.set_translation_domain ("");
+            
+            return _fm_file_menu.get_menu ();
+        }
+        
+        public Gtk.Menu get_gtk_menu () {
+            
+            return _fm_file_menu.get_menu ();
+        }
+        
+//~         public unowned Fm.FileMenu get_fm_menu () {
+//~             return _fm_file_menu;
+//~         }
+
     }
 }
 
