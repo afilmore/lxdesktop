@@ -40,13 +40,20 @@ namespace Manager {
                 folder_view.set_selection_mode (Gtk.SelectionMode.MULTIPLE);
                 
                 // Create The Tab Label And Button...
-                Manager.ViewTab tab = new Manager.ViewTab ("");
+                Manager.ViewTab tab = new Manager.ViewTab ("Manager");
                 
                 // Create A New Notebook Page...
                 int new_page = this.get_current_page () + 1;
                 this.insert_page (folder_view, tab, new_page);
                 this.set_tab_reorderable (this.get_nth_page (new_page), true);
             
+                // ???
+                tab.grab_focus ();
+                
+                folder_view.show_all ();
+                
+                this.page = new_page;
+                
                 return folder_view;
             
             
@@ -142,6 +149,10 @@ namespace Manager {
                 this.page = new_page;
                 
                 return terminal_grid;
+            
+            } else {
+            
+                stdout.printf ("ViewContainer.new_tab (): Unknown type !\n");
             }
             
             return null;
