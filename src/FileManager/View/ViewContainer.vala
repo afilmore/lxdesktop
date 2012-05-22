@@ -50,6 +50,7 @@ namespace Manager {
                 // ???
                 tab.grab_focus ();
                 
+                folder_view.chdir (new Fm.Path.for_str (dir));
                 folder_view.show_all ();
                 
                 this.page = new_page;

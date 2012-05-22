@@ -517,32 +517,32 @@ namespace Manager {
          * Folder View Signal Handlers...
          * 
          * 
-         ********************************************************************************/
-//~         void on_switch_page (Widget page, uint n) {
-//~             current_tab_label = notebook.get_tab_label (page) as TerminalTab;
-//~             current_tab = notebook.get_nth_page ((int) n);
-//~             current_terminal = ((Grid) page).get_child_at (0, 0) as TerminalWidget;
-//~             title = current_terminal.window_title;
-//~             page.grab_focus ();
-//~         }
-//~ 
-//~         public void remove_page (int page) {
-//~             notebook.remove_page (page);
-//~             if (notebook.get_n_pages () == 0) destroy ();
-//~         }
-//~ 
-//~         public bool on_scroll_event (EventScroll event) {
-//~             if (event.direction == ScrollDirection.UP || event.direction == ScrollDirection.LEFT) {
-//~                 if (notebook.get_current_page() != 0) {
-//~                     notebook.set_current_page (notebook.get_current_page() - 1);
-//~                 }
-//~             } else if (event.direction == ScrollDirection.DOWN || event.direction == ScrollDirection.RIGHT) {
-//~                 if (notebook.get_current_page() != notebook.get_n_pages ()) {
-//~                     notebook.set_current_page (notebook.get_current_page() + 1);
-//~                 }
-//~             }
-//~             return false;
-//~         }
+         *******************************************************************************
+        void on_switch_page (Widget page, uint n) {
+            current_tab_label = notebook.get_tab_label (page) as TerminalTab;
+            current_tab = notebook.get_nth_page ((int) n);
+            current_terminal = ((Grid) page).get_child_at (0, 0) as TerminalWidget;
+            title = current_terminal.window_title;
+            page.grab_focus ();
+        }
+
+        public void remove_page (int page) {
+            notebook.remove_page (page);
+            if (notebook.get_n_pages () == 0) destroy ();
+        }
+
+        public bool on_scroll_event (EventScroll event) {
+            if (event.direction == ScrollDirection.UP || event.direction == ScrollDirection.LEFT) {
+                if (notebook.get_current_page() != 0) {
+                    notebook.set_current_page (notebook.get_current_page() - 1);
+                }
+            } else if (event.direction == ScrollDirection.DOWN || event.direction == ScrollDirection.RIGHT) {
+                if (notebook.get_current_page() != notebook.get_n_pages ()) {
+                    notebook.set_current_page (notebook.get_current_page() + 1);
+                }
+            }
+            return false;
+        }*/
 
         private void _folder_view_on_file_clicked (Fm.FolderViewClickType type, Fm.FileInfo? fi) {
 
