@@ -49,8 +49,7 @@ namespace Desktop {
         
         public Gtk.Menu get_menu (Gtk.Widget owner,
                                   Fm.Path destination,
-                                  Fm.FileInfoList<Fm.FileInfo>? file_info_list,
-                                  Fm.LaunchFolderFunc? folder_func) {
+                                  Fm.FileInfoList<Fm.FileInfo>? file_info_list) {
             
             _owner_widget = owner;
             _dest_directory = destination;
@@ -60,10 +59,10 @@ namespace Desktop {
                                                        file_info_list,
                                                        _dest_directory, false);
             
-            _fm_file_menu.set_folder_func (folder_func);
+            Gtk.ActionGroup action_group = _fm_file_menu.get_action_group ();
+            action_group.set_translation_domain ("");
             
-            Gtk.ActionGroup act_grp = _fm_file_menu.get_action_group ();
-            act_grp.set_translation_domain ("");
+            _fm_file_menu.set_folder_func (this.action_open_folder_func);
             
             // Add Terminal Here... Action...
             Fm.FileInfo? file_info = file_info_list.peek_head ();
@@ -72,7 +71,6 @@ namespace Desktop {
                 _open_terminal_dir = file_info.get_path ().to_str ();
                 
                 Gtk.UIManager ui = _fm_file_menu.get_ui ();
-                Gtk.ActionGroup action_group = _fm_file_menu.get_action_group ();
                 
                 action_group.add_actions (_folders_actions, this);
                 try {
@@ -84,12 +82,27 @@ namespace Desktop {
             return _fm_file_menu.get_menu ();
         }
         
+        public bool action_open_folder_func (GLib.AppLaunchContext ctx, GLib.List<Fm.FileInfo>? folder_infos,
+                                             void *user_data) {
+            
+            unowned List<Fm.FileInfo>? folder_list = (GLib.List<Fm.FileInfo>) folder_infos;
+            
+            foreach (Fm.FileInfo fi in folder_list) {
+                
+                string[] folders = new string [1];
+                folders[0] = fi.get_path ().to_str ();
+                
+                global_app.new_manager_tab (folders);
+            }
+            return true;
+        }
+        
         private void _action_terminal_tab (Gtk.Action act) {
             
             string[] folders = new string [1];
             folders[0] = _open_terminal_dir;
             
-            global_app.new_terminal_window (folders);
+            global_app.new_terminal_tab (folders);
         }
     }
 }

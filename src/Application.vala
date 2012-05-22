@@ -190,7 +190,7 @@ namespace Desktop {
         
         public bool new_manager_tab (string[] folders) {
             
-            //_manager_group.new_manager_window (folders);
+            _manager_group.new_manager_tab (Manager.ViewType.FOLDER, folders);
 
             return true;
         }
@@ -204,7 +204,7 @@ namespace Desktop {
         
         public bool new_terminal_tab (string[] folders) {
             
-            //_manager_group.new_manager_window (folders);
+            _manager_group.new_manager_tab (Manager.ViewType.TERMINAL, folders);
 
             return true;
         }

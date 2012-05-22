@@ -146,6 +146,9 @@ namespace Manager {
             
         }
 
+        public Manager.ViewContainer get_view () {
+            return _container_view;
+        }
         
         /*********************************************************************************
          * Widget Creation...
@@ -501,8 +504,7 @@ namespace Manager {
             Fm.FileInfoList<Fm.FileInfo> files = new Fm.FileInfoList<Fm.FileInfo> ();
             files.push_tail (file_info);
             
-            Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _container_view.get_cwd (), files,
-                                                  null);
+            Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _container_view.get_cwd (), files);
             
             if (menu != null)
                 menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
@@ -600,8 +602,7 @@ namespace Manager {
                         if (files == null)
                             return;
             
-                        Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, folder_view.get_cwd (), files,
-                                                              null);
+                        Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, folder_view.get_cwd (), files);
                         
                         if (menu != null)
                             menu.popup (null, null, null, 3, Gtk.get_current_event_time ());

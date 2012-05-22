@@ -103,6 +103,8 @@ namespace Desktop {
         
         public Window () {
             
+            this.has_resize_grip = false;
+            
             crossed_circle = new Gdk.Cursor (Gdk.CursorType.X_CURSOR);
             
             this.destroy.connect ( () => {
@@ -387,7 +389,7 @@ namespace Desktop {
                 && evt.button == 1
                 && clicked_item != null) {
                 
-                this._action_open_file (clicked_item.get_fileinfo ());
+                this._open_file (clicked_item.get_fileinfo ());
                 
                 if (!this.has_focus)
                     this.grab_focus ();
@@ -1047,7 +1049,7 @@ namespace Desktop {
          * 
          * 
          ******************************************************************************************/
-        private void _create_popup_menu (Gdk.EventButton evt) {
+        private void _create_popup_menu (Gdk.EventButton event) {
             
             // TODO_axl: do this a better way...
             if (_file_popup == null)
@@ -1057,11 +1059,10 @@ namespace Desktop {
             if (files == null)
                 return;
             
-            Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, Fm.Path.get_desktop(), files,
-                                                  this.action_open_folder_func);
+            Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, Fm.Path.get_desktop(), files);
             
             if (menu != null)
-                menu.popup (null, null, null, 3, evt.time);
+                menu.popup (null, null, null, 3, event.time);
             
             return;
         }
@@ -1073,19 +1074,7 @@ namespace Desktop {
          * 
          * 
          ******************************************************************************************/
-        public bool action_open_folder_func (GLib.AppLaunchContext ctx, GLib.List<Fm.FileInfo>? folder_infos,
-                                             void *user_data) {
-            
-            unowned List<Fm.FileInfo>? folder_list = (GLib.List<Fm.FileInfo>) folder_infos;
-            
-            foreach (Fm.FileInfo fi in folder_list) {
-                
-                this._action_open_folder (fi);
-            }
-            return true;
-        }
-        
-        private bool _action_open_file (Fm.FileInfo? fi) {
+        private bool _open_file (Fm.FileInfo? fi) {
             
             if (fi == null)
                 return false;
@@ -1103,7 +1092,7 @@ namespace Desktop {
             || fi.is_mountable ()
             || fi.is_unknown_type ()) { /* TODO_axl use is_uri () ??? or something... */
                 
-                this._action_open_folder (fi);
+                this._open_folder (fi);
             
             /***} else if (fi.is_unknown_type ()) {
                 stdout.printf ("Special item !!!\n"); ***/
@@ -1116,7 +1105,7 @@ namespace Desktop {
             return true;
         }
         
-        private bool _action_open_folder (Fm.FileInfo? fi) {
+        private bool _open_folder (Fm.FileInfo? fi) {
             
             
             if (fi == null)

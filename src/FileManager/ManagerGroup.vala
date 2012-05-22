@@ -28,6 +28,7 @@ namespace Manager {
     }
     
     
+    // TODO_axl: Try to derivate a window group instead...
     public class Group {
         
         bool                        _debug_mode = false;
@@ -52,12 +53,22 @@ namespace Manager {
             return true;
         }
         
-        public bool new_manager_terminal (string[] folders) {
+        public bool new_manager_tab (Manager.ViewType view_type, string[] folders) {
             
-//~             Manager.Window manager = new Manager.Window ();
-//~             manager.create (folders, "", _debug_mode);
-//~             
-//~             _wingroup.add_window (manager);
+            List<weak Gtk.Window>? _window_list = _wingroup.list_windows ();
+            
+            if (_window_list != null) {
+            
+                foreach (Gtk.Window wnd in _window_list) {
+                
+                     unowned Manager.Window? manager = wnd as Manager.Window;
+                     manager.get_view ().new_tab (view_type, folders[0]);
+                     manager.present ();
+                     return true;
+                }
+            }
+            
+            this.new_manager_window (view_type, folders);
             
             return true;
         }
