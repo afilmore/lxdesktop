@@ -93,6 +93,8 @@ namespace Desktop {
         
         public bool run_local () {
         
+            //stdout.printf ("Application: run_local\n");
+            
             try {
             
                 this.register (null);
@@ -167,6 +169,8 @@ namespace Desktop {
         
         private int _on_command_line (ApplicationCommandLine command_line) {
             
+            //stdout.printf ("Application: _on_command_line\n");
+            
             /*** We handle only remote command lines here... ***/
             if (!command_line.get_is_remote ())
                 return 0;
@@ -177,7 +181,8 @@ namespace Desktop {
             if (options.desktop)
                 return 0;
                 
-
+            this.new_manager_window (_options.remaining);
+            
             return 0;
         }
         
@@ -228,8 +233,10 @@ namespace Desktop {
              * 
              * 
              ****************************************************************************/
-            if (!global_app.run_local ())
+            if (!global_app.run_local ()) {
+                //stdout.printf ("Application: global_app.run ()\n");
                 return global_app.run (args);
+            }
             
             return 0;
         }

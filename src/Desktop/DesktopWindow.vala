@@ -1092,7 +1092,10 @@ namespace Desktop {
             || fi.is_mountable ()
             || fi.is_unknown_type ()) { /* TODO_axl use is_uri () ??? or something... */
                 
-                this._open_folder (fi);
+                string[] folders = new string [1];
+                folders[0] = fi.get_path ().to_str ();
+                
+                global_app.new_manager_window (folders);
             
             /***} else if (fi.is_unknown_type ()) {
                 stdout.printf ("Special item !!!\n"); ***/
@@ -1101,20 +1104,6 @@ namespace Desktop {
                 
                 Fm.launch_file (this, null, fi, null);
             }
-            
-            return true;
-        }
-        
-        private bool _open_folder (Fm.FileInfo? fi) {
-            
-            
-            if (fi == null)
-                return false;
-                
-            string[] folders = new string [1];
-            folders[0] = fi.get_path ().to_str ();
-            
-            global_app.new_manager_window (folders);
             
             return true;
         }
