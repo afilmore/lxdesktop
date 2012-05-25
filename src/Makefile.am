@@ -65,8 +65,6 @@ lxdesktop_VALAFLAGS = \
 	--pkg vte-2.90 \
 	$(NULL)
 
-
-
 lxdesktop_CFLAGS = \
 	$(XLIB_CFLAGS) \
 	$(GTK_CFLAGS) \
