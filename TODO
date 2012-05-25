@@ -15,247 +15,171 @@
  **********************************************************************************************************************/
  ----------------------------------------------------------------------------------------------------------------------
     
-    []  
-    
     -   Simple Panel
     
-        *   Rename Binary to "spanel"...
-        *   Fix Panel Geometry...
-        *   Use GApplication
-        *   Use Dconf
-        *   Link against LibFmCore...
-        *   Rework Launcher Applet...
+        *   Launcher Applet : use a folder model...
         
-            
-    
- ----------------------------------------------------------------------------------------------------------------------
-    
-    []  
     
     -   General
     
-        *   Move xlib_get_working_area () to LibFmCore and use it in spanel...
-        
-        *   [DONE] Rework the Application Class, remove global variables...
-        
         *   Rework Popup Menus...
             
-            [DONE] Rename LibFmCore's placeholders into something explicit
-            
-            Use the new Popup Menu Class here:
+        *   [] Use the new Popup Menu Class here:
             ./Desktop/DesktopWindow.vala:1111:      _file_menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), false);
             ./FileManager/ManagerWindow.vala:563:   _file_menu = new Fm.FileMenu.for_file (this, fi, _tree_view.get_cwd (), false);
             ./FileManager/ManagerWindow.vala:636:   _file_menu = new Fm.FileMenu.for_files (this, files, _folder_view.get_cwd (), false);
             
-            Add Restaure from Trash Can...
-            The Default Action must be "Restaure", Open must be disabled...
-            
-            Avoid the folder view to browser more than one level in the Trash Can...
-            
-            [DONE] Show Rename only for single files...
-            
-            Create Properties Dialogs for virtual items, Trash Can, My Computer etc...
-        
-            
-        *   Do some cleanup in gtk-dlg/fm-gtk-launcher
-        
-        *   Store parameters like wallpaper in dconf...
-        
         *   Add some specific DEBUG messages defined in the configure.ac...
         
-        *   [DONE] Remove GTK2 from configure.ac...
+        *   Add Restaure from Trash Can...
+            The Default Action must be "Restaure", Open must be disabled...
+            
+        *   Avoid the folder view to browser more than one level in the Trash Can...
+            
+        *   Create Properties Dialogs for virtual items, Trash Can, My Computer etc...
+        
+        *   Do some cleanup in gtk-dlg/fm-gtk-launcher
+        
+        *   Write The AUTHORS list with all original Authors... LXDE, XFCE... etc...
         
         
- ----------------------------------------------------------------------------------------------------------------------
+    -   LibFmCore
     
-    []  
-    
-    -   LibFmCore's Code Cleanup
-    
-        *   [DONE] Move WallpaperMode to the desktop...
+        *   fm-file-info-job.c... remove old code when tested enouth...
+        *   Code Cleanup
+            []      base/fm-app-info.c
+            []      base/fm-archiver.c
+            []      base/fm-dummy-monitor.c
+            []      base/fm-file-info.c
+            []      base/fm-file-info-list.c
+            []      base/fm-folder.c
+            []      base/fm-icon.c
+            []      base/fm-list.c
+            []      base/fm-mime-type.c
+            []      base/fm-monitor.c
+            []      base/fm-path.c
+            []      base/fm-path-list.c
+            []      base/fm-utils.c
+
+            []      gtk/fm-clipboard.c
+            []      gtk/fm-dnd-auto-scroll.c
+            []      gtk/fm-dnd-dest.c
+            []      gtk/fm-dnd-src.c
+            []      gtk/fm-file-menu.c
+            []      gtk/fm-icon-pixbuf.c
+            []      gtk/fm-thumbnail.c
+
+            []      gtk-dlg/fm-app-chooser-combo-box.c
+            []      gtk-dlg/fm-app-chooser-dlg.c
+            []      gtk-dlg/fm-app-menu-view.c
+            []      gtk-dlg/fm-dlg-utils.c
+            []      gtk-dlg/fm-file-properties.c
+            []      gtk-dlg/fm-gtk-launcher.c
+            []      gtk-dlg/fm-progress-dlg.c
+
+            []      job/fm-deep-count-job.c
+            []      job/fm-dir-list-job.c
+            [DONE]  job/fm-file-info-job.c
+            []      job/fm-file-ops-job.c
+            []      job/fm-file-ops-job-change-attr.c
+            []      job/fm-file-ops-job-delete.c
+            []      job/fm-file-ops-job-xfer.c
+            []      job/fm-job.c
+            []      job/fm-simple-job.c
         
         *   Split fm-utils.c into fm_mount.c... etc...
-        
-        
-        *   fm-file-info-job.c... remove old code when tested enouth...
-        
-        
-        *   FmFileInfo: [DONE] Rename icon, type, and fi into fm_icon, mime_type and file_info...
-                        [DONE] fm_file_info_new () should be private...
-                        [DONE] create specific functions and make fm_file_info_new () private...
-        
-        
-        *   [DONE] Add fm_foreach function to base utils...
-        
-        
         *   How to disable these warnings in LibFmCore:
             base/fm-file-info-list.c:32:1: warning: initialization from incompatible pointer type [enabled by default]
             base/fm-path-list.c:36:1: warning: initialization from incompatible pointer type [enabled by default]
-            
             These are the only warnings in the lib, all over warnings have been corrected. :)
-    
         *   Maybe merge base/fm-icon and gtk/fm-icon-pixbuf.....
             Not sure, need to study the code...
         *   Merge fm-monitor and fm-dummy-monitor ? not sure, keep it like this...
         
     
- ----------------------------------------------------------------------------------------------------------------------
-    
-    []  
-    
     -   Desktop
     
-        *   [DONE] Terminal Here in the TreeView !!!! needed :) ....
-        
         *   Add "New Folder/File to the TreeView Popup Menu....
-        
-        *   [DONE] Add Desktop Wallpapers....
-        
         *   Grid position bug when renaming or creating items... needs some cleanup in the code...
-    
         *   Create a global volume monitor class, mount volumes on startup...
-    
-        *   [DONE] Fix thumbnail bug... See on_row_changed in the desktop window...
-
         *   A bug in Vala bindings ?
-            
-            Desktop/DesktopWindow.vala:252.32-252.35: warning: Argument 3: Cannot pass null to non-null parameter type
-    
-        
- ----------------------------------------------------------------------------------------------------------------------
-    
-    []  
+        *   Desktop/DesktopWindow.vala:252.32-252.35: warning: Argument 3: Cannot pass null to non-null parameter type
+
     
     -   File Manager
     
-        *   [DONE] Add Notebook Tabs...
-        
-        *   [DONE] Integrate A Vala Terminal...
-    
         *   Handle Special Items Icons....
-    
         *   Analyse FmFileInfo usage, handle custom icons for special items...
-    
         *   Enable StatusBar Infos...
         
-        
-        
-        *   [DONE] Split old TEMP files into smallest ones and by cathegories, Manager, Desktop, Grid, GTK2... etc...
-        
-        *   [DONE] Create a class like the Desktop.Popup () ...
-            
-        *   [DONE] Add open folder function again :(
-            
-        *   [DONE] Remove all actions and menus that are not implemented to cleanup the interface a bit...
-        
-        *   [DONE] Do some cleanup in src/TEMP
-        
-    
- ----------------------------------------------------------------------------------------------------------------------
-    
-    []
     
     -   GTK3 Migration...
     
-            Desktop/DesktopGrid.vala:271.17-271.42: warning: Gdk.cairo_set_source_color has been deprecated since 3.4
-            Desktop/DesktopWindow.vala:1062.17-1062.37: warning: Gdk.Window.set_background has been deprecated since 3.4
-            Desktop/DesktopWindow.vala:1070.21-1070.39: warning: Gdk.Window.set_background has been deprecated since 3.4
-            Desktop/DesktopWindow.vala:639.13-639.38: warning: Gdk.cairo_set_source_color has been deprecated since 3.4
+        *   Desktop/DesktopGrid.vala:271.17-271.42: warning: Gdk.cairo_set_source_color has been deprecated since 3.4
+        *   Desktop/DesktopWindow.vala:1062.17-1062.37: warning: Gdk.Window.set_background has been deprecated since 3.4
+        *   Desktop/DesktopWindow.vala:1070.21-1070.39: warning: Gdk.Window.set_background has been deprecated since 3.4
+        *   Desktop/DesktopWindow.vala:639.13-639.38: warning: Gdk.cairo_set_source_color has been deprecated since 3.4
 
-            FileManager/ManagerWindow.c: In function ‘manager_window_create’:
-            FileManager/ManagerWindow.c:504:2: warning: ‘gtk_vbox_new’ is deprecated (declared at /usr/include/gtk-3.0/gtk/deprecated/gtkvbox.h:60): Use 'gtk_box_new' instead [-Wdeprecated-declarations]
-            FileManager/ManagerWindow.c:585:2: warning: ‘gtk_hpaned_new’ is deprecated (declared at /usr/include/gtk-3.0/gtk/deprecated/gtkhpaned.h:60): Use 'gtk_paned_new' instead [-Wdeprecated-declarations]
-            FileManager/ManagerWindow.c:593:2: warning: ‘gtk_vbox_new’ is deprecated (declared at /usr/include/gtk-3.0/gtk/deprecated/gtkvbox.h:60): Use 'gtk_box_new' instead [-Wdeprecated-declarations]
+        *   FileManager/ManagerWindow.c: In function ‘manager_window_create’:
+        *   FileManager/ManagerWindow.c:504:2: warning: ‘gtk_vbox_new’ is deprecated (declared at /usr/include/gtk-3.0/gtk/deprecated/gtkvbox.h:60): Use 'gtk_box_new' instead [-Wdeprecated-declarations]
+        *   FileManager/ManagerWindow.c:585:2: warning: ‘gtk_hpaned_new’ is deprecated (declared at /usr/include/gtk-3.0/gtk/deprecated/gtkhpaned.h:60): Use 'gtk_paned_new' instead [-Wdeprecated-declarations]
+        *   FileManager/ManagerWindow.c:593:2: warning: ‘gtk_vbox_new’ is deprecated (declared at /usr/include/gtk-3.0/gtk/deprecated/gtkvbox.h:60): Use 'gtk_box_new' instead [-Wdeprecated-declarations]
 
         *   ./gtk/fm-dnd-src.c:161:#if !ENABLE_GTK3
-
         *   Port and Test ExoIconView...
-    
         *   See "GTK3" macros... It will be fully ported when there's no more "GTK3_SOMETHING" in the code. :-P
     
 
- ----------------------------------------------------------------------------------------------------------------------
-    
-    []
-    
     -   GSettings Parameters...
     
         *   Find a way to compile the schema...
-    
         *   Add Archivers Popup...
-        
         *   Enable thumbnails...
-        
         *   Add more settings for the file manager, desktop window and so...
         
         
  ----------------------------------------------------------------------------------------------------------------------
     
-    []
+    -   General
     
-    -   Write The AUTHORS list with all original Authors... LXDE, XFCE... etc...
-    
-        * ...
+        *   [NOT NEEDED] Move xlib_get_working_area () to LibFmCore and use it in spanel...
+        *   [DONE] Rework the Application Class, remove global variables...
+        *   [DONE] Rename LibFmCore's placeholders into something explicit
+        *   [DONE] Show Rename only for single files...
+        *   [DONE] Store parameters like wallpaper in dconf...
+        *   [DONE] Remove GTK2 from configure.ac...
         
-        * ...
-        
-        
- ----------------------------------------------------------------------------------------------------------------------
-    
-    []  
-    
     -   LibFmCore's Code Cleanup
-        
-        []      base/fm-app-info.c
-        []      base/fm-archiver.c
-        []      base/fm-dummy-monitor.c
-        []      base/fm-file-info.c
-        []      base/fm-file-info-list.c
-        []      base/fm-folder.c
-        []      base/fm-icon.c
-        []      base/fm-list.c
-        []      base/fm-mime-type.c
-        []      base/fm-monitor.c
-        []      base/fm-path.c
-        []      base/fm-path-list.c
-        []      base/fm-utils.c
-
-        []      gtk/fm-clipboard.c
-        []      gtk/fm-dnd-auto-scroll.c
-        []      gtk/fm-dnd-dest.c
-        []      gtk/fm-dnd-src.c
-        []      gtk/fm-file-menu.c
-        []      gtk/fm-icon-pixbuf.c
-        []      gtk/fm-thumbnail.c
-
-        []      gtk-dlg/fm-app-chooser-combo-box.c
-        []      gtk-dlg/fm-app-chooser-dlg.c
-        []      gtk-dlg/fm-app-menu-view.c
-        []      gtk-dlg/fm-dlg-utils.c
-        []      gtk-dlg/fm-file-properties.c
-        []      gtk-dlg/fm-gtk-launcher.c
-        []      gtk-dlg/fm-progress-dlg.c
-
-        []      job/fm-deep-count-job.c
-        []      job/fm-dir-list-job.c
-        [DONE]  job/fm-file-info-job.c
-        []      job/fm-file-ops-job.c
-        []      job/fm-file-ops-job-change-attr.c
-        []      job/fm-file-ops-job-delete.c
-        []      job/fm-file-ops-job-xfer.c
-        []      job/fm-job.c
-        []      job/fm-simple-job.c
-
-
- ----------------------------------------------------------------------------------------------------------------------
     
-    []
+        *   [DONE] Move WallpaperMode to the desktop...
+        *   [DONE] FmFileInfo: Rename icon, type, and fi into fm_icon, mime_type and file_info...
+        *   [DONE] FmFileInfo: fm_file_info_new () should be private...
+        *   [DONE] FmFileInfo: create specific functions and make fm_file_info_new () private...
+        *   [DONE] Add fm_foreach function to base utils...
+        
+    -   Simple Panel
     
-    -   ...
+        *   [DONE] Rename Binary to "spanel"...
+        *   [DONE] Fix Panel Geometry...
+        *   [DONE] Use GApplication
+        *   [NOT POSSIBLE] Use Dconf
+        *   [DONE] Link against LibFmCore...
+
+    -   Desktop
     
-        * ...
+        *   [DONE] Add Desktop Wallpapers....
+        *   [DONE] Fix thumbnail bug... See on_row_changed in the desktop window...
+    
+    -   File Manager
+    
+        *   [DONE] Terminal Here in the TreeView !!!! needed :) ....
+        *   [DONE] Add Notebook Tabs...
+        *   [DONE] Integrate A Vala Terminal...
+        *   [DONE] Split old TEMP files into smallest ones and by cathegories, Manager, Desktop, Grid, GTK2... etc...
+        *   [DONE] Create a class like the Desktop.Popup () ...
+        *   [DONE] Add open folder function again :(
+        *   [DONE] Remove all actions and menus that are not implemented to cleanup the interface a bit...
+        *   [DONE] Do some cleanup in src/TEMP
         
-        * ...
-        
-        
+
 
