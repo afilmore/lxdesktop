@@ -188,7 +188,7 @@ namespace Desktop {
                  * Debug mode, show the desktop in a regular window, very handy :)
                  *
                  ************************************************************************/
-                this.set_default_size ((screen.get_width() / 4) * 3, (screen.get_height() / 4) * 3);
+                this.set_default_size ((screen.get_width () / 4) * 3, (screen.get_height () / 4) * 3);
                 this.set_position (Gtk.WindowPosition.CENTER);
                 this.set_app_paintable (true);
 

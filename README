@@ -15,7 +15,7 @@
  
  2 - Install Needed Dev Packages (see configure.ac)
  
- 3 - Install LibFmCore (LibFmCore's README)
+ 3 - Install LibFmCore (See LibFmCore's README)
  
  4 - You Need Last Vala Release : http://ftp.gnome.org/pub/GNOME/sources/vala/0.17/vala-0.17.0.changes
      If not available, patch your Vapi Files : http://bugzilla-attachments.gnome.org/attachment.cgi?id=210903
