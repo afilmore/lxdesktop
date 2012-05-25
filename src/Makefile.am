@@ -23,7 +23,6 @@ gtk_SOURCES = \
 	gtk/fm-dir-tree-item.c \
 	gtk/fm-dir-tree-model.c \
 	gtk/fm-dir-tree-view.c \
-	gtk/fm-folder-model.c \
 	gtk/fm-folder-view.c \
 	gtk/fm-path-entry.c \
 	$(NULL)
