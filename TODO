@@ -17,7 +17,9 @@
     
     -   Simple Panel
     
-        *   Launcher Applet : use a folder model...
+        *   Move the folder model to libfmcore
+        
+        *   Launcher Applet : use the folder model...
         
     
     -   General
