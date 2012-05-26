@@ -67,20 +67,20 @@ namespace Manager {
             // Application Menu...
             {"FileMenu", null, N_("_File"), null, null, null},
 
-            {"Close", Gtk.Stock.CLOSE, N_("_Close Window"), "<Ctrl>W", null,    _on_close_win},
+            {"Close", Gtk.Stock.CLOSE, N_("_Close Window"), "<Ctrl>W", null,    _action_close_window},
             
             {"GoMenu", null, N_("_Go"), null, null, null},
 
             {"Up", Gtk.Stock.GO_UP, N_("Parent Folder"), "<Alt>Up", 
-                                        N_("Go to parent Folder"),              _on_go_up},
+                                    N_("Go to parent Folder"),                  _action_go_up},
             
             {"HelpMenu", null, N_("_Help"), null, null, null},
 
-            {"About", Gtk.Stock.ABOUT, null, null, null,                        _on_about},
+            {"About", Gtk.Stock.ABOUT, null, null, null,                        _action_about},
             
-            // Location Bar Accelerators...
-            {"Location", null, null, "<Alt>d", null,                            _on_location},
-            {"Location2", null, null, "<Ctrl>L", null,                          _on_location}
+            // Grabs focus to the location bar...
+            {"Location", null, null, "<Alt>d", null,                            _action_location},
+            {"Location2", null, null, "<Ctrl>L", null,                          _action_location}
         };
         
         
@@ -446,7 +446,7 @@ namespace Manager {
             this._change_directory (path, DirChangeCaller.PATH_ENTRY, false);
         }
 
-        private void _on_location (Gtk.Action act) {
+        private void _action_location (Gtk.Action act) {
 
             /*** Path Entry Accelerators... (Alt+D / Ctrl+L) ***/
             
@@ -640,12 +640,12 @@ namespace Manager {
          * 
          * 
          ********************************************************************************/
-        private void _on_close_win (Gtk.Action act) {
+        private void _action_close_window (Gtk.Action act) {
             /*** gtk_widget_destroy (GTK_WIDGET (win)); ***/
         }
 
 
-        private void _on_go_up (Gtk.Action act) {
+        private void _action_go_up (Gtk.Action act) {
 
             Fm.Path parent = _container_view.get_cwd ().get_parent ();
             
@@ -659,7 +659,7 @@ namespace Manager {
          * 
          * 
          ********************************************************************************/
-        private void _on_about (Gtk.Action act) {
+        private void _action_about (Gtk.Action act) {
             
             // TODO_axl: Add all authors...
             // const string authors[] = {"Axel FILMORE <axel.filmore@gmail.com>", null};
