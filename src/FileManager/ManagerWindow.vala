@@ -58,9 +58,11 @@ namespace Manager {
         
         private bool _debug_mode = false;
         
+        
         // try to use an instance TreeModel instead of a global one...
         // since there's a few bugs in the tree model, that may be better...
         private Fm.DirTreeModel?    global_dir_tree_model = null;
+        
         
         private const Gtk.ActionEntry _main_win_actions[] = {
             
@@ -85,12 +87,28 @@ namespace Manager {
         
         
         private Fm.Path                 _current_dir;
-        /***
-        private Fm.Folder               _folder;
-        ***/
+        
+        /** Add these later...
+             
+            TODO_axl: study and possibly rework the history navigation...
+            
+            The folder is used to display informations in the status bar...
 
+            Bookmarks are not really needed currently, add these in year 2050...
+        
+        private Fm.Folder               _folder;
+        
+        private Gtk.Widget              _history_menu;
+        private Fm.NavHistory           _nav_history;
+        
+        private Gtk.Widget              _bookmarks_menu;
+        private Fm.Bookmarks            _bookmarks;
+        
+        **/
+
+        
         // UI widgets...
-        private Gtk.UIManager           _ui;
+        private Gtk.UIManager           _ui_manager;
         private Gtk.Toolbar             _toolbar;
         private Fm.PathEntry            _path_entry;
         private Gtk.HPaned              _hpaned;
@@ -114,20 +132,11 @@ namespace Manager {
         private Gtk.Menu                _default_popup;
         
         
-        /*** Add these later, rework the navigation history...
-        private Gtk.Widget      _history_menu;
-        private Fm.NavHistory   _nav_history;
-        
-        private Gtk.Widget      _bookmarks_menu;
-        private Fm.Bookmarks    _bookmarks;
-        ***/
-
-        
         public Window (bool debug = false) {
-            
             
             _debug_mode = debug;
             
+
             this.destroy.connect ( () => {
                 
                 /***
@@ -144,6 +153,7 @@ namespace Manager {
             
             });
         }
+        
         
         public Manager.ViewContainer get_view () {
             return _container_view;
@@ -168,17 +178,23 @@ namespace Manager {
             
             
             /*****************************************************************************
-             * Create The Main Window...
+             * Main Window Container...
              * 
              * 
              ****************************************************************************/
-            // Main Window Container...
+            // TODO_axl: use a Gtk.Box instead...
             Gtk.VBox main_vbox = new Gtk.VBox (false, 0);
 
-            // Create The Menubar and Toolbar...
-            _ui = new Gtk.UIManager ();
+
+            /*****************************************************************************
+             * Create The Menubar and Toolbar...
+             * 
+             * 
+             ****************************************************************************/
+            _ui_manager = new Gtk.UIManager ();
             Gtk.ActionGroup action_group = new Gtk.ActionGroup ("Main");
             action_group.add_actions (_main_win_actions, this);
+            
             
             /*** Add these actions later
             action_group.add_toggle_actions (_main_win_toggle_actions, null);
@@ -187,19 +203,20 @@ namespace Manager {
             action_group.add_radio_actions  (_main_win_sort_by_actions, 0, _on_sort_by);
             ***/
             
-            Gtk.AccelGroup accel_group = _ui.get_accel_group ();
+            
+            Gtk.AccelGroup accel_group = _ui_manager.get_accel_group ();
             this.add_accel_group (accel_group);
             
-            _ui.insert_action_group (action_group, 0);
+            _ui_manager.insert_action_group (action_group, 0);
             try {
-                _ui.add_ui_from_string (global_main_menu_xml, -1);
+                _ui_manager.add_ui_from_string (global_main_menu_xml, -1);
             } catch (Error e) {
             }
             
-            Gtk.MenuBar menubar = _ui.get_widget ("/menubar") as Gtk.MenuBar;
+            Gtk.MenuBar menubar = _ui_manager.get_widget ("/menubar") as Gtk.MenuBar;
             main_vbox.pack_start (menubar, false, true, 0);
 
-            _toolbar = _ui.get_widget ("/toolbar") as Gtk.Toolbar;
+            _toolbar = _ui_manager.get_widget ("/toolbar") as Gtk.Toolbar;
             
             _toolbar.set_icon_size (Gtk.IconSize.SMALL_TOOLBAR);
             _toolbar.set_style (Gtk.ToolbarStyle.ICONS);
@@ -237,7 +254,6 @@ namespace Manager {
              * 
              * 
              ****************************************************************************/
-            // Add The TreeView...
             _tree_view = new Fm.DirTreeView ();
             scrolled_window.add (_tree_view);
             
