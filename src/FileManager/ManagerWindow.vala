@@ -20,9 +20,9 @@
  **********************************************************************************************************************/
 namespace Manager {
     
-
-    private Fm.DirTreeModel? global_dir_tree_model = null;
-    
+    /*** is it a good idea to use a global model ?
+    private Fm.DirTreeModel?    global_dir_tree_model = null;
+    ***/
     
     private enum DirChangeCaller {
         NONE,
@@ -34,6 +34,10 @@ namespace Manager {
     public class Window : Gtk.Window {
         
         private bool _debug_mode = false;
+        
+        // try to use an instance TreeModel instead of a global one...
+        // since there's a few bugs in the tree model, that may be better...
+        private Fm.DirTreeModel?    global_dir_tree_model = null;
         
         private const string global_main_menu_xml = """
             <menubar>
@@ -112,12 +116,22 @@ namespace Manager {
         private Fm.Bookmarks    _bookmarks;
         ***/
 
+        
         public Window (bool debug = false) {
+            
             
             _debug_mode = debug;
             
             this.destroy.connect ( () => {
                 
+                /***
+                if (win->folder)
+                {
+                    g_signal_handlers_disconnect_by_func (win->folder, _on_folder_fs_info, win);
+                    g_object_unref (win->folder);
+                }
+                ***/
+
                 global_num_windows--;
                 if (global_num_windows < 1)
                     Gtk.main_quit ();
@@ -125,30 +139,10 @@ namespace Manager {
             });
         }
         
-        ~Window () {
-            
-            //~ global_num_windows--;
-
-            /***
-            if (win->folder)
-            {
-                g_signal_handlers_disconnect_by_func (win->folder, _on_folder_fs_info, win);
-                g_object_unref (win->folder);
-            }
-            ***/
-
-            /***
-            
-            if (n_wins == 0)
-                gtk_main_quit ();
-            
-            ***/
-            
-        }
-
         public Manager.ViewContainer get_view () {
             return _container_view;
         }
+        
         
         /*********************************************************************************
          * Widget Creation...
@@ -157,6 +151,8 @@ namespace Manager {
          ********************************************************************************/
         public bool create (Manager.ViewType view_type, string[] files) {
             
+            
+            // TODO_axl: save and restore window geometry...
             this.set_default_size ((screen.get_width() / 4) * 3, (screen.get_height() / 4) * 3);
             this.set_position (Gtk.WindowPosition.CENTER);
 
@@ -242,6 +238,9 @@ namespace Manager {
             // Fill The TreeView Model...
             if (global_dir_tree_model == null) {
 
+                global_dir_tree_model = new Fm.DirTreeModel ();
+                global_dir_tree_model.set_show_hidden (true);
+                
                 Fm.FileInfoJob job = new Fm.FileInfoJob (null, Fm.FileInfoJobFlags.NONE);
                 
                 unowned List<Fm.FileInfo>? l;
@@ -274,9 +273,6 @@ namespace Manager {
                 
                 job.run_sync_with_mainloop ();
 
-                global_dir_tree_model = new Fm.DirTreeModel ();
-                global_dir_tree_model.set_show_hidden (true);
-                
                 Fm.FileInfoList file_infos = job.file_infos;
                 
                 unowned List<Fm.FileInfo>? list = (List<Fm.FileInfo>) ((Queue) file_infos).head;
