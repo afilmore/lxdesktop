@@ -146,6 +146,8 @@ namespace Manager {
 
             this.destroy.connect ( () => {
                 
+                // TODO_axl: save last directory on exit... :-P
+                
                 /***
                 if (win->folder)
                 {
@@ -350,15 +352,13 @@ namespace Manager {
              ****************************************************************************/
             _container_view = new Manager.ViewContainer ();
             
-            // Notebook signals...
             _container_view.switch_page.connect (_on_switch_page);
-            /***
 
             _container_view.page_removed.connect (() => {
                 if (_container_view.get_n_pages () == 0)
                     this.destroy ();
             });
-            ***/
+
             _hpaned.add2 (_container_view);
             
             
@@ -409,17 +409,16 @@ namespace Manager {
 
             
             /*****************************************************************************
-             * 
+             * Add The Container To The Main Window...
              * 
              * 
              ****************************************************************************/
-            // Add The Container To The Main Window...
             this.add (main_vbox);
             
             view.grab_focus ();
             
             
-            // TODO_axl: save last directory on exit and reload it here... :-P
+            // TODO_axl: get last directory here... :-P
             Fm.Path path;
             if (files[0] != "")
                 path = new Fm.Path.for_str (files[0]);
@@ -438,6 +437,48 @@ namespace Manager {
         }
         
         
+        /*********************************************************************************
+         * File Menu...
+         * 
+         * 
+         ********************************************************************************/
+        private void _action_close_window (Gtk.Action act) {
+            /*** gtk_widget_destroy (GTK_WIDGET (win)); ***/
+        }
+
+
+        private void _action_go_up (Gtk.Action act) {
+
+            Fm.Path parent = _container_view.get_cwd ().get_parent ();
+            
+            if (parent != null)
+                this._change_directory (parent);
+        }
+
+
+        /*********************************************************************************
+         * Help Menu...
+         * 
+         * 
+         ********************************************************************************/
+        private void _action_about (Gtk.Action act) {
+            
+            // TODO_axl: Add all authors...
+            // const string authors[] = {"Axel FILMORE <axel.filmore@gmail.com>", null};
+            
+            Gtk.AboutDialog about_dialog = new Gtk.AboutDialog ();
+            about_dialog.set_program_name ("lxdesktop");
+            
+            // TODO_axl: Add all authors...
+            // about_dialog.set_authors (authors);
+            
+            about_dialog.set_comments ("A Simple File Manager");
+            about_dialog.set_website ("https://github.com/afilmore/lxdesktop");
+            about_dialog.run ();
+            about_dialog.destroy ();
+        }
+
+
         /*********************************************************************************
          * 
          * 
@@ -702,48 +743,6 @@ namespace Manager {
          * 
          ********************************************************************************/
         private void _update_statusbar () {
-        }
-
-        
-        /*********************************************************************************
-         * File Menu...
-         * 
-         * 
-         ********************************************************************************/
-        private void _action_close_window (Gtk.Action act) {
-            /*** gtk_widget_destroy (GTK_WIDGET (win)); ***/
-        }
-
-
-        private void _action_go_up (Gtk.Action act) {
-
-            Fm.Path parent = _container_view.get_cwd ().get_parent ();
-            
-            if (parent != null)
-                this._change_directory (parent);
-        }
-
-
-        /*********************************************************************************
-         * Help Menu...
-         * 
-         * 
-         ********************************************************************************/
-        private void _action_about (Gtk.Action act) {
-            
-            // TODO_axl: Add all authors...
-            // const string authors[] = {"Axel FILMORE <axel.filmore@gmail.com>", null};
-            
-            Gtk.AboutDialog about_dialog = new Gtk.AboutDialog ();
-            about_dialog.set_program_name ("lxdesktop");
-            
-            // TODO_axl: Add all authors...
-            // about_dialog.set_authors (authors);
-            
-            about_dialog.set_comments ("A Simple File Manager");
-            about_dialog.set_website ("https://github.com/afilmore/lxdesktop");
-            about_dialog.run ();
-            about_dialog.destroy ();
         }
     }
 }

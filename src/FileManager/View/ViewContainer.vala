@@ -34,21 +34,25 @@ namespace Manager {
             
                 // Create The Folder View...
                 Fm.FolderView folder_view = new Fm.FolderView (Fm.FolderViewMode.LIST_VIEW);
-                
                 folder_view.set_show_hidden (true);
                 folder_view.sort (Gtk.SortType.ASCENDING, Fm.FileColumn.NAME);
                 folder_view.set_selection_mode (Gtk.SelectionMode.MULTIPLE);
                 
-                // Create The Tab Label And Button...
-                Manager.ViewTab tab = new Manager.ViewTab ("Manager");
-                
                 // Create A New Notebook Page...
+                Manager.ViewTab view_tab = new Manager.ViewTab (dir);
+                
                 int new_page = this.get_current_page () + 1;
-                this.insert_page (folder_view, tab, new_page);
+                this.insert_page (folder_view, view_tab, new_page);
                 this.set_tab_reorderable (this.get_nth_page (new_page), true);
             
+                // Connect the close event...
+                view_tab.clicked.connect (() => {
+                    //this.remove (folder_view);
+                    this.close_tab (folder_view);
+                });
+
                 // ???
-                tab.grab_focus ();
+                view_tab.grab_focus ();
                 
                 folder_view.chdir (new Fm.Path.for_str (dir));
                 folder_view.show_all ();
@@ -68,8 +72,8 @@ namespace Manager {
                 
                 
                 Gtk.Scrollbar scrollbar = new Gtk.Scrollbar (Gtk.Orientation.VERTICAL, terminal_widget.vadjustment);
-                terminal_grid.attach (terminal_widget,   0, 0, 1, 1);
-                terminal_grid.attach (scrollbar,       1, 0, 1, 1);
+                terminal_grid.attach (terminal_widget,  0, 0, 1, 1);
+                terminal_grid.attach (scrollbar,        1, 0, 1, 1);
 
                 // Make the terminal occupy the whole GUI
                 terminal_widget.vexpand = true;
@@ -82,19 +86,19 @@ namespace Manager {
                 // main_actions.get_action ("Copy").set_sensitive (terminal_widget.get_has_selection ());
                 
                 // Create a new tab with the terminal
-                Manager.ViewTab tab = new Manager.ViewTab (_("Terminal"));
-                terminal_widget.tab = tab;
+                Manager.ViewTab view_tab = new Manager.ViewTab (_("Terminal"));
+                terminal_widget.tab = view_tab;
                 
-                // tab.scroll_event.connect (on_scroll_event);
-                // tab.width_request = 64;
+                // view_tab.scroll_event.connect (on_scroll_event);
+                // view_tab.width_request = 64;
                 
                 int new_page = this.get_current_page () + 1;
                 
-                this.insert_page (terminal_grid, tab, new_page);
+                this.insert_page (terminal_grid, view_tab, new_page);
                 this.set_tab_reorderable (this.get_nth_page (new_page), true);
 
                 // Bind signals to the new tab
-                tab.clicked.connect (() => {
+                view_tab.clicked.connect (() => {
                     
                     // It was doing something
                     if (terminal_widget.has_foreground_process ()) {
@@ -102,12 +106,14 @@ namespace Manager {
                         Terminal.CloseDialog close_dialog = new Terminal.CloseDialog ();
                         
                         if (close_dialog.run () == 1)
-                            this.remove (terminal_grid);
+                            //this.remove (terminal_grid);
+                            this.close_tab (terminal_grid);
                         
                         close_dialog.destroy ();
                     
                     } else {
-                        this.remove (terminal_grid);
+                        //this.remove (terminal_grid);
+                        this.close_tab (terminal_grid);
                     }
                     
                 });
@@ -128,22 +134,24 @@ namespace Manager {
                         new_text = new_text[new_text.length - 50:new_text.length];
                     }
 
-                    tab.set_text (new_text);
+                    view_tab.set_text (new_text);
                 });
                 
                 terminal_widget.child_exited.connect (() => {
-                    this.remove (terminal_grid);
+                    //this.remove (terminal_grid);
+                    this.close_tab (terminal_grid);
                 });
                 
                 terminal_widget.selection_changed.connect (() => {
-//~                     main_actions.get_action("Copy").set_sensitive (terminal_widget.get_has_selection ());
+                    //~ main_actions.get_action("Copy").set_sensitive (terminal_widget.get_has_selection ());
                 });
                 
-//~                 terminal_widget.set_font (system_font);
+                //~ terminal_widget.set_font (system_font);
                 set_size_request (terminal_widget.calculate_width (30), terminal_widget.calculate_height (8));
                 
                 // ???
-                tab.grab_focus ();
+                //view_tab.grab_focus ();
+                terminal_widget.grab_focus ();
                 
                 terminal_grid.show_all ();
                 
@@ -159,6 +167,15 @@ namespace Manager {
             return null;
         }
         
+        
+        
+        // that's useless indeed... :(
+        public void close_tab (Gtk.Widget widget) {
+            this.remove (widget);
+        }
+        
+        
+        // TODO_axl: review these...
         public Gtk.Widget? get_current_view () {
             
             return this.get_nth_page (this.page);
@@ -186,9 +203,6 @@ namespace Manager {
                 return new Fm.Path.for_str ("");
                 
             //stdout.printf ("object type: %s\n", current.get_type ().name ());
-            
-            
-            
             
             Fm.FolderView? folder_view = this.get_folder_view ();
             

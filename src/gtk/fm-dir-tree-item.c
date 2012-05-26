@@ -256,7 +256,7 @@ static void on_folder_files_changed (FmFolder *folder, GSList *files, GList *ite
 
     GtkTreePath *tp = fm_dir_tree_model_item_to_tree_path (model, item_list);
 
-    printf ("files changed!!\n");
+    printf ("fm-dir-tree-item: on_folder_files_changed: files changed!!\n");
 
     GSList *l;
     for (l = files; l; l = l->next)
