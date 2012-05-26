@@ -7,7 +7,7 @@
 #***************************************************************************************************
 AC_PREREQ([2.63])
 
-AC_INIT([lxdesktop], [0.9.10], [https://github.com/afilmore/lxdesktop])
+AC_INIT([lxdesktop], [0.3.0], [https://github.com/afilmore/lxdesktop])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 AC_CONFIG_HEADERS([config.h])

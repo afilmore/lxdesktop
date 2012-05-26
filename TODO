@@ -25,13 +25,11 @@
         
         *   How to reorder the items without DnD ??? :(
         
-        *   [DONE] Move the folder model to libfmcore
-        
-        *   [DONE] Launcher Applet : use the folder model...
-        
     
     -   General
     
+        *   File Popup: add "Paste Link" item...
+            
         *   Rework Popup Menus...
             
         *   [] Use the new Popup Menu Class here:
@@ -53,10 +51,41 @@
         *   Write The AUTHORS list with all original Authors... LXDE, XFCE... etc...
         
         
+    -   Desktop
+    
+        *   Grid: Position bug when renaming or creating items... needs some cleanup in the code...
+        
+        *   Create a global volume monitor class, mount volumes on startup...
+        
+        *   A bug in Vala bindings ?
+            Desktop/DesktopWindow.vala:252.32-252.35: warning: Argument 3: Cannot pass null to non-null parameter type
+
+    
+    -   File Manager
+    
+        *   Popup: Add "New Window" to the  Popup Menu....
+        
+        *   Menu: Add navigation history...
+        
+        *   Menu: Add a customisable "Home" button.... set the path in dconf (home, desktop etc...)
+        
+        *   TreeView: Add "New Folder/File" to the  Popup Menu....
+        
+        *   TreeView: Handle Special Items Icons....
+        
+        *   Analyse FmFileInfo usage, handle custom icons for special items...
+        
+        *   Search: Integrate a basic search feature...
+        
+        *   StatusBar: Enable file directory infos...
+        
+    
     -   LibFmCore
     
         *   fm-file-info-job.c... remove old code when tested enouth...
+        
         *   Code Cleanup
+        
             []      base/fm-app-info.c
             []      base/fm-archiver.c
             []      base/fm-dummy-monitor.c
@@ -97,7 +126,7 @@
             []      job/fm-job.c
             []      job/fm-simple-job.c
         
-        *   Split fm-utils.c into fm_mount.c... etc...
+        *   Split fm-utils.c into fm_mount.c... etc... not sure, keep it like this...
         *   How to disable these warnings in LibFmCore:
             base/fm-file-info-list.c:32:1: warning: initialization from incompatible pointer type [enabled by default]
             base/fm-path-list.c:36:1: warning: initialization from incompatible pointer type [enabled by default]
@@ -105,22 +134,6 @@
         *   Maybe merge base/fm-icon and gtk/fm-icon-pixbuf.....
             Not sure, need to study the code...
         *   Merge fm-monitor and fm-dummy-monitor ? not sure, keep it like this...
-        
-    
-    -   Desktop
-    
-        *   Add "New Folder/File to the TreeView Popup Menu....
-        *   Grid position bug when renaming or creating items... needs some cleanup in the code...
-        *   Create a global volume monitor class, mount volumes on startup...
-        *   A bug in Vala bindings ?
-        *   Desktop/DesktopWindow.vala:252.32-252.35: warning: Argument 3: Cannot pass null to non-null parameter type
-
-    
-    -   File Manager
-    
-        *   Handle Special Items Icons....
-        *   Analyse FmFileInfo usage, handle custom icons for special items...
-        *   Enable StatusBar Infos...
         
     
     -   GTK3 Migration...
@@ -174,6 +187,8 @@
         
     -   Simple Panel
     
+        *   [DONE] Move the folder model to libfmcore
+        *   [DONE] Launcher Applet : use the folder model...
         *   [DONE] Rename Binary to "spanel"...
         *   [DONE] Fix Panel Geometry...
         *   [DONE] Use GApplication
