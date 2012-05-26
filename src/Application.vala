@@ -13,6 +13,11 @@
  * 
  *      Purpose: The Main Application Class and program's entry point.
  * 
+ *      The application is limited to a single instance, a second instance of the program
+ *      can send command lines to the primary instance via DBus.
+ *      The program supports a debug or a normal mode.
+ *      In debug mode, the desktop is created in a regular window, instead of full screen.
+ * 
  * 
  * 
  **********************************************************************************************************************/
@@ -28,37 +33,39 @@ namespace XLib {
 
 
 /*****************************************************************************************
- * 
+ * Count the number of desktop/manager window to know if we should exit or not.
+ * The program keeps running while there's some desktop and/or manager windows...
  * 
  * 
  ****************************************************************************************/
 uint global_num_windows = 0;
 
 
-/*****************************************************************************************
- * 
- * 
- * 
- ****************************************************************************************/
 namespace Desktop {
 
-    Application                 global_app;
-    Desktop.Config?             global_config;
+
+    /*************************************************************************************
+     * These are the two only global objects in the all program, some widgets need to
+     * call application functions, such as open a new window or open a new tab.
+     * They also need the global desktop/manager's configuration.
+     * 
+     * 
+     ************************************************************************************/
+    Application                         global_app;
+    Desktop.Config?                     global_config;
     
     
     /*************************************************************************************
-     * 
+     * The application class
      * 
      * 
      ************************************************************************************/
     public class Application : GLib.Application {
         
-        
         bool                            _debug_mode = false;
         
         unowned string[]                _args;
         Desktop.OptionParser            _options;
-        
         
         private Desktop.Group?          _desktop_group;
         private Manager.Group?          _manager_group;
@@ -84,17 +91,23 @@ namespace Desktop {
             
             Object (application_id:app_id, flags:(ApplicationFlags.HANDLES_COMMAND_LINE));
             
-            // NOTE: Members can only be set after alling Object () otherwise it would segfault.
+            // NOTE: Members can only be set after calling Object () otherwise it segfaults.
             _debug_mode = options.debug;
             _args = args;
             _options = options;
             
         }
         
+        
+        /*********************************************************************************
+         * Try to run the program as the primary instance...
+         * If it's not the fist instance, the function returns false and commmand lines
+         * are sent via DBus...
+         * 
+         * 
+         ********************************************************************************/
         public bool run_local () {
         
-            //stdout.printf ("Application: run_local\n");
-            
             try {
             
                 this.register (null);
@@ -106,28 +119,31 @@ namespace Desktop {
             }
             
             
+            // If not the first instance, return and send arguments via DBus...
             if (this.get_is_remote ())
                 return false;
                 
+            // Command line handler for the primary instance...
             this.command_line.connect (this._on_command_line);
             
             
-            /*****************************************************************************
-             * Primary Instance... Create A Desktop Window Or A FileManager...
+            /*******************************************************************
+             * Primary Instance.
+             * 
+             * Initialize libraries, create the desktop config, create a
+             * desktop and manager group, create a desktop or a file manager
+             * window...
              * 
              * 
-             ****************************************************************************/
-                
-            // Create the Desktop configuration, this object derivates of Fm.Config.
-            global_config = new Desktop.Config ();
-        
+             ******************************************************************/
             Gtk.init (ref _args);
-            Fm.init (global_config);
             
+            // Create the Desktop configuration and initialize LibFmCore.
+            global_config = new Desktop.Config ();
+            Fm.init (global_config);
             
             /*** fm_volume_manager_init (); ***/
             _volume_monitor = new Desktop.VolumeMonitor ();
-            
             
             _desktop_group = new Desktop.Group (_options.debug);
             _manager_group = new Manager.Group (_options.debug);
@@ -152,7 +168,7 @@ namespace Desktop {
                     desktop_popup.destroy ();
                 ***/
                 
-            // Or A Manager Window....
+            // Or A File Manager....
             } else {
                 
                 this.new_manager_window (_options.remaining);
@@ -161,31 +177,44 @@ namespace Desktop {
             }
             
             /*** fm_volume_manager_finalize (); ***/
+            
             Fm.finalize ();
 
             return true;
         }
         
         
+        /*********************************************************************************
+         * The primary instance receives command lines from remote instances in that
+         * handler...
+         * 
+         * 
+         ********************************************************************************/
         private int _on_command_line (ApplicationCommandLine command_line) {
             
-            //stdout.printf ("Application: _on_command_line\n");
-            
-            /*** We handle only remote command lines here... ***/
+            // Handle only remote command lines...
             if (!command_line.get_is_remote ())
                 return 0;
             
             string[] args = command_line.get_arguments ();
             Desktop.OptionParser options = new Desktop.OptionParser (args);
             
+            // Don't create several desktops...
             if (options.desktop)
                 return 0;
                 
+            // Create a file manager window...
             this.new_manager_window (_options.remaining);
             
             return 0;
         }
         
+        
+        /*********************************************************************************
+         * Global application commands...
+         * 
+         * 
+         ********************************************************************************/
         public bool new_manager_window (string[] folders) {
             
             _manager_group.new_manager_window (Manager.ViewType.FOLDER, folders);
@@ -218,7 +247,9 @@ namespace Desktop {
         /*********************************************************************************
          * Application's entry point.
          *
-         * 
+         * The program trie to run as the first instance in run_local (), if it's not
+         * the first instance it calls GApplication.run () and sends arguments to the
+         * first instance via DBus.
          * 
          ********************************************************************************/
         private static int main (string[] args) {
@@ -226,17 +257,8 @@ namespace Desktop {
             
             global_app = new Desktop.Application (args);
             
-
-            /*****************************************************************************
-             * Remote Instance... Calling GApplication.run () will send the command line
-             * to the primary instance via DBus :) Marvelous :-P
-             * 
-             * 
-             ****************************************************************************/
-            if (!global_app.run_local ()) {
-                //stdout.printf ("Application: global_app.run ()\n");
+            if (!global_app.run_local ())
                 return global_app.run (args);
-            }
             
             return 0;
         }

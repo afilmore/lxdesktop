@@ -34,6 +34,10 @@
             
         *   Rework Popup Menus...
             
+        *   Application: handle icon theme changes...
+            
+        *   Application: Create a global volume monitor class, mount volumes on startup...
+        
         *   [] Use the new Popup Menu Class here:
             ./Desktop/DesktopWindow.vala:1111:      _file_menu = new Fm.FileMenu.for_files (this, files, Fm.Path.get_desktop (), false);
             ./FileManager/ManagerWindow.vala:563:   _file_menu = new Fm.FileMenu.for_file (this, fi, _tree_view.get_cwd (), false);
@@ -56,8 +60,6 @@
     -   Desktop
     
         *   Grid: Position bug when renaming or creating items... needs some cleanup in the code...
-        
-        *   Create a global volume monitor class, mount volumes on startup...
         
         *   A bug in Vala bindings ?
             Desktop/DesktopWindow.vala:252.32-252.35: warning: Argument 3: Cannot pass null to non-null parameter type
