@@ -101,8 +101,8 @@ namespace Desktop {
         
         /*********************************************************************************
          * Try to run the program as the primary instance...
-         * If it's not the fist instance, the function returns false and commmand lines
-         * are sent via DBus...
+         * If it's not the fist instance, the function returns false and the commmand
+         * line is sent via DBus...
          * 
          * 
          ********************************************************************************/
