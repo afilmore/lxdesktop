@@ -14,7 +14,13 @@
  *      See the GNU General Public License for more details.
  *      http://www.gnu.org/licenses/gpl-2.0.txt
  * 
- *      Purpose: 
+ *      Purpose: The File Manager Window.
+ * 
+ *      Creates a Manager Window with all UI Widgets, a location bar, a left ScrolledWindow with a Fm.DirTreeView,
+ *      a ViewContainer which is the GtkNotebook Widget, a folder view and a Terminal View. :-P
+ *      
+ *      The folder view only supports a detailled list view, the ExoIconView Widget needs to be ported to Gtk3.
+ * 
  * 
  * 
  **********************************************************************************************************************/
@@ -87,6 +93,7 @@ namespace Manager {
         
         
         private Fm.Path                 _current_dir;
+        
         
         /** Add these later...
              
@@ -222,35 +229,50 @@ namespace Manager {
             _toolbar.set_style (Gtk.ToolbarStyle.ICONS);
             main_vbox.pack_start (_toolbar, false, true, 0);
 
-            // Add The Location Bar... 
+            
+            /*****************************************************************************
+             * Create the location bar, add it to the Toobar...
+             * 
+             * 
+             ****************************************************************************/
             _path_entry = new Fm.PathEntry ();
             _path_entry.activate.connect (_on_entry_activate);
+            
             Gtk.ToolItem toolitem = new Gtk.ToolItem ();
             toolitem.add (_path_entry);
             toolitem.set_expand (true);
+            
             //_toolbar.insert (toolitem, _toolbar.get_n_items () - 1);
             _toolbar.insert (toolitem, 1);
             
-            // Add The HPaned Container...
+
+            /*****************************************************************************
+             * Create The Paned Container...
+             * 
+             * 
+             ****************************************************************************/
+            // TODO_axl: use a Gtk.Paned instead...
             _hpaned = new Gtk.HPaned ();
             _hpaned.set_position (200);
             main_vbox.pack_start (_hpaned, true, true, 0);
             
             
             /*****************************************************************************
-             * Create The Left Side View....
+             * Create The Left Side ScrolledWindow....
              * 
              * 
              ****************************************************************************/
+            // TODO_axl: use a Gtk.Box instead...
             Gtk.VBox side_pane_vbox = new Gtk.VBox (false, 0);
             _hpaned.add1 (side_pane_vbox);
+            
             Gtk.ScrolledWindow scrolled_window = new Gtk.ScrolledWindow (null, null);
             scrolled_window.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
             side_pane_vbox.pack_start (scrolled_window, true, true, 0);
             
             
             /*****************************************************************************
-             * Create The TreeView....
+             * Create the DirTreeView add it to the ScrolledWindow...
              * 
              * 
              ****************************************************************************/
@@ -313,22 +335,24 @@ namespace Manager {
                 }
             }
             
+            
+            // The model is loaded, attach a view to it and connect signals...
             _tree_view.set_model (global_dir_tree_model);
             _tree_view.directory_changed.connect (_tree_view_on_change_directory);
             _tree_view.button_release_event.connect (_tree_view_on_button_release);
             
             
             /*****************************************************************************
-             * Create The Right Side View....
+             * Create The Right Side View, the ViewContainer is a GtkNotebook...
              * 
              * 
              ****************************************************************************/
             _container_view = new Manager.ViewContainer ();
             
             // Notebook signals...
-            /***
-            _container_view.switch_page.connect (on_switch_page);
+            _container_view.switch_page.connect (_on_switch_page);
 
+            /***
 
             _container_view.page_removed.connect (() => {
                 if (_container_view.get_n_pages () == 0)
@@ -532,18 +556,23 @@ namespace Manager {
 
         
         /*********************************************************************************
-         * Folder View Signal Handlers...
+         * Notebook Signal Handlers...
          * 
          * 
-         *******************************************************************************
-        void on_switch_page (Widget page, uint n) {
-            current_tab_label = notebook.get_tab_label (page) as TerminalTab;
-            current_tab = notebook.get_nth_page ((int) n);
-            current_terminal = ((Grid) page).get_child_at (0, 0) as TerminalWidget;
-            title = current_terminal.window_title;
-            page.grab_focus ();
+         ********************************************************************************/
+        private void _on_switch_page (Gtk.Widget page, uint n) {
+            
+            stdout.printf ("ManagerWindow: _on_switch_page page = %u\n", n);
+            
+            //~ current_tab_label = notebook.get_tab_label (page) as TerminalTab;
+            //~ current_tab = notebook.get_nth_page ((int) n);
+            //~ current_terminal = ((Grid) page).get_child_at (0, 0) as TerminalWidget;
+            //~ title = current_terminal.window_title;
+            //~ page.grab_focus ();
+        
         }
 
+        /**
         public void remove_page (int page) {
             notebook.remove_page (page);
             if (notebook.get_n_pages () == 0) destroy ();
@@ -560,8 +589,14 @@ namespace Manager {
                 }
             }
             return false;
-        }*/
+        }**/
 
+        
+        /*********************************************************************************
+         * Folder View Signal Handlers...
+         * 
+         * 
+         ********************************************************************************/
         private void _folder_view_on_file_clicked (Fm.FolderViewClickType type, Fm.FileInfo? fi) {
 
             switch (type) {
