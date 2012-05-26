@@ -1,0 +1,27 @@
+/***********************************************************************************************************************
+ *      
+ *      This software is the very first Vala Desktop.
+ *      
+ *      It started as an experimental port of LXDE's Desktop Manager.
+ * 
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
+ *
+ *
+ *      This program is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License Version 2.
+ *      http://www.gnu.org/licenses/gpl-2.0.txt
+ * 
+ * 
+ **********************************************************************************************************************/
+ ----------------------------------------------------------------------------------------------------------------------
+    
+    -   Manager
+    
+        *   Right click on an empty array of the detailled list view shows the rubberbanding rect, a problem
+            in ExoTreeView or in the Folder View...
+            
+        *   When openning a Terminal, the terminal widget is not focussed, very anoying...
+        
+        *   
+        
+    
