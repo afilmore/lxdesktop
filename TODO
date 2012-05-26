@@ -67,6 +67,10 @@
     
     -   File Manager
     
+        *   ManagerWindow: Use a BaseView object ???
+        
+        *   Terminal: Create a terminal view object ???
+        
         *   ManagerWindow: Save restore last directory...
         
         *   ManagerWindow: Use a Gtk.Paned instead of a HPaned...

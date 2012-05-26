@@ -52,7 +52,7 @@ namespace Manager {
                 });
 
                 // ???
-                view_tab.grab_focus ();
+                folder_view.grab_focus ();
                 
                 folder_view.chdir (new Fm.Path.for_str (dir));
                 folder_view.show_all ();
@@ -63,6 +63,8 @@ namespace Manager {
             
             
             } else if (type == Manager.ViewType.TERMINAL) {
+                
+                // TODO_axl: create a terminal view object ???
                 
                 // The Container Widget...
                 Gtk.Grid terminal_grid = new Gtk.Grid ();
@@ -87,7 +89,7 @@ namespace Manager {
                 
                 // Create a new tab with the terminal
                 Manager.ViewTab view_tab = new Manager.ViewTab (_("Terminal"));
-                terminal_widget.tab = view_tab;
+                terminal_widget.view_tab = view_tab;
                 
                 // view_tab.scroll_event.connect (on_scroll_event);
                 // view_tab.width_request = 64;
