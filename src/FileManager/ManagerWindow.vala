@@ -343,7 +343,8 @@ namespace Manager {
             
             
             /*****************************************************************************
-             * Create The Right Side View, the ViewContainer is a GtkNotebook...
+             * Create the ViewContainer Notebook, connect the signals and add it to
+             * the Gtk.Paned...
              * 
              * 
              ****************************************************************************/
@@ -351,7 +352,6 @@ namespace Manager {
             
             // Notebook signals...
             _container_view.switch_page.connect (_on_switch_page);
-
             /***
 
             _container_view.page_removed.connect (() => {
@@ -363,7 +363,7 @@ namespace Manager {
             
             
             /*****************************************************************************
-             * Create Folder/Terminal View....
+             * Create Folder/Terminal View...
              * 
              * 
              ****************************************************************************/
@@ -386,7 +386,11 @@ namespace Manager {
             }
             
             
-            // Create The Statusbar...
+            /*****************************************************************************
+             * Create The Statusbar...
+             * 
+             * 
+             ****************************************************************************/
             _statusbar = new Gtk.Statusbar ();
             
             // Create Statusbar columns showing volume free space... 
@@ -403,10 +407,17 @@ namespace Manager {
             _statusbar_ctx = _statusbar.get_context_id ("status");
             _statusbar_ctx2 = _statusbar.get_context_id ("status2");
 
+            
+            /*****************************************************************************
+             * 
+             * 
+             * 
+             ****************************************************************************/
             // Add The Container To The Main Window...
             this.add (main_vbox);
             
             view.grab_focus ();
+            
             
             // TODO_axl: save last directory on exit and reload it here... :-P
             Fm.Path path;
@@ -426,6 +437,12 @@ namespace Manager {
             return true;
         }
         
+        
+        /*********************************************************************************
+         * 
+         * 
+         * 
+         ********************************************************************************/
         private void _change_directory (Fm.Path path, 
                                         DirChangeCaller caller = DirChangeCaller.NONE,
                                         bool save_history = false) {
@@ -594,6 +611,8 @@ namespace Manager {
         
         /*********************************************************************************
          * Folder View Signal Handlers...
+         * 
+         * I hate that function...
          * 
          * 
          ********************************************************************************/
