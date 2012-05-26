@@ -18,6 +18,9 @@
  *      The program supports a debug or a normal mode.
  *      In debug mode, the desktop is created in a regular window, instead of full screen.
  * 
+ *      The application contains a desktop group and a manager group, these simply encapsulate
+ *      a GtkWindowGroup, we use these objects to create a new desktop or a new manager window.
+ * 
  * 
  * 
  **********************************************************************************************************************/

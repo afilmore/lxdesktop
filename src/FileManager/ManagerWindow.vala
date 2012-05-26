@@ -20,9 +20,11 @@
  **********************************************************************************************************************/
 namespace Manager {
     
+    
     /*** is it a good idea to use a global model ?
     private Fm.DirTreeModel?    global_dir_tree_model = null;
     ***/
+    
     
     private enum DirChangeCaller {
         NONE,
@@ -30,6 +32,27 @@ namespace Manager {
         DIR_TREEVIEW,
         FOLDER_VIEW
     }
+    
+    
+    private const string global_main_menu_xml = """
+        <menubar>
+          <menu action='FileMenu'>
+            <menuitem action='Close'/>
+          </menu>
+          
+          <menu action='HelpMenu'>
+            <menuitem action='About'/>
+          </menu>
+        </menubar>
+        
+        <toolbar>
+            <toolitem action='Up'/>
+        </toolbar>
+        
+        <accelerator action='Location'/>
+        <accelerator action='Location2'/>
+    """;
+    
     
     public class Window : Gtk.Window {
         
@@ -39,25 +62,6 @@ namespace Manager {
         // since there's a few bugs in the tree model, that may be better...
         private Fm.DirTreeModel?    global_dir_tree_model = null;
         
-        private const string global_main_menu_xml = """
-            <menubar>
-              <menu action='FileMenu'>
-                <menuitem action='Close'/>
-              </menu>
-              
-              <menu action='HelpMenu'>
-                <menuitem action='About'/>
-              </menu>
-            </menubar>
-            
-            <toolbar>
-                <toolitem action='Up'/>
-            </toolbar>
-            
-            <accelerator action='Location'/>
-            <accelerator action='Location2'/>
-        """;
-    
         private const Gtk.ActionEntry _main_win_actions[] = {
             
             // Application Menu...
@@ -85,11 +89,13 @@ namespace Manager {
         private Fm.Folder               _folder;
         ***/
 
+        // UI widgets...
         private Gtk.UIManager           _ui;
         private Gtk.Toolbar             _toolbar;
         private Fm.PathEntry            _path_entry;
         private Gtk.HPaned              _hpaned;
         private Fm.DirTreeView          _tree_view;
+        
         private Manager.ViewContainer   _container_view;
         
         private Gtk.Statusbar           _statusbar;
