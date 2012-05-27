@@ -17,10 +17,7 @@ namespace Manager {
 
     public interface BaseView : Gtk.Widget {
 
-        public abstract bool create ();
-        
-        public static Type register_type () {return typeof (BaseView);}
-        
+        public static Type register_type () {return typeof (Manager.BaseView);}
     }
 }
 

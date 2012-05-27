@@ -21,6 +21,7 @@ namespace Manager {
             
             // -----------------------------------------------------------------
             // That's the implementation of fm_folder_view_new (mode)...
+            // -----------------------------------------------------------------
             Object ();
             
             base.set_mode (Fm.FolderViewMode.LIST_VIEW);
@@ -54,13 +55,7 @@ namespace Manager {
             parent.page = new_page;
         }
         
-        public bool create () {
-        
-            return true;
-        }
-        
         public static Type register_type () {return typeof (Manager.FolderView);}
-        
     }
 }
 
