@@ -41,11 +41,11 @@
 
 G_BEGIN_DECLS
 
-#define FM_FOLDER_VIEW_TYPE             (fm_folder_view_get_type ())
-#define FM_FOLDER_VIEW(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), FM_FOLDER_VIEW_TYPE, FmFolderView))
-#define FM_FOLDER_VIEW_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass),  FM_FOLDER_VIEW_TYPE, FmFolderViewClass))
-#define IS_FM_FOLDER_VIEW(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), FM_FOLDER_VIEW_TYPE))
-#define IS_FM_FOLDER_VIEW_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass),  FM_FOLDER_VIEW_TYPE))
+#define FM_TYPE_FOLDER_VIEW             (fm_folder_view_get_type ())
+#define FM_FOLDER_VIEW(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), FM_TYPE_FOLDER_VIEW, FmFolderView))
+#define FM_FOLDER_VIEW_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass),  FM_TYPE_FOLDER_VIEW, FmFolderViewClass))
+#define IS_FM_FOLDER_VIEW(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), FM_TYPE_FOLDER_VIEW))
+#define IS_FM_FOLDER_VIEW_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass),  FM_TYPE_FOLDER_VIEW))
 
 enum _FmFolderViewMode
 {

@@ -247,7 +247,10 @@ static void fm_folder_view_init (FmFolderView *self)
 /*** GtkWidget *fm_folder_view_new (FmFolderViewMode mode, small_icon_size, big_icon_size, single_click) ***/
 GtkWidget *fm_folder_view_new (FmFolderViewMode mode)
 {
-    FmFolderView *folder_view =  (FmFolderView*) g_object_new (FM_FOLDER_VIEW_TYPE, NULL);
+    
+    printf ("FM_FOLDER_VIEW: fm_folder_view_new: mode = %d\n", mode);
+    
+    FmFolderView *folder_view =  (FmFolderView*) g_object_new (FM_TYPE_FOLDER_VIEW, NULL);
     
     fm_folder_view_set_mode (folder_view, mode);
     
@@ -295,6 +298,7 @@ static void fm_folder_view_finalize (GObject *object)
 
 void fm_folder_view_set_mode (FmFolderView *folder_view, FmFolderViewMode mode)
 {
+    printf ("FM_FOLDER_VIEW: fm_folder_view_set_mode: mode = %d\n", mode);
     if (mode == folder_view->mode)
         return;
     

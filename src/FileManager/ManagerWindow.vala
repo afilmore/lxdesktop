@@ -372,6 +372,7 @@ namespace Manager {
             
                 // Create The Folder View...
                 view = _container_view.new_tab (ViewType.FOLDER);
+//~                 Manager.FolderView? folder_view = (Manager.FolderView) view;
                 Fm.FolderView? folder_view = (Fm.FolderView) view;
                 folder_view.clicked.connect (_folder_view_on_file_clicked);
                 
@@ -515,6 +516,7 @@ namespace Manager {
             
             if (caller != DirChangeCaller.FOLDER_VIEW) {
                 
+//~                 Manager.FolderView? folder_view = _container_view.get_folder_view ();
                 Fm.FolderView? folder_view = _container_view.get_folder_view ();
                 
                 if (folder_view != null)
@@ -706,6 +708,7 @@ namespace Manager {
                             _file_popup = new Desktop.FilePopup ();
                         
                         
+//~                         Manager.FolderView? folder_view = _container_view.get_folder_view ();
                         Fm.FolderView? folder_view = _container_view.get_folder_view ();
                         
                         if (folder_view == null)

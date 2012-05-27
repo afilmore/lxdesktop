@@ -124,7 +124,10 @@ namespace Fm {
 	[CCode (cheader_filename = "gtk/fm-folder-view.h")]
 	public class FolderView : Gtk.ScrolledWindow, Atk.Implementor, Gtk.Buildable {
 
-		[CCode (has_construct_function = false, type = "GtkWidget*")]
+		public Fm.FolderViewMode   mode;
+        
+        
+        [CCode (has_construct_function = false, cname = "fm_folder_view_new",  type = "GtkWidget*")]
 		public FolderView (int mode);
 		
         public void set_mode (int mode);

@@ -13,13 +13,15 @@
  * 
  *  
  **********************************************************************************************************************/
+namespace Manager {
 
+    public interface BaseView : Gtk.Widget {
 
-public interface BaseView : Gtk.Widget {
-
-    public abstract bool create ();
-    
-    public static Type register_type () {return typeof (BaseView);}
-    
+        public abstract bool create ();
+        
+        public static Type register_type () {return typeof (BaseView);}
+        
+    }
 }
+
 
