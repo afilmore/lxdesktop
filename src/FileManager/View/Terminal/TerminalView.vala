@@ -17,7 +17,7 @@ namespace Manager {
 
     public class TerminalView : Gtk.Grid, BaseView {
         
-        public TerminalView (Gtk.Notebook parent, string dir) {
+        public TerminalView (Gtk.Notebook parent, string directory) {
             
             Terminal.Widget terminal_widget = new Terminal.Widget ();
             terminal_widget.scrollback_lines = -1;
@@ -32,7 +32,7 @@ namespace Manager {
             terminal_widget.hexpand = true;
 
             // Set up the virtual terminal
-            terminal_widget.active_shell (dir);
+            terminal_widget.active_shell (directory);
             
             // Set up actions releated to the terminal
             // main_actions.get_action ("Copy").set_sensitive (terminal_widget.get_has_selection ());

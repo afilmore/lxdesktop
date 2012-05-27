@@ -30,18 +30,21 @@ namespace Manager {
             Manager.FolderView.register_type ();
         }
         
-        public Gtk.Widget? new_tab (Manager.ViewType type, string dir = GLib.Environment.get_current_dir ()) {
+        public Gtk.Widget? new_tab (Manager.ViewType type, string directory = GLib.Environment.get_current_dir ()) {
             
             if (type == Manager.ViewType.FOLDER) {
             
                 // Create The Folder View...
-                Manager.FolderView folder_view = new Manager.FolderView ();
+                Manager.FolderView folder_view = new Manager.FolderView (this, directory);
+                
+                
+/* --------------------------------------------------------------------------------------------------------------------
                 folder_view.set_show_hidden (true);
                 folder_view.sort (Gtk.SortType.ASCENDING, Fm.FileColumn.NAME);
                 folder_view.set_selection_mode (Gtk.SelectionMode.MULTIPLE);
                 
                 // Create A New Notebook Page...
-                Manager.ViewTab view_tab = new Manager.ViewTab (dir);
+                Manager.ViewTab view_tab = new Manager.ViewTab (directory);
                 
                 int new_page = this.get_current_page () + 1;
                 this.insert_page (folder_view, view_tab, new_page);
@@ -56,11 +59,12 @@ namespace Manager {
                 // ???
                 folder_view.grab_focus ();
                 
-                folder_view.chdir (new Fm.Path.for_str (dir));
+                folder_view.chdir (new Fm.Path.for_str (directory));
                 folder_view.show_all ();
                 
                 this.page = new_page;
                 
+ -------------------------------------------------------------------------------------------------------------------- */
                 return folder_view;
             
             
@@ -69,7 +73,7 @@ namespace Manager {
                 // TODO_axl: create a terminal view object ???
                 
                 // The Container Widget...
-                Manager.TerminalView terminal_grid = new Manager.TerminalView (this, dir);
+                Manager.TerminalView terminal_grid = new Manager.TerminalView (this, directory);
                 
                 
                 
@@ -94,7 +98,7 @@ namespace Manager {
                 terminal_widget.hexpand = true;
 
                 // Set up the virtual terminal
-                terminal_widget.active_shell (dir);
+                terminal_widget.active_shell (directory);
                 
                 // Set up actions releated to the terminal
                 // main_actions.get_action ("Copy").set_sensitive (terminal_widget.get_has_selection ());
