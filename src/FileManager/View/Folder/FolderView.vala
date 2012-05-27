@@ -17,26 +17,15 @@ namespace Manager {
 
     public class FolderView : Fm.FolderView, BaseView {
 
-        construct {
-            
-            //stdout.printf ("Manager.FolderView construct \n");
-            //base.mode = Fm.FolderViewMode.LIST_VIEW;
-            //base.new (Fm.FolderViewMode.LIST_VIEW);
-            
-            //Object ();
-            //base (Fm.FolderViewMode.LIST_VIEW);
-        
-        }
-        
         public FolderView () {
             
-            stdout.printf ("Manager.FolderView constructor \n");
+            Object ();
             
-            //Object (mode: Fm.FolderViewMode.LIST_VIEW);
+            base.set_mode (Fm.FolderViewMode.LIST_VIEW);
             
-            //base (Fm.FolderViewMode.LIST_VIEW);
-            
-            base.new (Fm.FolderViewMode.LIST_VIEW);
+            base.small_icon_size =  16;
+            base.big_icon_size =    36;
+            base.single_click =     false;
         }
         
         public bool create () {

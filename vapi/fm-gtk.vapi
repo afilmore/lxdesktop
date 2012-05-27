@@ -124,7 +124,12 @@ namespace Fm {
 	[CCode (cheader_filename = "gtk/fm-folder-view.h")]
 	public class FolderView : Gtk.ScrolledWindow, Atk.Implementor, Gtk.Buildable {
 
-		public Fm.FolderViewMode   mode;
+		public Fm.FolderViewMode    mode;
+        
+        // Should be private with accessor functions... this is needed to create a derived class...
+        public uint                 small_icon_size;
+        public uint                 big_icon_size;
+        public bool                 single_click;
         
         
         [CCode (has_construct_function = false, cname = "fm_folder_view_new",  type = "GtkWidget*")]

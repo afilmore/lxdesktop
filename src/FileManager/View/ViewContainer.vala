@@ -27,7 +27,7 @@ namespace Manager {
             this.can_focus = false;
             this.set_group_name ("File Manager");
             
-            //Manager.FolderView.register_type ();
+            Manager.FolderView.register_type ();
         }
         
         public Gtk.Widget? new_tab (Manager.ViewType type, string dir = GLib.Environment.get_current_dir ()) {
@@ -35,9 +35,7 @@ namespace Manager {
             if (type == Manager.ViewType.FOLDER) {
             
                 // Create The Folder View...
-//~                 Manager.FolderView folder_view = new Manager.FolderView ();
-//                Manager.FolderView folder_view = new Manager.FolderView (Fm.FolderViewMode.LIST_VIEW);
-                Fm.FolderView folder_view = new Fm.FolderView (Fm.FolderViewMode.LIST_VIEW);
+                Manager.FolderView folder_view = new Manager.FolderView ();
                 folder_view.set_show_hidden (true);
                 folder_view.sort (Gtk.SortType.ASCENDING, Fm.FileColumn.NAME);
                 folder_view.set_selection_mode (Gtk.SelectionMode.MULTIPLE);
@@ -198,7 +196,7 @@ namespace Manager {
             return this.get_nth_page (this.page);
         }
         
-        /**public Manager.FolderView? get_folder_view () {
+        public Manager.FolderView? get_folder_view () {
             
             Gtk.Widget? current = this.get_current_view ();
             
@@ -222,38 +220,6 @@ namespace Manager {
             //stdout.printf ("object type: %s\n", current.get_type ().name ());
             
             Manager.FolderView? folder_view = this.get_folder_view ();
-            
-            if (folder_view == null)
-                return new Fm.Path.for_str ("");
-            
-            return folder_view.get_cwd ();
-            
-        }**/
-        
-        public Fm.FolderView? get_folder_view () {
-            
-            Gtk.Widget? current = this.get_current_view ();
-            
-            if (current == null)
-                return null;
-                
-            string object_type = current.get_type ().name ();
-            
-            if (object_type == "FmFolderView")
-                return (Fm.FolderView) current;
-            else
-                return null;
-        }
-        
-        public Fm.Path get_cwd () {
-            
-            Gtk.Widget? current = this.get_current_view ();
-            if (current == null)
-                return new Fm.Path.for_str ("");
-                
-            //stdout.printf ("object type: %s\n", current.get_type ().name ());
-            
-            Fm.FolderView? folder_view = this.get_folder_view ();
             
             if (folder_view == null)
                 return new Fm.Path.for_str ("");

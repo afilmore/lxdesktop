@@ -298,7 +298,6 @@ static void fm_folder_view_finalize (GObject *object)
 
 void fm_folder_view_set_mode (FmFolderView *folder_view, FmFolderViewMode mode)
 {
-    printf ("FM_FOLDER_VIEW: fm_folder_view_set_mode: mode = %d\n", mode);
     if (mode == folder_view->mode)
         return;
     
