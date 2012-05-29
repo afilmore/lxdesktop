@@ -145,11 +145,6 @@ static void fm_dir_tree_view_finalize (GObject *object)
  * 
  * 
  ****************************************************************************************/
-FmPath *fm_dir_tree_view_get_current_directory (FmDirTreeView *view)
-{
-    return view->cwd;
-}
-
 void fm_dir_tree_view_set_current_directory (FmDirTreeView *view, FmPath *path)
 {
     GtkTreeIter it;
@@ -181,6 +176,11 @@ void fm_dir_tree_view_set_current_directory (FmDirTreeView *view, FmPath *path)
     }while (path);
 
     expand_pending_path (view, model, NULL);
+}
+
+FmPath *fm_dir_tree_view_get_current_directory (FmDirTreeView *view)
+{
+    return view->cwd;
 }
 
 
