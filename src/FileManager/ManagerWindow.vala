@@ -352,8 +352,6 @@ namespace Manager {
              ****************************************************************************/
             _container_view = new Manager.ViewContainer ();
             
-            _container_view.switch_page.connect (_on_switch_page);
-
             _container_view.page_removed.connect (() => {
                 if (_container_view.get_n_pages () == 0)
                     this.destroy ();
@@ -435,6 +433,8 @@ namespace Manager {
             
             
             this._change_directory (path);
+            _container_view.switch_page.connect (_on_switch_page);
+
             
             this.show_all ();
 
@@ -628,6 +628,8 @@ namespace Manager {
         private void _on_switch_page (Gtk.Widget page, uint n) {
             
             stdout.printf ("ManagerWindow: _on_switch_page page = %u\n", n);
+            
+            _container_view.set_current_directory (_tree_view.get_current_directory ());
             
             //~ current_tab_label = notebook.get_tab_label (page) as TerminalTab;
             //~ current_tab = notebook.get_nth_page ((int) n);

@@ -18,7 +18,6 @@
  **********************************************************************************************************************/
 namespace Manager {
 
-    
     public class ViewContainer : Gtk.Notebook {
 
         public ViewContainer () {
@@ -63,6 +62,17 @@ namespace Manager {
                 return (Manager.FolderView) current;
             else
                 return null;
+        }
+        
+        public void set_current_directory (Fm.Path directory) {
+
+            Manager.FolderView? folder_view = this.get_folder_view ();
+            
+            if (folder_view == null)
+                return;
+            
+            folder_view.chdir (directory);
+            return ;
         }
         
         public Fm.Path get_current_directory () {
