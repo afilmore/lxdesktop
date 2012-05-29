@@ -36,6 +36,8 @@ namespace Manager {
             // Set up actions releated to the terminal...
             // main_actions.get_action ("Copy").set_sensitive (terminal_widget.get_has_selection ());
             
+            
+            
             // Create a new tab with the terminal...
             Manager.ViewTab view_tab = new Manager.ViewTab (_("Terminal"));
             terminal_widget.view_tab = view_tab;
@@ -48,6 +50,9 @@ namespace Manager {
             parent.insert_page (this, view_tab, new_page);
             parent.set_tab_reorderable (parent.get_nth_page (new_page), true);
 
+            
+            
+            
             // Bind signals to the new tab...
             view_tab.clicked.connect (() => {
                 

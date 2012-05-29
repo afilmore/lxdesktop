@@ -511,7 +511,7 @@ namespace Manager {
                 _path_entry.set_path (path);
             
             if (caller != DirChangeCaller.DIR_TREEVIEW)
-                _tree_view.chdir (path);
+                _tree_view.set_current_directory (path);
             
             if (caller != DirChangeCaller.FOLDER_VIEW) {
                 

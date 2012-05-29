@@ -39,7 +39,7 @@ namespace Manager {
             
             } else if (type == Manager.ViewType.TERMINAL) {
                 
-                // The A Terminal View...
+                // Create A Terminal View...
                 return new Manager.TerminalView (this, directory);
             
             } else {

@@ -19,17 +19,13 @@ namespace Manager {
 
         public FolderView (Gtk.Notebook parent, string directory) {
             
-            // -----------------------------------------------------------------
-            // That's the implementation of fm_folder_view_new (mode)...
-            // -----------------------------------------------------------------
-            Object ();
+            // Object ();
             
             base.set_mode (Fm.FolderViewMode.LIST_VIEW);
             
             base.small_icon_size =  16;
             base.big_icon_size =    36;
             base.single_click =     false;
-            // -----------------------------------------------------------------
             
             base.set_show_hidden (true);
             base.sort (Gtk.SortType.ASCENDING, Fm.FileColumn.NAME);

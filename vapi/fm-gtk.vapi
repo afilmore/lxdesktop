@@ -68,6 +68,18 @@ namespace Fm {
      * 
      * 
      ************************************************************************************/
+    [CCode (cheader_filename = "gtk/fm-dir-tree-view.h")]
+	public class DirTreeView : Gtk.TreeView, Atk.Implementor, Gtk.Buildable {
+		
+        [CCode (has_construct_function = false, type = "GObject*")]
+		public                      DirTreeView             ();
+		
+        public void                 set_current_directory   (Fm.Path path);
+		public unowned Fm.Path      get_current_directory   ();
+        
+		public virtual signal void  directory_changed       (uint button, Fm.Path path);
+	}
+    
 	[CCode (cheader_filename = "gtk/fm-dir-tree-model.h")]
 	public class DirTreeModel : GLib.Object, Gtk.TreeModel {
 		
@@ -85,18 +97,6 @@ namespace Fm {
         public void set_icon_size (uint icon_size);
 	}
 	
-    [CCode (cheader_filename = "gtk/fm-dir-tree-view.h")]
-	public class DirTreeView : Gtk.TreeView, Atk.Implementor, Gtk.Buildable {
-		
-        [CCode (has_construct_function = false, type = "GObject*")]
-		public DirTreeView ();
-		
-        public void chdir (Fm.Path path);
-		public unowned Fm.Path get_cwd ();
-        
-		public virtual signal void directory_changed (uint button, Fm.Path path);
-	}
-    
     
     /*************************************************************************************
      * Fm.FolderView

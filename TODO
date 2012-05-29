@@ -67,9 +67,9 @@
     
     -   File Manager
     
-        *   ManagerWindow: Use a BaseView object ???
+        *   [DONE] ManagerWindow: Use a BaseView object...
         
-        *   Terminal: Create a terminal view object ???
+        *   [DONE] Terminal: Create a terminal view object...
         
         *   ManagerWindow: Save restore last directory...
         

@@ -67,11 +67,11 @@ struct _FmDirTreeViewClass
 };
 
 
-GObject     *fm_dir_tree_view_new           ();
-GType       fm_dir_tree_view_get_type       ();
+GObject     *fm_dir_tree_view_new                   ();
+GType       fm_dir_tree_view_get_type               ();
 
-FmPath      *fm_dir_tree_view_get_cwd       (FmDirTreeView *view);
-void        fm_dir_tree_view_chdir          (FmDirTreeView *view, FmPath *path);
+void        fm_dir_tree_view_set_current_directory  (FmDirTreeView *view, FmPath *path);
+FmPath      *fm_dir_tree_view_get_current_directory (FmDirTreeView *view);
 
 
 G_END_DECLS
