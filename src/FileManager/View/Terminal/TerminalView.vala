@@ -37,13 +37,18 @@ namespace Manager {
             // main_actions.get_action ("Copy").set_sensitive (terminal_widget.get_has_selection ());
             
             
-            
-            // Create a new tab with the terminal...
+            /*******************************************************************
+             * Create a new tab...
+             * 
+             * 
+             ******************************************************************/
             Manager.ViewTab view_tab = new Manager.ViewTab (_("Terminal"));
             terminal_widget.view_tab = view_tab;
             
-            // view_tab.scroll_event.connect (on_scroll_event);
-            // view_tab.width_request = 64;
+            /**
+            view_tab.scroll_event.connect (on_scroll_event);
+            view_tab.width_request = 64;
+            **/
             
             int new_page = parent.get_current_page () + 1;
             
@@ -51,9 +56,11 @@ namespace Manager {
             parent.set_tab_reorderable (parent.get_nth_page (new_page), true);
 
             
-            
-            
-            // Bind signals to the new tab...
+            /*******************************************************************
+             * Close signal...
+             * 
+             * 
+             ******************************************************************/
             view_tab.clicked.connect (() => {
                 
                 // It was doing something...
@@ -72,6 +79,12 @@ namespace Manager {
                 
             });
 
+            
+            /*******************************************************************
+             * Directory Changed Signal...
+             * 
+             * 
+             ******************************************************************/
             terminal_widget.window_title_changed.connect (() => {
                 
                 string new_text = terminal_widget.get_window_title ();
@@ -91,6 +104,12 @@ namespace Manager {
                 view_tab.set_text (new_text);
             });
             
+            
+            /*******************************************************************
+             * ...
+             * 
+             * 
+             ******************************************************************/
             terminal_widget.selection_changed.connect (() => {
                 //~ main_actions.get_action("Copy").set_sensitive (terminal_widget.get_has_selection ());
             });
@@ -102,12 +121,15 @@ namespace Manager {
                 parent.remove (this);
             });
             
+            
+            /*******************************************************************
+             * ...
+             * 
+             * 
+             ******************************************************************/
             terminal_widget.grab_focus ();
-            
             this.show_all ();
-            
             parent.page = new_page;
-            
         }
         
         public static Type register_type () {return typeof (Manager.TerminalView);}

@@ -362,6 +362,20 @@ namespace Manager {
             _hpaned.add2 (_container_view);
             
             
+            
+            
+            
+            // TODO_axl: get last directory here... :-P
+            Fm.Path path;
+            if (files[0] != "")
+                path = new Fm.Path.for_str (files[0]);
+            else
+                path = Fm.Path.get_desktop ();
+            
+            
+            
+            
+            
             /*****************************************************************************
              * Create Folder/Terminal View...
              * 
@@ -371,7 +385,7 @@ namespace Manager {
             if (view_type == Manager.ViewType.FOLDER) {
             
                 // Create The Folder View...
-                view = _container_view.new_tab (ViewType.FOLDER);
+                view = _container_view.new_tab (ViewType.FOLDER, files[0]);
                 Manager.FolderView? folder_view = (Manager.FolderView) view;
                 folder_view.clicked.connect (_folder_view_on_file_clicked);
                 
@@ -417,13 +431,6 @@ namespace Manager {
             
             view.grab_focus ();
             
-            
-            // TODO_axl: get last directory here... :-P
-            Fm.Path path;
-            if (files[0] != "")
-                path = new Fm.Path.for_str (files[0]);
-            else
-                path = Fm.Path.get_desktop ();
             
             
             
