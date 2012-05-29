@@ -44,15 +44,15 @@ static guint signals[N_SIGNALS];
 
 
 // Forward declarations...
-static void fm_dir_tree_view_finalize             (GObject *object);
-static void on_folder_loaded (FmFolder *folder, FmDirTreeView *view);
-static void expand_pending_path (FmDirTreeView *view, GtkTreeModel *model, GtkTreeIter *parent_iter);
-static void cancel_pending_chdir (FmDirTreeView *view);
-static void on_sel_changed (GtkTreeSelection *tree_sel, FmDirTreeView *view);
-static gboolean on_test_expand_row (GtkTreeView *tree_view, GtkTreeIter *iter, GtkTreePath *path);
-static gboolean on_key_press_event (GtkWidget *widget, GdkEventKey *evt);
-static void on_row_collapsed (GtkTreeView *tree_view, GtkTreeIter *iter, GtkTreePath *path);
-static void on_row_activated (GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *col);
+static void fm_dir_tree_view_finalize   (GObject *object);
+static void on_folder_loaded            (FmFolder *folder, FmDirTreeView *view);
+static void expand_pending_path         (FmDirTreeView *view, GtkTreeModel *model, GtkTreeIter *parent_iter);
+static void cancel_pending_chdir        (FmDirTreeView *view);
+static void on_sel_changed              (GtkTreeSelection *tree_sel, FmDirTreeView *view);
+static gboolean on_test_expand_row      (GtkTreeView *tree_view, GtkTreeIter *iter, GtkTreePath *path);
+static gboolean on_key_press_event      (GtkWidget *widget, GdkEventKey *evt);
+static void on_row_collapsed            (GtkTreeView *tree_view, GtkTreeIter *iter, GtkTreePath *path);
+static void on_row_activated            (GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *col);
 
 
 
