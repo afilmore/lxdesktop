@@ -192,8 +192,11 @@ namespace Manager {
             
             string filename = val.get_string ();
             
-            AppInfo app = AppInfo.create_from_commandline (@"xdg-open '$filename'", null, 0);
-            app.launch (null, null);
+            //AppInfo app = AppInfo.create_from_commandline (@"xdg-open '$filename'", null, 0);
+            //app.launch (null, null);
+            
+            Fm.FileInfo file_info = new Fm.FileInfo.for_path (new Fm.Path.for_str (filename));
+            Fm.launch_file ((Gtk.Window) this, null, file_info, null);
         }
         
         public new static GLib.Type register_type () {return typeof (SearchView);}

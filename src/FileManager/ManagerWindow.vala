@@ -726,6 +726,8 @@ namespace Manager {
                     
                     string? target = fi.get_target ();
                     
+                    // TODO_axl: create a global_app.launchfile () ???
+                    
                     // A directory...
                     if (fi.is_dir ()) {
                         
