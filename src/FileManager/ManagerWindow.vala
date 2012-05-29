@@ -642,6 +642,8 @@ namespace Manager {
             
             Manager.FolderView? folder_view = current as Manager.FolderView;
             
+            //_container_view.page = (int) n;
+            
             _tree_view.set_current_directory (folder_view.get_cwd ());
             
             //_container_view.set_current_directory (_tree_view.get_current_directory ());
