@@ -128,7 +128,7 @@ namespace Manager {
         private uint                    _statusbar_ctx;
         private uint                    _statusbar_ctx2;
         
-        
+        private bool                    _block_folder_view_change_dir = false;
         // File Popup...
         // TODO_axl: do this a better way...
         private Desktop.FilePopup?      _file_popup;        
@@ -522,10 +522,12 @@ namespace Manager {
             
             if (caller != DirChangeCaller.FOLDER_VIEW) {
                 
-                Manager.FolderView? folder_view = _container_view.get_folder_view ();
+                if (!_block_folder_view_change_dir) {
+                    Manager.FolderView? folder_view = _container_view.get_folder_view ();
                 
-                if (folder_view != null)
-                    folder_view.chdir (path);
+                    if (folder_view != null)
+                        folder_view.chdir (path);
+                }
             }
             
             /***
@@ -644,7 +646,9 @@ namespace Manager {
             
             //_container_view.page = (int) n;
             
+            _block_folder_view_change_dir = true;
             _tree_view.set_current_directory (folder_view.get_cwd ());
+            _block_folder_view_change_dir = false;
             
             //_container_view.set_current_directory (_tree_view.get_current_directory ());
             
