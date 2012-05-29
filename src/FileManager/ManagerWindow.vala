@@ -604,7 +604,7 @@ namespace Manager {
             Fm.FileInfoList<Fm.FileInfo> files = new Fm.FileInfoList<Fm.FileInfo> ();
             files.push_tail (file_info);
             
-            Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _container_view.get_cwd (), files);
+            Gtk.Menu menu = _file_popup.get_menu ((Gtk.Widget) this, _tree_view.get_current_directory (), files);
             
             if (menu != null)
                 menu.popup (null, null, null, 3, Gtk.get_current_event_time ());
