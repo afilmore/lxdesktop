@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  *      
- *      SearchView.vala
+ *      FmSearchView.vala
  * 
  *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  * 
@@ -16,28 +16,30 @@
 namespace Manager {
 
     
-    enum Column {
-        COL_FILE_GICON = 0,
-        COL_FILE_ICON,
-        COL_FILE_NAME,
-        COL_FILE_SIZE,
-        COL_FILE_DESC,
-        COL_FILE_PERM,
-        COL_FILE_OWNER,
-        COL_FILE_MTIME,
-        COL_FILE_INFO,
-        N_FOLDER_MODEL_COLS
-    }
+//~     enum Column {
+//~         COL_FILE_GICON = 0,
+//~         COL_FILE_ICON,
+//~         COL_FILE_NAME,
+//~         COL_FILE_SIZE,
+//~         COL_FILE_DESC,
+//~         COL_FILE_PERM,
+//~         COL_FILE_OWNER,
+//~         COL_FILE_MTIME,
+//~         COL_FILE_INFO,
+//~         N_FOLDER_MODEL_COLS
+//~     }
         
 
-    public class SearchView : Gtk.ScrolledWindow, BaseView {
+    public class FmSearchView : Gtk.ScrolledWindow, BaseView {
         
-        protected Gtk.TreeView  _tree_view;
-        protected Gtk.ListStore _model;
-        private string          _directory;
-        private string          _expression;
+        private string              _directory;
+        private string              _expression;
         
-        public SearchView (Gtk.Notebook parent, string directory, string expression) {
+        protected Gtk.TreeView      _tree_view;
+        protected Fm.FolderModel    _folder_model;
+        
+        
+        public FmSearchView (Gtk.Notebook parent, string directory, string expression) {
             
             Object (hadjustment: null, vadjustment: null);
             
@@ -45,20 +47,26 @@ namespace Manager {
             _expression = expression;
             
             this._tree_view = new Gtk.TreeView ();
-            this._model = new Gtk.ListStore (
-                                                Column.N_FOLDER_MODEL_COLS,
-                                                typeof (string),
-                                                typeof (string),
-                                                typeof (string),
-                                                typeof (string),
-                                                typeof (string),
-                                                typeof (string),
-                                                typeof (string),
-                                                typeof (string),
-                                                typeof (string)
-                                            );
             
-            _tree_view.set_model (_model);
+            _folder_model = new Fm.FolderModel (Fm.Folder.get (new Fm.Path.for_str ("search://")), false);
+                
+            _folder_model.set_icon_size (22);
+            //_folder_model.loaded.connect (_on_model_loaded);
+        
+//~             this._folder_model = new Gtk.ListStore (
+//~                                                 Column.N_FOLDER_MODEL_COLS,
+//~                                                 typeof (string),
+//~                                                 typeof (string),
+//~                                                 typeof (string),
+//~                                                 typeof (string),
+//~                                                 typeof (string),
+//~                                                 typeof (string),
+//~                                                 typeof (string),
+//~                                                 typeof (string),
+//~                                                 typeof (string)
+//~                                             );
+            
+            _tree_view.set_model (_folder_model);
 
             _tree_view.set_rules_hint (true);
             
@@ -174,8 +182,8 @@ namespace Manager {
                 
                 foreach (string row in output.split ("\n")) {
                     if (row != "") {
-                        _model.append (out iter);
-                        _model.set (iter, Column.COL_FILE_NAME, row);
+                        //_folder_model.append (out iter);
+                        //_folder_model.set (iter, Column.COL_FILE_NAME, row);
                     }
                 }
             }
@@ -186,9 +194,9 @@ namespace Manager {
         public void on_tree_clicked (Gtk.TreeView widget, Gtk.TreePath path, Gtk.TreeViewColumn column) {
             
             Gtk.TreeIter iter;
-            _model.get_iter (out iter, path);
+            _folder_model.get_iter (out iter, path);
             Value val;
-            _model.get_value (iter, Column.COL_FILE_NAME, out val);
+            _folder_model.get_value (iter, Column.COL_FILE_NAME, out val);
             
             string filename = val.get_string ();
             
@@ -199,7 +207,7 @@ namespace Manager {
             Fm.launch_file ((Gtk.Window) this, null, file_info, null);
         }
         
-        public new static GLib.Type register_type () {return typeof (SearchView);}
+        public new static GLib.Type register_type () {return typeof (FmSearchView);}
     }
 }
 
