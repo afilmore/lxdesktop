@@ -48,7 +48,8 @@ namespace Manager {
             
             this._tree_view = new Gtk.TreeView ();
             
-            _folder_model = new Fm.FolderModel (Fm.Folder.get (new Fm.Path.for_str ("search://")), false);
+            _folder_model = new Fm.FolderModel (Fm.Folder.get (new Fm.Path.for_str ("/")), false);
+            //_folder_model = new Fm.FolderModel (Fm.Folder.get (new Fm.Path.for_str ("search://")), false);
                 
             _folder_model.set_icon_size (22);
             //_folder_model.loaded.connect (_on_model_loaded);

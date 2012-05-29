@@ -697,8 +697,9 @@ gboolean fm_folder_view_chdir (FmFolderView *folder_view, FmPath *path)
             
             g_signal_handlers_disconnect_by_func (model, on_sort_col_changed, folder_view);
             
-            if (model->dir)
-                g_signal_handlers_disconnect_by_func (model->dir, on_folder_err, folder_view);
+            // TODO_axl: use an accessor function...
+            if (model->directory)
+                g_signal_handlers_disconnect_by_func (model->directory, on_folder_err, folder_view);
             
             g_object_unref (model);
             folder_view->model = NULL;
@@ -754,7 +755,8 @@ FmPath *fm_folder_view_get_cwd (FmFolderView *folder_view)
 
 FmFileInfo *fm_folder_view_get_cwd_info (FmFolderView *folder_view)
 {
-    return FM_FOLDER_MODEL (folder_view->model)->dir->dir_fi;
+    // TODO_axl: use an accessor function...
+    return FM_FOLDER_MODEL (folder_view->model)->directory->dir_fi;
 }
 
 
@@ -1156,8 +1158,9 @@ static gboolean on_drag_motion (GtkWidget *dest_widget,
             // FIXME_pcm: prevent direct access to data members.
             FmFolderModel *model =  (FmFolderModel*)folder_view->model;
             
-//            FmPath *dir_path =  model->dir->dir_path;
-            fm_dnd_dest_set_dest_file (folder_view->dnd_dest, model->dir->dir_fi);
+            // TODO_axl: use an accessor function...
+//            FmPath *dir_path =  model->directory->dir_path;
+            fm_dnd_dest_set_dest_file (folder_view->dnd_dest, model->directory->dir_fi);
         }
         action = fm_dnd_dest_get_default_action (folder_view->dnd_dest, drag_context, target);
         ret = action != 0;
@@ -1437,11 +1440,12 @@ static void on_loaded (FmFolderView *folder_view, FmPath *dir_path)
 
 static void on_model_loaded (FmFolderModel *model, FmFolderView *folder_view)
 {
-    FmFolder *folder = model->dir;
+    // TODO_axl: use an accessor function...
+    FmFolder *folder = model->directory;
 
     // FIXME_pcm: prevent direct access to data members
     
-    g_signal_emit (folder_view, signals[LOADED], 0, folder->dir_path);
+    g_signal_emit (folder_view, signals [LOADED], 0, folder->dir_path);
 }
 
 
