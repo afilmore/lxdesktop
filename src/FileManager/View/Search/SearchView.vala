@@ -33,10 +33,15 @@ namespace Manager {
         
         protected Gtk.TreeView  _view;
         protected Gtk.ListStore _model;
+        private string          _directory;
+        private string          _expression;
         
-        public SearchView () {
+        public SearchView (Gtk.Notebook parent, string directory, string expression) {
             
             Object (hadjustment: null, vadjustment: null);
+            
+            _directory = directory;
+            _expression = expression;
             
             this._view = new Gtk.TreeView ();
             this._model = new Gtk.ListStore (
@@ -84,23 +89,52 @@ namespace Manager {
             _view.set_rubber_banding (true);
 
             this.set_policy (Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
+            
             this.add (this._view);
-            this.show_all ();
+            
+            
+            /*******************************************************************
+             * Create a new tab...
+             * 
+             * 
+             ******************************************************************/
+            Manager.ViewTab view_tab = new Manager.ViewTab ("Search...");
+            
+            /**
+            view_tab.scroll_event.connect (on_scroll_event);
+            view_tab.width_request = 64;
+            **/
+            
+            int new_page = parent.get_current_page () + 1;
+            
+            parent.insert_page (this, view_tab, new_page);
+            parent.set_tab_reorderable (parent.get_nth_page (new_page), true);
 
+            /*******************************************************************
+             * Close signal...
+             * 
+             * 
+             ******************************************************************/
+            view_tab.clicked.connect (() => {
+                parent.remove (base);
+            });
+
+            
             _view.row_activated.connect(on_tree_clicked);
+
+            
+            _view.grab_focus ();
+            this.show_all ();
+            parent.page = new_page;
+            
+            this._search ();
+
         }
         
-        public bool create () {
-            return true;
-        }
-        
-        public void search (string directory, string expression) {
+        private void _search () {
             
-            stdout.printf ("search\n");
+            //stdout.printf ("search\n");
             
-            string root_dir = "/home/hotnuma";
-            
-            // create the output view
             Gtk.TreeIter iter;
             
             string output;
@@ -109,7 +143,7 @@ namespace Manager {
             
             try {
                 stdout.printf ("run\n");
-                Process.spawn_sync("/", {"find", root_dir, "-name", expression}, {}, SpawnFlags.SEARCH_PATH, null, out output, out errors, out exit);
+                Process.spawn_sync("/", {"find", _directory, "-name", _expression}, {}, SpawnFlags.SEARCH_PATH, null, out output, out errors, out exit);
             } catch (Error e) {
                 stdout.printf ("errors\n");
                 exit = 1;

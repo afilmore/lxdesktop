@@ -118,6 +118,7 @@ namespace Manager {
         private Gtk.UIManager           _ui_manager;
         private Gtk.Toolbar             _toolbar;
         private Fm.PathEntry            _path_entry;
+        private Gtk.Entry               _search_entry;
         private Gtk.HPaned              _hpaned;
         private Fm.DirTreeView          _tree_view;
         
@@ -244,8 +245,23 @@ namespace Manager {
             toolitem.add (_path_entry);
             toolitem.set_expand (true);
             
+            
             //_toolbar.insert (toolitem, _toolbar.get_n_items () - 1);
-            _toolbar.insert (toolitem, 1);
+            _toolbar.insert (toolitem, -1);
+            
+            
+            
+            _search_entry = new Gtk.Entry ();
+            _search_entry.set_placeholder_text("Search for ...");
+            toolitem = new Gtk.ToolItem ();
+            toolitem.add (_search_entry);
+            toolitem.set_expand (false);
+            
+            //_toolbar.insert (toolitem, _toolbar.get_n_items () - 1);
+            _toolbar.insert (toolitem, -1);
+
+            
+            
             
 
             /*****************************************************************************
@@ -344,6 +360,17 @@ namespace Manager {
             _tree_view.button_release_event.connect (_tree_view_on_button_release);
             
             
+
+            _search_entry.activate.connect( () => {
+                
+                Desktop.global_app.search (_tree_view.get_current_directory ().to_str (), _search_entry.get_text ());
+            });
+        
+
+
+
+
+
             /*****************************************************************************
              * Create the ViewContainer Notebook, connect the signals and add it to
              * the Gtk.Paned...

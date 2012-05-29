@@ -24,7 +24,7 @@ namespace Manager {
         NONE,
         FOLDER,
         TERMINAL,
-        SEARCH_RESULT
+        SEARCH
     }
     
     
@@ -69,6 +69,26 @@ namespace Manager {
             }
             
             this.new_manager_window (view_type, folders);
+            
+            return true;
+        }
+        
+        public bool new_search_tab (string directory, string expression) {
+            
+            List<weak Gtk.Window>? _window_list = _wingroup.list_windows ();
+            
+            if (_window_list != null) {
+            
+                foreach (Gtk.Window wnd in _window_list) {
+                
+                     unowned Manager.Window? manager = wnd as Manager.Window;
+                     manager.get_view ().new_tab (Manager.ViewType.SEARCH, directory, expression);
+                     manager.present ();
+                     return true;
+                }
+            }
+            
+            //this.new_manager_window (Manager.ViewType.SEARCH, directory, expression);
             
             return true;
         }

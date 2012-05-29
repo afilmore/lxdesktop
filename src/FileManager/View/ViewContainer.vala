@@ -29,7 +29,9 @@ namespace Manager {
             Manager.FolderView.register_type ();
         }
         
-        public Gtk.Widget? new_tab (Manager.ViewType type, string directory = GLib.Environment.get_current_dir ()) {
+        public Gtk.Widget? new_tab (Manager.ViewType type,
+                                    string directory = GLib.Environment.get_current_dir (),
+                                    string expression = "") {
             
             if (type == Manager.ViewType.FOLDER) {
             
@@ -40,6 +42,11 @@ namespace Manager {
                 
                 // Create A Terminal View...
                 return new Manager.TerminalView (this, directory);
+            
+            } else if (type == Manager.ViewType.SEARCH) {
+                
+                // Create A Search View...
+                return new Manager.SearchView (this, directory, expression);
             
             } else {
             

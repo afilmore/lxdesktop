@@ -246,6 +246,11 @@ namespace Desktop {
             return true;
         }
         
+        public void search (string directory, string expression) {
+            
+            _manager_group.new_search_tab (directory, expression);
+        }
+    
         
         /*********************************************************************************
          * Application's entry point.
