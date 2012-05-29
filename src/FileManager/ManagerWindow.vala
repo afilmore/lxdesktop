@@ -456,7 +456,7 @@ namespace Manager {
 
         private void _action_go_up (Gtk.Action act) {
 
-            Fm.Path parent = _container_view.get_cwd ().get_parent ();
+            Fm.Path parent = _container_view.get_current_directory ().get_parent ();
             
             if (parent != null)
                 this._change_directory (parent);

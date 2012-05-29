@@ -50,19 +50,9 @@ namespace Manager {
             return null;
         }
         
-
-
-        
-        
-        // TODO_axl: review these...
-        public Gtk.Widget? get_current_view () {
-            
-            return this.get_nth_page (this.page);
-        }
-        
         public Manager.FolderView? get_folder_view () {
             
-            Gtk.Widget? current = this.get_current_view ();
+            Gtk.Widget? current = this.get_nth_page (this.page);
             
             if (current == null)
                 return null;
@@ -75,21 +65,14 @@ namespace Manager {
                 return null;
         }
         
-        public Fm.Path get_cwd () {
-            
-            Gtk.Widget? current = this.get_current_view ();
-            if (current == null)
-                return new Fm.Path.for_str ("");
-                
-            //stdout.printf ("object type: %s\n", current.get_type ().name ());
-            
+        public Fm.Path get_current_directory () {
+
             Manager.FolderView? folder_view = this.get_folder_view ();
             
             if (folder_view == null)
                 return new Fm.Path.for_str ("");
             
             return folder_view.get_cwd ();
-            
         }
     }
 }
