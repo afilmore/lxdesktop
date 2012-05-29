@@ -51,7 +51,8 @@ namespace Manager {
         
         public Manager.FolderView? get_folder_view () {
             
-            Gtk.Widget? current = this.get_nth_page (this.page);
+            //Gtk.Widget? current = this.get_nth_page (this.page);
+            Gtk.Widget? current = this.get_nth_page (this.get_current_page ());
             
             if (current == null)
                 return null;

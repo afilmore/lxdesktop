@@ -627,9 +627,24 @@ namespace Manager {
          ********************************************************************************/
         private void _on_switch_page (Gtk.Widget page, uint n) {
             
-            stdout.printf ("ManagerWindow: _on_switch_page page = %u\n", n);
+            stdout.printf ("ManagerWindow: _on_switch_page page = %u current_page = %u\n", n, _container_view.get_current_page ());
             
-            _container_view.set_current_directory (_tree_view.get_current_directory ());
+            //Gtk.Widget? current = this.get_nth_page (this.page);
+            Gtk.Widget? current = _container_view.get_nth_page ((int) n);
+            
+            if (current == null)
+                return;
+                
+            string object_type = current.get_type ().name ();
+            
+            if (object_type != "ManagerFolderView")
+                return;
+            
+            Manager.FolderView? folder_view = current as Manager.FolderView;
+            
+            _tree_view.set_current_directory (folder_view.get_cwd ());
+            
+            //_container_view.set_current_directory (_tree_view.get_current_directory ());
             
             //~ current_tab_label = notebook.get_tab_label (page) as TerminalTab;
             //~ current_tab = notebook.get_nth_page ((int) n);
