@@ -204,7 +204,15 @@ namespace Manager {
             //AppInfo app = AppInfo.create_from_commandline (@"xdg-open '$filename'", null, 0);
             //app.launch (null, null);
             
-            Fm.FileInfo file_info = new Fm.FileInfo.for_path (new Fm.Path.for_str (filename));
+            //Fm.PathList path_list = new Fm.PathList ();
+            //path_list.push_tail_noref (new Fm.Path.for_str (filename));
+            Fm.FileInfoJob job = new Fm.FileInfoJob (null, 0);
+            job.add (new Fm.Path.for_str (filename));
+            job.run_sync ();
+            
+            Fm.FileInfoList<Fm.FileInfo>? file_info_list = job.file_infos;
+            Fm.FileInfo? file_info = file_info_list.peek_head ();
+            //Fm.FileInfo file_info = new Fm.FileInfo.for_path (new Fm.Path.for_str (filename));
             Fm.launch_file ((Gtk.Window) this, null, file_info, null);
         }
         

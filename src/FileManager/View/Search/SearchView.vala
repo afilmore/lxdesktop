@@ -37,9 +37,13 @@ namespace Manager {
         private string          _directory;
         private string          _expression;
         
+        Fm.FileInfoList<Fm.FileInfo>? _file_info_list;
+        
         public SearchView (Gtk.Notebook parent, string directory, string expression) {
             
             Object (hadjustment: null, vadjustment: null);
+            
+            _file_info_list = new Fm.FileInfoList<Fm.FileInfo> ();
             
             _directory = directory;
             _expression = expression;
@@ -55,7 +59,7 @@ namespace Manager {
                                                 typeof (string),
                                                 typeof (string),
                                                 typeof (string),
-                                                typeof (string)
+                                                typeof (void*)
                                             );
             
             _tree_view.set_model (_model);
@@ -174,8 +178,26 @@ namespace Manager {
                 
                 foreach (string row in output.split ("\n")) {
                     if (row != "") {
+
+                        // TODO_axl: need to find a better way to get a FileInfo, that's way complicated...
+                        Fm.FileInfoJob job = new Fm.FileInfoJob (null, 0);
+                        job.add (new Fm.Path.for_str (row));
+                        job.run_sync ();
+                        
+                        Fm.FileInfoList<Fm.FileInfo>? file_info_list = job.file_infos;
+                        
+                        Fm.FileInfo? file_info = file_info_list.pop_head ();
+                        _file_info_list.push_head (file_info);
                         _model.append (out iter);
-                        _model.set (iter, Column.COL_FILE_NAME, row);
+                        
+                        
+                        _model.set (iter,
+                                    Column.COL_FILE_INFO, file_info,
+                                    Column.COL_FILE_NAME, file_info.get_disp_name (),
+                                    Column.COL_FILE_DESC, file_info.get_desc ()
+                                    );
+                        
+                        //iter.user_data = file_info;
                     }
                 }
             }
@@ -187,15 +209,30 @@ namespace Manager {
             
             Gtk.TreeIter iter;
             _model.get_iter (out iter, path);
-            Value val;
-            _model.get_value (iter, Column.COL_FILE_NAME, out val);
             
-            string filename = val.get_string ();
+            Value gvalue;
+            _model.get_value (iter, Column.COL_FILE_INFO, out gvalue);
             
-            //AppInfo app = AppInfo.create_from_commandline (@"xdg-open '$filename'", null, 0);
-            //app.launch (null, null);
+//~             Fm.FileInfo? file_info = (Fm.FileInfo) iter.user_data;
+            Fm.FileInfo? file_info = (Fm.FileInfo) gvalue.get_pointer ();
+//~             Fm.FileInfo? file_info = (Fm.FileInfo) gvalue.peek_pointer ();
+//~             Fm.FileInfo? file_info = (Fm.FileInfo) gvalue.get_object ();
+//~             Fm.FileInfo? file_info = (Fm.FileInfo) gvalue.get_boxed ();
             
-            Fm.FileInfo file_info = new Fm.FileInfo.for_path (new Fm.Path.for_str (filename));
+            if (file_info == null)
+                stdout.printf ("FileInfo is null !!!\n");
+            else
+                stdout.printf ("FileInfo = %s\n", file_info.get_path ().to_str ());
+            
+            
+            // TODO_axl: need to find a better way to get a FileInfo, that's way complicated...
+            //~ Fm.FileInfoJob job = new Fm.FileInfoJob (null, 0);
+            //~ job.add (new Fm.Path.for_str (filename));
+            //~ job.run_sync ();
+            //~ 
+            //~ Fm.FileInfoList<Fm.FileInfo>? file_info_list = job.file_infos;
+            //~ Fm.FileInfo? file_info = file_info_list.peek_head ();
+            
             Fm.launch_file ((Gtk.Window) this, null, file_info, null);
         }
         
