@@ -20,6 +20,7 @@ namespace Manager {
         GICON = 0,
         ICON,
         NAME,
+        LOCATION,
         SIZE,
         DESC,
         PERM,
@@ -53,6 +54,7 @@ namespace Manager {
                                                 SearchColumn.N_COLUMNS,
                                                 typeof (Icon),
                                                 typeof (Gdk.Pixbuf),
+                                                typeof (string),
                                                 typeof (string),
                                                 typeof (string),
                                                 typeof (string),
@@ -116,6 +118,14 @@ namespace Manager {
             
             
             
+            new_column = new Gtk.TreeViewColumn.with_attributes ("Location",
+                                                          new Gtk.CellRendererText (),
+                                                          "text",
+                                                          SearchColumn.LOCATION);
+            new_column.set_resizable (true);
+            new_column.set_sort_column_id (SearchColumn.LOCATION);
+            _tree_view.append_column (new_column);
+
             new_column = new Gtk.TreeViewColumn.with_attributes ("Description",
                                                           new Gtk.CellRendererText (),
                                                           "text",
@@ -228,12 +238,13 @@ namespace Manager {
                         _file_info_list.push_head (file_info);
                         _model.append (out iter);
                         
+                        string location = file_info.get_path ().to_str ();
                         
                         _model.set (iter,
                                     SearchColumn.INFO, file_info,
                                     SearchColumn.ICON, file_info.get_fm_icon ().get_pixbuf (16),
                                     SearchColumn.NAME, file_info.get_disp_name (),
-                                    SearchColumn.NAME, file_info.get_disp_name (),
+                                    SearchColumn.LOCATION, location,
                                     SearchColumn.DESC, file_info.get_desc ()
                                     );
                         
