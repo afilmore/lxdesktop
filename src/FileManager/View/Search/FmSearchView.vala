@@ -75,9 +75,9 @@ namespace Manager {
             Gtk.TreeViewColumn col = new Gtk.TreeViewColumn.with_attributes ("Name",
                                                                              new Gtk.CellRendererText (),
                                                                              "text",
-                                                                             Column.COL_FILE_NAME);
+                                                                             SearchColumn.NAME);
             col.set_resizable (true);
-            col.set_sort_column_id (Column.COL_FILE_NAME);
+            col.set_sort_column_id (SearchColumn.NAME);
             col.set_expand (true);
             col.set_sizing (Gtk.TreeViewColumnSizing.FIXED);
             col.set_fixed_width (200);
@@ -86,28 +86,28 @@ namespace Manager {
             col = new Gtk.TreeViewColumn.with_attributes ("Description",
                                                           new Gtk.CellRendererText (),
                                                           "text",
-                                                          Column.COL_FILE_DESC);
+                                                          SearchColumn.DESC);
             col.set_resizable (true);
-            col.set_sort_column_id (Column.COL_FILE_DESC);
+            //col.set_sort_column_id (SearchColumn.DESC);
             _tree_view.append_column (col);
 
             col = new Gtk.TreeViewColumn.with_attributes ("Size",
                                                           new Gtk.CellRendererText (),
                                                           "text",
-                                                          Column.COL_FILE_SIZE);
+                                                          SearchColumn.SIZE);
             col.set_resizable (true);
-            col.set_sort_column_id (Column.COL_FILE_SIZE);
+            //col.set_sort_column_id (SearchColumn.SIZE);
             _tree_view.append_column (col);
 
             col = new Gtk.TreeViewColumn.with_attributes ("Modified",
                                                           new Gtk.CellRendererText (),
                                                           "text",
-                                                          Column.COL_FILE_MTIME);
+                                                          SearchColumn.MTIME);
             col.set_resizable (true);
-            col.set_sort_column_id (Column.COL_FILE_MTIME);
+            //col.set_sort_column_id (SearchColumn.MTIME);
             _tree_view.append_column (col);
 
-            _tree_view.set_search_column (Column.COL_FILE_NAME);
+            _tree_view.set_search_column (SearchColumn.NAME);
 
             _tree_view.set_rubber_banding (true);
 
@@ -197,7 +197,7 @@ namespace Manager {
             Gtk.TreeIter iter;
             _folder_model.get_iter (out iter, path);
             Value val;
-            _folder_model.get_value (iter, Column.COL_FILE_NAME, out val);
+            _folder_model.get_value (iter, SearchColumn.NAME, out val);
             
             string filename = val.get_string ();
             

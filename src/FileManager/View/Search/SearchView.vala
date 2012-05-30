@@ -16,17 +16,17 @@
 namespace Manager {
 
     
-    enum Column {
-        COL_FILE_GICON = 0,
-        COL_FILE_ICON,
-        COL_FILE_NAME,
-        COL_FILE_SIZE,
-        COL_FILE_DESC,
-        COL_FILE_PERM,
-        COL_FILE_OWNER,
-        COL_FILE_MTIME,
-        COL_FILE_INFO,
-        N_FOLDER_MODEL_COLS
+    enum SearchColumn {
+        GICON = 0,
+        ICON,
+        NAME,
+        SIZE,
+        DESC,
+        PERM,
+        OWNER,
+        MTIME,
+        INFO,
+        N_COLUMNS
     }
         
 
@@ -50,9 +50,9 @@ namespace Manager {
             
             this._tree_view = new Gtk.TreeView ();
             this._model = new Gtk.ListStore (
-                                                Column.N_FOLDER_MODEL_COLS,
-                                                typeof (string),
-                                                typeof (string),
+                                                SearchColumn.N_COLUMNS,
+                                                typeof (Icon),
+                                                typeof (Gdk.Pixbuf),
                                                 typeof (string),
                                                 typeof (string),
                                                 typeof (string),
@@ -66,43 +66,48 @@ namespace Manager {
 
             _tree_view.set_rules_hint (true);
             
+            Gtk.TreeViewColumn new_column = new Gtk.TreeViewColumn.with_attributes ("Icon", new Gtk.CellRendererPixbuf (), "pixbuf", SearchColumn.ICON);
+            new_column.set_resizable (true);
+            //new_column.set_sort_column_id (SearchColumn.ICON);
+            _tree_view.append_column (new_column);
+
             
-            Gtk.TreeViewColumn col = new Gtk.TreeViewColumn.with_attributes ("Name",
+            new_column = new Gtk.TreeViewColumn.with_attributes ("Name",
                                                                              new Gtk.CellRendererText (),
                                                                              "text",
-                                                                             Column.COL_FILE_NAME);
-            col.set_resizable (true);
-            col.set_sort_column_id (Column.COL_FILE_NAME);
-            col.set_expand (true);
-            col.set_sizing (Gtk.TreeViewColumnSizing.FIXED);
-            col.set_fixed_width (200);
-            _tree_view.append_column (col);
+                                                                             SearchColumn.NAME);
+            new_column.set_resizable (true);
+            new_column.set_sort_column_id (SearchColumn.NAME);
+            new_column.set_expand (true);
+            new_column.set_sizing (Gtk.TreeViewColumnSizing.FIXED);
+            new_column.set_fixed_width (200);
+            _tree_view.append_column (new_column);
 
-            col = new Gtk.TreeViewColumn.with_attributes ("Description",
+            new_column = new Gtk.TreeViewColumn.with_attributes ("Description",
                                                           new Gtk.CellRendererText (),
                                                           "text",
-                                                          Column.COL_FILE_DESC);
-            col.set_resizable (true);
-            col.set_sort_column_id (Column.COL_FILE_DESC);
-            _tree_view.append_column (col);
+                                                          SearchColumn.DESC);
+            new_column.set_resizable (true);
+            new_column.set_sort_column_id (SearchColumn.DESC);
+            _tree_view.append_column (new_column);
 
-            col = new Gtk.TreeViewColumn.with_attributes ("Size",
+            new_column = new Gtk.TreeViewColumn.with_attributes ("Size",
                                                           new Gtk.CellRendererText (),
                                                           "text",
-                                                          Column.COL_FILE_SIZE);
-            col.set_resizable (true);
-            col.set_sort_column_id (Column.COL_FILE_SIZE);
-            _tree_view.append_column (col);
+                                                          SearchColumn.SIZE);
+            new_column.set_resizable (true);
+            new_column.set_sort_column_id (SearchColumn.SIZE);
+            _tree_view.append_column (new_column);
 
-            col = new Gtk.TreeViewColumn.with_attributes ("Modified",
+            new_column = new Gtk.TreeViewColumn.with_attributes ("Modified",
                                                           new Gtk.CellRendererText (),
                                                           "text",
-                                                          Column.COL_FILE_MTIME);
-            col.set_resizable (true);
-            col.set_sort_column_id (Column.COL_FILE_MTIME);
-            _tree_view.append_column (col);
+                                                          SearchColumn.MTIME);
+            new_column.set_resizable (true);
+            new_column.set_sort_column_id (SearchColumn.MTIME);
+            _tree_view.append_column (new_column);
 
-            _tree_view.set_search_column (Column.COL_FILE_NAME);
+            _tree_view.set_search_column (SearchColumn.NAME);
 
             _tree_view.set_rubber_banding (true);
 
@@ -192,9 +197,11 @@ namespace Manager {
                         
                         
                         _model.set (iter,
-                                    Column.COL_FILE_INFO, file_info,
-                                    Column.COL_FILE_NAME, file_info.get_disp_name (),
-                                    Column.COL_FILE_DESC, file_info.get_desc ()
+                                    SearchColumn.INFO, file_info,
+                                    SearchColumn.ICON, file_info.get_fm_icon ().get_pixbuf (16),
+                                    SearchColumn.NAME, file_info.get_disp_name (),
+                                    SearchColumn.NAME, file_info.get_disp_name (),
+                                    SearchColumn.DESC, file_info.get_desc ()
                                     );
                         
                         //iter.user_data = file_info;
@@ -211,7 +218,7 @@ namespace Manager {
             _model.get_iter (out iter, path);
             
             Value gvalue;
-            _model.get_value (iter, Column.COL_FILE_INFO, out gvalue);
+            _model.get_value (iter, SearchColumn.INFO, out gvalue);
             
 //~             Fm.FileInfo? file_info = (Fm.FileInfo) iter.user_data;
             Fm.FileInfo? file_info = (Fm.FileInfo) gvalue.get_pointer ();
