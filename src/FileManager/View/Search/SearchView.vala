@@ -66,7 +66,35 @@ namespace Manager {
 
             _tree_view.set_rules_hint (true);
             
-            Gtk.TreeViewColumn new_column = new Gtk.TreeViewColumn.with_attributes ("Icon", new Gtk.CellRendererPixbuf (), "pixbuf", SearchColumn.ICON);
+            Gtk.CellRenderer renderer = new Gtk.CellRendererPixbuf ();
+            Gtk.TreeViewColumn new_column = new Gtk.TreeViewColumn ();
+            
+            new_column.set_title ("Name");
+            new_column.pack_start (renderer, false);
+            new_column.set_attributes (renderer, "pixbuf", SearchColumn.ICON);
+            
+            renderer = new Gtk.CellRendererText ();
+            //renderer.set ("ellipsize", PANGO_ELLIPSIZE_END, null);
+            
+            new_column.pack_start (renderer, true);
+            new_column.set_attributes (renderer, "text", SearchColumn.NAME);
+            new_column.set_sort_column_id (SearchColumn.NAME);
+            new_column.set_expand (true);
+            new_column.set_resizable (true);
+            //new_column.set_sizing (GTK_TREE_VIEW_COLUMN_FIXED);
+            new_column.set_fixed_width (200);
+            
+            _tree_view.append_column (new_column);
+            
+            
+            
+            
+            /**
+            
+            
+            Gtk.TreeViewColumn new_column = new Gtk.TreeViewColumn.with_attributes ("Icon",
+                                                                                    new Gtk.CellRendererPixbuf (),
+                                                                                    "pixbuf", SearchColumn.ICON);
             new_column.set_resizable (true);
             //new_column.set_sort_column_id (SearchColumn.ICON);
             _tree_view.append_column (new_column);
@@ -83,6 +111,11 @@ namespace Manager {
             new_column.set_fixed_width (200);
             _tree_view.append_column (new_column);
 
+            
+            **/
+            
+            
+            
             new_column = new Gtk.TreeViewColumn.with_attributes ("Description",
                                                           new Gtk.CellRendererText (),
                                                           "text",
