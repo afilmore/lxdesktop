@@ -52,9 +52,9 @@ static void     fm_dir_tree_view_finalize           (GObject *object);
 static void     on_folder_loaded                    (FmFolder *folder, FmDirTreeView *tree_view);
 static void     expand_pending_path                 (FmDirTreeView *tree_view, GtkTreeModel *model, GtkTreeIter *parent_iter);
 static void     cancel_pending_chdir                (FmDirTreeView *tree_view);
-static void     on_sel_changed                      (GtkTreeSelection *tree_sel, FmDirTreeView *tree_view);
+static void     on_sel_changed                      (GtkTreeSelection *tree_selection, FmDirTreeView *tree_view);
 static gboolean on_test_expand_row                  (GtkTreeView *tree_view, GtkTreeIter *iter, GtkTreePath *path);
-static gboolean on_key_press_event                  (GtkWidget *widget, GdkEventKey *evt);
+static gboolean on_key_press_event                  (GtkWidget *widget, GdkEventKey *event_key);
 static void     on_row_collapsed                    (GtkTreeView *tree_view, GtkTreeIter *iter, GtkTreePath *path);
 static void     on_row_activated                    (GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *col);
 
@@ -104,7 +104,7 @@ static void fm_dir_tree_view_class_init (FmDirTreeViewClass *klass)
 
 static void fm_dir_tree_view_init (FmDirTreeView *tree_view)
 {
-    GtkTreeSelection *tree_sel;
+    GtkTreeSelection *tree_selection;
     GtkTreeViewColumn *col;
     GtkCellRenderer *render;
     gtk_tree_view_set_headers_visible ((GtkTreeView*) tree_view, FALSE);
@@ -126,12 +126,12 @@ static void fm_dir_tree_view_init (FmDirTreeView *tree_view)
 
     gtk_tree_view_append_column ((GtkTreeView*) tree_view, col);
 
-    tree_sel = gtk_tree_view_get_selection ((GtkTreeView*) tree_view);
-    gtk_tree_selection_set_mode (tree_sel, GTK_SELECTION_BROWSE);
+    tree_selection = gtk_tree_view_get_selection ((GtkTreeView*) tree_view);
+    gtk_tree_selection_set_mode (tree_selection, GTK_SELECTION_BROWSE);
     
-    gtk_tree_selection_set_select_function (tree_sel, fm_dir_tree_view_select_function, tree_view, NULL);
+    gtk_tree_selection_set_select_function (tree_selection, fm_dir_tree_view_select_function, tree_view, NULL);
     
-    g_signal_connect (tree_sel, "changed", G_CALLBACK (on_sel_changed), tree_view);
+    g_signal_connect (tree_selection, "changed", G_CALLBACK (on_sel_changed), tree_view);
 }
 
 static void fm_dir_tree_view_finalize (GObject *object)
@@ -146,8 +146,8 @@ static void fm_dir_tree_view_finalize (GObject *object)
     if (G_UNLIKELY (tree_view->paths_to_expand))
         cancel_pending_chdir (tree_view);
 
-    if (tree_view->cwd)
-        fm_path_unref (tree_view->cwd);
+    if (tree_view->current_directory)
+        fm_path_unref (tree_view->current_directory);
 
     G_OBJECT_CLASS (fm_dir_tree_view_parent_class)->finalize (object);
 }
@@ -162,15 +162,20 @@ static gboolean find_iter_by_path (GtkTreeModel *model, GtkTreeIter *it, GtkTree
 {
     if (gtk_tree_model_iter_children (model, it, parent))
     {
-        do{
+        do {
             FmPath *path2;
+            
             gtk_tree_model_get (model, it, FM_DIR_TREE_MODEL_COL_PATH, &path2, -1);
+            
             if (path2 && fm_path_equal (path, path2))
                 return TRUE;
-        }while (gtk_tree_model_iter_next (model, it));
+                
+        } while (gtk_tree_model_iter_next (model, it));
     }
+    
     return FALSE;
 }
+
 
 /*****************************************************************************************
  * Set/Get The Current Directory...
@@ -183,7 +188,7 @@ void fm_dir_tree_view_set_current_directory (FmDirTreeView *tree_view, FmPath *p
     GtkTreeModel *model = gtk_tree_view_get_model (GTK_TREE_VIEW (tree_view));
     FmPath *root;
     
-    if (!model || fm_path_equal (tree_view->cwd, path))
+    if (!model || fm_path_equal (tree_view->current_directory, path))
     {
         //NO_DEBUG ("fm_dir_tree_view_set_current_directory: same path !!!\n");
         return;
@@ -197,6 +202,7 @@ void fm_dir_tree_view_set_current_directory (FmDirTreeView *tree_view, FmPath *p
 
     // Find a root item containing this path...
     do {
+        
         gtk_tree_model_get (model, &it, FM_DIR_TREE_MODEL_COL_PATH, &root, -1);
         
         if (fm_path_has_prefix (path, root))
@@ -216,11 +222,12 @@ void fm_dir_tree_view_set_current_directory (FmDirTreeView *tree_view, FmPath *p
 
     // Add path elements one by one to a list...
     do {
+        
         tree_view->paths_to_expand = g_slist_prepend (tree_view->paths_to_expand, fm_path_ref (path));
         
         char* temp_path = fm_path_to_str (path);
         
-        TREEVIEW_DEBUG ("fm_dir_tree_view_set_current_directory: path to expend = %s !!!\n", temp_path);
+        TREEVIEW_DEBUG ("fm_dir_tree_view_set_current_directory: path to expend = %s\n", temp_path);
         
         g_free (temp_path);
         
@@ -239,7 +246,7 @@ void fm_dir_tree_view_set_current_directory (FmDirTreeView *tree_view, FmPath *p
 
 FmPath *fm_dir_tree_view_get_current_directory (FmDirTreeView *tree_view)
 {
-    return tree_view->cwd;
+    return tree_view->current_directory;
 }
 
 
@@ -256,23 +263,29 @@ static void cancel_pending_chdir (FmDirTreeView *tree_view)
         g_object_unref (tree_view->cur_expanded_folder);
         tree_view->cur_expanded_folder = NULL;
     }
+    
     memset (&tree_view->cur_expanded_it, 0, sizeof (GtkTreeIter));
 
-    g_slist_foreach (tree_view->paths_to_expand,  (GFunc)fm_path_unref, NULL);
+    g_slist_foreach (tree_view->paths_to_expand, (GFunc) fm_path_unref, NULL);
     g_slist_free (tree_view->paths_to_expand);
     tree_view->paths_to_expand = NULL;
+    
 }
 
 static void expand_pending_path (FmDirTreeView *tree_view, GtkTreeModel *model, GtkTreeIter *parent_iter)
 {
-    FmPath *path;
+    FmPath      *path;
     GtkTreeIter it;
+    
     g_return_if_fail (tree_view->paths_to_expand);
+    
     path = FM_PATH (tree_view->paths_to_expand->data);
 
+    TREEVIEW_DEBUG ("expand_pending_path: expend %s\n", fm_path_display_basename (path));
+    
     if (!find_iter_by_path (model, &it, parent_iter, path))
     {
-        NO_DEBUG ("expand_pending_path: find_iter_by_path () return = NULL !!!\n");
+        TREEVIEW_DEBUG ("expand_pending_path: find_iter_by_path () returned NULL\n");
         return;
     }
     
@@ -283,14 +296,28 @@ static void expand_pending_path (FmDirTreeView *tree_view, GtkTreeModel *model, 
     // It now points to the root item...
     tp = gtk_tree_model_get_path (model, &it);
     
+    
+    char *temp_tp = gtk_tree_path_to_string (tp);
+    TREEVIEW_DEBUG ("expand_pending_path: expend tree path %s\n", temp_tp);
+    g_free (temp_tp);
+    
     // axl...
-    //gtk_tree_view_expand_row ((GtkTreeView*) tree_view, tp, FALSE);
-    gtk_tree_view_expand_row ((GtkTreeView*) tree_view, tp, TRUE);
+    gtk_tree_view_expand_row ((GtkTreeView*) tree_view, tp, FALSE);
+    //gtk_tree_view_expand_row ((GtkTreeView*) tree_view, tp, TRUE);
     
     gtk_tree_path_free (tp);
     
+    
     // After being expanded, the row now owns a FmFolder object.
     gtk_tree_model_get (model, &it, FM_DIR_TREE_MODEL_COL_FOLDER, &folder, -1);
+    
+    //~ if (folder == NULL)
+    //~ {
+        //~ sleep (3);
+    //~ }
+    
+    
+    
     
     g_return_if_fail (folder != NULL);
     
@@ -300,14 +327,19 @@ static void expand_pending_path (FmDirTreeView *tree_view, GtkTreeModel *model, 
     
     tree_view->cur_expanded_folder = FM_FOLDER (g_object_ref (folder));
 
+    TREEVIEW_DEBUG ("expand_pending_path: %s expended\n", fm_path_display_basename (path));
+    
     // The folder is already loaded...
     if (fm_folder_get_is_loaded (folder))
+    {
         on_folder_loaded (folder, tree_view);
     
     // The folder is not yet loaded...
+    }
     else
+    {
         g_signal_connect (folder, "loaded", G_CALLBACK (on_folder_loaded), tree_view);
-    
+    }
 }
 
 
@@ -318,6 +350,8 @@ static void expand_pending_path (FmDirTreeView *tree_view, GtkTreeModel *model, 
  ****************************************************************************************/
 static void on_folder_loaded (FmFolder *folder, FmDirTreeView *tree_view)
 {
+    TREEVIEW_DEBUG ("on_folder_loaded: %s loaded\n", fm_path_display_basename (folder->dir_path));
+    
     FmPath *path;
     // disconnect the handler since we only need it once
     g_signal_handlers_disconnect_by_func (folder, on_folder_loaded, tree_view);
@@ -409,44 +443,46 @@ static void on_row_activated (GtkTreeView *tree_view, GtkTreePath *path, GtkTree
  * 
  * 
  ****************************************************************************************/
-static gboolean on_key_press_event (GtkWidget *widget, GdkEventKey *evt)
+static gboolean on_key_press_event (GtkWidget *widget, GdkEventKey *event_key)
 {
-    GtkTreeView *tree_view = GTK_TREE_VIEW (widget);
-    GtkTreeSelection *tree_sel;
-    GtkTreeModel *model;
-    GtkTreeIter it;
-    GtkTreePath *tp;
+    GtkTreeView         *tree_view = GTK_TREE_VIEW (widget);
+    GtkTreeSelection    *tree_selection;
+    GtkTreeModel        *model;
+    GtkTreeIter         it;
+    GtkTreePath         *tp;
 
-    switch (evt->keyval)
+    switch (event_key->keyval)
     {
-    case GDK_KEY_Left:
-        tree_sel = gtk_tree_view_get_selection (tree_view);
-        if (gtk_tree_selection_get_selected (tree_sel, &model, &it))
-        {
-            tp = gtk_tree_model_get_path (model, &it);
-            if (gtk_tree_view_row_expanded (tree_view, tp))
-                gtk_tree_view_collapse_row (tree_view, tp);
-            else
+        case GDK_KEY_Left:
+            tree_selection = gtk_tree_view_get_selection (tree_view);
+            if (gtk_tree_selection_get_selected (tree_selection, &model, &it))
             {
-                gtk_tree_path_up (tp);
-                gtk_tree_view_set_cursor (tree_view, tp, NULL, FALSE);
-                gtk_tree_selection_select_path (tree_sel, tp);
+                tp = gtk_tree_model_get_path (model, &it);
+                if (gtk_tree_view_row_expanded (tree_view, tp))
+                    gtk_tree_view_collapse_row (tree_view, tp);
+                else
+                {
+                    gtk_tree_path_up (tp);
+                    gtk_tree_view_set_cursor (tree_view, tp, NULL, FALSE);
+                    gtk_tree_selection_select_path (tree_selection, tp);
+                }
+                gtk_tree_path_free (tp);
             }
-            gtk_tree_path_free (tp);
-        }
 
         break;
-    case GDK_KEY_Right:
-        tree_sel = gtk_tree_view_get_selection (tree_view);
-        if (gtk_tree_selection_get_selected (tree_sel, &model, &it))
-        {
-            tp = gtk_tree_model_get_path (model, &it);
-            gtk_tree_view_expand_row (tree_view, tp, FALSE);
-            gtk_tree_path_free (tp);
-        }
+        
+        case GDK_KEY_Right:
+            tree_selection = gtk_tree_view_get_selection (tree_view);
+            if (gtk_tree_selection_get_selected (tree_selection, &model, &it))
+            {
+                tp = gtk_tree_model_get_path (model, &it);
+                gtk_tree_view_expand_row (tree_view, tp, FALSE);
+                gtk_tree_path_free (tp);
+            }
         break;
     }
-    return GTK_WIDGET_CLASS (fm_dir_tree_view_parent_class)->key_press_event (widget, evt);
+    
+    return GTK_WIDGET_CLASS (fm_dir_tree_view_parent_class)->key_press_event (widget, event_key);
 }
 
 
@@ -458,21 +494,26 @@ static gboolean on_key_press_event (GtkWidget *widget, GdkEventKey *evt)
  * 
  * 
  ****************************************************************************************/
-static void emit_chdir_if_needed (FmDirTreeView *tree_view, GtkTreeSelection *tree_sel, int button)
+static void emit_chdir_if_needed (FmDirTreeView *tree_view, GtkTreeSelection *tree_selection, int button)
 {
-    GtkTreeIter it;
-    GtkTreeModel *model;
-    if (gtk_tree_selection_get_selected (tree_sel, &model, &it))
-    {
-        FmPath *path;
-        gtk_tree_model_get (model, &it, FM_DIR_TREE_MODEL_COL_PATH, &path, -1);
-        if (path && tree_view->cwd && fm_path_equal (path, tree_view->cwd))
-            return;
-        if (tree_view->cwd)
-            fm_path_unref (tree_view->cwd);
-        tree_view->cwd = G_LIKELY (path) ? fm_path_ref (path) : NULL;
-        g_signal_emit (tree_view, signals [DIRECTORY_CHANGED], 0, button, tree_view->cwd);
-    }
+    GtkTreeIter     it;
+    GtkTreeModel    *model;
+    
+    if (!gtk_tree_selection_get_selected (tree_selection, &model, &it))
+        return;
+    
+    FmPath *path;
+    gtk_tree_model_get (model, &it, FM_DIR_TREE_MODEL_COL_PATH, &path, -1);
+
+    if (path && tree_view->current_directory && fm_path_equal (path, tree_view->current_directory))
+        return;
+
+    if (tree_view->current_directory)
+        fm_path_unref (tree_view->current_directory);
+
+    tree_view->current_directory = G_LIKELY (path) ? fm_path_ref (path) : NULL;
+
+    g_signal_emit (tree_view, signals [DIRECTORY_CHANGED], 0, button, tree_view->current_directory);
 }
 
 
@@ -486,16 +527,16 @@ static void emit_chdir_if_needed (FmDirTreeView *tree_view, GtkTreeSelection *tr
  * 
  * 
  ****************************************************************************************/
-static void on_sel_changed (GtkTreeSelection *tree_sel, FmDirTreeView *tree_view)
+static void on_sel_changed (GtkTreeSelection *tree_selection, FmDirTreeView *tree_view)
 {
     // if a pending selection via previous call to chdir is in progress, cancel it.
     if (tree_view->paths_to_expand)
         cancel_pending_chdir (tree_view);
 
-    emit_chdir_if_needed (tree_view, tree_sel, 1);
+    emit_chdir_if_needed (tree_view, tree_selection, 1);
 }
 
-// for FmDirTreeView, called in fm_dir_tree_view_init () 
+// called in fm_dir_tree_view_init () 
 static gboolean fm_dir_tree_view_select_function (GtkTreeSelection *selection, GtkTreeModel *model, GtkTreePath *path,
                                             gboolean path_currently_selected, gpointer data)
 {
@@ -514,5 +555,7 @@ static gboolean fm_dir_tree_view_select_function (GtkTreeSelection *selection, G
     
     return dir_tree_item->fi != NULL;
 }
+
+
 
 

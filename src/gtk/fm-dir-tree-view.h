@@ -51,7 +51,8 @@ typedef struct _FmDirTreeViewClass          FmDirTreeViewClass;
 struct _FmDirTreeView
 {
     GtkTreeView     parent;
-    FmPath          *cwd;
+    
+    FmPath          *current_directory;
 
     // Used for chdir...
     GSList          *paths_to_expand;

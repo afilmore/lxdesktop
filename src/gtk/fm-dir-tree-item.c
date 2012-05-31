@@ -83,11 +83,15 @@ inline FmDirTreeItem *fm_dir_tree_item_new (FmDirTreeModel *model, GList *parent
 
 inline void fm_dir_tree_item_free (FmDirTreeItem *dir_tree_item)
 {
-    if (dir_tree_item->fi)      fm_file_info_unref (dir_tree_item->fi);
-    if (dir_tree_item->icon)    g_object_unref (dir_tree_item->icon);
+    if (dir_tree_item->fi)
+        fm_file_info_unref (dir_tree_item->fi);
+    
+    if (dir_tree_item->icon)
+        g_object_unref (dir_tree_item->icon);
 
     // In most cases this should have been freed in the list free folder function...
-    if (dir_tree_item->folder)  g_object_unref (dir_tree_item->folder);
+    if (dir_tree_item->folder)
+        g_object_unref (dir_tree_item->folder);
 
     if (dir_tree_item->children)
     {
@@ -97,7 +101,7 @@ inline void fm_dir_tree_item_free (FmDirTreeItem *dir_tree_item)
     
     if (dir_tree_item->hidden_children)
     {
-        g_list_foreach (dir_tree_item->hidden_children, (GFunc)fm_dir_tree_item_free, NULL);
+        g_list_foreach (dir_tree_item->hidden_children, (GFunc) fm_dir_tree_item_free, NULL);
         g_list_free (dir_tree_item->hidden_children);
     }
     
@@ -207,6 +211,7 @@ static void on_folder_loaded (FmFolder *folder, GList *item_list)
 {
     FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;
     
+    TREEVIEW_DEBUG ("FmDirTreeItem: on_folder_loaded: %s loaded\n", fm_path_display_basename (folder->dir_path));
     fm_dir_tree_item_on_folder_loaded (dir_tree_item);
     
     /**
