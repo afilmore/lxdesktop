@@ -42,6 +42,7 @@
 
 // Forward declarations...
 static inline void fm_dir_tree_item_free_folder (GList *item_list);
+static void on_folder_loaded (FmFolder *folder, GList *item_list);
 static void on_folder_files_added   (FmFolder *folder, GSList *files, GList *item_list);
 static void on_folder_files_removed (FmFolder *folder, GSList *files, GList *item_list);
 static void on_folder_files_changed (FmFolder *folder, GSList *files, GList *item_list);
@@ -149,7 +150,7 @@ FmFolder *fm_dir_tree_item_set_folder (GList *item_list)
     dir_tree_item->folder = folder;
 
     // Associate the data with loaded handler...
-    g_signal_connect (folder, "loaded",         G_CALLBACK (fm_dir_tree_item_on_folder_loaded),          item_list);
+    g_signal_connect (folder, "loaded",         G_CALLBACK (on_folder_loaded),          item_list);
     g_signal_connect (folder, "files-added",    G_CALLBACK (on_folder_files_added),     item_list);
     g_signal_connect (folder, "files-removed",  G_CALLBACK (on_folder_files_removed),   item_list);
     g_signal_connect (folder, "files-changed",  G_CALLBACK (on_folder_files_changed),   item_list);
@@ -166,7 +167,7 @@ static inline void fm_dir_tree_item_free_folder (GList *item_list)
         
     FmFolder *folder = dir_tree_item->folder;
     
-    g_signal_handlers_disconnect_by_func (folder, fm_dir_tree_item_on_folder_loaded,         item_list);
+    g_signal_handlers_disconnect_by_func (folder, on_folder_loaded,         item_list);
     g_signal_handlers_disconnect_by_func (folder, on_folder_files_added,    item_list);
     g_signal_handlers_disconnect_by_func (folder, on_folder_files_removed,  item_list);
     g_signal_handlers_disconnect_by_func (folder, on_folder_files_changed,  item_list);
@@ -176,11 +177,40 @@ static inline void fm_dir_tree_item_free_folder (GList *item_list)
     dir_tree_item->folder = NULL;
 }
 
-void fm_dir_tree_item_on_folder_loaded (FmFolder *folder, GList *item_list)
+void fm_dir_tree_item_on_folder_loaded (FmDirTreeItem *dir_tree_item)
+{
+    FmDirTreeModel *model = dir_tree_item->model;
+    GList *place_holder = dir_tree_item->children;
+    
+    // If we have loaded sub dirs, remove the place holder...
+    if (place_holder->next)
+    {
+        fm_dir_tree_model_remove_item (model, place_holder);
+    }
+    
+    /** If we have no sub dirs, leave the place holder and let it show "Empty" 
+    else
+    {
+        GtkTreeIter it;
+        
+        GtkTreePath *tp = fm_dir_tree_model_item_to_tree_path (model, place_holder);
+        
+        fm_dir_tree_model_item_to_tree_iter (model, place_holder, &it);
+        
+        gtk_tree_model_row_changed ((GtkTreeModel*) model, tp, &it);
+        
+        gtk_tree_path_free (tp);
+    }**/
+}
+
+static void on_folder_loaded (FmFolder *folder, GList *item_list)
 {
     FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;
-    FmDirTreeModel *model = dir_tree_item->model;
     
+    fm_dir_tree_item_on_folder_loaded (dir_tree_item);
+    
+    /**
+    FmDirTreeModel *model = dir_tree_item->model;
     GList *place_holder_l = dir_tree_item->children;
     
     // If we have loaded sub dirs, remove the place holder...
@@ -188,18 +218,20 @@ void fm_dir_tree_item_on_folder_loaded (FmFolder *folder, GList *item_list)
     {
         fm_dir_tree_model_remove_item (model, place_holder_l);
     }
-    // If we have no sub dirs, leave the place holder and let it show "Empty" 
+    
+     If we have no sub dirs, leave the place holder and let it show "Empty" 
     else
     {
         GtkTreeIter it;
         
         GtkTreePath *tp = fm_dir_tree_model_item_to_tree_path (model, place_holder_l);
+        
         fm_dir_tree_model_item_to_tree_iter (model, place_holder_l, &it);
         
         gtk_tree_model_row_changed ((GtkTreeModel*) model, tp, &it);
         
         gtk_tree_path_free (tp);
-    }
+    }**/
 }
 
 static void on_folder_files_added (FmFolder *folder, GSList *files, GList *item_list)
@@ -230,6 +262,7 @@ static void on_folder_files_added (FmFolder *folder, GSList *files, GList *item_
             new_item_list = fm_dir_tree_model_insert_file_info (model, item_list, tp, fi);
         
     }
+    
     gtk_tree_path_free (tp);
 }
 

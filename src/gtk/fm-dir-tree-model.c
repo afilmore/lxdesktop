@@ -759,9 +759,10 @@ void fm_dir_tree_model_expand_row (FmDirTreeModel *model, GtkTreeIter *it, GtkTr
             }
             gtk_tree_path_free (tp);
             
-            fm_dir_tree_item_on_folder_loaded (folder, item_list);
+            fm_dir_tree_item_on_folder_loaded (dir_tree_item);
         }
     }
+    
     ++dir_tree_item->n_expand;
 }
 

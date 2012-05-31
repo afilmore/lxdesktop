@@ -66,10 +66,11 @@ inline void             fm_dir_tree_item_free           (FmDirTreeItem *dir_tree
 // Get The Pixbuf To Display In The Tree Model...
 GdkPixbuf               *fm_dir_tree_item_get_pixbuf    (FmDirTreeItem *dir_tree_item, int icon_size);
 
+void                    fm_dir_tree_item_on_folder_loaded (FmDirTreeItem *dir_tree_item);
+
 void                    fm_dir_tree_item_free_l         (GList *item_l);
 FmFolder                *fm_dir_tree_item_set_folder    (GList *item_l);
 
-void                    fm_dir_tree_item_on_folder_loaded                (FmFolder *folder, GList *item_list);
 
 G_END_DECLS
 #endif
