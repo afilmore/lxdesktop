@@ -63,11 +63,13 @@ struct _FmDirTreeModel
     gboolean        show_hidden;
 
     // Subdirectory Check Job, this permits to expend only folders which have subfolders...
+    gboolean        job_running;
+    
     GQueue          subdir_checks;
+    GList           *current_subdir_check;
+    
     GMutex          *subdir_checks_mutex;
     GCancellable    *subdir_cancellable;
-    gboolean        job_running;
-    GList           *current_subdir_check;
 };
 
 struct _FmDirTreeModelClass
@@ -99,7 +101,6 @@ inline void fm_dir_tree_model_item_to_tree_iter (FmDirTreeModel *model, GList *i
 inline GtkTreePath *fm_dir_tree_model_item_to_tree_path (FmDirTreeModel *model, GList *item_list);
 void fm_dir_tree_model_item_queue_subdir_check (FmDirTreeModel *model, GList *item_list);
 GList *fm_dir_tree_model_children_by_name   (FmDirTreeModel *model, GList *children, const char *name, int *idx);
-
 
 
 G_END_DECLS

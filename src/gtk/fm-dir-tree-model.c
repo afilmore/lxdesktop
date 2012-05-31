@@ -61,12 +61,13 @@ static gboolean fm_dir_tree_model_iter_parent           (GtkTreeModel *tree_mode
                                                          GtkTreeIter *child);
 
 static void fm_dir_tree_model_finalize                  (GObject *object);
+static void fm_dir_tree_model_add_place_holder_child_item (FmDirTreeModel *model, GList *parent_l, GtkTreePath *tp,
+                                                           gboolean emit_signal);
 static void on_theme_changed                            (GtkIconTheme *theme, FmDirTreeModel *model);
+static void fm_dir_tree_model_item_reload_icon (FmDirTreeModel *model, FmDirTreeItem *dir_tree_item, GtkTreePath *tp);
 static gboolean subdir_check_job                        (GIOSchedulerJob *job, GCancellable *cancellable,
                                                          gpointer user_data);
 
-static void fm_dir_tree_model_add_place_holder_child_item (FmDirTreeModel *model, GList *parent_l, GtkTreePath *tp,
-                                                           gboolean emit_signal);
 
 
 G_DEFINE_TYPE_WITH_CODE (FmDirTreeModel,
@@ -78,6 +79,12 @@ G_DEFINE_TYPE_WITH_CODE (FmDirTreeModel,
                          ***/
                        )
 
+
+/*****************************************************************************************
+ * ...
+ * 
+ * 
+ ****************************************************************************************/
 static void fm_dir_tree_model_tree_model_init (GtkTreeModelIface *iface)
 {
     iface->get_flags = fm_dir_tree_model_get_flags;
@@ -138,8 +145,6 @@ static void fm_dir_tree_model_finalize (GObject *object)
 
     model = FM_DIR_TREE_MODEL (object);
 
-    // TODO_axl: test and remove...
-    //_g_list_foreach_l (model->roots, (GFunc)fm_dir_tree_item_free_l, NULL);
     fm_foreach (model->roots, (GFunc) fm_dir_tree_item_free_l, NULL);
     g_list_free (model->roots);
 
@@ -444,28 +449,48 @@ static gboolean fm_dir_tree_model_iter_parent (GtkTreeModel *tree_model, GtkTree
 }
 
 
+/*****************************************************************************************
+ * ...
+ * 
+ * 
+ ****************************************************************************************/
+inline void fm_dir_tree_model_item_to_tree_iter (FmDirTreeModel *model, GList *item_list, GtkTreeIter *it)
+{
+    it->stamp = model->stamp;
+    
+    // We simply store a GList pointer in the iter 
+    it->user_data = item_list;
+    it->user_data2 = it->user_data3 = NULL;
+}
 
 
-
-
-// for FmDirTreeView, called in fm_dir_tree_view_init () 
-gboolean _fm_dir_tree_view_select_function (GtkTreeSelection *selection, GtkTreeModel *model, GtkTreePath *path,
-                                            gboolean path_currently_selected, gpointer data)
+inline GtkTreePath *fm_dir_tree_model_item_to_tree_path (FmDirTreeModel *model, GList *item_list)
 {
     GtkTreeIter it;
+    fm_dir_tree_model_item_to_tree_iter (model, item_list, &it);
+    return fm_dir_tree_model_get_path ((GtkTreeModel*) model, &it);
+}
+
+
+
+
+// find child item by filename, and retrive its index if idx is not NULL. 
+GList *fm_dir_tree_model_children_by_name (FmDirTreeModel *model, GList *children, const char *name, int *idx)
+{
     GList *l;
-    
-    FmDirTreeItem *dir_tree_item;
-    
-    fm_dir_tree_model_get_iter (model, &it, path);
-    
-    l = (GList*) it.user_data;
-    if (!l)
-        return FALSE;
-    
-    dir_tree_item = (FmDirTreeItem*) l->data;
-    
-    return dir_tree_item->fi != NULL;
+    int i = 0;
+    for (l = children; l; l=l->next, ++i)
+    {
+        FmDirTreeItem *dir_tree_item = (FmDirTreeItem*)l->data;
+        if (G_LIKELY (dir_tree_item->fi) &&
+           G_UNLIKELY (strcmp (dir_tree_item->fi->path->name, name) == 0))
+        {
+            if (idx)
+                *idx = i;
+            return l;
+        }
+    }
+    return NULL;
 }
 
 
@@ -475,6 +500,17 @@ gboolean _fm_dir_tree_view_select_function (GtkTreeSelection *selection, GtkTree
 
 
 
+
+
+
+
+
+
+/*****************************************************************************************
+ * ...
+ * 
+ * 
+ ****************************************************************************************/
 void fm_dir_tree_model_add_root (FmDirTreeModel *model, FmFileInfo *root, GtkTreeIter *iter, gboolean expand)
 {
     GtkTreeIter it;
@@ -523,6 +559,7 @@ static void fm_dir_tree_model_add_place_holder_child_item (FmDirTreeModel *model
     }
 }
 
+
 /*****************************************************************************************
  * Add a new node to parent node to proper position.
  * GtkTreePath tp is the tree path of parent node.
@@ -558,10 +595,12 @@ static GList *fm_dir_tree_model_insert_item (FmDirTreeModel *model, GList *paren
     
     // get the GList* of the newly inserted item 
     
-    if (!item_list) // the new item becomes the last item of the list 
+    // the new item becomes the last item of the list 
+    if (!item_list)
         new_item_list = last_l ? last_l->next : parent_item->children;
     
-    else // the new item is just previous item of its sibling. 
+    // the new item is just previous item of its sibling. 
+    else
         new_item_list = item_list->prev;
 
     g_assert (new_item->fi != NULL);
@@ -614,6 +653,14 @@ GList *fm_dir_tree_model_insert_file_info (FmDirTreeModel *model, GList *parent_
 }
 
 
+
+
+
+/*****************************************************************************************
+ * ...
+ * 
+ * 
+ ****************************************************************************************/
 void fm_dir_tree_model_remove_item (FmDirTreeModel *model, GList *item_list)
 {
     GtkTreePath *tp = fm_dir_tree_model_item_to_tree_path (model, item_list);
@@ -660,96 +707,15 @@ static void fm_dir_tree_model_remove_all_children (FmDirTreeModel *model, GList 
 }
 
 
-static void fm_dir_tree_model_item_reload_icon (FmDirTreeModel *model, FmDirTreeItem *dir_tree_item, GtkTreePath *tp)
-{
-    GtkTreeIter it;
-    GList *l;
-    FmDirTreeItem *child;
-
-    if (dir_tree_item->icon)
-    {
-        g_object_unref (dir_tree_item->icon);
-        dir_tree_item->icon = NULL;
-        gtk_tree_model_row_changed (GTK_TREE_MODEL (model), tp, &it);
-    }
-
-    if (dir_tree_item->children)
-    {
-        gtk_tree_path_append_index (tp, 0);
-        for (l = dir_tree_item->children; l; l=l->next)
-        {
-            child = (FmDirTreeItem*) l->data;
-            fm_dir_tree_model_item_reload_icon (model, child, tp);
-            gtk_tree_path_next (tp);
-        }
-        gtk_tree_path_up (tp);
-    }
-
-    for (l = dir_tree_item->hidden_children; l; l=l->next)
-    {
-        child = (FmDirTreeItem*) l->data;
-        if (child->icon)
-        {
-            g_object_unref (child->icon);
-            child->icon = NULL;
-        }
-    }
-}
-
-inline void fm_dir_tree_model_item_to_tree_iter (FmDirTreeModel *model, GList *item_list, GtkTreeIter *it)
-{
-    it->stamp = model->stamp;
-    
-    // We simply store a GList pointer in the iter 
-    it->user_data = item_list;
-    it->user_data2 = it->user_data3 = NULL;
-}
-
-
-inline GtkTreePath *fm_dir_tree_model_item_to_tree_path (FmDirTreeModel *model, GList *item_list)
-{
-    GtkTreeIter it;
-    fm_dir_tree_model_item_to_tree_iter (model, item_list, &it);
-    return fm_dir_tree_model_get_path ((GtkTreeModel*) model, &it);
-}
-
-static void on_theme_changed (GtkIconTheme *theme, FmDirTreeModel *model)
-{
-    GList *l;
-    GtkTreePath *tp = gtk_tree_path_new_first ();
-    for (l = model->roots; l; l=l->next)
-    {
-        fm_dir_tree_model_item_reload_icon (model, l->data, tp);
-        gtk_tree_path_next (tp);
-    }
-    gtk_tree_path_free (tp);
-}
 
 
 
 
-
-// find child item by filename, and retrive its index if idx is not NULL. 
-GList *fm_dir_tree_model_children_by_name (FmDirTreeModel *model, GList *children, const char *name, int *idx)
-{
-    GList *l;
-    int i = 0;
-    for (l = children; l; l=l->next, ++i)
-    {
-        FmDirTreeItem *dir_tree_item = (FmDirTreeItem*)l->data;
-        if (G_LIKELY (dir_tree_item->fi) &&
-           G_UNLIKELY (strcmp (dir_tree_item->fi->path->name, name) == 0))
-        {
-            if (idx)
-                *idx = i;
-            return l;
-        }
-    }
-    return NULL;
-}
-
-
-
+/*****************************************************************************************
+ * ...
+ * 
+ * 
+ ****************************************************************************************/
 void fm_dir_tree_model_expand_row (FmDirTreeModel *model, GtkTreeIter *it, GtkTreePath *tp)
 {
     
@@ -823,6 +789,10 @@ void fm_dir_tree_model_collapse_row (FmDirTreeModel *model, GtkTreeIter *it, Gtk
     }
 }
 
+
+
+
+
 void fm_dir_tree_model_set_icon_size (FmDirTreeModel *model, guint icon_size)
 {
     if (model->icon_size != icon_size)
@@ -843,6 +813,10 @@ guint fm_dir_tree_get_icon_size (FmDirTreeModel *model)
 {
     return model->icon_size;
 }
+
+
+
+
 
 
 
@@ -899,6 +873,88 @@ static void item_show_hidden_children (FmDirTreeModel* model, GList* item_l, gbo
 
 
 
+static void on_theme_changed (GtkIconTheme *theme, FmDirTreeModel *model)
+{
+    GList *l;
+    GtkTreePath *tp = gtk_tree_path_new_first ();
+    for (l = model->roots; l; l=l->next)
+    {
+        fm_dir_tree_model_item_reload_icon (model, l->data, tp);
+        gtk_tree_path_next (tp);
+    }
+    gtk_tree_path_free (tp);
+}
+
+static void fm_dir_tree_model_item_reload_icon (FmDirTreeModel *model, FmDirTreeItem *dir_tree_item, GtkTreePath *tp)
+{
+    GtkTreeIter it;
+    GList *l;
+    FmDirTreeItem *child;
+
+    if (dir_tree_item->icon)
+    {
+        g_object_unref (dir_tree_item->icon);
+        dir_tree_item->icon = NULL;
+        gtk_tree_model_row_changed (GTK_TREE_MODEL (model), tp, &it);
+    }
+
+    if (dir_tree_item->children)
+    {
+        gtk_tree_path_append_index (tp, 0);
+        for (l = dir_tree_item->children; l; l=l->next)
+        {
+            child = (FmDirTreeItem*) l->data;
+            fm_dir_tree_model_item_reload_icon (model, child, tp);
+            gtk_tree_path_next (tp);
+        }
+        gtk_tree_path_up (tp);
+    }
+
+    for (l = dir_tree_item->hidden_children; l; l=l->next)
+    {
+        child = (FmDirTreeItem*) l->data;
+        if (child->icon)
+        {
+            g_object_unref (child->icon);
+            child->icon = NULL;
+        }
+    }
+}
+
+
+
+
+
+
+// for FmDirTreeView, called in fm_dir_tree_view_init () 
+gboolean _fm_dir_tree_view_select_function (GtkTreeSelection *selection, GtkTreeModel *model, GtkTreePath *path,
+                                            gboolean path_currently_selected, gpointer data)
+{
+    GtkTreeIter it;
+    GList *l;
+    
+    FmDirTreeItem *dir_tree_item;
+    
+    fm_dir_tree_model_get_iter (model, &it, path);
+    
+    l = (GList*) it.user_data;
+    if (!l)
+        return FALSE;
+    
+    dir_tree_item = (FmDirTreeItem*) l->data;
+    
+    return dir_tree_item->fi != NULL;
+}
+
+
+
+
+
+
+
+
+
+
 /*****************************************************************************************
  * Check Subdirectories:
  * 
@@ -925,7 +981,7 @@ void fm_dir_tree_model_item_queue_subdir_check (FmDirTreeModel *model, GList *it
 
     g_mutex_lock (model->subdir_checks_mutex);
     g_queue_push_tail (&model->subdir_checks, item_list);
-    g_debug ("queue subdir check for %s", fm_file_info_get_disp_name (dir_tree_item->fi));
+    printf ("queue subdir check for %s\n", fm_file_info_get_disp_name (dir_tree_item->fi));
     if (!model->job_running)
     {
         model->job_running = TRUE;
@@ -936,7 +992,7 @@ void fm_dir_tree_model_item_queue_subdir_check (FmDirTreeModel *model, GList *it
                                 (GDestroyNotify)g_object_unref,
                                 G_PRIORITY_DEFAULT,
                                 model->subdir_cancellable);
-        g_debug ("push job");
+        printf ("push job\n");
     }
     g_mutex_unlock (model->subdir_checks_mutex);
 }
@@ -947,7 +1003,7 @@ static gboolean subdir_check_finish (FmDirTreeModel *model)
     if (g_queue_is_empty (&model->subdir_checks))
     {
         model->job_running = FALSE;
-        g_debug ("all subdir checks are finished!");
+        printf ("all subdir checks are finished!\n");
         return FALSE;
     }
     else // still has queued items 
@@ -970,7 +1026,7 @@ static gboolean subdir_check_finish_has_subdir (FmDirTreeModel *model)
         fm_dir_tree_model_add_place_holder_child_item (model, item_list, tp, TRUE);
         
         gtk_tree_path_free (tp);
-        g_debug ("finished for item with subdir: %s", fm_file_info_get_disp_name (dir_tree_item->fi));
+        printf ("finished for item with subdir: %s\n", fm_file_info_get_disp_name (dir_tree_item->fi));
     }
     return subdir_check_finish (model);
 }
@@ -986,7 +1042,7 @@ static gboolean subdir_check_finish_no_subdir (FmDirTreeModel *model)
             GtkTreePath *tp = fm_dir_tree_model_item_to_tree_path (model, item_list);
             fm_dir_tree_model_remove_all_children (model, item_list, tp);
             gtk_tree_path_free (tp);
-            g_debug ("finished for item with no subdir: %s", fm_file_info_get_disp_name (dir_tree_item->fi));
+            printf ("finished for item with no subdir: %s\n", fm_file_info_get_disp_name (dir_tree_item->fi));
         }
     }
     return subdir_check_finish (model);
@@ -1009,7 +1065,8 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
     // check if this item has subdir 
     gf = fm_path_to_gfile (dir_tree_item->fi->path);
     g_mutex_unlock (model->subdir_checks_mutex);
-    g_debug ("check subdir for: %s", g_file_get_parse_name (gf));
+    
+    printf ("check subdir for: %s\n", g_file_get_parse_name (gf));
     
     enu = g_file_enumerate_children (gf,
                             G_FILE_ATTRIBUTE_STANDARD_NAME","
@@ -1044,7 +1101,7 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
         g_object_unref (enu);
     }
     
-    g_debug ("check result - %s has_dir: %d", g_file_get_parse_name (gf), has_subdir);
+    printf ("check result - %s has_dir: %d\n", g_file_get_parse_name (gf), has_subdir);
     g_object_unref (gf);
     
     if (has_subdir)

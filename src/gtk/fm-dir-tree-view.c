@@ -153,17 +153,29 @@ void fm_dir_tree_view_set_current_directory (FmDirTreeView *view, FmPath *path)
     FmPath *root;
     
     if (!model || fm_path_equal (view->cwd, path))
+    {
+        //printf ("fm_dir_tree_view_set_current_directory: same path !!!\n");
         return;
+    }
     
     if (!gtk_tree_model_get_iter_first (model, &it))
+    {
+        //printf ("fm_dir_tree_view_set_current_directory: can't find first iter !!!\n");
         return;
+    }
 
     // Find a root item containing this path...
-    do{
+    do {
         gtk_tree_model_get (model, &it, FM_DIR_TREE_MODEL_COL_PATH, &root, -1);
+        
         if (fm_path_has_prefix (path, root))
+        {
+            //printf ("fm_dir_tree_view_set_current_directory: root item found !!!\n");
             break;
+        }
+        
         root = NULL;
+    
     } while (gtk_tree_model_iter_next (model, &it));
     
     
@@ -174,9 +186,21 @@ void fm_dir_tree_view_set_current_directory (FmDirTreeView *view, FmPath *path)
     // Add path elements one by one to a list...
     do {
         view->paths_to_expand = g_slist_prepend (view->paths_to_expand, fm_path_ref (path));
+        
+        char* temp_path = fm_path_to_str (path);
+        
+        printf ("fm_dir_tree_view_set_current_directory: path to expend = %s !!!\n", temp_path);
+        
+        g_free (temp_path);
+        
         if (fm_path_equal (path, root))
+        {
+            //printf ("fm_dir_tree_view_set_current_directory: fm_path_equal (path, root) !!!\n");
             break;
+        }
+        
         path = path->parent;
+    
     } while (path);
 
     expand_pending_path (view, model, NULL);
@@ -216,7 +240,10 @@ static void expand_pending_path (FmDirTreeView *view, GtkTreeModel *model, GtkTr
     path = FM_PATH (view->paths_to_expand->data);
 
     if (!find_iter_by_path (model, &it, parent_iter, path))
+    {
+        printf ("expand_pending_path: find_iter_by_path () return = NULL !!!\n");
         return;
+    }
     
     FmFolder *folder;
     GtkTreePath *tp;
@@ -224,14 +251,17 @@ static void expand_pending_path (FmDirTreeView *view, GtkTreeModel *model, GtkTr
 
     // It now points to the root item...
     tp = gtk_tree_model_get_path (model, &it);
-    gtk_tree_view_expand_row ((GtkTreeView*) view, tp, FALSE);
+    
+    // axl...
+    //gtk_tree_view_expand_row ((GtkTreeView*) view, tp, FALSE);
+    gtk_tree_view_expand_row ((GtkTreeView*) view, tp, TRUE);
+    
     gtk_tree_path_free (tp);
     
     // After being expanded, the row now owns a FmFolder object.
     gtk_tree_model_get (model, &it, FM_DIR_TREE_MODEL_COL_FOLDER, &folder, -1);
     
-    if (!folder)
-        return;
+    g_return_if_fail (folder != NULL);
     
     // This should not happen, otherwise it's a bug...
     if (view->cur_expanded_folder)

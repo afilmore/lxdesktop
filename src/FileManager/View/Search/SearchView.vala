@@ -227,6 +227,8 @@ namespace Manager {
                 foreach (string row in output.split ("\n")) {
                     if (row != "") {
 
+                        stdout.printf ("add %s\n", row);
+                        
                         // TODO_axl: need to find a better way to get a FileInfo, that's way complicated...
                         Fm.FileInfoJob job = new Fm.FileInfoJob (null, 0);
                         job.add (new Fm.Path.for_str (row));

@@ -52,7 +52,9 @@ struct _FmDirTreeItem
     guint           n_expand;
     
     GList           *parent;            // Parent Node...
+    
     GList           *children;          // Child Items...
+    
     GList           *hidden_children;
 };
 
