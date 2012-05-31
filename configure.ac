@@ -65,6 +65,19 @@ AC_SUBST(G_CAST_CHECKS)
 #
 #
 #*****************************************************************************************
+AC_ARG_ENABLE(treeview-debug,
+              [AC_HELP_STRING([--enable-treeview-debug],
+              [Debug The Tree View (default: no)])],
+              enable_treeview_debug=$enableval,
+              enable_treeview_debug="no")
+
+
+if test "$enable_treeview_debug" = "yes"; then
+    CPPFLAGS="$CPPFLAGS -DENABLE_TREEVIEW_DEBUG"
+    enable_debug = "yes"
+fi
+
+
 AC_ARG_ENABLE(debug,
               [AC_HELP_STRING([--enable-debug],
               [build lxdesktop with debug support (default: no)])],
@@ -73,12 +86,10 @@ AC_ARG_ENABLE(debug,
 
 
 if test "$enable_debug" = "yes"; then
-    # turn on debug and disable optimization
     CPPFLAGS="$CPPFLAGS -DENABLE_DEBUG -DG_ENABLE_DEBUG -O0 -g"
 else
-    # turn off glib debug checks
-    # G_DISABLE_CAST_CHECKS is already handled by $(G_CAST_CHECKS)
-    CPPFLAGS="$CPPFLAGS -DG_DISABLE_ASSERT -DG_DISABLE_CHECKS"
+    #CPPFLAGS="$CPPFLAGS -DG_DISABLE_ASSERT -DG_DISABLE_CHECKS"
+    CPPFLAGS="$CPPFLAGS -O2"
 fi
 
 

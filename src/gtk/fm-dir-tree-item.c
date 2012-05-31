@@ -32,6 +32,8 @@
 #include <glib/gi18n-lib.h>
 #include <string.h>
 
+#include "debug.h"
+
 #include "fm-dir-tree-item.h"
 #include "fm-icon-pixbuf.h"
 
@@ -147,7 +149,7 @@ FmFolder *fm_dir_tree_item_set_folder (GList *item_list)
     dir_tree_item->folder = folder;
 
     // Associate the data with loaded handler...
-    g_signal_connect (folder, "loaded",         G_CALLBACK (on_folder_loaded),          item_list);
+    g_signal_connect (folder, "loaded",         G_CALLBACK (fm_dir_tree_item_on_folder_loaded),          item_list);
     g_signal_connect (folder, "files-added",    G_CALLBACK (on_folder_files_added),     item_list);
     g_signal_connect (folder, "files-removed",  G_CALLBACK (on_folder_files_removed),   item_list);
     g_signal_connect (folder, "files-changed",  G_CALLBACK (on_folder_files_changed),   item_list);
@@ -164,7 +166,7 @@ static inline void fm_dir_tree_item_free_folder (GList *item_list)
         
     FmFolder *folder = dir_tree_item->folder;
     
-    g_signal_handlers_disconnect_by_func (folder, on_folder_loaded,         item_list);
+    g_signal_handlers_disconnect_by_func (folder, fm_dir_tree_item_on_folder_loaded,         item_list);
     g_signal_handlers_disconnect_by_func (folder, on_folder_files_added,    item_list);
     g_signal_handlers_disconnect_by_func (folder, on_folder_files_removed,  item_list);
     g_signal_handlers_disconnect_by_func (folder, on_folder_files_changed,  item_list);
@@ -174,7 +176,7 @@ static inline void fm_dir_tree_item_free_folder (GList *item_list)
     dir_tree_item->folder = NULL;
 }
 
-void on_folder_loaded (FmFolder *folder, GList *item_list)
+void fm_dir_tree_item_on_folder_loaded (FmFolder *folder, GList *item_list)
 {
     FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;
     FmDirTreeModel *model = dir_tree_item->model;
@@ -256,7 +258,7 @@ static void on_folder_files_changed (FmFolder *folder, GSList *files, GList *ite
 
     GtkTreePath *tp = fm_dir_tree_model_item_to_tree_path (model, item_list);
 
-    printf ("fm-dir-tree-item: on_folder_files_changed: files changed!!\n");
+    NO_DEBUG ("fm-dir-tree-item: on_folder_files_changed: files changed!!\n");
 
     GSList *l;
     for (l = files; l; l = l->next)

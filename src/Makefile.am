@@ -2,6 +2,7 @@ NULL=
 
 AM_CPPFLAGS = \
 	-include config.h \
+	-I $(srcdir)/Common \
 	-DPACKAGE_DATA_DIR=\""$(datadir)/desk2"\" \
 	-DPACKAGE_UI_DIR=\""$(datadir)/desk2/ui"\" \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \

@@ -69,7 +69,7 @@ GdkPixbuf               *fm_dir_tree_item_get_pixbuf    (FmDirTreeItem *dir_tree
 void                    fm_dir_tree_item_free_l         (GList *item_l);
 FmFolder                *fm_dir_tree_item_set_folder    (GList *item_l);
 
-void                    on_folder_loaded                (FmFolder *folder, GList *item_list);
+void                    fm_dir_tree_item_on_folder_loaded                (FmFolder *folder, GList *item_list);
 
 G_END_DECLS
 #endif
