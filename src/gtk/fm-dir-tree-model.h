@@ -61,6 +61,7 @@ struct _FmDirTreeModel
     gint            stamp;
     int             icon_size;
     gboolean        show_hidden;
+    gboolean        check_subdir;
 
     // Subdirectory Check Job, this permits to expend only folders which have subfolders...
     gboolean        job_running;

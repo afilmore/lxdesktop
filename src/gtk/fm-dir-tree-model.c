@@ -129,6 +129,7 @@ static void fm_dir_tree_model_init (FmDirTreeModel *model)
     model->stamp = g_random_int ();
     
     // Check Subdirectories...
+    model->check_subdir = FALSE;
     g_queue_init (&model->subdir_checks);
     model->subdir_checks_mutex = g_mutex_new ();
     model->subdir_cancellable = g_cancellable_new ();
@@ -622,14 +623,22 @@ static GList *fm_dir_tree_model_insert_item (FmDirTreeModel *model, GList *paren
     gtk_tree_path_append_index (tp, n);
     gtk_tree_model_row_inserted ((GtkTreeModel*) model, tp, &it);
 
-    // add a placeholder child item to make the node expandable 
-    //fm_dir_tree_model_add_place_holder_child_item (model, new_item_list, tp, TRUE);
+    if (model->check_subdir)
+    {
+        gtk_tree_path_up (tp);
+
+        // Check Subdirectories: check if the dir has subdirs and make it expandable if needed. 
+        fm_dir_tree_model_item_queue_subdir_check (model, new_item_list);
+
+    }
+    else
+    {
+        // add a placeholder child item to make the node expandable 
+        fm_dir_tree_model_add_place_holder_child_item (model, new_item_list, tp, TRUE);
+        
+        gtk_tree_path_up (tp);
+    }
     
-    gtk_tree_path_up (tp);
-
-    // Check Subdirectories: check if the dir has subdirs and make it expandable if needed. 
-    fm_dir_tree_model_item_queue_subdir_check (model, new_item_list);
-
     return new_item_list;
 }
 
