@@ -719,7 +719,7 @@ static void fm_dir_tree_model_remove_all_children (FmDirTreeModel *model, GList 
 void fm_dir_tree_model_expand_row (FmDirTreeModel *model, GtkTreeIter *it, GtkTreePath *tp)
 {
     
-    TREEVIEW_DEBUG ("fm_dir_tree_model_expand_row\n");
+    NO_DEBUG ("fm_dir_tree_model_expand_row\n");
     
     GList *item_list = (GList*) it->user_data;
     FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;

@@ -63,15 +63,15 @@ struct _FmDirTreeView
 struct _FmDirTreeViewClass
 {
     GtkTreeViewClass            parent_class;
-    void (*directory_changed)   (FmDirTreeView *view, guint button, FmPath *path);
+    void (*directory_changed)   (FmDirTreeView *tree_view, guint button, FmPath *path);
 };
 
 
 GObject     *fm_dir_tree_view_new                   ();
 GType       fm_dir_tree_view_get_type               ();
 
-void        fm_dir_tree_view_set_current_directory  (FmDirTreeView *view, FmPath *path);
-FmPath      *fm_dir_tree_view_get_current_directory (FmDirTreeView *view);
+void        fm_dir_tree_view_set_current_directory  (FmDirTreeView *tree_view, FmPath *path);
+FmPath      *fm_dir_tree_view_get_current_directory (FmDirTreeView *tree_view);
 
 
 G_END_DECLS
