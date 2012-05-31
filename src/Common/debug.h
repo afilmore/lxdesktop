@@ -1,6 +1,6 @@
 /***********************************************************************************************************************
  * 
- *      fm-debug.h
+ *      debug.h
  *      
  *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  *      
@@ -21,24 +21,12 @@
  *
  * 
  **********************************************************************************************************************/
-#ifndef __FM_DEBUG_H__
-#define __FM_DEBUG_H__
+#ifndef __DEBUG_H__
+#define __DEBUG_H__
 
-#include <glib.h>
-#include <string.h>
-
-//~ #include <gio/gio.h>
-//~ 
-//~ 
-//~ #include <gio/gio.h>
+#include <fm.h>
 
 G_BEGIN_DECLS
-
-#ifdef ENABLE_DEBUG
-#define DEBUG(...) printf(__VA_ARGS__)
-#else
-#define DEBUG(...)
-#endif
 
 #ifdef ENABLE_TREEVIEW_DEBUG
 #define TREEVIEW_DEBUG(...) DEBUG(__VA_ARGS__)
