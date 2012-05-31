@@ -723,6 +723,7 @@ void fm_dir_tree_model_expand_row (FmDirTreeModel *model, GtkTreeIter *it, GtkTr
     
     GList *item_list = (GList*) it->user_data;
     FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;
+    
     g_return_if_fail (dir_tree_item != NULL);
     
     if (dir_tree_item->n_expand == 0)
