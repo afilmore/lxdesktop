@@ -32,6 +32,7 @@
 #include <glib/gi18n-lib.h>
 #include <string.h>
 
+#include "fm-debug.h"
 #include "fm-utils.h"
 #include "fm-dir-tree-model.h"
 #include "fm-dir-tree-item.h"
@@ -719,7 +720,7 @@ static void fm_dir_tree_model_remove_all_children (FmDirTreeModel *model, GList 
 void fm_dir_tree_model_expand_row (FmDirTreeModel *model, GtkTreeIter *it, GtkTreePath *tp)
 {
     
-    printf ("fm_dir_tree_model_expand_row\n");
+    DEBUG ("fm_dir_tree_model_expand_row\n");
     
     GList *item_list = (GList*) it->user_data;
     FmDirTreeItem *dir_tree_item = (FmDirTreeItem*) item_list->data;

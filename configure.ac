@@ -74,7 +74,7 @@ AC_ARG_ENABLE(debug,
 
 if test "$enable_debug" = "yes"; then
     # turn on debug and disable optimization
-    CPPFLAGS="$CPPFLAGS -DG_ENABLE_DEBUG -O0 -g"
+    CPPFLAGS="$CPPFLAGS -DENABLE_DEBUG -DG_ENABLE_DEBUG -O0 -g"
 else
     # turn off glib debug checks
     # G_DISABLE_CAST_CHECKS is already handled by $(G_CAST_CHECKS)
