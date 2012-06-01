@@ -166,98 +166,35 @@ namespace Manager {
                 parent.remove (base);
             });
 
-            
             _tree_view.row_activated.connect (on_tree_clicked);
 
-            
             _tree_view.grab_focus ();
             this.show_all ();
             parent.page = new_page;
             
-//~             this._search ();
-            this._search_async ();
-
+            this._search ();
         }
+        
         
         private void _search () {
-            
-            string output;
-            string errors;
-            int exit;
-            
-            try {
-                Process.spawn_sync ("/",
-                                    {"find", _directory, "-name", _expression},
-                                    {},
-                                    SpawnFlags.SEARCH_PATH,
-                                    null, out output, out errors, out exit);
-            } catch (Error e) {
-                stdout.printf ("errors\n");
-                exit = 1;
-                errors = e.message;
-            }
-            
-            stdout.printf ("%s\n", output);
-            
-            Gtk.TreeIter iter;
-            
-            if (exit != 0)
-                return;
-            
-            foreach (string row in output.split ("\n")) {
-                
-                if (row == "")
-                    continue;
-                
-                stdout.printf ("add %s\n", row);
-                
-                // TODO_axl: need to find a better way to get a FileInfo, that's way complicated...
-                Fm.FileInfoJob job = new Fm.FileInfoJob (null, 0);
-                job.add (new Fm.Path.for_str (row));
-                job.run_sync ();
-                
-                Fm.FileInfoList<Fm.FileInfo>? file_info_list = job.file_infos;
-                
-                Fm.FileInfo? file_info = file_info_list.pop_head ();
-                _file_info_list.push_head (file_info);
-                _model.append (out iter);
-                
-                string location = file_info.get_path ().to_str ();
-                
-                _model.set (iter,
-                            SearchColumn.INFO, file_info,
-                            SearchColumn.ICON, file_info.get_fm_icon ().get_pixbuf (16),
-                            SearchColumn.NAME, file_info.get_disp_name (),
-                            SearchColumn.LOCATION, location,
-                            SearchColumn.DESC, file_info.get_desc ()
-                            );
-            }
-        }
-        
-        
-        
-        
-        
-        
-        
-        
-        private void _search_async () {
             
             Pid         pid;
             int         output_fd;
             IOChannel   output_channel;
             bool        ret = false;
             
+            stdout.printf ("START\n");
+            
             try {
                 ret = Process.spawn_async_with_pipes ("/",
-                                                        {"find", _directory, "-name", _expression},
-                                                        {},
-                                                        SpawnFlags.SEARCH_PATH | SpawnFlags.DO_NOT_REAP_CHILD,
-                                                        null,
-                                                        out pid,
-                                                        null,
-                                                        out output_fd,
-                                                        null);
+                                                      {"find", _directory, "-name", _expression},
+                                                      {},
+                                                      SpawnFlags.SEARCH_PATH | SpawnFlags.DO_NOT_REAP_CHILD,
+                                                      null,
+                                                      out pid,
+                                                      null,
+                                                      out output_fd,
+                                                      null);
             } catch (Error e) {
                 stdout.printf ("errors\n");
                 //errors = e.message;
@@ -266,90 +203,90 @@ namespace Manager {
             if (!ret)
                 return;
             
-            /* Add watch function to catch termination of the process. This function
-             * will clean any remnants of process. */
+            
+            /**
+             * Add watch function to catch termination of the process.
+             * This function will clean any remnants of process.
+             **/
             ChildWatch.add (pid, this._cb_child_watch);
             
-            
-            
-            
-            
-            /* Create channels that will be used to read data from pipes. */
+            // Create channels that will be used to read data from pipes.
             output_channel = new IOChannel.unix_new (output_fd);
 
-            /* Add watches to channels */
+            // Add watches to channels
             output_channel.add_watch (IOCondition.IN | IOCondition.HUP, this._cb_out_watch);
 
-            /* Install timeout fnction that will move the progress bar */
+            // Install timeout fnction that will move the progress bar
             //data->timeout_id = g_timeout_add( 100, (GSourceFunc)cb_timeout, data );
-            
         }
         
         
         private bool _cb_out_watch (IOChannel channel, IOCondition cond) {
             
-            if (cond == IOCondition.HUP ) {
-                //g_io_channel_unref( channel );
+            stdout.printf ("ENTER\n");
+            
+            if (cond == IOCondition.HUP) {
+                stdout.printf ("HUP\n");
                 return false;
             }
 
+            
             string  line_string;
-            size_t    line_size;
+            size_t  line_size;
 
             channel.read_line (out line_string, out line_size, null);
             
-            stdout.printf ("LINE: %s", line_string);
+            string[] line = line_string.split ("\n");
             
-            if (line_string == "")
+            stdout.printf ("LINE: %s\n", line [0]);
+            
+            if (line [0] == "")
                 return true;
             
+            while (Gtk.events_pending ())
+                Gtk.main_iteration ();
             
             // TODO_axl: need to find a better way to get a FileInfo, that's way complicated...
-//~             Fm.FileInfoJob job = new Fm.FileInfoJob (null, 0);
-//~             job.add (new Fm.Path.for_str (line_string));
-//~             job.run_sync ();
-//~             
-//~             Fm.FileInfoList<Fm.FileInfo>? file_info_list = job.file_infos;
-//~             
-//~             Fm.FileInfo? file_info = file_info_list.pop_head ();
-//~             _file_info_list.push_head (file_info);
+            //~ Fm.FileInfoJob job = new Fm.FileInfoJob (null, 0);
+            //~ job.add (new Fm.Path.for_str (line_string));
+            //~ job.run_sync ();
+            //~ 
+            //~ Fm.FileInfoList<Fm.FileInfo>? file_info_list = job.file_infos;
+            //~ 
+            //~ Fm.FileInfo? file_info = file_info_list.pop_head ();
+            //~ _file_info_list.push_head (file_info);
             
             Gtk.TreeIter iter;
             _model.append (out iter);
             
             //string location = file_info.get_path ().to_str ();
             
-//~             _model.set (iter,
-//~                         SearchColumn.INFO, file_info,
-//~                         SearchColumn.ICON, file_info.get_fm_icon ().get_pixbuf (16),
-//~                         SearchColumn.NAME, file_info.get_disp_name (),
-//~                         SearchColumn.LOCATION, location,
-//~                         SearchColumn.DESC, file_info.get_desc ()
-//~                         );
-//~             
+            //~ _model.set (iter,
+            //~             SearchColumn.INFO, file_info,
+            //~             SearchColumn.ICON, file_info.get_fm_icon ().get_pixbuf (16),
+            //~             SearchColumn.NAME, file_info.get_disp_name (),
+            //~             SearchColumn.LOCATION, location,
+            //~             SearchColumn.DESC, file_info.get_desc ()
+            //~             );
+            //~ 
             _model.set (iter,
-                        SearchColumn.NAME, line_string
+                        SearchColumn.NAME, line [0]
                         );
             
-            //gtk_text_buffer_insert_at_cursor( data->out, string, -1 );
-            //g_free( string );
-
+            while (Gtk.events_pending ())
+                Gtk.main_iteration ();
+            
+            stdout.printf ("LEAVE\n");
             return true;
         }
 
         private void _cb_child_watch (Pid pid, int status) {
-//~             /* Remove timeout callback */
-//~             g_source_remove( data->timeout_id );
-
-            /* Close pid */
+            
             Process.close_pid (pid);
+            
+            stdout.printf ("END\n");
         }
 
-        
-        
-        
-        
-        
         
         public void on_tree_clicked (Gtk.TreeView widget, Gtk.TreePath path, Gtk.TreeViewColumn column) {
             
@@ -362,12 +299,6 @@ namespace Manager {
             Fm.FileInfo? file_info = (Fm.FileInfo) gvalue.get_pointer ();
             
             return_if_fail (file_info != null);
-            
-            if (file_info == null)
-                stdout.printf ("FileInfo is null !!!\n");
-            else
-                stdout.printf ("FileInfo = %s\n", file_info.get_path ().to_str ());
-            
             
             Fm.launch_file ((Gtk.Window) this, null, file_info, null);
         }
