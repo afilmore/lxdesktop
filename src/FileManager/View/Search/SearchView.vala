@@ -259,19 +259,26 @@ namespace Manager {
             Gtk.TreeIter iter;
             _model.append (out iter);
             
-            //string location = file_info.get_path ().to_str ();
+            Fm.FileInfo? file_info = new Fm.FileInfo.for_path (new Fm.Path.for_str (line [0]));
+            file_info.for_native_file (line [0]);
+            _file_info_list.push_head (file_info);
             
-            //~ _model.set (iter,
-            //~             SearchColumn.INFO, file_info,
-            //~             SearchColumn.ICON, file_info.get_fm_icon ().get_pixbuf (16),
-            //~             SearchColumn.NAME, file_info.get_disp_name (),
-            //~             SearchColumn.LOCATION, location,
-            //~             SearchColumn.DESC, file_info.get_desc ()
-            //~             );
-            //~ 
+            string location = file_info.get_path ().to_str ();
+            
+            
+            
+            
             _model.set (iter,
-                        SearchColumn.NAME, line [0]
+                        SearchColumn.INFO, file_info,
+                        //SearchColumn.ICON, file_info.get_fm_icon ().get_pixbuf (16),
+                        SearchColumn.NAME, file_info.get_disp_name (),
+                        SearchColumn.LOCATION, location,
+                        SearchColumn.DESC, file_info.get_desc ()
                         );
+            
+//~             _model.set (iter,
+//~                         SearchColumn.NAME, line [0]
+//~                         );
             
             while (Gtk.events_pending ())
                 Gtk.main_iteration ();
