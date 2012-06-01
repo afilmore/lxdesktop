@@ -50,7 +50,6 @@ lxdesktop_SOURCES = \
 	FileManager/View/ViewTab.vala \
 	FileManager/View/BaseView.vala \
 	FileManager/View/Folder/FolderView.vala \
-	FileManager/View/Search/FmSearchView.vala \
 	FileManager/View/Search/SearchView.vala \
 	FileManager/View/Terminal/TerminalView.vala \
 	FileManager/View/Terminal/TerminalWidget.vala \

@@ -47,7 +47,6 @@ namespace Manager {
                 
                 // Create A Search View...
                 return new Manager.SearchView (this, directory, expression);
-                //return new Manager.FmSearchView (this, directory, expression);
             
             } else {
             

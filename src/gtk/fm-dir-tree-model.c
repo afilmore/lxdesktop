@@ -741,6 +741,7 @@ static void fm_dir_tree_model_remove_all_children (FmDirTreeModel *model, GList 
     
     GtkTreeIter it;
     gtk_tree_model_row_has_child_toggled (GTK_TREE_MODEL (model), tp, &it);
+    
     //~ gtk_tree_model_row_changed ((GtkTreeModel*) model, tp, &it);
 }
 
