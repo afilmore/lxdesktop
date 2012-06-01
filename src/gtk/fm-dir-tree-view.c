@@ -301,9 +301,16 @@ static void expand_pending_path (FmDirTreeView *tree_view, GtkTreeModel *model, 
     TREEVIEW_DEBUG ("expand_pending_path: expend tree path %s\n", temp_tp);
     g_free (temp_tp);
     
+    
+    //sleep (3);
+    
     // axl...
     gtk_tree_view_expand_row ((GtkTreeView*) tree_view, tp, FALSE);
     //gtk_tree_view_expand_row ((GtkTreeView*) tree_view, tp, TRUE);
+    
+    
+    
+    
     
     gtk_tree_path_free (tp);
     

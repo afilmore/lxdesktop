@@ -129,7 +129,9 @@ static void fm_dir_tree_model_init (FmDirTreeModel *model)
     model->stamp = g_random_int ();
     
     // Check Subdirectories...
-    model->check_subdir = FALSE;
+    model->check_subdir = TRUE;
+    model->check_subdir_mode2 = TRUE;
+    
     g_queue_init (&model->subdir_checks);
     model->subdir_checks_mutex = g_mutex_new ();
     model->subdir_cancellable = g_cancellable_new ();
@@ -625,6 +627,9 @@ static GList *fm_dir_tree_model_insert_item (FmDirTreeModel *model, GList *paren
 
     if (model->check_subdir)
     {
+        if (model->check_subdir_mode2)
+            fm_dir_tree_model_add_place_holder_child_item (model, new_item_list, tp, TRUE);
+        
         gtk_tree_path_up (tp);
 
         // Check Subdirectories: check if the dir has subdirs and make it expandable if needed. 
@@ -692,7 +697,12 @@ void fm_dir_tree_model_remove_item (FmDirTreeModel *model, GList *item_list)
         parent_item->children = g_list_delete_link (parent_item->children, item_list);
     
     // signal the view that we removed the placeholder item. 
+    char *tmp_path = gtk_tree_path_to_string (tp);
+    TREEVIEW_DEBUG ("fm_dir_tree_model_remove_item %s\n", tmp_path);
+    g_free (tmp_path);
+    
     gtk_tree_model_row_deleted (GTK_TREE_MODEL (model), tp);
+    
     gtk_tree_path_free (tp);
 }
 
@@ -710,8 +720,12 @@ static void fm_dir_tree_model_remove_all_children (FmDirTreeModel *model, GList 
         dir_tree_item->children = g_list_delete_link (dir_tree_item->children, dir_tree_item->children);
         
         // signal the view that we removed the placeholder item.
-        gtk_tree_model_row_deleted (GTK_TREE_MODEL (model), tp);
+        char *tmp_path = gtk_tree_path_to_string (tp);
+        TREEVIEW_DEBUG ("fm_dir_tree_model_remove_all_children %s\n", tmp_path);
+        g_free (tmp_path);
         
+        
+        gtk_tree_model_row_deleted (GTK_TREE_MODEL (model), tp);
         // everytime we remove the first item, its next item became the
         // first item, so there is no need to update tp.
     }
@@ -722,7 +736,12 @@ static void fm_dir_tree_model_remove_all_children (FmDirTreeModel *model, GList 
         g_list_free (dir_tree_item->hidden_children);
         dir_tree_item->hidden_children = NULL;
     }
+    
     gtk_tree_path_up (tp);
+    
+    GtkTreeIter it;
+    gtk_tree_model_row_has_child_toggled (GTK_TREE_MODEL (model), tp, &it);
+    //~ gtk_tree_model_row_changed ((GtkTreeModel*) model, tp, &it);
 }
 
 
@@ -954,7 +973,10 @@ static void fm_dir_tree_model_item_reload_icon (FmDirTreeModel *model, FmDirTree
 
 
 
-
+// Forward declarations...
+static gboolean subdir_check_finish_has_subdir (FmDirTreeModel *model);
+static gboolean subdir_check_finish_no_subdir (FmDirTreeModel *model);
+static gboolean subdir_check_finish (FmDirTreeModel *model);
 
 
 
@@ -983,8 +1005,10 @@ void fm_dir_tree_model_item_queue_subdir_check (FmDirTreeModel *model, GList *it
     g_return_if_fail (dir_tree_item->fi != NULL);
 
     g_mutex_lock (model->subdir_checks_mutex);
+    
     g_queue_push_tail (&model->subdir_checks, item_list);
     NO_DEBUG ("queue subdir check for %s\n", fm_file_info_get_disp_name (dir_tree_item->fi));
+    
     if (!model->job_running)
     {
         model->job_running = TRUE;
@@ -997,59 +1021,8 @@ void fm_dir_tree_model_item_queue_subdir_check (FmDirTreeModel *model, GList *it
                                 model->subdir_cancellable);
         NO_DEBUG ("push job\n");
     }
-    g_mutex_unlock (model->subdir_checks_mutex);
-}
-
-static gboolean subdir_check_finish (FmDirTreeModel *model)
-{
-    model->current_subdir_check = NULL;
-    if (g_queue_is_empty (&model->subdir_checks))
-    {
-        model->job_running = FALSE;
-        TREEVIEW_DEBUG ("subdir_check_finish: all subdir checks are finished !\n");
-        return FALSE;
-    }
-    else // still has queued items 
-    {
-        if (g_cancellable_is_cancelled (model->subdir_cancellable))
-            g_cancellable_reset (model->subdir_cancellable);
-    }
-    return TRUE;
-}
-
-static gboolean subdir_check_finish_has_subdir (FmDirTreeModel *model)
-{
-    GList *item_list = model->current_subdir_check;
     
-    if (!g_cancellable_is_cancelled (model->subdir_cancellable) && item_list)
-    {
-        FmDirTreeItem *dir_tree_item = (FmDirTreeItem*)item_list->data;
-        GtkTreePath *tp = fm_dir_tree_model_item_to_tree_path (model, item_list);
-        
-        fm_dir_tree_model_add_place_holder_child_item (model, item_list, tp, TRUE);
-        
-        gtk_tree_path_free (tp);
-        TREEVIEW_DEBUG ("finished for item with subdir: %s\n", fm_file_info_get_disp_name (dir_tree_item->fi));
-    }
-    return subdir_check_finish (model);
-}
-
-static gboolean subdir_check_finish_no_subdir (FmDirTreeModel *model)
-{
-    GList *item_list = model->current_subdir_check;
-    if (!g_cancellable_is_cancelled (model->subdir_cancellable) && item_list)
-    {
-        FmDirTreeItem *dir_tree_item = (FmDirTreeItem*)item_list->data;
-        
-        if (dir_tree_item->children) // remove existing subdirs or place holder item if needed. 
-        {
-            GtkTreePath *tp = fm_dir_tree_model_item_to_tree_path (model, item_list);
-            fm_dir_tree_model_remove_all_children (model, item_list, tp);
-            gtk_tree_path_free (tp);
-            NO_DEBUG ("finished for item with no subdir: %s\n", fm_file_info_get_disp_name (dir_tree_item->fi));
-        }
-    }
-    return subdir_check_finish (model);
+    g_mutex_unlock (model->subdir_checks_mutex);
 }
 
 static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellable, gpointer user_data)
@@ -1110,9 +1083,69 @@ static gboolean subdir_check_job (GIOSchedulerJob *job, GCancellable *cancellabl
     
     if (has_subdir)
         return g_io_scheduler_job_send_to_mainloop (job, (GSourceFunc) subdir_check_finish_has_subdir, model, NULL);
-
-    return g_io_scheduler_job_send_to_mainloop (job, (GSourceFunc) subdir_check_finish_no_subdir, model, NULL);
-
+    else
+        return g_io_scheduler_job_send_to_mainloop (job, (GSourceFunc) subdir_check_finish_no_subdir, model, NULL);
 }
+
+
+static gboolean subdir_check_finish_has_subdir (FmDirTreeModel *model)
+{
+    GList *item_list = model->current_subdir_check;
+    
+    if (!g_cancellable_is_cancelled (model->subdir_cancellable) && item_list)
+    {
+        FmDirTreeItem *dir_tree_item = (FmDirTreeItem*)item_list->data;
+        GtkTreePath *tp = fm_dir_tree_model_item_to_tree_path (model, item_list);
+        
+        if (!model->check_subdir_mode2)
+            fm_dir_tree_model_add_place_holder_child_item (model, item_list, tp, TRUE);
+        
+        gtk_tree_path_free (tp);
+        NO_DEBUG ("finished for item with subdir: %s\n", fm_file_info_get_disp_name (dir_tree_item->fi));
+    }
+    return subdir_check_finish (model);
+}
+
+static gboolean subdir_check_finish_no_subdir (FmDirTreeModel *model)
+{
+    GList *item_list = model->current_subdir_check;
+    if (!g_cancellable_is_cancelled (model->subdir_cancellable) && item_list)
+    {
+        FmDirTreeItem *dir_tree_item = (FmDirTreeItem*)item_list->data;
+        
+        if (dir_tree_item->children) // remove existing subdirs or place holder item if needed. 
+        {
+            
+            // Remove the place holder...
+            TREEVIEW_DEBUG ("remove place holder for %s\n", fm_file_info_get_disp_name (dir_tree_item->fi));
+            
+            GtkTreePath *tp = fm_dir_tree_model_item_to_tree_path (model, item_list);
+            fm_dir_tree_model_remove_all_children (model, item_list, tp);
+            gtk_tree_path_free (tp);
+            
+            //~ fm_dir_tree_model_remove_item (model, item_list);
+            
+        }
+    }
+    return subdir_check_finish (model);
+}
+
+static gboolean subdir_check_finish (FmDirTreeModel *model)
+{
+    model->current_subdir_check = NULL;
+    if (g_queue_is_empty (&model->subdir_checks))
+    {
+        model->job_running = FALSE;
+        TREEVIEW_DEBUG ("subdir_check_finish: all subdir checks are finished !\n");
+        return FALSE;
+    }
+    else // still has queued items 
+    {
+        if (g_cancellable_is_cancelled (model->subdir_cancellable))
+            g_cancellable_reset (model->subdir_cancellable);
+    }
+    return TRUE;
+}
+
 
 

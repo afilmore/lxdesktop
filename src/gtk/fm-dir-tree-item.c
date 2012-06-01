@@ -186,6 +186,8 @@ void fm_dir_tree_item_on_folder_loaded (FmDirTreeItem *dir_tree_item)
     FmDirTreeModel *model = dir_tree_item->model;
     GList *place_holder = dir_tree_item->children;
     
+    g_return_if_fail (place_holder != NULL);
+    
     // If we have loaded sub dirs, remove the place holder...
     if (place_holder->next)
     {
