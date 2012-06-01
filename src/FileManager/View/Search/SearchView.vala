@@ -266,11 +266,11 @@ namespace Manager {
             string location = file_info.get_path ().to_str ();
             
             
-            
+            Fm.Icon fm_icon = file_info.get_fm_icon ();
             
             _model.set (iter,
                         SearchColumn.INFO, file_info,
-                        //SearchColumn.ICON, file_info.get_fm_icon ().get_pixbuf (16),
+                        SearchColumn.ICON, fm_icon.get_pixbuf (16),
                         SearchColumn.NAME, file_info.get_disp_name (),
                         SearchColumn.LOCATION, location,
                         SearchColumn.DESC, file_info.get_desc ()
