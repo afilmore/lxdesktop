@@ -38,8 +38,11 @@
 #include "fm-gtk-marshal.h"
 #include "fm-cell-renderer-text.h"
 #include "fm-cell-renderer-pixbuf.h"
-#include "fm-utils.h"
-#include "fm-dlg-utils.h"
+
+#include "fm-mount.h"
+#include "fm-msgbox.h"
+//~ #include "fm-utils.h"
+//~ #include "fm-dlg-utils.h"
 
 #include "exo/exo-icon-view.h"
 #include "exo/exo-tree-view.h"
