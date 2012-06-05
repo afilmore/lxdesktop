@@ -369,7 +369,7 @@ namespace Desktop {
         
         public void move_items (int offset_x, int offset_y, bool align_items = true) {
             
-            stdout.printf ("Desktop.Grid.move_items (): MOVE !!!!!!!\n");
+//~             stdout.printf ("Desktop.Grid.move_items (): MOVE !!!!!!!\n");
 
             unowned List<Desktop.Item>? list;
             
@@ -384,12 +384,12 @@ namespace Desktop {
                     // nearest cell index...
                     int xx = (new_x + (_cell_width / 2)) / _cell_width;
                     int yy = (new_y + (_cell_height / 2)) / _cell_height;
-                    stdout.printf ("move_items: move item to %d, %d\n", xx, yy);
+//~                     stdout.printf ("move_items: move item to %d, %d\n", xx, yy);
                     
                     // cell index to top left pixel
                     int xxx = xx * _cell_width;
                     int yyy = yy * _cell_height;
-                    stdout.printf ("move_items: move item to %d, %d\n", xxx, yyy);
+//~                     stdout.printf ("move_items: move item to %d, %d\n", xxx, yyy);
                     
                     // TODO_axl: to align on the grid we need to invalidate the index pos and move the item...
                     if (align_items) {
@@ -421,7 +421,7 @@ namespace Desktop {
             string name1 = item1.get_disp_name ();
             string name2 = item2.get_disp_name ();
             
-            stdout.printf ("comparing %s and %s\n", name1, name2);
+//~             stdout.printf ("comparing %s and %s\n", name1, name2);
             
             return item1.index - item2.index;
         }

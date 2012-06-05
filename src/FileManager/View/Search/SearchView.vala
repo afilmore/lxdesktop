@@ -203,7 +203,6 @@ namespace Manager {
             if (!ret)
                 return;
             
-            
             /**
              * Add watch function to catch termination of the process.
              * This function will clean any remnants of process.
@@ -246,21 +245,11 @@ namespace Manager {
             while (Gtk.events_pending ())
                 Gtk.main_iteration ();
             
-            // TODO_axl: need to find a better way to get a FileInfo, that's way complicated...
-            //~ Fm.FileInfoJob job = new Fm.FileInfoJob (null, 0);
-            //~ job.add (new Fm.Path.for_str (line_string));
-            //~ job.run_sync ();
-            //~ 
-            //~ Fm.FileInfoList<Fm.FileInfo>? file_info_list = job.file_infos;
-            //~ 
-            //~ Fm.FileInfo? file_info = file_info_list.pop_head ();
-            //~ _file_info_list.push_head (file_info);
-            
             Gtk.TreeIter iter;
             _model.append (out iter);
             
             Fm.FileInfo? file_info = new Fm.FileInfo.for_path (new Fm.Path.for_str (line [0]));
-            file_info.for_native_file (line [0]);
+            file_info.set_for_native_file (line [0]);
             _file_info_list.push_head (file_info);
             
             string location = file_info.get_path ().to_str ();
@@ -275,10 +264,6 @@ namespace Manager {
                         SearchColumn.LOCATION, location,
                         SearchColumn.DESC, file_info.get_desc ()
                         );
-            
-//~             _model.set (iter,
-//~                         SearchColumn.NAME, line [0]
-//~                         );
             
             while (Gtk.events_pending ())
                 Gtk.main_iteration ();

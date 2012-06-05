@@ -96,47 +96,91 @@ namespace Utils {
             msg = "Enter a name for the newly created folder:";
             tmp_name = Utils.get_new_file_name (base_dir, file_type, template_description);
             
-            /*** ask user for a file name...
-            string basename = Fm.get_user_input (null, _("Create New..."), _(msg), test_name);
-            
-            if (basename == null || basename == "" || dest_file == null)
-                return; ***/
-            
-            Fm.Path dest = new Fm.Path.child (base_dir, tmp_name);
-            File dest_file = dest.to_gfile ();
-            try {
-                if (!dest_file.make_directory (null)) {
-                    
-                    stdout.printf ("ERRORRRRRR !!!!!!!\n");
-                    //fm_show_error (parent, null, err->message);
+            /*** ask user for a file name... ***/
+            while (true) {
+                
+                string basename = Fm.get_user_input (null, _("Create New..."), _(msg), tmp_name);
+                
+                if (basename == null || basename == "")
+                    return; // cancelled...
+                
+                Fm.Path dest = new Fm.Path.child (base_dir, basename);
+                File dest_file = dest.to_gfile ();
+                
+                string error_msg = "Unknown Error...";
+                try {
+
+                    if (dest_file.make_directory (null))
+                        return; // successfull...
+                        
+                } catch (Error error) {
+                    error_msg = error.message;
                 }
-            } catch (Error e) {
+                Fm.show_error (null, null, error_msg);
+            }
+
+        } else if (file_type == Utils.NewFileNameType.FILE) {
+            
+            msg = "Enter a name for the newly created file:";
+            tmp_name = Utils.get_new_file_name (base_dir, file_type, template_description);
+            
+            /*** ask user for a file name... ***/
+            while (true) {
+                
+                string basename = Fm.get_user_input (null, _("Create New..."), _(msg), tmp_name);
+                
+                if (basename == null || basename == "")
+                    return; // cancelled...
+                
+                Fm.Path dest = new Fm.Path.child (base_dir, basename);
+                File dest_file = dest.to_gfile ();
+                
+                string error_msg = "Unknown Error...";
+                try {
+
+                    FileOutputStream f = dest_file.create (FileCreateFlags.NONE);
+                    if (f != null) {
+                        f.close ();
+                        return; // successfull...
+                    }
+                        
+                } catch (Error error) {
+                    error_msg = error.message;
+                }
+                Fm.show_error (null, null, error_msg);
             }
 
         } else if (file_type == Utils.NewFileNameType.FROM_DESCRIPTION) {
             
+            msg = "Enter a name for the newly created file:";
             Fm.Path template_dir = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.TEMPLATES));
             Fm.Path template = new Fm.Path.child (template_dir, template_name);
             
             tmp_name = Utils.get_new_file_name (base_dir, file_type, template_description);
             
-            /*** ask user for a file name...
-            string basename = Fm.get_user_input (null, _("Create New..."), _(msg), test_name);
-            
-            if (basename == null || basename == "" || dest_file == null)
-                return; ***/
-            
-            Fm.Path dest_file = new Fm.Path.child (base_dir, tmp_name);
-            
-            stdout.printf ("Fm.copy_file %s %s\n", template.to_str (), dest_file.to_str ());
-            
-            try {
-                File file = template.to_gfile ();
-                file.copy (dest_file.to_gfile (), FileCopyFlags.NONE);
-            } catch (Error e) {
+            /*** ask user for a file name... ***/
+            while (true) {
+                
+                string basename = Fm.get_user_input (null, _("Create New..."), _(msg), tmp_name);
+                
+                if (basename == null || basename == "")
+                    return; // cancelled...
+                
+                Fm.Path dest_file = new Fm.Path.child (base_dir, basename);
+                
+                string error_msg = "Unknown Error...";
+                try {
+
+                    File file = template.to_gfile ();
+                    if (file.copy (dest_file.to_gfile (), FileCopyFlags.NONE))
+                        return; // successfull...
+                        
+                } catch (Error error) {
+                    error_msg = error.message;
+                }
+                Fm.show_error (null, null, error_msg);
             }
 
-            
             /*** Optionaly it could be possible to open the newly created file...
             string cmdline = "xdg-open \"%s\"".printf (dest_file.to_str ());
             
@@ -145,31 +189,6 @@ namespace Utils {
             } catch (Error e) {
                 stdout.printf ("cannot open %s\n", cmdline);
             } ***/
-            
-            return;
-        
-        } else if (file_type == Utils.NewFileNameType.FILE) {
-            
-            msg = "Enter a name for the newly created file:";
-            tmp_name = Utils.get_new_file_name (base_dir, file_type, template_description);
-            
-            /*** ask user for a file name...
-            string basename = Fm.get_user_input (null, _("Create New..."), _(msg), test_name);
-            
-            if (basename == null || basename == "" || dest_file == null)
-                return; ***/
-
-            try {
-                Fm.Path dest = new Fm.Path.child (base_dir, tmp_name);
-                File dest_file = dest.to_gfile ();
-                FileOutputStream f = dest_file.create (FileCreateFlags.NONE);
-                if (f == null)
-                    return;
-                    
-                f.close ();
-            } catch (Error e) {
-            }
-
         }
         
         return;

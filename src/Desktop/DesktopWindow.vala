@@ -755,10 +755,10 @@ namespace Desktop {
             Desktop.Item selected = _grid.get_selected_item ();
             
             if (selected != null) {
-                stdout.printf ("ICON !!!\n");
+//~                 stdout.printf ("ICON !!!\n");
                 Gtk.drag_set_icon_pixbuf (drag_context, selected.icon, -5, -5);
             }
-            stdout.printf ("DRAG BEGIN !!!\n");
+//~             stdout.printf ("DRAG BEGIN !!!\n");
             
             return;
              
@@ -881,7 +881,7 @@ namespace Desktop {
              * 
              ***/
             
-            stdout.printf ("%u: DRAG LEAVE !!!\n", time);
+//~             stdout.printf ("%u: DRAG LEAVE !!!\n", time);
             
             _fm_dnd_dest.drag_leave (drag_context, time);
 
