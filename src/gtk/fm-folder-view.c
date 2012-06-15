@@ -31,7 +31,7 @@
 
 #include <glib/gi18n-lib.h>
 
-#include "fm-config.h"
+#include "fm-vala.h"
 #include "fm-folder-view.h"
 #include "fm-folder.h"
 #include "fm-folder-model.h"

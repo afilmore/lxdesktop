@@ -34,6 +34,7 @@ lxdesktop_SOURCES = \
 	Common/DesktopPopup.vala \
 	Common/DesktopFilePopup.vala \
 	Common/DesktopVolumeMonitor.vala \
+	Common/LabelEdit.vala \
 	Common/OptionsParser.vala \
 	Common/Utils.vala \
 	Common/xlib.c \
@@ -96,6 +97,6 @@ lxdesktop_LDADD = \
 	$(VTE_LIBS) \
 	$(NULL)
 
-CLEANFILES = $(patsubst %.vala,%.c,$(filter %.vala, $(SOURCES))) lxdesktop.stamp
+CLEANFILES = $(patsubst %.vala,%.c,$(filter %.vala, $(SOURCES))) lxdesktop_vala.stamp
 
 

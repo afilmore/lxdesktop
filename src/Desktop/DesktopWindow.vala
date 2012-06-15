@@ -56,11 +56,6 @@ namespace Desktop {
         bool _debug_mode = false;
         
         
-        /*********************************************************************************
-         * Desktop Menu.
-         * 
-         * 
-         ********************************************************************************/
         // The desktop grid
         private Desktop.Grid    _grid;
         public  Desktop.Item?   drop_hilight = null;         /*** Drop Target Highlighted Item ***/
@@ -90,6 +85,11 @@ namespace Desktop {
          ********************************************************************************/
         
         
+        /*********************************************************************************
+         * Desktop Menu.
+         * 
+         * 
+         ********************************************************************************/
         // File Popup...
         // TODO_axl: do this a better way...
         private Desktop.FilePopup?  _file_popup;
@@ -181,6 +181,7 @@ namespace Desktop {
             Gdk.Screen screen = this.get_screen ();
 
             _grid = new Desktop.Grid (this, config_file, debug);
+            this.add (_grid);
             
             if (_debug_mode) {
                 
@@ -253,12 +254,18 @@ namespace Desktop {
 
             Gtk.TargetList targets = Gtk.drag_source_get_target_list (this);
             
-            /*** There's an error in the Vapi files,
-             *   that will be corrected in the next realize
-             *   https://bugzilla.gnome.org/show_bug.cgi?id=673117 ***/
+            
+            /*******************************************************************
+             *  There's an error in the Vapi files:
+             *  https://bugzilla.gnome.org/show_bug.cgi?id=673117
+             * 
+             *  Thanks to Luca Bruno for the quick fix :)
+             * 
+             ******************************************************************/
             targets.add_table (dnd_targets); 
             
-            // Override FmDndSrc.
+            
+            // Override Fm.DndSrc.
             this.drag_data_get.connect (_on_drag_data_get);
             
             _fm_dnd_src = new Fm.DndSrc (this);
@@ -296,7 +303,7 @@ namespace Desktop {
             
             base.realize ();
             
-            _grid.init_gc (this.get_window());
+            // TODO_axl: test and remove... _grid.init_gc (this.get_window());
             
             this.set_resizable (false);
             
@@ -313,10 +320,10 @@ namespace Desktop {
             
             /*** stdout.printf ("_on_size_allocate: %i, %i, %i, %i\n", rect.x, rect.y, rect.width, rect.height); ***/
             
-            // Setup the size of items.
+            // Initialize the grid...
             _grid.init_layout ((Gdk.Rectangle) allocation);
             
-            // Scale the wallpaper
+            // Scale the wallpaper...
             if (base.get_realized () == true
                 && global_config.wallpaper_mode != Fm.WallpaperMode.COLOR
                 && global_config.wallpaper_mode != Fm.WallpaperMode.TILE) {
@@ -331,7 +338,7 @@ namespace Desktop {
             
             Gdk.Screen screen = this.get_screen ();
             if (_debug_mode == true )
-                minimal_width = natural_width = (screen.get_width () /4) *3;
+                minimal_width = natural_width = (screen.get_width () / 4) * 3;
             else
                 minimal_width = natural_width = screen.get_width ();
             
@@ -354,11 +361,11 @@ namespace Desktop {
             Gdk.Rectangle rect = {0, 0, 0, 0};
             Gdk.cairo_get_clip_rectangle (cr, out rect);
             
-            // Rubber banding
+            // Rubber banding...
             if (_rubber_started == true)
-                this._paint_rubber_banding_rect (cr, rect);
+                this._draw_rubber_banding_rect (cr, rect);
             
-            // Draw desktop icons
+            // Draw desktop icons...
             this._grid.draw_items_in_rect (cr, rect);
             
             return true;
@@ -379,6 +386,8 @@ namespace Desktop {
         private bool _on_button_press (Gdk.EventButton evt) {
             
             Desktop.Item? clicked_item = _grid.hit_test (evt.x, evt.y);
+            
+            _grid.stop_rename_item ();
             
             /**********************************************************************
              * Left double click on a selected item, launch the selected file...
@@ -522,6 +531,17 @@ namespace Desktop {
                     
                     return true;
                 }
+            
+/** GtkTextView experiments...            
+            } else {
+                
+                stdout.printf ("%s\n", clicked_item.get_disp_name ());
+
+                _grid.start_rename_item (clicked_item);
+                
+                return true;
+**/
+
             }
 
             // Forward the event to root window...
@@ -540,6 +560,9 @@ namespace Desktop {
                 
                 // Single click...
                 if (global_config.single_click == true) {
+                    
+
+                    
                     /**************************************************************************************
                      * Single click not implemented yet...
                      * 
@@ -626,7 +649,7 @@ namespace Desktop {
          * 
          * 
          ******************************************************************************************/
-        private void _paint_rubber_banding_rect (Cairo.Context cr, Gdk.Rectangle expose_area) {
+        private void _draw_rubber_banding_rect (Cairo.Context cr, Gdk.Rectangle expose_area) {
             
             Gdk.Rectangle rect = {0};
             
@@ -638,23 +661,29 @@ namespace Desktop {
             if (expose_area.intersect (rect, out rect) == false)
                 return;
 
-            // The style and color should be cached and configurable...
+            cr.save ();
+            
+            // Get the rectangle color...
             Gtk.Style style = this.get_style ();
-            Gdk.Color clr = style.base[Gtk.StateType.SELECTED];
+            Gdk.Color clr = style.base [Gtk.StateType.SELECTED];
             uchar alpha = 64;
 
-            cr.save ();
-            cr.set_source_rgba ((double) clr.red / 65535,
-                                (double) clr.green / 65536,
-                                (double) clr.blue / 65535,
-                                (double) alpha / 100);
+            // Draw the inner rectangle...
+            cr.set_source_rgba ((double) clr.red    / 65535,
+                                (double) clr.green  / 65535,
+                                (double) clr.blue   / 65535,
+                                (double) alpha      / 100);
                                 
-            Gdk.cairo_rectangle (cr, rect);
+            // TODO_axl: test and remove... Gdk.cairo_rectangle (cr, rect);
+            cr.rectangle (rect.x, rect.y, rect.width, rect.height);
             cr.clip ();
             cr.paint ();
             
-            // DEPRECATED replace with gdk_cairo_set_source_rgba ()
-            Gdk.cairo_set_source_color (cr, clr);
+            // Draw the outer rectangle...
+            cr.set_source_rgba ((double) clr.red    / 65535,
+                                (double) clr.green  / 65535,
+                                (double) clr.blue   / 65535,
+                                (double) 100        / 100);
             
             cr.rectangle (rect.x + 0.5, rect.y + 0.5, rect.width - 1, rect.height - 1);
             cr.stroke ();
