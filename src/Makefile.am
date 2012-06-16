@@ -65,6 +65,7 @@ lxdesktop_VALAFLAGS = \
 	--pkg vconfig \
 	--pkg $(GTK_PKG) \
 	--pkg libfmcore \
+	--pkg libfmcore-jobs \
 	--pkg fm-gtk \
 	--pkg posix \
 	--pkg vte-2.90 \
