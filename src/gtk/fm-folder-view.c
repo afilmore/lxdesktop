@@ -83,7 +83,7 @@ static gboolean on_folder_view_focus_in (GtkWidget *widget, GdkEventFocus *evt);
 static void on_chdir (FmFolderView *folder_view, FmPath *dir_path);
 static void on_loaded (FmFolderView *folder_view, FmPath *dir_path);
 static void on_model_loaded (FmFolderModel *model, FmFolderView *folder_view);
-static FmJobErrorAction on_folder_err (FmFolder *folder, GError *err, FmJobErrorSeverity severity, FmFolderView *folder_view);
+static FmErrorAction on_folder_err (FmFolder *folder, GError *err, FmSeverity severity, FmFolderView *folder_view);
 
 
 
@@ -1285,23 +1285,23 @@ static void on_folder_loaded (FmFolder *folder, FmFolderView *folder_view)
     on_model_loaded (model, folder_view);
 }
 
-static FmJobErrorAction on_folder_err (FmFolder *folder, GError *err, FmJobErrorSeverity severity, FmFolderView *folder_view)
+static FmErrorAction on_folder_err (FmFolder *folder, GError *err, FmSeverity severity, FmFolderView *folder_view)
 {
     GtkWindow *parent =  (GtkWindow*)gtk_widget_get_toplevel ((GtkWidget*)folder_view);
     if (err->domain == G_IO_ERROR)
     {
-        if (err->code == G_IO_ERROR_NOT_MOUNTED && severity < FM_JOB_ERROR_CRITICAL)
+        if (err->code == G_IO_ERROR_NOT_MOUNTED && severity < FM_SEVERITY_CRITICAL)
         {
             if (fm_mount_path (parent, folder->dir_path, TRUE))
-                return FM_JOB_RETRY;
+                return FM_ERROR_ACTION_RETRY;
         }
         else if (err->code == G_IO_ERROR_FAILED_HANDLED)
         {
-            return FM_JOB_CONTINUE;
+            return FM_ERROR_ACTION_CONTINUE;
         }
     }
     fm_show_error (parent, NULL, err->message);
-    return FM_JOB_CONTINUE;
+    return FM_ERROR_ACTION_CONTINUE;
 }
 
 /*****************************************************************************************
