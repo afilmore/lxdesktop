@@ -721,7 +721,7 @@ namespace Manager {
                 // Double click on an item in the Folder View...
                 case Fm.FolderViewClickType.ACTIVATED: {
                     
-                    if (fi == null)
+                    if (fi == null || fi.get_path ().is_trash_file ())
                         return;
                     
                     string? target = fi.get_target ();

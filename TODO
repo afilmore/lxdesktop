@@ -120,7 +120,7 @@
             []      gtk/fm-dnd-auto-scroll.c
             []      gtk/fm-dnd-dest.c
             []      gtk/fm-dnd-src.c
-            []      gtk/fm-file-menu.c
+            [DONE]  gtk/fm-file-menu.c
             []      gtk/fm-icon-pixbuf.c
             []      gtk/fm-thumbnail.c
 
