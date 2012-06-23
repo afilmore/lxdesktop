@@ -1,5 +1,6 @@
 NULL=
 
+
 AM_CPPFLAGS = \
 	-include config.h \
 	-I $(srcdir)/Common \
@@ -8,25 +9,9 @@ AM_CPPFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	$(NULL)
 
+
 bin_PROGRAMS = lxdesktop
 
-exo_SOURCES = \
-	gtk/exo/exo-icon-view.c \
-	gtk/exo/exo-private.c \
-	gtk/exo/exo-tree-view.c \
-	gtk/exo/exo-lxde.c \
-	gtk/exo/exo-marshal.c \
-	$(NULL)
-
-gtk_SOURCES = \
-	gtk/fm-cell-renderer-pixbuf.c \
-	gtk/fm-cell-renderer-text.c \
-	gtk/fm-dir-tree-item.c \
-	gtk/fm-dir-tree-model.c \
-	gtk/fm-dir-tree-view.c \
-	gtk/fm-folder-view.c \
-	gtk/fm-path-entry.c \
-	$(NULL)
 
 lxdesktop_SOURCES = \
 	Application.vala \
@@ -55,8 +40,6 @@ lxdesktop_SOURCES = \
 	FileManager/View/Terminal/TerminalView.vala \
 	FileManager/View/Terminal/TerminalWidget.vala \
 	FileManager/View/Terminal/TerminalCloseDialog.vala \
-	$(exo_SOURCES) \
-	$(gtk_SOURCES) \
 	$(NULL)
 	
 

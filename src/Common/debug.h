@@ -28,11 +28,11 @@
 
 G_BEGIN_DECLS
 
-#ifdef ENABLE_TREEVIEW_DEBUG
-#define TREEVIEW_DEBUG(...) DEBUG(__VA_ARGS__)
-#else
-#define TREEVIEW_DEBUG(...)
-#endif
+//~ #ifdef ENABLE_TREEVIEW_DEBUG
+//~ #define TREEVIEW_DEBUG(...) DEBUG(__VA_ARGS__)
+//~ #else
+//~ #define TREEVIEW_DEBUG(...)
+//~ #endif
 
 
 G_END_DECLS
