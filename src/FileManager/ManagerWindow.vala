@@ -316,16 +316,41 @@ namespace Manager {
                 // Desktop...
                 job.add (Fm.Path.get_desktop ());
                 
-                // Documents...
-                Fm.Path path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DOCUMENTS));
+                // Computer...
+                Fm.Path path = new Fm.Path.for_uri ("computer:///");
                 job.add (path);
                 
-                // Computer...
-                path = new Fm.Path.for_uri ("computer:///");
+                // Documents...
+                path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DOCUMENTS));
                 job.add (path);
                 
                 // Trash Can...
                 job.add (Fm.Path.get_trash ());
+                
+                /**
+                 *  The user's Downloads directory:     G_USER_DIRECTORY_DOWNLOAD
+                 *  The user's Music directory:         G_USER_DIRECTORY_MUSIC
+                 *  The user's Pictures directory:      G_USER_DIRECTORY_PICTURES
+                 *  The user's shared directory:        G_USER_DIRECTORY_PUBLIC_SHARE
+                 *  The user's Templates directory:     G_USER_DIRECTORY_TEMPLATES
+                 *  The user's Movies directory:        G_USER_DIRECTORY_VIDEOS
+                 **/
+                
+                // Documents...
+                path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DOWNLOAD));
+                job.add (path);
+                
+                // Documents...
+                path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.MUSIC));
+                job.add (path);
+                
+                // Documents...
+                path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.PICTURES));
+                job.add (path);
+                
+                // Documents...
+                path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.VIDEOS));
+                job.add (path);
                 
                 // Root FileSystem...
                 job.add (Fm.Path.get_root ());
@@ -346,7 +371,10 @@ namespace Manager {
                     //bool expand = (fi.get_path ().is_virtual () == false);
                     bool expand = true;
                     if (fi.get_path ().is_virtual ()) {
-                        expand = false;
+                        if (fi.get_path ().is_computer ())
+                            expand = true;
+                        else
+                            expand = false;
                     }
                     
                     global_dir_tree_model.add_root (fi, null, expand);
