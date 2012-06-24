@@ -859,7 +859,7 @@ namespace Desktop {
             if (fi != null
                 && !fi.is_dir ()
                 && !fi.is_desktop_entry ()
-                && !fi.get_path ().is_trash_root ()) {
+                && ! (fi.get_path ().is_root () && fi.get_path ().is_trash ())) {
                
                 Gdk.drag_status (drag_context, 0, time);
                 return false;
@@ -980,7 +980,7 @@ namespace Desktop {
             if ((fi == null
                 || fi.is_dir ()
                 || fi.is_desktop_entry ()
-                || fi.get_path ().is_trash_root ())
+                || (fi.get_path ().is_trash () && fi.get_path ().is_root ()))
                 && can_drop) {
                    
                 target = _fm_dnd_dest.find_target (drag_context);
