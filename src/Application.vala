@@ -145,6 +145,8 @@ namespace Desktop {
             global_config = new Desktop.Config ();
             Fm.init (global_config);
             
+            Fm.mount_automount ();
+            
             /*** fm_volume_manager_init (); ***/
             _volume_monitor = new Desktop.VolumeMonitor ();
             
