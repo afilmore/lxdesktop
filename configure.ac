@@ -65,18 +65,6 @@ AC_SUBST(G_CAST_CHECKS)
 #
 #
 #*****************************************************************************************
-AC_ARG_ENABLE(treeview-debug,
-              [AC_HELP_STRING([--enable-treeview-debug],
-              [Debug The Tree View (default: no)])],
-              enable_treeview_debug=$enableval,
-              enable_treeview_debug="no")
-
-
-if test "$enable_treeview_debug" = "yes"; then
-    CPPFLAGS="$CPPFLAGS -DENABLE_TREEVIEW_DEBUG"
-    enable_debug = "yes"
-fi
-
 
 AC_ARG_ENABLE(debug,
               [AC_HELP_STRING([--enable-debug],
