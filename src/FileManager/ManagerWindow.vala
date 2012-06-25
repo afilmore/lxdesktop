@@ -303,82 +303,84 @@ namespace Manager {
                 global_dir_tree_model = new Fm.DirTreeModel ();
                 global_dir_tree_model.set_show_hidden (true);
                 
-                Fm.FileInfoJob job = new Fm.FileInfoJob (null, Fm.FileInfoJobFlags.NONE);
+                global_dir_tree_model.load ();
                 
-                unowned List<Fm.FileInfo>? l;
-                
-                
-                /*************************************************************************
-                 * Add TreeView Root Items....
-                 * 
-                 * 
-                 ************************************************************************/
-                // Desktop...
-                job.add (Fm.Path.get_desktop ());
-                
-                // Computer...
-                Fm.Path path = new Fm.Path.for_uri ("computer:///");
-                job.add (path);
-                
-                // Documents...
-                path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DOCUMENTS));
-                job.add (path);
-                
-                // Trash Can...
-                job.add (Fm.Path.get_trash ());
-                
-                /**
-                 *  The user's Downloads directory:     G_USER_DIRECTORY_DOWNLOAD
-                 *  The user's Music directory:         G_USER_DIRECTORY_MUSIC
-                 *  The user's Pictures directory:      G_USER_DIRECTORY_PICTURES
-                 *  The user's shared directory:        G_USER_DIRECTORY_PUBLIC_SHARE
-                 *  The user's Templates directory:     G_USER_DIRECTORY_TEMPLATES
-                 *  The user's Movies directory:        G_USER_DIRECTORY_VIDEOS
-                 **/
-                
-                // Documents...
-                path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DOWNLOAD));
-                job.add (path);
-                
-                // Documents...
-                path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.MUSIC));
-                job.add (path);
-                
-                // Documents...
-                path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.PICTURES));
-                job.add (path);
-                
-                // Documents...
-                path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.VIDEOS));
-                job.add (path);
-                
-                // Root FileSystem...
-                job.add (Fm.Path.get_root ());
-                
-                // Administration Programs...
-                job.add (new Fm.Path.for_uri ("menu://applications/system/Administration"));
-                
-                job.run_sync_with_mainloop ();
-
-                Fm.FileInfoList file_infos = job.get_list ();
-                
-                unowned List<Fm.FileInfo>? list = (List<Fm.FileInfo>) ((Queue) file_infos).head;
-                
-                for (l = list; l != null; l = l.next) {
-                    
-                    Fm.FileInfo? fi = (Fm.FileInfo) l.data;
-                    
-                    //bool expand = (fi.get_path ().is_virtual () == false);
-                    bool expand = true;
-                    if (fi.get_path ().is_virtual ()) {
-                        if (fi.get_path ().is_computer ())
-                            expand = true;
-                        else
-                            expand = false;
-                    }
-                    
-                    global_dir_tree_model.add_root (fi, null, expand);
-                }
+//~                 Fm.FileInfoJob job = new Fm.FileInfoJob (null, Fm.FileInfoJobFlags.NONE);
+//~                 
+//~                 unowned List<Fm.FileInfo>? l;
+//~                 
+//~                 
+//~                 /*************************************************************************
+//~                  * Add TreeView Root Items....
+//~                  * 
+//~                  * 
+//~                  ************************************************************************/
+//~                 // Desktop...
+//~                 job.add (Fm.Path.get_desktop ());
+//~                 
+//~                 // Computer...
+//~                 Fm.Path path = new Fm.Path.for_uri ("computer:///");
+//~                 job.add (path);
+//~                 
+//~                 // Documents...
+//~                 path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DOCUMENTS));
+//~                 job.add (path);
+//~                 
+//~                 // Trash Can...
+//~                 job.add (Fm.Path.get_trash ());
+//~                 
+//~                 /**
+//~                  *  The user's Downloads directory:     G_USER_DIRECTORY_DOWNLOAD
+//~                  *  The user's Music directory:         G_USER_DIRECTORY_MUSIC
+//~                  *  The user's Pictures directory:      G_USER_DIRECTORY_PICTURES
+//~                  *  The user's shared directory:        G_USER_DIRECTORY_PUBLIC_SHARE
+//~                  *  The user's Templates directory:     G_USER_DIRECTORY_TEMPLATES
+//~                  *  The user's Movies directory:        G_USER_DIRECTORY_VIDEOS
+//~                  **/
+//~                 
+//~                 // Documents...
+//~                 path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DOWNLOAD));
+//~                 job.add (path);
+//~                 
+//~                 // Documents...
+//~                 path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.MUSIC));
+//~                 job.add (path);
+//~                 
+//~                 // Documents...
+//~                 path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.PICTURES));
+//~                 job.add (path);
+//~                 
+//~                 // Documents...
+//~                 path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.VIDEOS));
+//~                 job.add (path);
+//~                 
+//~                 // Root FileSystem...
+//~                 job.add (Fm.Path.get_root ());
+//~                 
+//~                 // Administration Programs...
+//~                 job.add (new Fm.Path.for_uri ("menu://applications/system/Administration"));
+//~                 
+//~                 job.run_sync_with_mainloop ();
+//~ 
+//~                 Fm.FileInfoList file_infos = job.get_list ();
+//~                 
+//~                 unowned List<Fm.FileInfo>? list = (List<Fm.FileInfo>) ((Queue) file_infos).head;
+//~                 
+//~                 for (l = list; l != null; l = l.next) {
+//~                     
+//~                     Fm.FileInfo? fi = (Fm.FileInfo) l.data;
+//~                     
+//~                     //bool expand = (fi.get_path ().is_virtual () == false);
+//~                     bool expand = true;
+//~                     if (fi.get_path ().is_virtual ()) {
+//~                         if (fi.get_path ().is_computer ())
+//~                             expand = true;
+//~                         else
+//~                             expand = false;
+//~                     }
+//~                     
+//~                     global_dir_tree_model.add_root (fi, null, expand);
+//~                 }
             }
             
             
