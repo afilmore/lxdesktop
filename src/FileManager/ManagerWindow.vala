@@ -27,11 +27,6 @@
 namespace Manager {
     
     
-    /*** is it a good idea to use a global model ?
-    private Fm.DirTreeModel?    global_dir_tree_model = null;
-    ***/
-    
-    
     private enum DirChangeCaller {
         NONE,
         PATH_ENTRY,
@@ -65,11 +60,6 @@ namespace Manager {
         private bool _debug_mode = false;
         
         
-        // try to use an instance TreeModel instead of a global one...
-        // since there's a few bugs in the tree model, that may be better...
-        private Fm.DirTreeModel?    global_dir_tree_model = null;
-        
-        
         private const Gtk.ActionEntry _main_win_actions[] = {
             
             // Application Menu...
@@ -92,27 +82,9 @@ namespace Manager {
         };
         
         
-        private Fm.Path                 _current_dir;
+        private Fm.Path         _current_dir;
+        private Fm.DirTreeModel _dir_tree_model;
         
-        
-        /** Add these later...
-             
-            TODO_axl: study and possibly rework the history navigation...
-            
-            The folder is used to display informations in the status bar...
-
-            Bookmarks are not really needed currently, add these in year 2050...
-        
-        private Fm.Folder               _folder;
-        
-        private Gtk.Widget              _history_menu;
-        private Fm.NavHistory           _nav_history;
-        
-        private Gtk.Widget              _bookmarks_menu;
-        private Fm.Bookmarks            _bookmarks;
-        
-        **/
-
         
         // UI widgets...
         private Gtk.UIManager           _ui_manager;
@@ -140,11 +112,29 @@ namespace Manager {
         private Gtk.Menu                _default_popup;
         
         
+        /** Add these later...
+             
+            TODO_axl: study and possibly rework the history navigation...
+            
+            The folder is used to display informations in the status bar...
+
+            Bookmarks are not really needed currently, add these in year 2050...
+        
+            private Fm.Folder               _folder;
+            
+            private Gtk.Widget              _history_menu;
+            private Fm.NavHistory           _nav_history;
+            
+            private Gtk.Widget              _bookmarks_menu;
+            private Fm.Bookmarks            _bookmarks;
+        
+        **/
+
+        
         public Window (bool debug = false) {
             
             _debug_mode = debug;
             
-
             this.destroy.connect ( () => {
                 
                 // TODO_axl: save last directory on exit... :-P
@@ -298,108 +288,21 @@ namespace Manager {
             scrolled_window.add (_tree_view);
             
             // Fill The TreeView Model...
-            if (global_dir_tree_model == null) {
-
-                global_dir_tree_model = new Fm.DirTreeModel ();
-                global_dir_tree_model.set_show_hidden (true);
-                
-                global_dir_tree_model.load ();
-                
-//~                 Fm.FileInfoJob job = new Fm.FileInfoJob (null, Fm.FileInfoJobFlags.NONE);
-//~                 
-//~                 unowned List<Fm.FileInfo>? l;
-//~                 
-//~                 
-//~                 /*************************************************************************
-//~                  * Add TreeView Root Items....
-//~                  * 
-//~                  * 
-//~                  ************************************************************************/
-//~                 // Desktop...
-//~                 job.add (Fm.Path.get_desktop ());
-//~                 
-//~                 // Computer...
-//~                 Fm.Path path = new Fm.Path.for_uri ("computer:///");
-//~                 job.add (path);
-//~                 
-//~                 // Documents...
-//~                 path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DOCUMENTS));
-//~                 job.add (path);
-//~                 
-//~                 // Trash Can...
-//~                 job.add (Fm.Path.get_trash ());
-//~                 
-//~                 /**
-//~                  *  The user's Downloads directory:     G_USER_DIRECTORY_DOWNLOAD
-//~                  *  The user's Music directory:         G_USER_DIRECTORY_MUSIC
-//~                  *  The user's Pictures directory:      G_USER_DIRECTORY_PICTURES
-//~                  *  The user's shared directory:        G_USER_DIRECTORY_PUBLIC_SHARE
-//~                  *  The user's Templates directory:     G_USER_DIRECTORY_TEMPLATES
-//~                  *  The user's Movies directory:        G_USER_DIRECTORY_VIDEOS
-//~                  **/
-//~                 
-//~                 // Documents...
-//~                 path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.DOWNLOAD));
-//~                 job.add (path);
-//~                 
-//~                 // Documents...
-//~                 path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.MUSIC));
-//~                 job.add (path);
-//~                 
-//~                 // Documents...
-//~                 path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.PICTURES));
-//~                 job.add (path);
-//~                 
-//~                 // Documents...
-//~                 path = new Fm.Path.for_str (Environment.get_user_special_dir (UserDirectory.VIDEOS));
-//~                 job.add (path);
-//~                 
-//~                 // Root FileSystem...
-//~                 job.add (Fm.Path.get_root ());
-//~                 
-//~                 // Administration Programs...
-//~                 job.add (new Fm.Path.for_uri ("menu://applications/system/Administration"));
-//~                 
-//~                 job.run_sync_with_mainloop ();
-//~ 
-//~                 Fm.FileInfoList file_infos = job.get_list ();
-//~                 
-//~                 unowned List<Fm.FileInfo>? list = (List<Fm.FileInfo>) ((Queue) file_infos).head;
-//~                 
-//~                 for (l = list; l != null; l = l.next) {
-//~                     
-//~                     Fm.FileInfo? fi = (Fm.FileInfo) l.data;
-//~                     
-//~                     //bool expand = (fi.get_path ().is_virtual () == false);
-//~                     bool expand = true;
-//~                     if (fi.get_path ().is_virtual ()) {
-//~                         if (fi.get_path ().is_computer ())
-//~                             expand = true;
-//~                         else
-//~                             expand = false;
-//~                     }
-//~                     
-//~                     global_dir_tree_model.add_root (fi, null, expand);
-//~                 }
-            }
+            _dir_tree_model = new Fm.DirTreeModel ();
+            _dir_tree_model.set_show_hidden (true);
+            _dir_tree_model.load ();
             
             
             // The model is loaded, attach a view to it and connect signals...
-            _tree_view.set_model (global_dir_tree_model);
+            _tree_view.set_model (_dir_tree_model);
             _tree_view.directory_changed.connect (_tree_view_on_change_directory);
             _tree_view.button_release_event.connect (_tree_view_on_button_release);
-            
-            
 
             _search_entry.activate.connect( () => {
                 
                 Desktop.global_app.search (_tree_view.get_current_directory ().to_str (), _search_entry.get_text ());
             });
         
-
-
-
-
 
             /*****************************************************************************
              * Create the ViewContainer Notebook, connect the signals and add it to
@@ -417,18 +320,12 @@ namespace Manager {
             _hpaned.add2 (_container_view);
             
             
-            
-            
-            
             // TODO_axl: get last directory here... :-P
             Fm.Path path;
             if (files[0] != "")
                 path = new Fm.Path.for_str (files[0]);
             else
                 path = Fm.Path.get_desktop ();
-            
-            
-            
             
             
             /*****************************************************************************
@@ -485,8 +382,6 @@ namespace Manager {
             this.add (main_vbox);
             
             view.grab_focus ();
-            
-            
             
             
             this._change_directory (path);
@@ -653,12 +548,12 @@ namespace Manager {
                 return true;
                 
             Gtk.TreeIter it;
-            if (!global_dir_tree_model.get_iter (out it, sels.data))
+            if (!_dir_tree_model.get_iter (out it, sels.data))
                 return true;
             
             // Get The Selected File...
             unowned Fm.FileInfo? file_info;
-            global_dir_tree_model.get (it, 2, out file_info, -1);
+            _dir_tree_model.get (it, 2, out file_info, -1);
             if (file_info == null)
                 return true;
                 
