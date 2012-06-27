@@ -248,9 +248,18 @@ namespace Manager {
             Gtk.TreeIter iter;
             _model.append (out iter);
             
+            
+            
+//~             Fm.FileInfo? file_info = new Fm.FileInfo.for_path (new Fm.Path.for_str (line [0]));
+//~             file_info.set_for_native_file (line [0]);
+//~             _file_info_list.push_head (file_info);
+//~             
             Fm.FileInfo? file_info = new Fm.FileInfo.for_path (new Fm.Path.for_str (line [0]));
-            file_info.set_for_native_file (line [0]);
+            file_info.query ();
             _file_info_list.push_head (file_info);
+            
+            
+            
             
             string location = file_info.get_path ().to_str ();
             

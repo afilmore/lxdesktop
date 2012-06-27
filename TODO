@@ -40,7 +40,7 @@
         
         *   Create Properties Dialogs for virtual items, Trash Can, My Computer etc...
         
-        *   Do some cleanup in gtk-dlg/fm-gtk-launcher
+        *   [DONE] Do some cleanup in gtk-dlg/fm-gtk-launcher
         
         *   Write The AUTHORS list with all original Authors... LXDE, XFCE... etc...
         
