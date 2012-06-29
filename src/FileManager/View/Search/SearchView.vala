@@ -254,8 +254,11 @@ namespace Manager {
 //~             file_info.set_for_native_file (line [0]);
 //~             _file_info_list.push_head (file_info);
 //~             
+            // Query the file infos...
             Fm.FileInfo? file_info = new Fm.FileInfo.for_path (new Fm.Path.for_str (line [0]));
             file_info.query ();
+            
+            // Store the FileInfo in a list...
             _file_info_list.push_head (file_info);
             
             
@@ -265,6 +268,8 @@ namespace Manager {
             
             
             Fm.Icon fm_icon = file_info.get_fm_icon ();
+            
+            
             
             _model.set (iter,
                         SearchColumn.INFO, file_info,
