@@ -290,7 +290,8 @@ namespace Manager {
             // Fill The TreeView Model...
             _dir_tree_model = new Fm.DirTreeModel ();
             _dir_tree_model.set_show_hidden (true);
-            _dir_tree_model.load ();
+            _dir_tree_model.set_show_hidden (true);
+            _dir_tree_model.load_testing ();
             
             
             // The model is loaded, attach a view to it and connect signals...
