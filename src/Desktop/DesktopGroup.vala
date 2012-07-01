@@ -111,33 +111,10 @@ namespace Desktop {
                  ********************************************************************/
                 Gtk.IconTheme icon_theme = Gtk.IconTheme.get_default ();
                 
-                
-                
-                
-                
-                
-                
                 Desktop.Item item;
                 string icon_name;
                 Gdk.Pixbuf? pixbuf = null;
                 Fm.FileInfo? fi;
-                
-                /*********************************************************************
-                 * My Computer
-                 * 
-                 ********************************************************************/
-//~                 icon_name = "computer";
-//~                 try {
-//~                     pixbuf = icon_theme.load_icon (icon_name,
-//~                                                (int) global_config.big_icon_size,
-//~                                                Gtk.IconLookupFlags.FORCE_SIZE);
-//~                 } catch (Error e) {
-//~                 }
-//~                 
-//~                 fi = new Fm.FileInfo.computer ();
-//~                 item = new Desktop.Item (pixbuf, fi);
-//~                 desktop.get_grid ().get_saved_position (item);
-//~                 desktop.get_grid ().insert_item (item);
                 
                 /*********************************************************************
                  * From Glib Reference Manual :
@@ -164,26 +141,6 @@ namespace Desktop {
                  *  The number of enum values:          G_USER_N_DIRECTORIES
                  * 
                  */
-                
-                /*********************************************************************
-                 * My Documents
-                 * 
-                 ********************************************************************/
-//~                 icon_name = "folder-documents";
-//~                 
-//~                 try {
-//~                     pixbuf = icon_theme.load_icon (icon_name,
-//~                                                (int) global_config.big_icon_size,
-//~                                                Gtk.IconLookupFlags.FORCE_SIZE);
-//~                 } catch (Error e) {
-//~                 }
-//~                 
-//~                 fi = new Fm.FileInfo.user_special_dir (UserDirectory.DOCUMENTS);
-//~                 if (fi != null) {
-//~                     item = new Desktop.Item (pixbuf, fi);
-//~                     desktop.get_grid ().get_saved_position (item);
-//~                     desktop.get_grid ().insert_item (item);
-//~                 }
                 
                 /*********************************************************************
                  * My Music
@@ -261,41 +218,6 @@ namespace Desktop {
                     desktop.get_grid ().insert_item (item);
                 }
                 
-                /***
-                 * See how to handle these special icons...
-                 * 
-                 * "user-trash-full"
-                 * "folder-publicshares"
-                 * "folder-remote"
-                 * "folder-templates"
-                 * 
-                 * PUBLIC_SHARE
-                 * TEMPLATES
-                 * 
-                 */
-                 
-                /*********************************************************************
-                 * Trash Can
-                 * 
-                 ********************************************************************/
-//~                 icon_name = "user-trash";
-//~                 try {
-//~                     pixbuf = icon_theme.load_icon (icon_name,
-//~                                                (int) global_config.big_icon_size,
-//~                                                Gtk.IconLookupFlags.FORCE_SIZE);
-//~                 } catch (Error e) {
-//~                 }
-//~                                                
-//~                 fi = new Fm.FileInfo.trash_can ();
-//~                 item = new Desktop.Item (pixbuf, fi);
-//~                 desktop.get_grid ().get_saved_position (item);
-//~                 desktop.get_grid ().insert_item (item);
-                
-
-
-
-
-
 
                 Gtk.TreeIter    it;
                 Gdk.Pixbuf      icon;

@@ -817,6 +817,20 @@ namespace Desktop {
             
             // This callback loads Desktop thumbnails...
             
+            /* there's a problem here when changing the icon theme...
+             *  #6  0x009e4f90 in g_free () from /lib/i386-linux-gnu/libglib-2.0.so.0
+                #7  0x001518bf in fm_file_info_clear (file_info=0xb6001560) at base/fm-file-info.c:141
+                #8  0x00151baf in fm_file_info_unref (file_info=0xb6001560) at base/fm-file-info.c:122
+                #9  0x0805dc0e in desktop_grid_on_row_changed (self=0x8169808, tp=0x82b4730, it=0x817e5a0) at Desktop/DesktopGrid.c:2255
+                #10 0x003ccc8a in ?? () from /usr/lib/i386-linux-gnu/libgtk-3.so.0
+                #11 0x00956484 in g_closure_invoke () from /usr/lib/i386-linux-gnu/libgobject-2.0.so.0
+                #12 0x009680d9 in ?? () from /usr/lib/i386-linux-gnu/libgobject-2.0.so.0
+                #13 0x009702dc in g_signal_emit_valist () from /usr/lib/i386-linux-gnu/libgobject-2.0.so.0
+                #14 0x00970453 in g_signal_emit () from /usr/lib/i386-linux-gnu/libgobject-2.0.so.0
+                #15 0x004d0b92 in gtk_tree_model_row_changed () from /usr/lib/i386-linux-gnu/libgtk-3.so.0
+                #16 0x0015e6fd in reload_icons (model=0x8158678, flags=RELOAD_ICONS) at gtk/fm-folder-model.c:1022
+             */
+
             
             // Get the pixbuf and FileInfo...
             Gdk.Pixbuf pixbuf;
