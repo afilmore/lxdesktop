@@ -61,7 +61,8 @@ namespace Desktop {
             
             return_val_if_fail (_fileinfo != null, "INVALID ITEM");
             
-            return _fileinfo.get_path ().display_basename ();
+//~             return _fileinfo.get_path ().display_basename ();
+            return _fileinfo.get_disp_name ();
             
         }
         

@@ -342,6 +342,7 @@ namespace Desktop {
             _pango_layout.set_height ((int) this._pango_text_h);
 
             string disp_name = item.get_disp_name ();
+//~             string disp_name = file_info.get_disp_name ();
             _pango_layout.set_text (disp_name, -1);
 
             /*** Do we need to cache this ? ***/
