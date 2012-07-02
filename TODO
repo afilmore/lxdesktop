@@ -143,7 +143,7 @@
             []      gtk-dlg/fm-progress-dlg.c
 
             []      jobs/fm-deep-count-job.c
-            []      jobs/fm-dir-list-job.c
+            [DONE]  jobs/fm-dir-list-job.c
             [DONE]  jobs/fm-file-info-job.c
         
         
