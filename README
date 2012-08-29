@@ -1,33 +1,20 @@
 /*******************************************************************************
- * This software is an experimental rewrite of PcManFm originally written
- * by Hong Jen Yee aka PCMan for LXDE project. (http://lxde.org/)
+ *      
+ *      This software is an experimental fork of PcManFm originally written
+ *      by Hong Jen Yee aka PCMan for LXDE project. (http://lxde.org/)
  * 
- * Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
+ *      Copyright 2012 Axel FILMORE <axel.filmore@gmail.com>
  * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License Version 2.
- * http://www.gnu.org/licenses/gpl-2.0.txt
+ *      This program is free software; you can redistribute it and/or modify
+ *      it under the terms of the GNU General Public License Version 2.
+ *      http://www.gnu.org/licenses/gpl-2.0.txt
  * 
  * 
  ******************************************************************************/
 
- 1 - Backup Your Personal Data :-D
- 
- 2 - Install Needed Dev Packages (see configure.ac)
- 
- 3 - Install LibFmCore (See LibFmCore's README)
- 
- 4 - You Need Last Vala Release : http://ftp.gnome.org/pub/GNOME/sources/vala/0.17/vala-0.17.0.changes
-     If not available, patch your Vapi Files : http://bugzilla-attachments.gnome.org/attachment.cgi?id=210903
- 
- 5 - Build With : make clean;make distclean;./autogen.sh && ./configure --enable-debug=yes --prefix=/usr && make
- 
- 6 - Try It In Debug Mode : "src/lxdesktop -d --desktop" to run the Desktop,
-                            "src/lxdesktop -d" to run the File Manager. :)
- 
- 7 - Pray That It Will Work And That It Won't Screw Up Your Files :-P
- 
- 8 - Enjoy :)
-
-
+        This program is now hosted on Launchpad :
+        
+        https://code.launchpad.net/valadesktop
+        
+        :-P
 
